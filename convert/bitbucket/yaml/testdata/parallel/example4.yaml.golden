@@ -1,0 +1,45 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "name": "Build",
+                    "script": [
+                        "./build.sh"
+                    ]
+                }
+            },
+            {
+                "parallel": {
+                    "fail-fast": true,
+                    "steps": [
+                        {
+                            "step": {
+                                "name": "Integration 1",
+                                "script": [
+                                    "./integration-tests.sh --batch 1"
+                                ]
+                            }
+                        },
+                        {
+                            "step": {
+                                "name": "Integration 2",
+                                "script": [
+                                    "./integration-tests.sh --batch 2"
+                                ]
+                            }
+                        },
+                        {
+                            "step": {
+                                "name": "Upload metadata",
+                                "script": [
+                                    "./upload-metadata.sh"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

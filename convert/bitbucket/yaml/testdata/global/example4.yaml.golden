@@ -1,0 +1,26 @@
+{
+    "options": {
+        "max-time": 60
+    },
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "name": "Sleeping step",
+                    "script": [
+                        "sleep 120m"
+                    ]
+                }
+            },
+            {
+                "step": {
+                    "name": "quick step",
+                    "max-time": 5,
+                    "script": [
+                        "sleep 120m"
+                    ]
+                }
+            }
+        ]
+    }
+}

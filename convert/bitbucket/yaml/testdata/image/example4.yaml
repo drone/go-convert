@@ -1,0 +1,13 @@
+image:
+  name: my-docker-hub-account/my-docker-image:latest
+  username: $DOCKER_HUB_USERNAME
+  password: $DOCKER_HUB_PASSWORD
+  email: $DOCKER_HUB_EMAIL
+  run-as-user: 1001
+
+pipelines:
+  default:
+    - step:
+        name: Hello world example
+        script:
+          - echo "Hello, World!"

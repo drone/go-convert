@@ -1,0 +1,17 @@
+definitions:
+  caches:
+    my-bundler-cache:
+      key:
+        files:
+          - Gemfile.lock
+          - "**/*.gemspec" # glob patterns are supported for cache key files
+      path: vendor/bundle
+
+pipelines:
+  default:
+    - step:
+        caches:
+          - my-bundler-cache # Cache is defined above in the definitions section
+        script:
+          - bundle install --path vendor/bundle
+          - ruby -e 'print "Hello, World\n"'

@@ -1,0 +1,15 @@
+# Example using the caches option to cache dependencies for a Ruby project
+
+definitions:
+  caches:
+    my-bundler-cache: vendor/bundle
+
+pipelines:
+  default:
+    - step:
+        caches:
+          - my-bundler-cache # Cache is defined above in the definitions section
+          - node # Pre-defined Pipelines cache
+        script:
+          - bundle install --path vendor/bundle
+          - ruby -e 'print "Hello, World\n"'

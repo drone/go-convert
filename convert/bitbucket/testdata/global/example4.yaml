@@ -1,0 +1,13 @@
+options:
+  max-time: 60
+pipelines:
+  default:
+    - step:
+        name: Sleeping step
+        script:
+          - sleep 120m # This step will timeout after 60 minutes
+    - step:
+        name: quick step
+        max-time: 5
+        script:
+          - sleep 120m # This step will timeout after 5 minutes

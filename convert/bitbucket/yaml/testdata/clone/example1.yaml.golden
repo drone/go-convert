@@ -1,0 +1,26 @@
+{
+    "clone": {
+        "enabled": false
+    },
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "script": [
+                        "echo \"No code cloned!\""
+                    ]
+                }
+            },
+            {
+                "step": {
+                    "clone": {
+                        "enabled": true
+                    },
+                    "script": [
+                        "echo \"Repo cloned in this step!\""
+                    ]
+                }
+            }
+        ]
+    }
+}

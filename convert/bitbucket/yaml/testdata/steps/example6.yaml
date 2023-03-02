@@ -1,0 +1,8 @@
+# Example using the size option to increase the memory available to a pipeline step
+
+pipelines:
+  default:
+    - step:
+        size: 2x
+        script:
+          - echo "This step gets double the memory!"

@@ -1,0 +1,27 @@
+stages:
+- name: build
+  spec:
+    clone: {}
+    steps:
+    - name: Clone with lfs on
+      spec:
+        run: ls -lh large-file.zip
+      type: script
+    - name: Clone with lfs off2
+      spec:
+        steps:
+        - name: Clone with lfs off
+          spec:
+            run: apt-get update && apt-get install -y git-lfs
+          type: script
+        - name: Clone with lfs off0
+          spec:
+            run: git lfs pull --include=large-file.zip
+          type: script
+        - name: Clone with lfs off1
+          spec:
+            run: ls -lh large-file.zip
+          type: script
+      type: group
+  type: ci
+version: 1

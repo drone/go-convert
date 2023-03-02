@@ -1,0 +1,15 @@
+# Example using the runs-on option to run a step on a self-hosted runner
+
+pipelines:
+  default:
+    - step:
+        name: Step 1
+        runs-on:
+          - "self.hosted"
+          - "my.custom.label"
+        script:
+          - echo "This step will run on a self-hosted runner with the 'my.custom.label' and 'self.hosted' labels.";
+    - step:
+        name: Step 2
+        script:
+          - echo "This step will run on Atlassian's infrastructure as usual.";

@@ -1,0 +1,28 @@
+{
+    "definitions": {
+        "services": {
+            "my-postgresql-db": {
+                "image": "postgres:latest",
+                "memory": 512,
+                "variables": {
+                    "POSTGRES_PASSWORD": "$MY_POSTGRES_PASSWORD"
+                }
+            }
+        }
+    },
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "name": "Hello world example",
+                    "services": [
+                        "my-postgresql-db"
+                    ],
+                    "script": [
+                        "echo \"Hello, World\""
+                    ]
+                }
+            }
+        ]
+    }
+}

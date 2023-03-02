@@ -1,0 +1,21 @@
+# Example using the download option to prevent artifacts from downloading in a step
+
+pipelines:
+  default:
+    - step:
+        name: Build and test
+        script:
+          - npm install
+          - npm run build
+        artifacts: # Store build artifacts for use in the following steps
+          - dist/**
+    - step:
+        name: lint code and store results
+        script:
+          - npm lint > results.txt
+        artifacts:
+          download: false # Block artifacts downloading, they're not needed for this step
+    - step:
+        name: Test code from build step stored in the dist/ directory
+        script:
+          - npm test

@@ -1,0 +1,11 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: run
+      spec:
+        image: my/bash:latest
+        run: echo "Hello, World!"
+      type: script
+  type: ci
+version: 1

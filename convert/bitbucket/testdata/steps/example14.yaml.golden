@@ -1,0 +1,14 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: step1
+      spec:
+        run: echo "failing paths"
+      type: script
+    - name: step10
+      spec:
+        run: exit 1
+      type: script
+  type: ci
+version: 1

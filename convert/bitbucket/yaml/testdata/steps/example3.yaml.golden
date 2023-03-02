@@ -1,0 +1,15 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "script": [
+                        "echo \"Hello,\"",
+                        "echo \"World!\"",
+                        "./build.sh"
+                    ]
+                }
+            }
+        ]
+    }
+}

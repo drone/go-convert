@@ -1,0 +1,20 @@
+pipelines:
+  default:
+    - stage:
+        name: Build and test
+        condition:
+          changesets:
+            includePaths:
+              # only xml files directly under path1 directory
+              - "path1/*.xml"
+              # any changes in deeply nested directories under path2
+              - "path2/**"
+        steps:
+          - step:
+              name: Build app
+              script:
+                - sh ./build-app.sh
+          - step:
+              name: Run unit tests
+              script:
+                - sh ./run-tests.sh

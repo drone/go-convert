@@ -1,0 +1,16 @@
+# Example using the condition option to only run a step when certain files change
+
+pipelines:
+  default:
+    - step:
+        name: step1
+        script:
+          - echo "failing paths"
+          - exit 1
+        condition:
+          changesets:
+            includePaths:
+              # only xml files directly under path1 directory
+              - "path1/*.xml"
+              # any changes in deeply nested directories under path2
+              - "path2/**"

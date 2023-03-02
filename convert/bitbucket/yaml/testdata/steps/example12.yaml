@@ -1,0 +1,15 @@
+# Example using trigger to set a step to manual
+
+pipelines:
+  default:
+    - step:
+        name: Build
+        script:
+          - npm run build
+        artifacts:
+          - dist/**
+    - step:
+        name: Deploy
+        trigger: manual
+        script:
+          - ./deploy.sh

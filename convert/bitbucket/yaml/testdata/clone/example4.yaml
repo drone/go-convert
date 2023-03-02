@@ -1,0 +1,8 @@
+clone:
+  depth: 2
+
+pipelines:
+  default:
+    - step:
+        script:
+          - ls $BITBUCKET_CLONE_DIR

@@ -1,0 +1,15 @@
+{
+    "image": "my/bash:lts",
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "image": "my/bash:latest",
+                    "script": [
+                        "echo \"Hello, World!\""
+                    ]
+                }
+            }
+        ]
+    }
+}

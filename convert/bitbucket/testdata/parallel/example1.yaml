@@ -1,0 +1,16 @@
+pipelines:
+  default:
+    - step: # non-parallel step
+        script:
+          - ./build.sh
+    - parallel: # these 2 steps will run in parallel
+        steps:
+          - step:
+              script:
+                - ./integration-tests.sh --batch 1
+          - step:
+              script:
+                - ./integration-tests.sh --batch 2
+    - step: # non-parallel step
+        script:
+          - ./deploy.sh

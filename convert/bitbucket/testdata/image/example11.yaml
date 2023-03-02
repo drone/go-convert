@@ -1,0 +1,12 @@
+image: my/bash:lts
+
+pipelines:
+  default:
+    - step:
+        image:
+          name: my/bash:latest
+          username: $CONTAINER_REGISTRY_USERNAME
+          password: $CONTAINER_REGISTRY_PASSWORD
+          email: $CONTAINER_REGISTRY_EMAIL
+        script:
+          - echo "Hello, World!"

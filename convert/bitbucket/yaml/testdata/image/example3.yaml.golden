@@ -1,0 +1,24 @@
+{
+    "image": "bash:latest",
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "name": "Step using the Bash image",
+                    "script": [
+                        "bash --version"
+                    ]
+                }
+            },
+            {
+                "step": {
+                    "name": "Step using the default Bitbucket Pipelines image",
+                    "image": "atlassian/default-image:latest",
+                    "script": [
+                        "echo \"Hello, World from the default Pipelines image\""
+                    ]
+                }
+            }
+        ]
+    }
+}

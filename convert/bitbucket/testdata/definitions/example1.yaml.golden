@@ -1,0 +1,23 @@
+stages:
+- name: build
+  spec:
+    cache:
+      enabled: true
+      paths:
+      - vendor/bundle
+    steps:
+    - name: my-mariadb
+      spec:
+        envs:
+          MARIADB_PASSWORD: $MY_MARIADB_PASSWORD
+          MARIADB_ROOT_PASSWORD: $MARIADB_ADMIN_PASSWORD
+          MARIADB_USER: $MY_MARIADB_USER
+        image: mariadb:latest
+        network: host
+      type: background
+    - name: Hello world example
+      spec:
+        run: ruby -e 'print "Hello, World\n"'
+      type: script
+  type: ci
+version: 1

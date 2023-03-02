@@ -1,0 +1,20 @@
+{
+    "image": {
+        "name": "<aws_account_id>.dkr.ecr.<region>.amazonaws.com/bash:latest",
+        "aws": {
+            "access-key": "$AWS_ACCESS_KEY",
+            "secret-key": "$AWS_SECRET_KEY"
+        }
+    },
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "script": [
+                        "echo \"Hello, World!\""
+                    ]
+                }
+            }
+        ]
+    }
+}

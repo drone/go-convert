@@ -1,0 +1,35 @@
+{
+    "definitions": {
+        "caches": {
+            "bundler-packages": "vendor/bundle"
+        },
+        "services": {
+            "my-mariadb": {
+                "image": "mariadb:latest",
+                "variables": {
+                    "MARIADB_USER": "$MY_MARIADB_USER",
+                    "MARIADB_PASSWORD": "$MY_MARIADB_PASSWORD",
+                    "MARIADB_ROOT_PASSWORD": "$MARIADB_ADMIN_PASSWORD"
+                }
+            }
+        }
+    },
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "name": "Hello world example",
+                    "services": [
+                        "my-mariadb"
+                    ],
+                    "caches": [
+                        "bundler-packages"
+                    ],
+                    "script": [
+                        "ruby -e 'print \"Hello, World\\n\"'"
+                    ]
+                }
+            }
+        ]
+    }
+}

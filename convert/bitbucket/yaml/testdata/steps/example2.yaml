@@ -1,0 +1,25 @@
+# Example pipeline with sequential and parallel steps
+
+pipelines:
+  default:
+    - step: # sequential step
+        name: Build
+        script:
+          - ./build.sh
+    - step: # sequential step
+        name: Build
+        script:
+          - ./build.sh
+    - parallel: # these 2 steps will run in parallel
+        steps:
+          - step:
+              name: Integration 1
+              script:
+                - ./integration-tests.sh --batch 1
+          - step:
+              name: Integration 2
+              script:
+                - ./integration-tests.sh --batch 2
+    - step: # non-parallel step
+        script:
+          - ./deploy.sh

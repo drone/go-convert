@@ -1,0 +1,18 @@
+pipelines:
+  default:
+    - step:
+        name: Build
+        script:
+          - ./build.sh
+    - parallel:
+        # these option alows to force stop all running steps if any step fails
+        fail-fast: true
+        steps:
+          - step:
+              name: Integration 1
+              script:
+                - ./integration-tests.sh --batch 1
+          - step:
+              name: Integration 2
+              script:
+                - ./integration-tests.sh --batch 2

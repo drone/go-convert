@@ -1,0 +1,40 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "name": "Build and test",
+                    "script": [
+                        "npm install",
+                        "npm run build"
+                    ],
+                    "artifacts": [
+                        "dist/**"
+                    ]
+                }
+            },
+            {
+                "step": {
+                    "name": "lint code and store results",
+                    "script": [
+                        "npm lint > results.txt"
+                    ],
+                    "artifacts": {
+                        "download": false,
+                        "paths": [
+                            "results.txt"
+                        ]
+                    }
+                }
+            },
+            {
+                "step": {
+                    "name": "Test code from build step stored in the dist/ directory",
+                    "script": [
+                        "npm test"
+                    ]
+                }
+            }
+        ]
+    }
+}

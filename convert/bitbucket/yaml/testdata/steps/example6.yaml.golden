@@ -1,0 +1,14 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "size": "2x",
+                    "script": [
+                        "echo \"This step gets double the memory!\""
+                    ]
+                }
+            }
+        ]
+    }
+}

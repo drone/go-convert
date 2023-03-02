@@ -1,0 +1,7 @@
+{
+    "image": {
+        "name": "us-east1-docker.pkg.dev/my-project/my-repo/test-image:latest",
+        "username": "$DOCKER_REGISTRY_USERNAME",
+        "password": "$DOCKER_REGISTRY_PASSWORD"
+    }
+}

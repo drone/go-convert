@@ -1,0 +1,24 @@
+stages:
+- name: build
+  spec:
+    runtime:
+      spec:
+        size: large
+      type: cloud
+    steps:
+    - name: dind
+      spec:
+        image: docker:dind
+        ports:
+        - "2375"
+        - "2376"
+        privileged: true
+        network: host
+      type: background
+    - name: Hello world example
+      spec:
+        run: echo "Hello, World!"
+      timeout: 30m0s
+      type: script
+  type: ci
+version: 1

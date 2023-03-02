@@ -1,0 +1,10 @@
+image: my/bash:lts
+
+pipelines:
+  default:
+    - step:
+        image:
+          name: my/bash:lts
+          run-as-user: 1000
+        script:
+          - echo "Hello, World!"

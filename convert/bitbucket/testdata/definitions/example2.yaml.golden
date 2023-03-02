@@ -1,0 +1,33 @@
+{
+    "definitions": {},
+    "pipelines": {
+        "branches": {
+            "develop": [
+                {
+                    "step": {
+                        "name": "Build and test",
+                        "script": [
+                            "mvn package"
+                        ],
+                        "artifacts": [
+                            "target/**"
+                        ]
+                    }
+                }
+            ],
+            "main": [
+                {
+                    "step": {
+                        "name": "Build and test",
+                        "script": [
+                            "mvn package"
+                        ],
+                        "artifacts": [
+                            "target/**"
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}

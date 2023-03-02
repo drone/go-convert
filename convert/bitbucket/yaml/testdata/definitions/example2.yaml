@@ -1,0 +1,15 @@
+definitions:
+  steps:
+    - step: &build-test
+        name: Build and test
+        script:
+          - mvn package
+        artifacts:
+          - target/**
+
+pipelines:
+  branches:
+    develop:
+      - step: *build-test
+    main:
+      - step: *build-test

@@ -1,0 +1,11 @@
+# Example using the after-script option to run a command after the script commands
+
+pipelines:
+  default:
+    - step:
+        name: Build and test
+        script:
+          - npm install
+          - npm test
+        after-script:
+          - echo "after script has run!"

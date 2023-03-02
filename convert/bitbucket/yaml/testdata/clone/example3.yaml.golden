@@ -1,0 +1,22 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "clone": {
+                        "depth": 2,
+                        "lfs": true,
+                        "skip-ssl-verify": true
+                    },
+                    "runs-on": [
+                        "self.hosted",
+                        "linux"
+                    ],
+                    "script": [
+                        "ls -R $BITBUCKET_CLONE_DIR"
+                    ]
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "script": [
+                        "echo \"Hello, World!\""
+                    ]
+                }
+            }
+        ]
+    }
+}

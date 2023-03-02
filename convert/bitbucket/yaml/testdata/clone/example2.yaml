@@ -1,0 +1,9 @@
+clone:
+  lfs: true # See the lfs property documentation prior to enabling
+  depth: 2
+
+pipelines:
+  default:
+    - step:
+        script:
+          - ls -R $BITBUCKET_CLONE_DIR

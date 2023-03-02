@@ -1,0 +1,13 @@
+image: bash:latest # https://hub.docker.com/_/bash
+
+pipelines:
+  default:
+    - step:
+        name: Step using the Bash image
+        script:
+          - bash --version
+    - step:
+        name: Step using the default Bitbucket Pipelines image
+        image: atlassian/default-image:latest # https://hub.docker.com/r/atlassian/default-image/
+        script:
+          - echo "Hello, World from the default Pipelines image"

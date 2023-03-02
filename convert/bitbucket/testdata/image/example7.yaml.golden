@@ -1,0 +1,15 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: my-service
+      spec:
+        image: my/bash:latest
+        network: host
+      type: background
+    - name: run
+      spec:
+        run: echo "Hello, World!"
+      type: script
+  type: ci
+version: 1

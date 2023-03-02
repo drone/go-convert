@@ -1,0 +1,12 @@
+stages:
+  - greeting
+
+en:
+  stage: greeting
+  script:
+    - echo hello world
+
+fr:
+  stage: greeting
+  script:
+    - echo bonjour monde

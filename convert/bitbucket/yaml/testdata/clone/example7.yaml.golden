@@ -1,0 +1,23 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "clone": {
+                        "enabled": false
+                    },
+                    "script": [
+                        "ls -R $BITBUCKET_CLONE_DIR"
+                    ]
+                }
+            },
+            {
+                "step": {
+                    "script": [
+                        "ls -R $BITBUCKET_CLONE_DIR"
+                    ]
+                }
+            }
+        ]
+    }
+}

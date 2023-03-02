@@ -1,0 +1,65 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: docker
+      spec:
+        image: docker:dind
+        network: host
+      type: background
+    - name: docker-custom
+      spec:
+        image: docker:dind
+        network: host
+        ports:
+        - "2375"
+        - "2376"
+        privileged: true
+      type: background
+    - name: my-docker-in-docker-name
+      spec:
+        image: docker:latest
+        network: host
+        ports:
+        - "2375"
+        - "2376"
+        privileged: true
+      type: background
+    - name: group
+      spec:
+        steps:
+        - name: run
+          spec:
+            run: docker version
+          type: script
+        - name: run0
+          spec:
+            run: docker run hello-world
+          type: script
+      type: group
+    - name: group0
+      spec:
+        steps:
+        - name: run1
+          spec:
+            run: docker version
+          type: script
+        - name: run2
+          spec:
+            run: docker run hello-world
+          type: script
+      type: group
+    - name: group1
+      spec:
+        steps:
+        - name: run3
+          spec:
+            run: docker version
+          type: script
+        - name: run4
+          spec:
+            run: docker run hello-world
+          type: script
+      type: group
+  type: ci
+version: 1

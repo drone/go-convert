@@ -1,0 +1,14 @@
+stages:
+- name: build
+  spec:
+    runtime:
+      spec:
+        size: large
+      type: cloud
+    steps:
+    - name: run
+      spec:
+        run: echo "2x memory is probably not needed for an echo command"
+      type: script
+  type: ci
+version: 1

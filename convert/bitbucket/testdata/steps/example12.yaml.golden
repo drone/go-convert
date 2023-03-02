@@ -1,0 +1,14 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: Build
+      spec:
+        run: npm run build
+      type: script
+    - name: Deploy
+      spec:
+        run: ./deploy.sh
+      type: script
+  type: ci
+version: 1

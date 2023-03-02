@@ -1,0 +1,17 @@
+definitions:
+  services:
+    my-service-name:
+      image: mariadb:latest # Official MariaDB image from DockerHub: https://hub.docker.com/_/mariadb/
+      variables:
+        MARIADB_USER: $MY_MARIADB_USER
+        MARIADB_PASSWORD: $MY_MARIADB_PASSWORD
+        MARIADB_ROOT_PASSWORD: $MARIADB_ADMIN_PASSWORD
+
+pipelines:
+  default:
+    - step:
+        name: Hello world example
+        services:
+          - my-service-name
+        script:
+          - echo "Hello, World"

@@ -1,0 +1,12 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: run
+      spec:
+        image: my/bash:lts
+        run: echo "Hello, World!"
+        user: "1000"
+      type: script
+  type: ci
+version: 1

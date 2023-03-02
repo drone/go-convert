@@ -1,0 +1,26 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: Build app
+      spec:
+        run: sh ./build-app.sh
+      type: script
+    - name: Run unit tests
+      spec:
+        run: sh ./run-tests.sh
+      type: script
+  type: ci
+- name: build
+  spec:
+    steps:
+    - name: plugin
+      spec:
+        image: atlassian/slack-notify:latest
+        with:
+          MESSAGE: Hello, Slack!!
+          PRETEXT: Hello, Slack!
+          WEBHOOK_URL: $SLACK_WEBHOOK
+      type: plugin
+  type: ci
+version: 1

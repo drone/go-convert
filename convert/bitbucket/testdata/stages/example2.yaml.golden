@@ -1,0 +1,30 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: Build
+      spec:
+        run: ./build.sh
+      type: script
+    - name: Build0
+      spec:
+        run: ./build.sh
+      type: script
+    - name: parallel
+      spec:
+        steps:
+        - name: Integration 1
+          spec:
+            run: ./integration-tests.sh --batch 1
+          type: script
+        - name: Integration 2
+          spec:
+            run: ./integration-tests.sh --batch 2
+          type: script
+      type: parallel
+    - name: run
+      spec:
+        run: ./deploy.sh
+      type: script
+  type: ci
+version: 1

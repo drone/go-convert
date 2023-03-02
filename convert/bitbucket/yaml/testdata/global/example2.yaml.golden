@@ -1,0 +1,18 @@
+{
+    "options": {
+        "docker": true
+    },
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "name": "Hello world example",
+                    "script": [
+                        "docker version",
+                        "docker run hello-world"
+                    ]
+                }
+            }
+        ]
+    }
+}

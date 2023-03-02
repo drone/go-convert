@@ -1,0 +1,37 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "stage": {
+                    "name": "Build and test",
+                    "condition": {
+                        "changesets": {
+                            "includePaths": [
+                                "path1/*.xml",
+                                "path2/**"
+                            ]
+                        }
+                    },
+                    "steps": [
+                        {
+                            "step": {
+                                "name": "Build app",
+                                "script": [
+                                    "sh ./build-app.sh"
+                                ]
+                            }
+                        },
+                        {
+                            "step": {
+                                "name": "Run unit tests",
+                                "script": [
+                                    "sh ./run-tests.sh"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

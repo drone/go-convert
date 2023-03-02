@@ -1,0 +1,23 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "name": "step1",
+                    "script": [
+                        "echo \"failing paths\"",
+                        "exit 1"
+                    ],
+                    "condition": {
+                        "changesets": {
+                            "includePaths": [
+                                "path1/*.xml",
+                                "path2/**"
+                            ]
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

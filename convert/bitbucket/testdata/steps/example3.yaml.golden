@@ -1,0 +1,18 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: run
+      spec:
+        run: echo "Hello,"
+      type: script
+    - name: run0
+      spec:
+        run: echo "World!"
+      type: script
+    - name: run1
+      spec:
+        run: ./build.sh
+      type: script
+  type: ci
+version: 1

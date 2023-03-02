@@ -1,0 +1,20 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: my-postgresql-db
+      spec:
+        envs:
+          POSTGRES_PASSWORD: $MY_POSTGRES_PASSWORD
+        image: postgres:latest
+        network: host
+        resources:
+          limits:
+            memory: 512000000
+      type: background
+    - name: Hello world example
+      spec:
+        run: echo "Hello, World"
+      type: script
+  type: ci
+version: 1

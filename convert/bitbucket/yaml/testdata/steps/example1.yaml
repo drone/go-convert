@@ -1,0 +1,7 @@
+# Example pipeline with a single step
+
+pipelines:
+  default:
+    - step:
+        script:
+          - echo "Hello, World!"

@@ -1,0 +1,84 @@
+version: "1"
+
+pipeline:
+
+  name: My Deployment Pipeline
+  identifier: myPipeline1
+  accountIdentifier: ""
+  projectIdentifier: ""
+  orgIdentifier: ""
+
+  properties:
+    ci:
+      codebase:
+        repoName: mycode.git # accept w/o git at the end
+        connectorRef: account.gitconnector
+        build: <+input> # build: type branch|tag spec: branch: <name>
+  stages:
+    - stage:
+        identifier: stage1
+        name: stage1
+        type: CI
+        description: Build artifacts off master and upload to artifacts repo
+        spec:
+          infrastructure:
+            type: Kubernetes-direct
+            spec:
+              connectorRef: cidelegate
+              namespace: harness-delegate
+          cloneCodebase: true # default is true 
+          sharedPaths: 
+            - myPath
+            - myPath2
+          variables: 
+            - name: REPLACE_USERNAME_HERE
+              type: Secret
+              value: REPLACE_USERNAME_HERE
+            - name: param1
+              type: Text
+              value: value1
+      
+          serviceDependencies: 
+            - identifier: database
+              name: database
+              type: Service
+              spec:
+                envVariables: #Optional - A set of environment variables for the container, on top of what was provided in the custom vars
+                  kube_context: myContext ${mySecret}
+                entrypoint:  # (optional)
+                  - "mysqld"
+                args:  # (optional) - marks the flags for the entry point
+                  - "--character-set-server=utf8mb4"
+                connectorRef: "np-quotecenter" #(optional)
+                image: "us.gcr.io/platform-205701/mysql:12" #latest if version not provided
+                resources:
+                  limits:
+                    cpu: 250m
+          execution: 
+            steps:
+              - step:
+                  identifier: buildcommand2
+                  name: stepName
+                  description: myDescription
+                  type: Run
+                  timeout: 90s
+                  skipCondition: someExpression # some JEXL expression
+                  spec:
+                    image: "us.gcr.io/platform-205701/mysql:12" 
+                    connectorRef: gcrConnector
+                    command: some command or commands
+                    reports:
+                      - type: JUnit
+                        spec:  
+                          paths:
+                            - rspec.xml
+                    envVariables:
+                      key: value1
+                      key2: val2   
+                    outputVariables: 
+                      - var1
+                      - var2
+                    resources:
+                      limits:
+                        memory: 64Mi
+                        cpu: 250m

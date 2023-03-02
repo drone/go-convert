@@ -1,0 +1,29 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "stage": {
+                    "name": "Build and test",
+                    "steps": [
+                        {
+                            "step": {
+                                "name": "Build app",
+                                "script": [
+                                    "sh ./build-app.sh"
+                                ]
+                            }
+                        },
+                        {
+                            "step": {
+                                "name": "Run unit tests",
+                                "script": [
+                                    "sh ./run-tests.sh"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

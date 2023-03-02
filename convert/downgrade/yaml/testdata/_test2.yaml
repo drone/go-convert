@@ -1,0 +1,50 @@
+pipeline:
+  name: asdf
+  identifier: asdf
+  projectIdentifier: playground
+  orgIdentifier: default
+  tags: {}
+  stages:
+    - stage:
+        name: test1
+        identifier: test1
+        type: CI
+        spec:
+          cloneCodebase: false
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: account.test123
+              namespace: default
+          execution:
+            steps:
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: test
+                  identifier: test
+                  spec:
+                    connectorRef: account.nofar_dockerhub
+                    repo: foo/bar
+                    tags:
+                      - latest
+                  failureStrategies: []
+              - step:
+                  type: S3Upload
+                  name: asdf
+                  identifier: asdf
+                  spec:
+                    connectorRef: ertet
+                    region: us-east-1
+                    bucket: foo
+                    sourcePath: bar
+              - step:
+                  type: BuildAndPushECR
+                  name: ecr
+                  identifier: ecr
+                  spec:
+                    connectorRef: ertet
+                    region: us-east-1
+                    account: "123"
+                    imageName: foo/bar
+                    tags:
+                      - latest

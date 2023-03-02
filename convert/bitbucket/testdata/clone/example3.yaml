@@ -1,0 +1,12 @@
+pipelines:
+  default:
+    - step:
+        runs-on:
+          - self.hosted
+          - linux
+        clone:
+          lfs: true # See the lfs property documentation prior to enabling
+          depth: 2
+          skip-ssl-verify: true
+        script:
+          - ls -R $BITBUCKET_CLONE_DIR

@@ -1,0 +1,13 @@
+default:
+  clone:
+    disabled: true
+stages:
+- name: build
+  spec:
+    steps:
+    - name: run
+      spec:
+        run: echo "No code cloned!"
+      type: script
+  type: ci
+version: 1

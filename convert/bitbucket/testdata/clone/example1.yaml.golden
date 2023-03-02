@@ -1,0 +1,17 @@
+default:
+  clone: {}
+stages:
+- name: build
+  spec:
+    clone: {}
+    steps:
+    - name: run
+      spec:
+        run: echo "No code cloned!"
+      type: script
+    - name: run0
+      spec:
+        run: echo "Repo cloned in this step!"
+      type: script
+  type: ci
+version: 1

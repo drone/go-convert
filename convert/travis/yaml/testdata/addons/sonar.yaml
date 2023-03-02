@@ -1,0 +1,10 @@
+addons:
+  sonarcloud:
+    organization: acme
+    token:
+      secure: mcUCykGm4bUZ3CaW6AxrIMFzuAYjA98VIz6YmYTmM0
+
+language: java
+
+script:
+  - mvn clean verify sonar:sonar -Pcoverage -Dsonar.projectKey=acme

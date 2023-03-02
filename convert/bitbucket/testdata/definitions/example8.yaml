@@ -1,0 +1,15 @@
+definitions:
+  services:
+    my-postgresql-db:
+      image: postgres:latest # Official PostgreSQL image from DockerHub: https://hub.docker.com/_/postgres
+      variables:
+        POSTGRES_PASSWORD: $MY_POSTGRES_PASSWORD
+
+pipelines:
+  default:
+    - step:
+        name: Hello world example
+        services:
+          - my-postgresql-db
+        script:
+          - echo "Hello, World"

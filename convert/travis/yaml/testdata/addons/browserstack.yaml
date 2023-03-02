@@ -1,0 +1,14 @@
+addons:
+  browserstack:
+    username: janecitizen
+    access_key:
+      secure: mcUCykGm4bUZ3CaW6AxrIMFzuAYjA98VIz6YmYTmM0
+    forcelocal: true
+
+language: node_js
+
+install:
+- npm install
+script:
+  - npm test
+  - npm run browserstack

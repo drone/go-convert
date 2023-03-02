@@ -1,0 +1,30 @@
+{
+    "definitions": {
+        "caches": {
+            "my-bundler-cache": {
+                "key": {
+                    "files": [
+                        "Gemfile.lock",
+                        "**/*.gemspec"
+                    ]
+                },
+                "path": "vendor/bundle"
+            }
+        }
+    },
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "caches": [
+                        "my-bundler-cache"
+                    ],
+                    "script": [
+                        "bundle install --path vendor/bundle",
+                        "ruby -e 'print \"Hello, World\\n\"'"
+                    ]
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,23 @@
+{
+    "definitions": {
+        "services": {
+            "my-service": {
+                "image": "my/bash:latest"
+            }
+        }
+    },
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "services": [
+                        "my-service"
+                    ],
+                    "script": [
+                        "echo \"Hello, World!\""
+                    ]
+                }
+            }
+        ]
+    }
+}

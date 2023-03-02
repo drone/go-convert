@@ -1,0 +1,12 @@
+definitions:
+  caches:
+    my-bundler-cache: vendor/bundle
+
+pipelines:
+  default:
+    - step:
+        caches:
+          - my-bundler-cache # Cache is defined above in the definitions section
+        script:
+          - bundle install --path vendor/bundle
+          - ruby -e 'print "Hello, World\n"'

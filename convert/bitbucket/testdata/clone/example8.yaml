@@ -1,0 +1,9 @@
+clone:
+  lfs: true
+
+pipelines:
+  default:
+    - step:
+        name: Clone and download
+        script:
+          - echo "Clone and download my LFS files!"

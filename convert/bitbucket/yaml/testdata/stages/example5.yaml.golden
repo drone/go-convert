@@ -1,0 +1,55 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "stage": {
+                    "name": "Build and test",
+                    "deployment": "staging",
+                    "steps": [
+                        {
+                            "step": {
+                                "name": "Build app",
+                                "script": [
+                                    "sh ./build-app.sh"
+                                ]
+                            }
+                        },
+                        {
+                            "step": {
+                                "name": "Run unit tests",
+                                "script": [
+                                    "sh ./run-tests.sh"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "stage": {
+                    "name": "Deploy to Production",
+                    "deployment": "prod",
+                    "trigger": "manual",
+                    "steps": [
+                        {
+                            "step": {
+                                "name": "Build app",
+                                "script": [
+                                    "sh ./build-app.sh"
+                                ]
+                            }
+                        },
+                        {
+                            "step": {
+                                "name": "Run unit tests",
+                                "script": [
+                                    "sh ./run-tests.sh"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

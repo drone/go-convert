@@ -1,0 +1,21 @@
+pipelines:
+  default:
+    - stage:
+        name: Build and test
+        steps:
+          - step:
+              name: Build app
+              script:
+                - sh ./build-app.sh
+          - step:
+              name: Run unit tests
+              script:
+                - sh ./run-tests.sh
+    - step:
+        script:
+          - pipe: atlassian/slack-notify:latest
+            name: Send a message to Slack
+            variables:
+              WEBHOOK_URL: $SLACK_WEBHOOK
+              PRETEXT: "Hello, Slack!"
+              MESSAGE: "Hello, Slack!!"

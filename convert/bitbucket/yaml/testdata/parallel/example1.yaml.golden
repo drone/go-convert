@@ -1,0 +1,40 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "script": [
+                        "./build.sh"
+                    ]
+                }
+            },
+            {
+                "parallel": {
+                    "steps": [
+                        {
+                            "step": {
+                                "script": [
+                                    "./integration-tests.sh --batch 1"
+                                ]
+                            }
+                        },
+                        {
+                            "step": {
+                                "script": [
+                                    "./integration-tests.sh --batch 2"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "step": {
+                    "script": [
+                        "./deploy.sh"
+                    ]
+                }
+            }
+        ]
+    }
+}

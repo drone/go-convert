@@ -1,0 +1,23 @@
+# Example using the artifacts paths option to retain files for use in later steps
+
+pipelines:
+  default:
+    - step:
+        name: Build and test
+        script:
+          - npm install
+          - npm run build
+        artifacts: # Store build artifacts for use in the following steps
+          - dist/**
+    - step:
+        name: lint code and store results
+        script:
+          - npm lint > results.txt
+        artifacts:
+          download: false # Block artifacts downloading, they're not needed for this step
+          paths: # Store the linting result (in addition to the dist/ directory)
+            - results.txt
+    - step:
+        name: Test code from build step stored in the dist/ directory
+        script:
+          - npm test

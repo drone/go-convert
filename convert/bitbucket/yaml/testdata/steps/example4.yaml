@@ -1,0 +1,15 @@
+# Example using the script and pipe properties to run a pipe
+
+pipelines:
+  default:
+    - step:
+        name: Alert Opsgenie
+        script:
+          - echo "Sending an alert through Opsgenie"
+          - pipe: atlassian/opsgenie-send-alert:latest
+            variables:
+              GENIE_KEY: $GENIE_KEY
+              MESSAGE: "Danger, Will Robinson!"
+              DESCRIPTION: "An Opsgenie alert sent from Bitbucket Pipelines"
+              SOURCE: "Bitbucket Pipelines"
+              PRIORITY: "P1"

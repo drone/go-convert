@@ -1,0 +1,14 @@
+{
+    "image": "my-account/bash:latest",
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "script": [
+                        "echo \"Hello, World!\""
+                    ]
+                }
+            }
+        ]
+    }
+}

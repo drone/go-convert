@@ -1,0 +1,31 @@
+definitions:
+  services:
+    docker: # Default Docker-in-Docker service
+      image: docker:dind
+    my-docker-in-docker-name:
+      image: docker:latest
+      type: docker
+    docker-custom:
+      type: docker
+      image: docker:dind
+
+pipelines:
+  default:
+    - step:
+        script:
+          - docker version
+          - docker run hello-world
+        services:
+          - docker
+    - step:
+        script:
+          - docker version
+          - docker run hello-world
+        services:
+          - my-docker-in-docker-name
+    - step:
+        script:
+          - docker version
+          - docker run hello-world
+        services:
+          - docker-custom

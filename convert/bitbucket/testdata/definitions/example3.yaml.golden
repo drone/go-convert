@@ -1,0 +1,18 @@
+stages:
+- name: build
+  spec:
+    cache:
+      enabled: true
+      paths:
+      - vendor/bundle
+    steps:
+    - name: run
+      spec:
+        run: bundle install --path vendor/bundle
+      type: script
+    - name: run0
+      spec:
+        run: ruby -e 'print "Hello, World\n"'
+      type: script
+  type: ci
+version: 1

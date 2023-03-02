@@ -1,0 +1,11 @@
+# Example using the pipe option to run a custom pipe
+
+pipelines:
+  default:
+    - step:
+        name: Running my custom pipe
+        script:
+          - pipe: docker://<DockerAccountName>/<ImageName>:<version>
+            variables:
+              USERNAME: $My_username
+              PASSWORD: $Password

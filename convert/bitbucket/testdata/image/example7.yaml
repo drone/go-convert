@@ -1,0 +1,13 @@
+definitions:
+  services:
+    my-service:
+      image:
+        name: my/bash:latest
+
+pipelines:
+  default:
+    - step:
+        services:
+          - my-service
+        script:
+          - echo "Hello, World!"

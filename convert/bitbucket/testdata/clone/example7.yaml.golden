@@ -1,0 +1,15 @@
+stages:
+- name: build
+  spec:
+    clone: {}
+    steps:
+    - name: run
+      spec:
+        run: ls -R $BITBUCKET_CLONE_DIR
+      type: script
+    - name: run0
+      spec:
+        run: ls -R $BITBUCKET_CLONE_DIR
+      type: script
+  type: ci
+version: 1

@@ -1,0 +1,20 @@
+pipelines:
+  default:
+    - stage:
+        name: Linting
+        steps:
+          - step:
+              script:
+                - sh ./run-linter.sh
+    - stage:
+        name: Build and test
+        trigger: manual
+        steps:
+          - step:
+              name: Build app
+              script:
+                - sh ./build-app.sh
+          - step:
+              name: Run unit tests
+              script:
+                - sh ./run-tests.sh

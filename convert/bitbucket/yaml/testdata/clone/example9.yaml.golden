@@ -1,0 +1,28 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "name": "Clone with lfs on",
+                    "clone": {
+                        "lfs": true
+                    },
+                    "script": [
+                        "ls -lh large-file.zip"
+                    ]
+                }
+            },
+            {
+                "step": {
+                    "name": "Clone with lfs off",
+                    "clone": {},
+                    "script": [
+                        "apt-get update && apt-get install -y git-lfs",
+                        "git lfs pull --include=large-file.zip",
+                        "ls -lh large-file.zip"
+                    ]
+                }
+            }
+        ]
+    }
+}

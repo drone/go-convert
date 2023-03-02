@@ -1,0 +1,16 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "clone": {
+                        "depth": 2
+                    },
+                    "script": [
+                        "ls $BITBUCKET_CLONE_DIR"
+                    ]
+                }
+            }
+        ]
+    }
+}

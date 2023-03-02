@@ -1,0 +1,19 @@
+{
+    "image": {
+        "name": "my/bash:latest",
+        "username": "$CONTAINER_REGISTRY_USERNAME",
+        "password": "$CONTAINER_REGISTRY_PASSWORD",
+        "email": "$CONTAINER_REGISTRY_EMAIL"
+    },
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "script": [
+                        "echo \"Hello, World!\""
+                    ]
+                }
+            }
+        ]
+    }
+}

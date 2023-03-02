@@ -1,0 +1,30 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "name": "Alert everyone!",
+                    "script": [
+                        {
+                            "pipe": "atlassian/opsgenie-send-alert:latest",
+                            "name": "Send alert to Opsgenie",
+                            "variables": {
+                                "GENIE_KEY": "$GENIE_KEY",
+                                "MESSAGE": "Wake up!"
+                            }
+                        },
+                        {
+                            "pipe": "atlassian/slack-notify:latest",
+                            "name": "Send alert to Slack",
+                            "variables": {
+                                "WEBHOOK_URL": "$SLACK_WEBHOOK",
+                                "PRETEXT": "Alert Everyone!",
+                                "MESSAGE": "We have a problem!"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

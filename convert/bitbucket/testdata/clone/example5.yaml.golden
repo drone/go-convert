@@ -1,0 +1,12 @@
+stages:
+- name: build
+  spec:
+    clone:
+      depth: 2
+    steps:
+    - name: run
+      spec:
+        run: ls $BITBUCKET_CLONE_DIR
+      type: script
+  type: ci
+version: 1

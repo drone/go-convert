@@ -1,0 +1,20 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: Alert Opsgenie
+      spec:
+        run: echo "Sending an alert through Opsgenie"
+      type: script
+    - name: Alert Opsgenie0
+      spec:
+        image: atlassian/opsgenie-send-alert:latest
+        with:
+          DESCRIPTION: An Opsgenie alert sent from Bitbucket Pipelines
+          GENIE_KEY: $GENIE_KEY
+          MESSAGE: Danger, Will Robinson!
+          PRIORITY: P1
+          SOURCE: Bitbucket Pipelines
+      type: plugin
+  type: ci
+version: 1

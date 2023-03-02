@@ -1,0 +1,17 @@
+{
+    "clone": {
+        "depth": 2,
+        "lfs": true
+    },
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "script": [
+                        "ls -R $BITBUCKET_CLONE_DIR"
+                    ]
+                }
+            }
+        ]
+    }
+}

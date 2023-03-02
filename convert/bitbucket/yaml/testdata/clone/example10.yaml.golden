@@ -1,0 +1,19 @@
+{
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "runs-on": [
+                        "self.hosted"
+                    ],
+                    "clone": {
+                        "skip-ssl-verify": true
+                    },
+                    "script": [
+                        "echo \"Use git with a self-signed certificate\""
+                    ]
+                }
+            }
+        ]
+    }
+}

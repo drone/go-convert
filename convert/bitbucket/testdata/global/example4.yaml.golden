@@ -1,0 +1,16 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: Sleeping step
+      spec:
+        run: sleep 120m
+      timeout: 1h0m0s
+      type: script
+    - name: quick step
+      spec:
+        run: sleep 120m
+      timeout: 5m0s
+      type: script
+  type: ci
+version: 1

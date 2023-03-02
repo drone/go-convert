@@ -1,0 +1,27 @@
+{
+    "definitions": {
+        "services": {
+            "my-service": {
+                "image": {
+                    "name": "my/bash:latest",
+                    "username": "$CONTAINER_REGISTRY_USERNAME",
+                    "password": "$CONTAINER_REGISTRY_PASSWORD"
+                }
+            }
+        }
+    },
+    "pipelines": {
+        "default": [
+            {
+                "step": {
+                    "services": [
+                        "my-service"
+                    ],
+                    "script": [
+                        "echo \"Hello, World!\""
+                    ]
+                }
+            }
+        ]
+    }
+}

@@ -1,0 +1,9 @@
+image: my/bash:lts
+
+pipelines:
+  default:
+    - step:
+        image:
+          name: my/bash:latest
+        script:
+          - echo "Hello, World!"

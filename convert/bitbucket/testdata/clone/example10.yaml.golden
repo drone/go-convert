@@ -1,0 +1,15 @@
+stages:
+- name: build
+  spec:
+    clone:
+      insecure: true
+    delegate:
+      selectors:
+      - self.hosted
+    steps:
+    - name: run
+      spec:
+        run: echo "Use git with a self-signed certificate"
+      type: script
+  type: ci
+version: 1

@@ -1,0 +1,88 @@
+version: "1.0"
+pipeline:
+  name: foo
+  identifier: foo
+  projectIdentifier: playground
+  orgIdentifier: default
+  tags: {}
+  stages:
+    - stage:
+        name: test1
+        identifier: test1
+        type: CI
+        spec:
+          cloneCodebase: false
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: account.test123
+              namespace: default
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: test step 1
+                  identifier: test_step_1
+                  spec:
+                    connectorRef: account.nofar_dockerhub
+                    image: golang
+                    command: |-
+                      go build
+                      go test
+                    privileged: true
+                    reports:
+                      type: JUnit
+                      spec:
+                        paths:
+                          - test/*.xml
+                    envVariables:
+                      foo: bar
+                    outputVariables:
+                      - name: foo
+                    imagePullPolicy: IfNotPresent
+                    shell: Bash
+                    runAsUser: "1111"
+                  description: this is a description
+                  timeout: 10m
+                  when:
+                    stageStatus: All
+                  failureStrategies: []
+              - step:
+                  type: Run
+                  name: test 2
+                  identifier: test_2
+                  spec:
+                    connectorRef: account.nofar_dockerhub
+                    image: node:14
+                    command: |-
+                      npm install
+                      npm test
+                  when:
+                    stageStatus: Success
+                    condition: "true"
+                  failureStrategies: []
+              - step:
+                  type: Run
+                  name: foo
+                  identifier: foo
+                  spec:
+                    connectorRef: account.nofar_dockerhub
+                    image: golang
+                    command: go vet
+                  when:
+                    stageStatus: Failure
+                  failureStrategies:
+                    - onFailure:
+                        errors:
+                          - Timeout
+                        action:
+                          type: Retry
+                          spec:
+                            retryCount: 3
+                            retryIntervals:
+                              - 12s
+                              - 15s
+                              - 16s
+                            onRetryFailure:
+                              action:
+                                type: Ignore

@@ -1,0 +1,9 @@
+# Example using the script property to run a sequence of commands for a single step
+
+pipelines:
+  default:
+    - step:
+        script:
+          - echo "Hello,"
+          - echo "World!"
+          - ./build.sh
