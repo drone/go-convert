@@ -13,5 +13,6 @@ require (
 
 require (
 	github.com/drone/spec v0.0.0-20230302183458-cff49edf8116 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

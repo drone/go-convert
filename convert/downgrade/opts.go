@@ -17,6 +17,12 @@ package downgrade
 type (
 	// Args defines conversion args.
 	Args struct {
+		// Pipeline identifier.
+		ID string
+
+		// Pipeline name.
+		Name string
+
 		// Harness organization identifier.
 		Organization string
 

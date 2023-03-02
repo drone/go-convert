@@ -158,18 +158,16 @@ type (
 	}
 
 	StepBackground struct {
-		Env             map[string]string `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
-		Entrypoint      []string          `json:"entrypoint,omitempty"      yaml:"entrypoint,omitempty"`
 		Command         string            `json:"command,omitempty"         yaml:"command,omitempty"`
 		ConnRef         string            `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
+		Entrypoint      []string          `json:"entrypoint,omitempty"      yaml:"entrypoint,omitempty"`
+		Env             map[string]string `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
 		Image           string            `json:"image,omitempty"           yaml:"image,omitempty"`
 		ImagePullPolicy string            `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
-		Outputs         []string          `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty"`
 		PortBindings    map[string]string `json:"portBindings,omitempty"    yaml:"portBindings,omitempty"`
 		Privileged      bool              `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
 		Resources       Resources         `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
-		Reports         []Report          `json:"reports,omitempty"         yaml:"reports,omitempty"`
 	}
 
 	StepScript struct {

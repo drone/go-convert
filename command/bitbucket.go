@@ -30,6 +30,12 @@ import (
 )
 
 type Bitbucket struct {
+	name string
+	proj string
+	org  string
+	repo string
+	conn string
+
 	downgrade   bool
 	beforeAfter bool
 }
@@ -38,12 +44,18 @@ func (*Bitbucket) Name() string     { return "bitbucket" }
 func (*Bitbucket) Synopsis() string { return "converts a bitbucket pipeline" }
 func (*Bitbucket) Usage() string {
 	return `bitbucket [-downgrade] <path to bitbucket.yml>
-  `
+`
 }
 
 func (p *Bitbucket) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&p.downgrade, "downgrade", false, "downgrade to the legacy yaml format")
 	f.BoolVar(&p.beforeAfter, "before-after", false, "print the befor and after")
+
+	f.StringVar(&p.org, "org", "default", "harness organization")
+	f.StringVar(&p.proj, "project", "default", "harness project")
+	f.StringVar(&p.name, "pipeline", "default", "harness pipeline name")
+	f.StringVar(&p.conn, "repo-connector", "", "repository connector")
+	f.StringVar(&p.repo, "repo-name", "", "repository name")
 }
 
 func (p *Bitbucket) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
@@ -81,8 +93,15 @@ func (p *Bitbucket) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 		}
 		// downgrade to the v0 yaml
 		after, err = downgrade.Downgrade(v, downgrade.Args{
-			Organization: "default",
-			Project:      "default",
+			Name:         p.name,
+			Organization: p.org,
+			Project:      p.proj,
+			Docker:       downgrade.Docker{},     // TODO
+			Kubernetes:   downgrade.Kubernetes{}, // TODO
+			Codebase: downgrade.Codebase{
+				Connector: p.conn,
+				Repo:      p.repo,
+			},
 		})
 		if err != nil {
 			log.Println(err)

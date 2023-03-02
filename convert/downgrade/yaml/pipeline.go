@@ -42,6 +42,13 @@ type (
 		Codebase Codebase `json:"codebase,omitempty" yaml:"codebase,omitempty"`
 	}
 
+	// Cache defines the cache settings.
+	Cache struct {
+		Enabled bool     `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+		Key     string   `json:"key,omitempty"     yaml:"key,omitempty"`
+		Paths   []string `json:"paths,omitempty"   yaml:"paths,omitempty"`
+	}
+
 	// Codebase defines a codebase.
 	Codebase struct {
 		Name  string `json:"repoName,omitempty"     yaml:"repoName,omitempty"`
