@@ -72,3 +72,10 @@ Convert a Gitlab pipeline and downgrade to the Harness v0 format:
 ./go-convert gitlab --downgrade samples/gitlab.yaml
 ```
 
+__Syntax Highlighting__
+
+The command line tools are compatble with [bat](https://github.com/sharkdp/bat) for syntax highlight.
+
+```
+./go-convert bitbucket --before-after samples/bitbucket.yaml | bat -l yaml
+```
