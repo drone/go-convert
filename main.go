@@ -26,6 +26,7 @@ import (
 
 func main() {
 	subcommands.Register(new(command.Bitbucket), "")
+	subcommands.Register(new(command.Downgrade), "")
 
 	flag.Parse()
 	ctx := context.Background()

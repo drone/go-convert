@@ -21,13 +21,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/drone/go-convert/convert/bitbucket"
 	"github.com/drone/go-convert/convert/harness/downgrader"
 
 	"github.com/google/subcommands"
 )
 
-type Bitbucket struct {
+type Downgrade struct {
 	name       string
 	proj       string
 	org        string
@@ -41,17 +40,14 @@ type Bitbucket struct {
 	beforeAfter bool
 }
 
-func (*Bitbucket) Name() string     { return "bitbucket" }
-func (*Bitbucket) Synopsis() string { return "converts a bitbucket pipeline" }
-func (*Bitbucket) Usage() string {
-	return `bitbucket [-downgrade] <path to bitbucket.yml>
+func (*Downgrade) Name() string     { return "downgrade" }
+func (*Downgrade) Synopsis() string { return "downgrades a harness pipeline" }
+func (*Downgrade) Usage() string {
+	return `downgrade <path to pipeline yaml>
 `
 }
 
-func (c *Bitbucket) SetFlags(f *flag.FlagSet) {
-	f.BoolVar(&c.downgrade, "downgrade", false, "downgrade to the legacy yaml format")
-	f.BoolVar(&c.beforeAfter, "before-after", false, "print the befor and after")
-
+func (c *Downgrade) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.org, "org", "default", "harness organization")
 	f.StringVar(&c.proj, "project", "default", "harness project")
 	f.StringVar(&c.name, "pipeline", "default", "harness pipeline name")
@@ -62,51 +58,39 @@ func (c *Bitbucket) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.dockerConn, "docker-connector", "", "dockerhub connector")
 }
 
-func (c *Bitbucket) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (c *Downgrade) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	path := f.Arg(0)
 
-	// if the user does not specify the path as
-	// a command line arg, assume the default path.
-	if path == "" {
-		path = "bitbucket-pipelines.yml"
-	}
+	var before []byte
+	var err error
 
-	// open the bitbucket yaml
-	before, err := ioutil.ReadFile(path)
-	if err != nil {
-		log.Println(err)
-		return subcommands.ExitFailure
-	}
-
-	// convert the bitbucket yaml from the bitbucket
-	// format to the harness format.
-	converter := bitbucket.New(
-		bitbucket.WithDockerhub(c.dockerConn),
-		bitbucket.WithKubernetes(c.kubeConn, c.kubeName),
-	)
-	after, err := converter.ConvertBytes(before)
-	if err != nil {
-		log.Println(err)
-		return subcommands.ExitFailure
-	}
-
-	// downgrade from the v1 harness yaml format
-	// to the v0 harness yaml format.
-	if c.downgrade {
-		// downgrade to the v0 yaml
-		d := downgrader.New(
-			downgrader.WithCodebase(c.repoName, c.repoConn),
-			downgrader.WithDockerhub(c.dockerConn),
-			downgrader.WithKubernetes(c.kubeName, c.kubeConn),
-			downgrader.WithName(c.name),
-			downgrader.WithOrganization(c.org),
-			downgrader.WithProject(c.proj),
-		)
-		after, err = d.Downgrade(after)
+	// if the user provides the yaml path,
+	// read the yaml file.
+	if path != "" {
+		before, err = ioutil.ReadFile(path)
 		if err != nil {
 			log.Println(err)
 			return subcommands.ExitFailure
 		}
+
+	} else {
+		// else read the yaml file from stdin
+		before, _ = ioutil.ReadAll(os.Stdin)
+	}
+
+	// downgrade to the v0 yaml
+	d := downgrader.New(
+		downgrader.WithCodebase(c.repoName, c.repoConn),
+		downgrader.WithDockerhub(c.dockerConn),
+		downgrader.WithKubernetes(c.kubeName, c.kubeConn),
+		downgrader.WithName(c.name),
+		downgrader.WithOrganization(c.org),
+		downgrader.WithProject(c.proj),
+	)
+	after, err := d.Downgrade(before)
+	if err != nil {
+		log.Println(err)
+		return subcommands.ExitFailure
 	}
 
 	if c.beforeAfter {
