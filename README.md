@@ -52,6 +52,26 @@ Convert a Bitbucket pipeline and downgrade to the Harness v0 format:
 ./go-convert bitbucket --downgrade samples/bitbucket.yaml
 ```
 
+__Drone__
+
+Convert a Drone pipeline:
+
+```
+./go-convert drone samples/drone.yaml
+```
+
+Convert a Drone pipeline and print the before after:
+
+```
+./go-convert drone --before-after samples/drone.yaml
+```
+
+Convert a Drone pipeline and downgrade to the Harness v0 format:
+
+```
+./go-convert drone --downgrade samples/drone.yaml
+```
+
 __Gitlab__
 
 Convert a Gitlab pipeline:
