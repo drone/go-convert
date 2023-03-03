@@ -40,6 +40,12 @@ Convert a Bitbucket pipeline:
 ./go-convert bitbucket path/to/bitbucket-pipelines.yml
 ```
 
+Convert a Gitlab pipeline and print the before after:
+
+```
+./go-convert bitbucket --before-after path/to/bitbucket-pipelines.yml
+```
+
 Convert a Bitbucket pipeline and downgrade to the Harness v0 format:
 
 ```
@@ -52,6 +58,12 @@ Convert a Gitlab pipeline:
 
 ```
 ./go-convert gitlab path/to/.gitlab.yml
+```
+
+Convert a Gitlab pipeline and print the before after:
+
+```
+./go-convert gitlab --before-after path/to/.gitlab.yml
 ```
 
 Convert a Gitlab pipeline and downgrade to the Harness v0 format:
