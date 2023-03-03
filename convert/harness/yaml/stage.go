@@ -27,7 +27,7 @@ type (
 		Name        string      `json:"name,omitempty"         yaml:"name,omitempty"`
 		Spec        interface{} `json:"spec,omitempty"         yaml:"spec,omitempty"`
 		Type        string      `json:"type,omitempty"         yaml:"type,omitempty"`
-		Vars        []Variable  `json:"variables,omitempty"    yaml:"variables,omitempty"`
+		Vars        []*Variable `json:"variables,omitempty"    yaml:"variables,omitempty"`
 	}
 
 	// StageApproval defines an approval stage.
@@ -37,12 +37,12 @@ type (
 
 	// StageCI defines a continuous integration stage.
 	StageCI struct {
-		Cache          Cache          `json:"cache,omitempty"              yaml:"cache,omitempty"`
-		Clone          bool           `json:"cloneCodebase,omitempty"       yaml:"cloneCodebase,omitempty"`
-		Execution      Execution      `json:"execution,omitempty"           yaml:"execution,omitempty"`
-		Infrastructure Infrastructure `json:"infrastructure,omitempty"      yaml:"infrastructure,omitempty"`
-		Services       []Service      `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
-		SharedPaths    []string       `json:"sharedPaths,omitempty"         yaml:"sharedPaths,omitempty"`
+		Cache          *Cache          `json:"cache,omitempty"              yaml:"cache,omitempty"`
+		Clone          bool            `json:"cloneCodebase,omitempty"       yaml:"cloneCodebase,omitempty"`
+		Execution      Execution       `json:"execution,omitempty"           yaml:"execution,omitempty"`
+		Infrastructure *Infrastructure `json:"infrastructure,omitempty"      yaml:"infrastructure,omitempty"`
+		Services       []*Service      `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
+		SharedPaths    []string        `json:"sharedPaths,omitempty"         yaml:"sharedPaths,omitempty"`
 	}
 
 	// StageDeployment defines a deployment stage.
@@ -52,7 +52,7 @@ type (
 
 	// StageFeatureFlag defines a feature flag stage.
 	StageFeatureFlag struct {
-		Execution Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
+		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
 	}
 )
 

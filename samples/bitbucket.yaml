@@ -1,0 +1,44 @@
+clone:
+  depth: 50
+
+image: node
+
+options:
+  docker: true
+
+definitions:
+  caches:
+    npm-cache:
+      key:
+        files:
+        - package.json
+      path: node_modules
+  services:
+    postgres:
+      image: postgres:latest
+  
+pipelines:
+  default:
+    - step:
+        caches:
+        - npm-cache
+        script:
+        - npm install
+    - parallel:
+        steps:
+        - step:
+            caches:
+            - npm-cache
+            script:
+            - npm run test
+        - step:
+            image: golang
+            script:
+            - go test ./...
+            services:
+            - postgres
+    - stage:
+        steps:
+        - step:
+            script:
+            - docker build .

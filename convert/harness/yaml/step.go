@@ -28,7 +28,7 @@ type (
 		Spec        interface{} `json:"spec,omitempty"              yaml:"spec,omitempty"`
 		Timeout     Duration    `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
 		Type        string      `json:"type,omitempty"              yaml:"type,omitempty"`
-		When        When        `json:"when,omitempty"              yaml:"when,omitempty"`
+		When        *When       `json:"when,omitempty"              yaml:"when,omitempty"`
 	}
 
 	//
@@ -60,10 +60,10 @@ type (
 	}
 
 	StepHarnessApproval struct {
-		ApprovalMessage                 string          `json:"approvalMessage,omitempty"                 yaml:"approvalMessage,omitempty"`
-		Approvers                       Approvers       `json:"approvers,omitempty"                       yaml:"approvers,omitempty"`
-		ApproverInputs                  []ApproverInput `json:"approverInputs,omitempty"                  yaml:"approverInputs,omitempty"`
-		IncludePipelineExecutionHistory string          `json:"includePipelineExecutionHistory,omitempty" yaml:"includePipelineExecutionHistory,omitempty"`
+		ApprovalMessage                 string           `json:"approvalMessage,omitempty"                 yaml:"approvalMessage,omitempty"`
+		Approvers                       *Approvers       `json:"approvers,omitempty"                       yaml:"approvers,omitempty"`
+		ApproverInputs                  []*ApproverInput `json:"approverInputs,omitempty"                  yaml:"approverInputs,omitempty"`
+		IncludePipelineExecutionHistory string           `json:"includePipelineExecutionHistory,omitempty" yaml:"includePipelineExecutionHistory,omitempty"`
 	}
 
 	StepRestoreCacheGCS struct {
@@ -96,20 +96,20 @@ type (
 		Privileged      bool              `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
 		RemoteCacheRepo string            `json:"remoteCacheRepo,omitempty" yaml:"remoteCacheRepo,omitempty"`
 		Repo            string            `json:"repo,omitempty"            yaml:"repo,omitempty"`
-		Reports         []Report          `json:"reports,omitempty"         yaml:"reports,omitempty"`
-		Resources       Resources         `json:"resources,omitempty"       yaml:"resources,omitempty"`
+		Reports         []*Report         `json:"reports,omitempty"         yaml:"reports,omitempty"`
+		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
 		Tags            map[string]string `json:"tags,omitempty"            yaml:"tags,omitempty"`
 		Target          string            `json:"target,omitempty"          yaml:"target,omitempty"`
 	}
 
 	StepHTTP struct {
-		URL             string     `json:"url,omitempty"             yaml:"url,omitempty"`
-		Method          string     `json:"method,omitempty"          yaml:"method,omitempty"`
-		Headers         []Variable `json:"headers,omitempty"         yaml:"headers,omitempty"`
-		OutputVariables []Variable `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty"`
-		RequestBody     string     `json:"requestBody,omitempty"     yaml:"requestBody,omitempty"`
-		Assertion       string     `json:"assertion,omitempty"       yaml:"assertion,omitempty"`
+		URL             string      `json:"url,omitempty"             yaml:"url,omitempty"`
+		Method          string      `json:"method,omitempty"          yaml:"method,omitempty"`
+		Headers         []*Variable `json:"headers,omitempty"         yaml:"headers,omitempty"`
+		OutputVariables []*Variable `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty"`
+		RequestBody     string      `json:"requestBody,omitempty"     yaml:"requestBody,omitempty"`
+		Assertion       string      `json:"assertion,omitempty"       yaml:"assertion,omitempty"`
 
 		// NOTE the below fields are not part of the
 		// official schema, however, they are useful for
@@ -126,8 +126,8 @@ type (
 		Image           string            `json:"image,omitempty"           yaml:"image,omitempty"`
 		ImagePullPolicy string            `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
 		Privileged      bool              `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
-		Reports         []Report          `json:"reports,omitempty"         yaml:"reports,omitempty"`
-		Resources       Resources         `json:"resources,omitempty"       yaml:"resources,omitempty"`
+		Reports         []*Report         `json:"reports,omitempty"         yaml:"reports,omitempty"`
+		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
 		Settings        map[string]string `json:"settings,omitempty"        yaml:"settings,omitempty"`
 	}
@@ -152,7 +152,7 @@ type (
 		ImagePullPolicy string            `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
 		Outputs         []string          `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty"`
 		Privileged      bool              `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
-		Resources       Resources         `json:"resources,omitempty"       yaml:"resources,omitempty"`
+		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
 		Reports         []Report          `json:"reports,omitempty"         yaml:"reports,omitempty"`
 	}
@@ -166,19 +166,19 @@ type (
 		ImagePullPolicy string            `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
 		PortBindings    map[string]string `json:"portBindings,omitempty"    yaml:"portBindings,omitempty"`
 		Privileged      bool              `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
-		Resources       Resources         `json:"resources,omitempty"       yaml:"resources,omitempty"`
+		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
 	}
 
 	StepScript struct {
-		DelegateSelectors    string          `json:"delegateSelectors,omitempty"    yaml:"delegateSelectors,omitempty"`
-		EnvironmentVariables []Variable      `json:"environmentVariables,omitempty" yaml:"environmentVariables,omitempty"`
-		ExecutionTarget      ExecutionTarget `json:"executionTarget,omitempty"      yaml:"executionTarget,omitempty"`
-		Metadata             string          `json:"metadata,omitempty"             yaml:"metadata,omitempty"`
-		OnDelegate           bool            `json:"onDelegate,omitempty"           yaml:"onDelegate,omitempty"`
-		OutputVariables      []Variable      `json:"outputVariables,omitempty"      yaml:"outputVariables,omitempty"`
-		Shell                string          `json:"shell,omitempty"                yaml:"shell,omitempty"` // Bash|Powershell
-		Source               Source          `json:"source,omitempty"               yaml:"source,omitempty"`
+		DelegateSelectors    string           `json:"delegateSelectors,omitempty"    yaml:"delegateSelectors,omitempty"`
+		EnvironmentVariables []*Variable      `json:"environmentVariables,omitempty" yaml:"environmentVariables,omitempty"`
+		ExecutionTarget      *ExecutionTarget `json:"executionTarget,omitempty"      yaml:"executionTarget,omitempty"`
+		Metadata             string           `json:"metadata,omitempty"             yaml:"metadata,omitempty"`
+		OnDelegate           bool             `json:"onDelegate,omitempty"           yaml:"onDelegate,omitempty"`
+		OutputVariables      []*Variable      `json:"outputVariables,omitempty"      yaml:"outputVariables,omitempty"`
+		Shell                string           `json:"shell,omitempty"                yaml:"shell,omitempty"` // Bash|Powershell
+		Source               *Source          `json:"source,omitempty"               yaml:"source,omitempty"`
 
 		// NOTE the below fields are not part of the
 		// official schema, however, they are useful for
@@ -191,14 +191,14 @@ type (
 	}
 
 	StepS3Upload struct {
-		Bucket       string    `json:"bucket,omitempty"       yaml:"bucket,omitempty"`
-		ConnectorRef string    `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
-		Endpoint     string    `json:"endpoint,omitempty"     yaml:"endpoint,omitempty"`
-		Region       string    `json:"region,omitempty"       yaml:"region,omitempty"`
-		Resources    Resources `json:"resources,omitempty"    yaml:"resources,omitempty"`
-		RunAsUser    string    `json:"runAsUser,omitempty"    yaml:"runAsUser,omitempty"`
-		SourcePath   string    `json:"sourcePath,omitempty"   yaml:"sourcePath,omitempty"`
-		Target       string    `json:"target,omitempty"       yaml:"target,omitempty"`
+		Bucket       string     `json:"bucket,omitempty"       yaml:"bucket,omitempty"`
+		ConnectorRef string     `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
+		Endpoint     string     `json:"endpoint,omitempty"     yaml:"endpoint,omitempty"`
+		Region       string     `json:"region,omitempty"       yaml:"region,omitempty"`
+		Resources    *Resources `json:"resources,omitempty"    yaml:"resources,omitempty"`
+		RunAsUser    string     `json:"runAsUser,omitempty"    yaml:"runAsUser,omitempty"`
+		SourcePath   string     `json:"sourcePath,omitempty"   yaml:"sourcePath,omitempty"`
+		Target       string     `json:"target,omitempty"       yaml:"target,omitempty"`
 	}
 
 	//

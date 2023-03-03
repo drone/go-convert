@@ -22,19 +22,20 @@ import (
 	"os"
 
 	"github.com/drone/go-convert/convert/bitbucket"
-	"github.com/drone/go-convert/convert/downgrade"
-
-	harness "github.com/drone/spec/dist/go"
+	"github.com/drone/go-convert/convert/harness/downgrader"
 
 	"github.com/google/subcommands"
 )
 
 type Bitbucket struct {
-	name string
-	proj string
-	org  string
-	repo string
-	conn string
+	name       string
+	proj       string
+	org        string
+	repoName   string
+	repoConn   string
+	kubeName   string
+	kubeConn   string
+	dockerConn string
 
 	downgrade   bool
 	beforeAfter bool
@@ -54,8 +55,11 @@ func (p *Bitbucket) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&p.org, "org", "default", "harness organization")
 	f.StringVar(&p.proj, "project", "default", "harness project")
 	f.StringVar(&p.name, "pipeline", "default", "harness pipeline name")
-	f.StringVar(&p.conn, "repo-connector", "", "repository connector")
-	f.StringVar(&p.repo, "repo-name", "", "repository name")
+	f.StringVar(&p.repoConn, "repo-connector", "", "repository connector")
+	f.StringVar(&p.repoName, "repo-name", "", "repository name")
+	f.StringVar(&p.kubeConn, "kube-connector", "", "kubernetes connector")
+	f.StringVar(&p.kubeName, "kube-namespace", "", "kubernets namespace")
+	f.StringVar(&p.dockerConn, "docker-connector", "", "dockerhub connector")
 }
 
 func (p *Bitbucket) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
@@ -85,24 +89,16 @@ func (p *Bitbucket) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 	// downgrade from the v1 harness yaml format
 	// to the v0 harness yaml format.
 	if p.downgrade {
-		// unmarshal to the v1 yaml
-		v, err := harness.ParseBytes(after)
-		if err != nil {
-			log.Println(err)
-			return subcommands.ExitFailure
-		}
 		// downgrade to the v0 yaml
-		after, err = downgrade.Downgrade(v, downgrade.Args{
-			Name:         p.name,
-			Organization: p.org,
-			Project:      p.proj,
-			Docker:       downgrade.Docker{},     // TODO
-			Kubernetes:   downgrade.Kubernetes{}, // TODO
-			Codebase: downgrade.Codebase{
-				Connector: p.conn,
-				Repo:      p.repo,
-			},
-		})
+		d := downgrader.New(
+			downgrader.WithCodebase(p.repoName, p.repoConn),
+			downgrader.WithDockerhub(p.dockerConn),
+			downgrader.WithKubernetes(p.kubeName, p.kubeConn),
+			downgrader.WithName(p.name),
+			downgrader.WithOrganization(p.org),
+			downgrader.WithProject(p.proj),
+		)
+		after, err = d.Downgrade(after)
 		if err != nil {
 			log.Println(err)
 			return subcommands.ExitFailure
@@ -112,7 +108,7 @@ func (p *Bitbucket) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 	if p.beforeAfter {
 		os.Stdout.WriteString("---\n")
 		os.Stdout.Write(before)
-		os.Stdout.WriteString("---\n")
+		os.Stdout.WriteString("\n---\n")
 	}
 
 	os.Stdout.Write(after)

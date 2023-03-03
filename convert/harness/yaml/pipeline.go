@@ -29,7 +29,7 @@ type (
 		Project string     `json:"projectIdentifier,omitempty" yaml:"projectIdentifier,omitempty"`
 		Org     string     `json:"orgIdentifier,omitempty"     yaml:"orgIdentifier,omitempty"`
 		Props   Properties `json:"properties,omitempty"        yaml:"properties,omitempty"`
-		Stages  []Stages   `json:"stages,omitempty"            yaml:"stages"`
+		Stages  []*Stages  `json:"stages,omitempty"            yaml:"stages"`
 	}
 
 	// Properties defines pipeline properties.
@@ -57,15 +57,15 @@ type (
 	}
 
 	Stages struct {
-		Stage    Stage    `json:"stage,omitempty"    yaml:"stage,omitempty"`
-		Parallel []Stages `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+		Stage    *Stage    `json:"stage,omitempty"    yaml:"stage,omitempty"`
+		Parallel []*Stages `json:"parallel,omitempty" yaml:"parallel,omitempty"`
 	}
 
 	// Infrastructure provides pipeline infrastructure.
 	Infrastructure struct {
-		Type string    `json:"type,omitempty"          yaml:"type,omitempty"`
-		From string    `json:"useFromStage,omitempty"  yaml:"useFromStage,omitempty"` // this is also weird
-		Spec InfraSpec `json:"spec,omitempty"          yaml:"spec,omitempty"`
+		Type string     `json:"type,omitempty"          yaml:"type,omitempty"`
+		From string     `json:"useFromStage,omitempty"  yaml:"useFromStage,omitempty"` // this is also weird
+		Spec *InfraSpec `json:"spec,omitempty"          yaml:"spec,omitempty"`
 	}
 
 	// InfraSpec describes pipeline infastructure.
@@ -81,17 +81,17 @@ type (
 	}
 
 	Execution struct {
-		Steps []Steps `json:"steps,omitempty" yaml:"steps,omitempty"` // Un-necessary
+		Steps []*Steps `json:"steps,omitempty" yaml:"steps,omitempty"` // Un-necessary
 	}
 
 	Steps struct {
-		Step     Step   `json:"step,omitempty" yaml:"step,omitempty"` // Un-necessary
-		Parallel []Step `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+		Step     *Step   `json:"step,omitempty" yaml:"step,omitempty"` // Un-necessary
+		Parallel []*Step `json:"parallel,omitempty" yaml:"parallel,omitempty"`
 	}
 
 	Report struct {
-		Type string      `json:"type" yaml:"type,omitempty"` // JUnit|JUnit
-		Spec ReportJunit `json:"spec" yaml:"spec,omitempty"` // TODO
+		Type string       `json:"type" yaml:"type,omitempty"` // JUnit|JUnit
+		Spec *ReportJunit `json:"spec" yaml:"spec,omitempty"` // TODO
 	}
 
 	ReportJunit struct {
@@ -99,11 +99,11 @@ type (
 	}
 
 	Service struct {
-		ID   string      `json:"identifier,omitempty"   yaml:"identifier,omitempty"`
-		Name string      `json:"name,omitempty"         yaml:"name,omitempty"`
-		Type string      `json:"type,omitempty"         yaml:"type,omitempty"` // Service
-		Desc string      `json:"description,omitempty"  yaml:"description,omitempty"`
-		Spec ServiceSpec `json:"spec,omitempty"         yaml:"spec,omitempty"`
+		ID   string       `json:"identifier,omitempty"   yaml:"identifier,omitempty"`
+		Name string       `json:"name,omitempty"         yaml:"name,omitempty"`
+		Type string       `json:"type,omitempty"         yaml:"type,omitempty"` // Service
+		Desc string       `json:"description,omitempty"  yaml:"description,omitempty"`
+		Spec *ServiceSpec `json:"spec,omitempty"         yaml:"spec,omitempty"`
 	}
 
 	ServiceSpec struct {
@@ -112,7 +112,7 @@ type (
 		Args       []string          `json:"args,omitempty"           yaml:"args,omitempty"`
 		Conn       string            `json:"connectorRef,omitempty"   yaml:"connectorRef,omitempty"`
 		Image      string            `json:"image,omitempty"          yaml:"image,omitempty"`
-		Resources  Resources         `json:"resources,omitempty"      yaml:"resources,omitempty"`
+		Resources  *Resources        `json:"resources,omitempty"      yaml:"resources,omitempty"`
 	}
 
 	Resources struct {
