@@ -16,145 +16,203 @@ package bitbucket
 
 import (
 	"fmt"
-	"sort"
 	"time"
 
 	bitbucket "github.com/drone/go-convert/convert/bitbucket/yaml"
+	harness "github.com/drone/spec/dist/go"
+
+	"github.com/gotidy/ptr"
 )
 
-// helper function that returns a deep copy of all stage
-// steps, including parallel steps.
-func extractSteps(stage *bitbucket.Stage) []*bitbucket.Step {
-	var steps []*bitbucket.Step
-	// iterate through steps the he stage
-	for _, step := range stage.Steps {
-		if step.Step != nil {
-			steps = append(steps, step.Step)
+//
+// this file contains helper functions that convert
+// bitbucket data structures to harness data structures
+// structures. these functions are all stateless
+// (they do not rely on snapshots of walk state).
+//
+
+// helper function converts a bitbucket size enum to a
+// harness resource class.
+func convertSize(size bitbucket.Size) string {
+	switch size {
+	case bitbucket.Size2x: // 8GB
+		return "large"
+	case bitbucket.Size4x: // 16GB
+		return "xlarge"
+	case bitbucket.Size8x: // 32GB
+		return "xxlarge"
+	case bitbucket.Size1x: // 4GB
+		return "standard"
+	default:
+		return ""
+	}
+}
+
+// helper function converts the bitbucket stage clone
+// configuration to a harness stage clone configuration.
+func convertClone(stage *bitbucket.Stage) *harness.Clone {
+	var clones []*bitbucket.Clone
+
+	// loop through the steps and if a step
+	// defines cache directories
+	for _, step := range extractSteps(stage) {
+		if step.Clone != nil {
+			clones = append(clones, step.Clone)
 		}
-		// iterate through parallel steps
-		if step.Parallel != nil {
-			for _, step2 := range step.Parallel.Steps {
-				if step2.Step != nil {
-					steps = append(steps, step2.Step)
+	}
+
+	// if there are not clone configurations at
+	// the step-level we can return a nil clone.
+	if len(clones) == 0 {
+		return nil
+	}
+
+	clone := new(harness.Clone)
+	for _, v := range clones {
+		if v.Depth != nil {
+			if v.Depth.Value > int(clone.Depth) {
+				clone.Depth = int64(v.Depth.Value)
+			}
+		}
+		if v.SkipVerify {
+			clone.Insecure = true
+		}
+		if v.Enabled != nil && !ptr.ToBool(v.Enabled) {
+			// TODO
+		}
+	}
+
+	return clone
+}
+
+// helper function converts the bitbucket global clone
+// configuration to a global harness clone configuration.
+func convertCloneGlobal(clone *bitbucket.Clone) *harness.Clone {
+	if clone == nil {
+		return nil
+	}
+
+	to := new(harness.Clone)
+	to.Insecure = clone.SkipVerify
+
+	if clone.Depth != nil {
+		to.Depth = int64(clone.Depth.Value)
+	}
+
+	// disable cloning globally if the user has
+	// explicityly disabled this functionality
+	if clone.Enabled != nil && ptr.ToBool(clone.Enabled) == false {
+		to.Disabled = true
+	}
+
+	return to
+}
+
+// helper function converts the bitbucket global cache to
+// a harness stage cache, filtered by the list of cache names.
+func convertCache(defs *bitbucket.Definitions, caches []string) *harness.Cache {
+	if defs == nil || len(defs.Caches) == 0 || len(caches) == 0 {
+		return nil
+	}
+
+	cache := new(harness.Cache)
+	cache.Enabled = true
+
+	var files []string
+	var paths []string
+
+	for _, name := range caches {
+		src, ok := defs.Caches[name]
+		if !ok {
+			continue
+		}
+		paths = append(paths, src.Path)
+		if src.Key != nil {
+			files = append(files, src.Key.Files...)
+		}
+	}
+
+	for _, name := range caches {
+		switch name {
+		case "composer":
+			paths = append(paths, "composer")
+			paths = append(paths, "~/.composer/cache")
+		case "dotnetcore":
+			paths = append(paths, "dotnetcore")
+			paths = append(paths, "~/.nuget/packages")
+		case "gradle":
+			paths = append(paths, "gradle")
+			paths = append(paths, "~/.gradle/caches")
+		case "ivy2":
+			paths = append(paths, "ivy2")
+			paths = append(paths, "~/.ivy2/cache")
+		case "maven":
+			paths = append(paths, "maven")
+			paths = append(paths, "~/.m2/repository")
+		case "node":
+			paths = append(paths, "node")
+			paths = append(paths, "node_modules")
+		case "pip":
+			paths = append(paths, "pip")
+			paths = append(paths, "~/.cache/pip")
+		case "sbt":
+			paths = append(paths, "sbt")
+			paths = append(paths, "ivy2")
+			paths = append(paths, "~/.ivy2/cache")
+		}
+	}
+
+	cache.Paths = paths
+	return cache
+}
+
+// helper function converts the bitbucket global defaults
+// to the harness global default configuration.
+func convertDefault(config *bitbucket.Config) *harness.Default {
+
+	// if the global pipeline configuration sections
+	// are empty or nil, return nil
+	if config.Clone == nil &&
+		config.Image == nil &&
+		config.Options == nil {
+		return nil
+	}
+
+	if config.Image == nil {
+		// Username
+		// Password
+	}
+	if config.Options == nil {
+		// Docker (bool)
+		// MaxTime (int)
+		// Size (1x, 2x, 4x, 8x)
+		// Credentials ???
+	}
+
+	var def *harness.Default
+
+	// if the user has configured global clone defaults,
+	// convert this to pipeline-level clone settings.
+	if config.Clone != nil {
+		// create the default if not already created.
+		if def == nil {
+			def = new(harness.Default)
+		}
+		def.Clone = convertCloneGlobal(config.Clone)
+
+		// if the clone is disabled we need to make
+		// sure it isn't explicitly enabled for any steps.
+		if def.Clone.Disabled {
+			for _, step := range extractAllSteps(config.Pipelines.Default) {
+				if step.Clone != nil && ptr.ToBool(step.Clone.Enabled) {
+					def.Clone.Disabled = false
+					break
 				}
 			}
 		}
 	}
-	return steps
-}
 
-// helper function that returns a deep copy of all stage
-// steps, including parallel steps.
-func extractAllSteps(stages []*bitbucket.Steps) []*bitbucket.Step {
-	var steps []*bitbucket.Step
-	for _, stage := range stages {
-		if stage.Stage != nil {
-			steps = append(steps, extractSteps(stage.Stage)...)
-		}
-	}
-	return steps
-}
-
-// helper function that returns a recommended machine size
-// based on the gloal machine size, as well as any step-level
-// overrides.
-func extractSize(opts *bitbucket.Options, stage *bitbucket.Stage) bitbucket.Size {
-	var size bitbucket.Size
-
-	// start with the global size, if set
-	if opts != nil {
-		size = opts.Size
-	}
-
-	// loop through the steps and if a step
-	// defines a size greater than the global
-	// size, us the step size instead.
-	for _, step := range extractSteps(stage) {
-		if step.Size > size {
-			size = step.Size
-		}
-	}
-	return size
-}
-
-// helper function that returns runs-on tags for routing
-// a stage to a specific set of workers. In Bitbucket, each
-// step can be routed to a different machine, which is not
-// compatible with Harness. We emulate this behavior by
-// aggregating all run-on tags and applying them at the
-// stage level in Harness.
-func extractRunsOn(stage *bitbucket.Stage) []string {
-	set := map[string]struct{}{}
-
-	// loop through the steps and if a step
-	// defines a size greater than the global
-	// size, us the step size instead.
-	for _, step := range extractSteps(stage) {
-		for _, s := range step.RunsOn {
-			set[s] = struct{}{}
-		}
-	}
-
-	// convert the map to a slice.
-	var unique []string
-	for k := range set {
-		unique = append(unique, k)
-	}
-
-	// sort for deterministic unit testing
-	sort.Strings(unique)
-
-	return unique
-}
-
-// helper function that returns a list of all caches used
-// by all steps in a given stage.
-func extractCache(stage *bitbucket.Stage) []string {
-	set := map[string]struct{}{}
-
-	// loop through the steps and if a step
-	// defines cache directories
-	for _, step := range extractSteps(stage) {
-		for _, s := range step.Caches {
-			set[s] = struct{}{}
-		}
-	}
-
-	// convert the map to a slice.
-	var unique []string
-	for k := range set {
-		unique = append(unique, k)
-	}
-
-	// sort for deterministic unit testing
-	sort.Strings(unique)
-
-	return unique
-}
-
-// helper function that returns a list of all services used
-// by all steps in a given stage.
-func extractServices(stage *bitbucket.Stage) []string {
-	set := map[string]struct{}{}
-
-	// loop through the steps and if a step
-	// defines cache directories
-	for _, step := range extractSteps(stage) {
-		for _, s := range step.Services {
-			set[s] = struct{}{}
-		}
-	}
-
-	// convert the map to a slice.
-	var unique []string
-	for k := range set {
-		unique = append(unique, k)
-	}
-
-	// sort for deterministic unit testing
-	sort.Strings(unique)
-
-	return unique
+	return def
 }
 
 // helper function converts an integer of minutes to a time

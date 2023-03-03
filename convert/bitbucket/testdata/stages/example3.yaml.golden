@@ -6,7 +6,7 @@ stages:
       spec:
         run: echo "failing paths"
       type: script
-    - name: step10
+    - name: step11
       spec:
         run: exit 1
       type: script

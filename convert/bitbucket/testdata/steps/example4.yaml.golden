@@ -6,7 +6,7 @@ stages:
       spec:
         run: echo "Sending an alert through Opsgenie"
       type: script
-    - name: Alert Opsgenie0
+    - name: Alert Opsgenie1
       spec:
         image: atlassian/opsgenie-send-alert:latest
         with:

@@ -9,7 +9,7 @@ stages:
       spec:
         run: echo "No code cloned!"
       type: script
-    - name: run0
+    - name: run1
       spec:
         run: echo "Repo cloned in this step!"
       type: script

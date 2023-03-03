@@ -6,7 +6,7 @@ stages:
       spec:
         run: echo "I can access data through OpenID Connect!"
       type: script
-    - name: run0
+    - name: run1
       spec:
         run: aws sts assume-role-with-web-identity --role-arn arn:aws:iam::XXXXXX:role/projectx-build
           --role-session-name build-session  --web-identity-token "$BITBUCKET_STEP_OIDC_TOKEN"

@@ -80,7 +80,11 @@ func (p *Bitbucket) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 
 	// convert the bitbucket yaml from the bitbucket
 	// format to the harness format.
-	after, err := bitbucket.FromBytes(before)
+	converter := bitbucket.New(
+		bitbucket.WithDockerhub(p.dockerConn),
+		bitbucket.WithKubernetes(p.kubeConn, p.kubeName),
+	)
+	after, err := converter.ConvertBytes(before)
 	if err != nil {
 		log.Println(err)
 		return subcommands.ExitFailure

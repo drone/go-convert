@@ -32,19 +32,7 @@ stages:
           spec:
             run: docker version
           type: script
-        - name: run0
-          spec:
-            run: docker run hello-world
-          type: script
-      type: group
-    - name: group0
-      spec:
-        steps:
         - name: run1
-          spec:
-            run: docker version
-          type: script
-        - name: run2
           spec:
             run: docker run hello-world
           type: script
@@ -52,11 +40,23 @@ stages:
     - name: group1
       spec:
         steps:
-        - name: run3
+        - name: run2
           spec:
             run: docker version
           type: script
+        - name: run3
+          spec:
+            run: docker run hello-world
+          type: script
+      type: group
+    - name: group2
+      spec:
+        steps:
         - name: run4
+          spec:
+            run: docker version
+          type: script
+        - name: run5
           spec:
             run: docker run hello-world
           type: script

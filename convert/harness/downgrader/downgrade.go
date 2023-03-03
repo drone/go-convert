@@ -54,7 +54,7 @@ func New(options ...Option) *Downgrader {
 	// create the unique identifier store. this store
 	// is used for registering unique identifiers to
 	// prevent duplicate names, unique index violations.
-	d.identifiers = new(store.Identifiers)
+	d.identifiers = store.New()
 
 	// loop through and apply the options.
 	for _, option := range options {
@@ -194,7 +194,9 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 
 	// convert the drone stage to a harness stage.
 	return &v0.Stage{
-		ID:   slug.Create(stage.Name),
+		ID: d.identifiers.Generate(
+			slug.Create(stage.Name),
+		),
 		Name: stage.Name,
 		Type: v0.StageTypeCI,
 		Vars: convertVariables(spec.Envs),
@@ -277,7 +279,9 @@ func (d *Downgrader) convertStepParallel(src *v1.Step) []*v0.Step {
 func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepExec)
 	return &v0.Step{
-		ID:      slug.Create(src.Name),
+		ID: d.identifiers.Generate(
+			slug.Create(src.Name),
+		),
 		Name:    src.Name,
 		Type:    v0.StepTypeRun,
 		Timeout: convertTimeout(src.Timeout),
@@ -308,7 +312,9 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 	}
 
 	return &v0.Step{
-		ID:   slug.Create(src.Name),
+		ID: d.identifiers.Generate(
+			slug.Create(src.Name),
+		),
 		Name: src.Name,
 		Type: v0.StepTypeBackground,
 		Spec: &v0.StepBackground{
@@ -332,7 +338,9 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepPlugin)
 	return &v0.Step{
-		ID:      slug.Create(src.Name),
+		ID: d.identifiers.Generate(
+			slug.Create(src.Name),
+		),
 		Name:    src.Name,
 		Type:    v0.StepTypeRun,
 		Timeout: convertTimeout(src.Timeout),
@@ -352,7 +360,9 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 func (d *Downgrader) convertStepAction(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepAction)
 	return &v0.Step{
-		ID:      slug.Create(src.Name),
+		ID: d.identifiers.Generate(
+			slug.Create(src.Name),
+		),
 		Name:    src.Name,
 		Type:    v0.StepTypeAction,
 		Timeout: convertTimeout(src.Timeout),
@@ -369,7 +379,9 @@ func (d *Downgrader) convertStepAction(src *v1.Step) *v0.Step {
 func (d *Downgrader) convertStepBitrise(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepBitrise)
 	return &v0.Step{
-		ID:      slug.Create(src.Name),
+		ID: d.identifiers.Generate(
+			slug.Create(src.Name),
+		),
 		Name:    src.Name,
 		Type:    v0.StepTypeBitrise,
 		Timeout: convertTimeout(src.Timeout),

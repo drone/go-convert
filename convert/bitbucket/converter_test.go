@@ -115,7 +115,15 @@ func TestConvert(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test, func(t *testing.T) {
 			// convert the yaml file from bitbucket to harness
-			tmp1, err := FromFile(test)
+			// tmp1, err := FromFile(test)
+			// if err != nil {
+			// 	t.Error(err)
+			// 	return
+			// }
+
+			// convert the yaml file from bitbucket to harness
+			converter := New()
+			tmp1, err := converter.ConvertFile(test)
 			if err != nil {
 				t.Error(err)
 				return

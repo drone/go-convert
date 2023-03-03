@@ -7,7 +7,7 @@ stages:
       spec:
         run: ls -R $BITBUCKET_CLONE_DIR
       type: script
-    - name: run0
+    - name: run1
       spec:
         run: ls -R $BITBUCKET_CLONE_DIR
       type: script

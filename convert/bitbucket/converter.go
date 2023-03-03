@@ -15,70 +15,140 @@
 package bitbucket
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"os"
 	"strings"
 
 	bitbucket "github.com/drone/go-convert/convert/bitbucket/yaml"
 	harness "github.com/drone/spec/dist/go"
 
-	"github.com/gotidy/ptr"
+	"github.com/drone/go-convert/internal/store"
+	"github.com/ghodss/yaml"
 )
 
-func convertDefault(config *bitbucket.Config) *harness.Default {
+// Converter converts a Bitbucket pipeline to a harness
+// v1 pipeline.
+type Converter struct {
+	kubeEnabled   bool
+	kubeNamespace string
+	kubeConnector string
+	dockerhubConn string
+	identifiers   *store.Identifiers
 
-	// if the global pipeline configuration sections
-	// are empty or nil, return nil
-	if config.Clone == nil &&
-		config.Image == nil &&
-		config.Options == nil {
-		return nil
-	}
-
-	if config.Image == nil {
-		// Username
-		// Password
-	}
-	if config.Options == nil {
-		// Docker (bool)
-		// MaxTime (int)
-		// Size (1x, 2x, 4x, 8x)
-		// Credentials ???
-	}
-
-	var def *harness.Default
-
-	// if the user has configured global clone defaults,
-	// convert this to pipeline-level clone settings.
-	if config.Clone != nil {
-		// create the default if not already created.
-		if def == nil {
-			def = new(harness.Default)
-		}
-		def.Clone = convertCloneGlobal(config.Clone)
-
-		// if the clone is disabled we need to make
-		// sure it isn't explicitly enabled for any steps.
-		if def.Clone.Disabled {
-			for _, step := range extractAllSteps(config.Pipelines.Default) {
-				if step.Clone != nil && ptr.ToBool(step.Clone.Enabled) {
-					def.Clone.Disabled = false
-					break
-				}
-			}
-		}
-	}
-
-	return def
+	// as we walk the yaml, we store a
+	// a snapshot of the current node and
+	// its parents.
+	config *bitbucket.Config
+	stage  *bitbucket.Stage
+	steps  *bitbucket.Steps
+	step   *bitbucket.Step
+	script *bitbucket.Script
 }
 
-func convertPipeline() {
+// New creates a new Converter that converts a Bitbucket
+// pipeline to a harness v1 pipeline.
+func New(options ...Option) *Converter {
+	d := new(Converter)
+
+	// create the unique identifier store. this store
+	// is used for registering unique identifiers to
+	// prevent duplicate names, unique index violations.
+	d.identifiers = store.New()
+
+	// loop through and apply the options.
+	for _, option := range options {
+		option(d)
+	}
+
+	// set the default kubernetes namespace.
+	if d.kubeNamespace == "" {
+		d.kubeNamespace = "default"
+	}
+
+	// set the runtime to kubernetes if the kubernetes
+	// connector is configured.
+	if d.kubeConnector != "" {
+		d.kubeEnabled = true
+	}
+
+	return d
 }
 
-func convertStage(s *state) *harness.Stage {
+// Convert downgrades a v1 pipeline.
+func (d *Converter) Convert(r io.Reader) ([]byte, error) {
+	src, err := bitbucket.Parse(r)
+	if err != nil {
+		return nil, err
+	}
+	d.config = src // push the bitbucket config to the state
+	return d.convert()
+}
+
+// ConvertString downgrades a v1 pipeline.
+func (d *Converter) ConvertBytes(b []byte) ([]byte, error) {
+	return d.Convert(
+		bytes.NewBuffer(b),
+	)
+}
+
+// ConvertString downgrades a v1 pipeline.
+func (d *Converter) ConvertString(s string) ([]byte, error) {
+	return d.Convert(
+		bytes.NewBufferString(s),
+	)
+}
+
+// ConvertFile downgrades a v1 pipeline.
+func (d *Converter) ConvertFile(p string) ([]byte, error) {
+	f, err := os.Open(p)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return d.Convert(f)
+}
+
+// converts converts a bitbucket pipeline pipeline.
+func (d *Converter) convert() ([]byte, error) {
+
+	// normalize the yaml and ensure
+	// all root-level steps are grouped
+	// by stage to simplify conversion.
+	bitbucket.Normalize(d.config)
+
+	// create the harness pipeline
+	pipeline := &harness.Pipeline{
+		Version: 1,
+		Default: convertDefault(d.config),
+	}
+
+	for _, steps := range d.config.Pipelines.Default {
+		if steps.Stage != nil {
+			// TODO support for fast-fail
+			d.stage = steps.Stage // push the stage to the state
+			stage := d.convertStage()
+			pipeline.Stages = append(pipeline.Stages, stage)
+		}
+	}
+
+	// marshal the harness yaml
+	out, err := yaml.Marshal(pipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	return out, nil
+}
+
+// helper function converts a bitbucket stage to
+// a harness stage.
+func (d *Converter) convertStage() *harness.Stage {
 
 	// create the harness stage spec
 	spec := &harness.StageCI{
-		Clone: convertClone(s.stage),
+		Clone: convertClone(d.stage),
 		// TODO Repository
 		// TODO Delegate
 		// TODO Platform
@@ -88,7 +158,7 @@ func convertStage(s *state) *harness.Stage {
 
 	// find the step with the largest size and use that
 	// size. else fallback to the global size.
-	if size := extractSize(s.config.Options, s.stage); size != bitbucket.SizeNone {
+	if size := extractSize(d.config.Options, d.stage); size != bitbucket.SizeNone {
 		spec.Runtime = &harness.Runtime{
 			Type: "cloud",
 			Spec: &harness.RuntimeCloud{
@@ -99,21 +169,21 @@ func convertStage(s *state) *harness.Stage {
 
 	// find the unique cache paths used by this
 	// stage and setup harness caching
-	if paths := extractCache(s.stage); len(paths) != 0 {
-		spec.Cache = convertCache(s.config.Definitions, paths)
+	if paths := extractCache(d.stage); len(paths) != 0 {
+		spec.Cache = convertCache(d.config.Definitions, paths)
 	}
 
 	// find the unique selectors and append
 	// to the stage.
-	if runson := extractRunsOn(s.stage); len(runson) != 0 {
+	if runson := extractRunsOn(d.stage); len(runson) != 0 {
 		spec.Delegate = new(harness.Delegate)
 		spec.Delegate.Selectors = runson
 	}
 
 	// find the unique services used by this stage and
 	// setup the relevant background steps
-	if services := extractServices(s.stage); len(services) != 0 {
-		spec.Steps = append(spec.Steps, convertServices(s, services)...)
+	if services := extractServices(d.stage); len(services) != 0 {
+		spec.Steps = append(spec.Steps, d.convertServices(services)...)
 	}
 
 	// create the harness stage.
@@ -126,9 +196,9 @@ func convertStage(s *state) *harness.Stage {
 	}
 
 	// default docker service (container-based only)
-	if s.config.Options != nil && s.config.Options.Docker {
+	if d.config.Options != nil && d.config.Options.Docker {
 		spec.Steps = append(spec.Steps, &harness.Step{
-			Name: s.generateName("dind", "service"),
+			Name: d.identifiers.Generate("dind", "service"),
 			Type: "background",
 			Spec: &harness.StepBackground{
 				Image:      "docker:dind",
@@ -142,17 +212,17 @@ func convertStage(s *state) *harness.Stage {
 	// default services
 	// TODO
 
-	for _, steps := range s.stage.Steps {
+	for _, steps := range d.stage.Steps {
 		if steps.Parallel != nil {
 			// TODO parallel steps
 			// TODO fast fail
-			s.steps = steps // push the parallel step to the state
-			step := convertParallel(s)
+			d.steps = steps // push the parallel step to the state
+			step := d.convertParallel()
 			spec.Steps = append(spec.Steps, step)
 		}
 		if steps.Step != nil {
-			s.step = steps.Step // push the step to the state
-			step := convertStep(s)
+			d.step = steps.Step // push the step to the state
+			step := d.convertStep()
 			spec.Steps = append(spec.Steps, step)
 		}
 	}
@@ -169,11 +239,14 @@ func convertStage(s *state) *harness.Stage {
 	return stage
 }
 
-func convertServices(s *state, services []string) []*harness.Step {
+// helper function converts global bitbucket services to
+// harness background steps. The list of global bitbucket
+// services is filtered by the services string slice.
+func (d *Converter) convertServices(services []string) []*harness.Step {
 	var steps []*harness.Step
 
 	// if no global services defined, exit
-	if s.config.Definitions == nil {
+	if d.config.Definitions == nil {
 		return nil
 	}
 
@@ -181,7 +254,7 @@ func convertServices(s *state, services []string) []*harness.Step {
 	for _, name := range services {
 		// lookup the service and skip if not found,
 		// or if there is no image definition
-		service, ok := s.config.Definitions.Services[name]
+		service, ok := d.config.Definitions.Services[name]
 		if !ok {
 			continue
 		} else if service.Image == nil {
@@ -222,7 +295,7 @@ func convertServices(s *state, services []string) []*harness.Step {
 		}
 
 		step := &harness.Step{
-			Name: s.generateName(name, "service"),
+			Name: d.identifiers.Generate(name, "service"),
 			Type: "background",
 			Spec: spec,
 		}
@@ -234,15 +307,15 @@ func convertServices(s *state, services []string) []*harness.Step {
 
 // helper function converts a bitbucket parallel step
 // group to a Harness parallel step group.
-func convertParallel(s *state) *harness.Step {
+func (d *Converter) convertParallel() *harness.Step {
 
 	// create the step group spec
 	spec := new(harness.StepParallel)
 
-	for _, src := range s.steps.Parallel.Steps {
+	for _, src := range d.steps.Parallel.Steps {
 		if src.Step != nil {
-			s.step = src.Step
-			step := convertStep(s)
+			d.step = src.Step
+			step := d.convertStep()
 			spec.Steps = append(spec.Steps, step)
 		}
 	}
@@ -251,46 +324,46 @@ func convertParallel(s *state) *harness.Step {
 	return &harness.Step{
 		Type: "parallel",
 		Spec: spec,
-		Name: s.generateName("parallel", "parallel"), // TODO can we avoid a name here?
+		Name: d.identifiers.Generate("parallel", "parallel"), // TODO can we avoid a name here?
 	}
 }
 
 // helper function converts a bitbucket step
 // to a harness run step or plugin step.
-func convertStep(s *state) *harness.Step {
+func (d *Converter) convertStep() *harness.Step {
 	// create the step group spec
 	spec := new(harness.StepGroup)
 
 	// loop through each script item
-	for _, script := range s.step.Script {
-		s.script = script
+	for _, script := range d.step.Script {
+		d.script = script
 
 		// if a pipe step
 		if script.Pipe != nil {
-			step := convertPipeStep(s)
+			step := d.convertPipeStep()
 			spec.Steps = append(spec.Steps, step)
 		}
 
 		// else if a script step
 		if script.Pipe == nil {
-			step := convertScriptStep(s)
+			step := d.convertScriptStep()
 			spec.Steps = append(spec.Steps, step)
 		}
 	}
 
 	// and loop through each after script item
-	for _, script := range s.step.ScriptAfter {
-		s.script = script
+	for _, script := range d.step.ScriptAfter {
+		d.script = script
 
 		// if a pipe step
 		if script.Pipe != nil {
-			step := convertPipeStep(s)
+			step := d.convertPipeStep()
 			spec.Steps = append(spec.Steps, step)
 		}
 
 		// else if a script step
 		if script.Pipe == nil {
-			step := convertScriptStep(s)
+			step := d.convertScriptStep()
 			spec.Steps = append(spec.Steps, step)
 		}
 	}
@@ -305,17 +378,17 @@ func convertStep(s *state) *harness.Step {
 	return &harness.Step{
 		Type: "group",
 		Spec: spec,
-		Name: s.generateName(s.step.Name, "group"),
+		Name: d.identifiers.Generate(d.step.Name, "group"),
 	}
 }
 
 // helper function converts a script step to a
 // harness run step.
-func convertScriptStep(s *state) *harness.Step {
+func (d *Converter) convertScriptStep() *harness.Step {
 
 	// create the run spec
 	spec := &harness.StepExec{
-		Run: s.script.Text,
+		Run: d.script.Text,
 
 		// TODO configure an optional connector
 		// TODO configure pull policy
@@ -325,7 +398,7 @@ func convertScriptStep(s *state) *harness.Step {
 	}
 
 	// use the global image, if set
-	if image := s.config.Image; image != nil {
+	if image := d.config.Image; image != nil {
 		spec.Image = strings.TrimPrefix(image.Name, "docker://")
 		if image.RunAsUser != 0 {
 			spec.User = fmt.Sprint(image.RunAsUser)
@@ -333,7 +406,7 @@ func convertScriptStep(s *state) *harness.Step {
 	}
 
 	// use the step image, if set (overrides previous)
-	if image := s.step.Image; image != nil {
+	if image := d.step.Image; image != nil {
 		spec.Image = strings.TrimPrefix(image.Name, "docker://")
 		if image.RunAsUser != 0 {
 			spec.User = fmt.Sprint(image.RunAsUser)
@@ -344,18 +417,18 @@ func convertScriptStep(s *state) *harness.Step {
 	step := &harness.Step{
 		Type: "script",
 		Spec: spec,
-		Name: s.generateName(s.step.Name, "run"),
+		Name: d.identifiers.Generate(d.step.Name, "run"),
 	}
 
 	// use the global max-time, if set
-	if s.config.Options != nil {
-		if v := int64(s.config.Options.MaxTime); v != 0 {
+	if d.config.Options != nil {
+		if v := int64(d.config.Options.MaxTime); v != 0 {
 			step.Timeout = minuteToDurationString(v)
 		}
 	}
 
 	// set the timeout
-	if v := int64(s.step.MaxTime); v != 0 {
+	if v := int64(d.step.MaxTime); v != 0 {
 		step.Timeout = minuteToDurationString(v)
 	}
 
@@ -364,8 +437,8 @@ func convertScriptStep(s *state) *harness.Step {
 
 // helper function converts a pipe step to a
 // harness plugin step.
-func convertPipeStep(s *state) *harness.Step {
-	pipe := s.script.Pipe
+func (d *Converter) convertPipeStep() *harness.Step {
+	pipe := d.script.Pipe
 
 	// create the plugin spec
 	spec := &harness.StepPlugin{
@@ -386,140 +459,13 @@ func convertPipeStep(s *state) *harness.Step {
 	step := &harness.Step{
 		Type: "plugin",
 		Spec: spec,
-		Name: s.generateName(s.step.Name, "plugin"),
+		Name: d.identifiers.Generate(d.step.Name, "plugin"),
 	}
 
 	// set the timeout
-	if v := int64(s.step.MaxTime); v != 0 {
+	if v := int64(d.step.MaxTime); v != 0 {
 		step.Timeout = minuteToDurationString(v)
 	}
 
 	return step
-}
-
-func convertClone(stage *bitbucket.Stage) *harness.Clone {
-	var clones []*bitbucket.Clone
-
-	// loop through the steps and if a step
-	// defines cache directories
-	for _, step := range extractSteps(stage) {
-		if step.Clone != nil {
-			clones = append(clones, step.Clone)
-		}
-	}
-
-	// if there are not clone configurations at
-	// the step-level we can return a nil clone.
-	if len(clones) == 0 {
-		return nil
-	}
-
-	clone := new(harness.Clone)
-	for _, v := range clones {
-		if v.Depth != nil {
-			if v.Depth.Value > int(clone.Depth) {
-				clone.Depth = int64(v.Depth.Value)
-			}
-		}
-		if v.SkipVerify {
-			clone.Insecure = true
-		}
-		if v.Enabled != nil && !ptr.ToBool(v.Enabled) {
-			// TODO
-		}
-	}
-
-	return clone
-}
-
-func convertSize(size bitbucket.Size) string {
-	switch size {
-	case bitbucket.Size2x: // 8GB
-		return "large"
-	case bitbucket.Size4x: // 16GB
-		return "xlarge"
-	case bitbucket.Size8x: // 32GB
-		return "xxlarge"
-	case bitbucket.Size1x: // 4GB
-		return "standard"
-	default:
-		return ""
-	}
-}
-
-func convertCache(defs *bitbucket.Definitions, caches []string) *harness.Cache {
-	if defs == nil || len(defs.Caches) == 0 || len(caches) == 0 {
-		return nil
-	}
-
-	cache := new(harness.Cache)
-	cache.Enabled = true
-
-	var files []string
-	var paths []string
-
-	for _, name := range caches {
-		src, ok := defs.Caches[name]
-		if !ok {
-			continue
-		}
-		paths = append(paths, src.Path)
-		if src.Key != nil {
-			files = append(files, src.Key.Files...)
-		}
-	}
-
-	for _, name := range caches {
-		switch name {
-		case "composer":
-			paths = append(paths, "composer")
-			paths = append(paths, "~/.composer/cache")
-		case "dotnetcore":
-			paths = append(paths, "dotnetcore")
-			paths = append(paths, "~/.nuget/packages")
-		case "gradle":
-			paths = append(paths, "gradle")
-			paths = append(paths, "~/.gradle/caches")
-		case "ivy2":
-			paths = append(paths, "ivy2")
-			paths = append(paths, "~/.ivy2/cache")
-		case "maven":
-			paths = append(paths, "maven")
-			paths = append(paths, "~/.m2/repository")
-		case "node":
-			paths = append(paths, "node")
-			paths = append(paths, "node_modules")
-		case "pip":
-			paths = append(paths, "pip")
-			paths = append(paths, "~/.cache/pip")
-		case "sbt":
-			paths = append(paths, "sbt")
-			paths = append(paths, "ivy2")
-			paths = append(paths, "~/.ivy2/cache")
-		}
-	}
-
-	cache.Paths = paths
-	return cache
-}
-
-func convertCloneGlobal(clone *bitbucket.Clone) *harness.Clone {
-	if clone == nil {
-		return nil
-	}
-
-	to := new(harness.Clone)
-	to.Insecure = clone.SkipVerify
-
-	if clone.Depth != nil {
-		to.Depth = int64(clone.Depth.Value)
-	}
-
-	// disable cloning globally if the user has
-	// explicityly disabled this functionality
-	if clone.Enabled != nil && ptr.ToBool(clone.Enabled) == false {
-		to.Disabled = true
-	}
-
-	return to
 }

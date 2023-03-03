@@ -6,11 +6,11 @@ stages:
       spec:
         run: npm install
       type: script
-    - name: Build and test0
+    - name: Build and test1
       spec:
         run: npm test
       type: script
-    - name: Build and test1
+    - name: Build and test2
       spec:
         run: echo "after script has run!"
       type: script

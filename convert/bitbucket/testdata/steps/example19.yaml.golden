@@ -2,14 +2,14 @@ stages:
 - name: build
   spec:
     steps:
-    - name: Build and test1
+    - name: Build and test2
       spec:
         steps:
         - name: Build and test
           spec:
             run: npm install
           type: script
-        - name: Build and test0
+        - name: Build and test1
           spec:
             run: npm run build
           type: script

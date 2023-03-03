@@ -14,11 +14,11 @@ stages:
 - name: build
   spec:
     steps:
-    - name: Build app0
+    - name: Build app1
       spec:
         run: sh ./build-app.sh
       type: script
-    - name: Run unit tests0
+    - name: Run unit tests1
       spec:
         run: sh ./run-tests.sh
       type: script

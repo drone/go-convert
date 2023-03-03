@@ -40,7 +40,16 @@ func (s *Identifiers) Register(name string) bool {
 // Generage generates and registeres a unique name with the
 // store. If the base name is already registered, a unique
 // suffix is appended to the name.
-func (s *Identifiers) Generate(base string) string {
+func (s *Identifiers) Generate(name ...string) string {
+	var base string
+	// choose the first non-empty name.
+	for _, s := range name {
+		if s != "" {
+			base = s
+			break
+		}
+	}
+
 	// register the name as-is
 	if s.Register(base) {
 		return base
@@ -48,9 +57,9 @@ func (s *Identifiers) Generate(base string) string {
 	// append a suffix to the name and register
 	// the first unique combination.
 	for i := 1; ; i++ {
-		name := base + strconv.Itoa(i)
-		if s.Register(name) {
-			return name
+		next := base + strconv.Itoa(i)
+		if s.Register(next) {
+			return next
 		}
 	}
 }

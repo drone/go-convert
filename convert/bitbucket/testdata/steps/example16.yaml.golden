@@ -9,7 +9,7 @@ stages:
           GENIE_KEY: $GENIE_KEY
           MESSAGE: Wake up!
       type: plugin
-    - name: Alert everyone!0
+    - name: Alert everyone!1
       spec:
         image: atlassian/slack-notify:latest
         with:

@@ -11,14 +11,14 @@ stages:
         privileged: true
         network: host
       type: background
-    - name: Hello world example1
+    - name: Hello world example2
       spec:
         steps:
         - name: Hello world example
           spec:
             run: docker version
           type: script
-        - name: Hello world example0
+        - name: Hello world example1
           spec:
             run: docker run hello-world
           type: script

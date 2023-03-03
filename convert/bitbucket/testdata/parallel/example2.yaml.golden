@@ -6,7 +6,7 @@ stages:
       spec:
         run: ./build.sh
       type: script
-    - name: Build0
+    - name: Build1
       spec:
         run: ./build.sh
       type: script

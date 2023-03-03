@@ -10,7 +10,7 @@ stages:
       spec:
         run: bundle install --path vendor/bundle
       type: script
-    - name: run0
+    - name: run1
       spec:
         run: ruby -e 'print "Hello, World\n"'
       type: script

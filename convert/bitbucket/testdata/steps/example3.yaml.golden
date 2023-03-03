@@ -6,11 +6,11 @@ stages:
       spec:
         run: echo "Hello,"
       type: script
-    - name: run0
+    - name: run1
       spec:
         run: echo "World!"
       type: script
-    - name: run1
+    - name: run2
       spec:
         run: ./build.sh
       type: script
