@@ -37,19 +37,19 @@ __Bitbucket__
 Convert a Bitbucket pipeline:
 
 ```
-./go-convert bitbucket path/to/bitbucket-pipelines.yml
+./go-convert bitbucket samples/bitbucket.yaml
 ```
 
 Convert a Gitlab pipeline and print the before after:
 
 ```
-./go-convert bitbucket --before-after path/to/bitbucket-pipelines.yml
+./go-convert bitbucket --before-after samples/bitbucket.yaml
 ```
 
 Convert a Bitbucket pipeline and downgrade to the Harness v0 format:
 
 ```
-./go-convert bitbucket --downgrade path/to/bitbucket-pipelines.yml
+./go-convert bitbucket --downgrade samples/bitbucket.yaml
 ```
 
 __Gitlab__
@@ -57,18 +57,18 @@ __Gitlab__
 Convert a Gitlab pipeline:
 
 ```
-./go-convert gitlab path/to/.gitlab.yml
+./go-convert gitlab samples/gitlab.yaml
 ```
 
 Convert a Gitlab pipeline and print the before after:
 
 ```
-./go-convert gitlab --before-after path/to/.gitlab.yml
+./go-convert gitlab --before-after samples/gitlab.yaml
 ```
 
 Convert a Gitlab pipeline and downgrade to the Harness v0 format:
 
 ```
-./go-convert gitlab --downgrade path/to/bitbucket-pipelines.yml
+./go-convert gitlab --downgrade samples/gitlab.yaml
 ```
 
