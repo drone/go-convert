@@ -25,6 +25,7 @@ import (
 )
 
 func main() {
+	subcommands.Register(new(command.Azure), "")
 	subcommands.Register(new(command.Bitbucket), "")
 	subcommands.Register(new(command.Circle), "")
 	subcommands.Register(new(command.Cloudbuild), "")
