@@ -21,13 +21,13 @@ import (
 	"log"
 	"os"
 
-	"github.com/drone/go-convert/convert/bitbucket"
+	"github.com/drone/go-convert/convert/circle"
 	"github.com/drone/go-convert/convert/harness/downgrader"
 
 	"github.com/google/subcommands"
 )
 
-type Bitbucket struct {
+type Circle struct {
 	name       string
 	proj       string
 	org        string
@@ -41,14 +41,14 @@ type Bitbucket struct {
 	beforeAfter bool
 }
 
-func (*Bitbucket) Name() string     { return "bitbucket" }
-func (*Bitbucket) Synopsis() string { return "converts a bitbucket pipeline" }
-func (*Bitbucket) Usage() string {
-	return `bitbucket [-downgrade] [bitbucket-pipelines.yml]
+func (*Circle) Name() string     { return "circle" }
+func (*Circle) Synopsis() string { return "converts a circle pipeline" }
+func (*Circle) Usage() string {
+	return `circle [-downgrade] [.circleci/config.yml]
 `
 }
 
-func (c *Bitbucket) SetFlags(f *flag.FlagSet) {
+func (c *Circle) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&c.downgrade, "downgrade", false, "downgrade to the legacy yaml format")
 	f.BoolVar(&c.beforeAfter, "before-after", false, "print the befor and after")
 
@@ -62,27 +62,27 @@ func (c *Bitbucket) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.dockerConn, "docker-connector", "", "dockerhub connector")
 }
 
-func (c *Bitbucket) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (c *Circle) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	path := f.Arg(0)
 
 	// if the user does not specify the path as
 	// a command line arg, assume the default path.
 	if path == "" {
-		path = "bitbucket-pipelines.yml"
+		path = ".circleci/config.yml"
 	}
 
-	// open the bitbucket yaml
+	// open the circle yaml
 	before, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Println(err)
 		return subcommands.ExitFailure
 	}
 
-	// convert the bitbucket yaml from the bitbucket
-	// format to the harness format.
-	converter := bitbucket.New(
-		bitbucket.WithDockerhub(c.dockerConn),
-		bitbucket.WithKubernetes(c.kubeConn, c.kubeName),
+	// convert the pipeline yaml from the circle
+	// format to the harness yaml format.
+	converter := circle.New(
+		circle.WithDockerhub(c.dockerConn),
+		circle.WithKubernetes(c.kubeConn, c.kubeName),
 	)
 	after, err := converter.ConvertBytes(before)
 	if err != nil {

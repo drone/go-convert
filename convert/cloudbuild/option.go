@@ -12,17 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package gitlab
+package cloudbuild
 
-import "testing"
+// Option configures a Converter option.
+type Option func(*Converter)
 
-func TestConvert(t *testing.T) {
-	_, err := FromFile("yaml/testdata/go.yaml")
-	if err != nil {
-		t.Error(err)
-		return
+// WithDockerhub returns an option to set the default
+// dockerhub registry connector.
+func WithDockerhub(connector string) Option {
+	return func(d *Converter) {
+		d.dockerhubConn = connector
 	}
+}
 
-	// println(string(out))
-	// t.Fail()
+// WithKubernetes returns an option to set the default
+// runtime to Kubernetes.
+func WithKubernetes(namespace, connector string) Option {
+	return func(d *Converter) {
+		d.kubeNamespace = namespace
+		d.kubeConnector = connector
+	}
 }

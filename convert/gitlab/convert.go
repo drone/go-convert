@@ -24,18 +24,97 @@ import (
 	harness "github.com/drone/spec/dist/go"
 	gitlab "github.com/drone/spec/dist/go/convert/gitlab/yaml"
 
+	"github.com/drone/go-convert/internal/store"
 	"github.com/ghodss/yaml"
 )
 
-// From converts the legacy drone yaml format to the
-// unified yaml format.
-func From(r io.Reader) ([]byte, error) {
+// Converter converts a Gitlab pipeline to a Harness
+// v1 pipeline.
+type Converter struct {
+	kubeEnabled   bool
+	kubeNamespace string
+	kubeConnector string
+	dockerhubConn string
+	identifiers   *store.Identifiers
+
+	// as we walk the yaml, we store a
+	// a snapshot of the current node and
+	// its parents.
+	config *gitlab.Pipeline
+	job    *gitlab.Job
+}
+
+// New creates a new Converter that converts a GitLab
+// pipeline to a Harness v1 pipeline.
+func New(options ...Option) *Converter {
+	d := new(Converter)
+
+	// create the unique identifier store. this store
+	// is used for registering unique identifiers to
+	// prevent duplicate names, unique index violations.
+	d.identifiers = store.New()
+
+	// loop through and apply the options.
+	for _, option := range options {
+		option(d)
+	}
+
+	// set the default kubernetes namespace.
+	if d.kubeNamespace == "" {
+		d.kubeNamespace = "default"
+	}
+
+	// set the runtime to kubernetes if the kubernetes
+	// connector is configured.
+	if d.kubeConnector != "" {
+		d.kubeEnabled = true
+	}
+
+	return d
+}
+
+// Convert downgrades a v1 pipeline.
+func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	src, err := gitlab.Parse(r)
 	if err != nil {
 		return nil, err
 	}
+	d.config = src // push the gitlab config to the state
+	return d.convert()
+}
 
-	dst := new(harness.Pipeline)
+// ConvertString downgrades a v1 pipeline.
+func (d *Converter) ConvertBytes(b []byte) ([]byte, error) {
+	return d.Convert(
+		bytes.NewBuffer(b),
+	)
+}
+
+// ConvertString downgrades a v1 pipeline.
+func (d *Converter) ConvertString(s string) ([]byte, error) {
+	return d.Convert(
+		bytes.NewBufferString(s),
+	)
+}
+
+// ConvertFile downgrades a v1 pipeline.
+func (d *Converter) ConvertFile(p string) ([]byte, error) {
+	f, err := os.Open(p)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return d.Convert(f)
+}
+
+// converts converts a GitLab pipeline to a Harness pipeline.
+func (d *Converter) convert() ([]byte, error) {
+
+	// create the harness pipeline
+	dst := &harness.Pipeline{
+		Version: 1,
+		// Default: convertDefault(d.config),
+	}
 
 	// TODO handle includes
 	// src.Include
@@ -65,14 +144,14 @@ func From(r io.Reader) ([]byte, error) {
 	dst.Stages = append(dst.Stages, dstStage)
 
 	// iterage through named stages
-	for _, stagename := range src.Stages {
+	for _, stagename := range d.config.Stages {
 
 		// children steps converted from gitlab to harness.
 		var steps []*harness.Step
 
 		// iterate through jobs and find jobs assigned to
 		// the stage. skip other stages.
-		for jobname, job := range src.Jobs {
+		for jobname, job := range d.config.Jobs {
 			if job == nil {
 				continue
 			}
@@ -86,12 +165,12 @@ func From(r io.Reader) ([]byte, error) {
 			if job.Image != nil {
 				spec.Image = job.Image.Name
 				spec.Pull = job.Image.PullPolicy
-			} else if src.Default != nil && src.Default.Image != nil {
-				spec.Image = src.Default.Image.Name
-				spec.Pull = src.Default.Image.PullPolicy
-			} else if src.Image != nil {
-				spec.Image = src.Image.Name
-				spec.Pull = src.Image.PullPolicy
+			} else if d.config.Default != nil && d.config.Default.Image != nil {
+				spec.Image = d.config.Default.Image.Name
+				spec.Pull = d.config.Default.Image.PullPolicy
+			} else if d.config.Image != nil {
+				spec.Image = d.config.Image.Name
+				spec.Pull = d.config.Image.PullPolicy
 			}
 
 			// aggregate all scripts
@@ -139,37 +218,11 @@ func From(r io.Reader) ([]byte, error) {
 		dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, group) // HACK
 	}
 
+	// marshal the harness yaml
 	out, err := yaml.Marshal(dst)
 	if err != nil {
 		return nil, err
 	}
 
 	return out, nil
-}
-
-// FromBytes converts the legacy drone yaml format to the
-// unified yaml format.
-func FromBytes(b []byte) ([]byte, error) {
-	return From(
-		bytes.NewBuffer(b),
-	)
-}
-
-// FromString converts the legacy drone yaml format to the
-// unified yaml format.
-func FromString(s string) ([]byte, error) {
-	return FromBytes(
-		[]byte(s),
-	)
-}
-
-// FromFile converts the legacy drone yaml format to the
-// unified yaml format.
-func FromFile(p string) ([]byte, error) {
-	f, err := os.Open(p)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-	return From(f)
 }

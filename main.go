@@ -26,6 +26,12 @@ import (
 
 func main() {
 	subcommands.Register(new(command.Bitbucket), "")
+	subcommands.Register(new(command.Circle), "")
+	subcommands.Register(new(command.Cloudbuild), "")
+	subcommands.Register(new(command.Drone), "")
+	subcommands.Register(new(command.Github), "")
+	subcommands.Register(new(command.Gitlab), "")
+	subcommands.Register(new(command.Travis), "")
 	subcommands.Register(new(command.Downgrade), "")
 
 	flag.Parse()

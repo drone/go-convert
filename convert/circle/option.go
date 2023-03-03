@@ -12,5 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package travis converts Travis pipelines to Harness pipelines.
-package travis
+package circle
+
+// Option configures a Converter option.
+type Option func(*Converter)
+
+// WithDockerhub returns an option to set the default
+// dockerhub registry connector.
+func WithDockerhub(connector string) Option {
+	return func(d *Converter) {
+		d.dockerhubConn = connector
+	}
+}
+
+// WithKubernetes returns an option to set the default
+// runtime to Kubernetes.
+func WithKubernetes(namespace, connector string) Option {
+	return func(d *Converter) {
+		d.kubeNamespace = namespace
+		d.kubeConnector = connector
+	}
+}

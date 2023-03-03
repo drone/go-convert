@@ -41,9 +41,9 @@ type Downgrade struct {
 }
 
 func (*Downgrade) Name() string     { return "downgrade" }
-func (*Downgrade) Synopsis() string { return "downgrades a harness pipeline" }
+func (*Downgrade) Synopsis() string { return "converts a harness pipeline to the v0 format" }
 func (*Downgrade) Usage() string {
-	return `downgrade <path to pipeline yaml>
+	return `downgrade <path to harness yaml>
 `
 }
 

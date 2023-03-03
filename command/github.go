@@ -21,13 +21,13 @@ import (
 	"log"
 	"os"
 
-	"github.com/drone/go-convert/convert/bitbucket"
+	"github.com/drone/go-convert/convert/github"
 	"github.com/drone/go-convert/convert/harness/downgrader"
 
 	"github.com/google/subcommands"
 )
 
-type Bitbucket struct {
+type Github struct {
 	name       string
 	proj       string
 	org        string
@@ -41,14 +41,14 @@ type Bitbucket struct {
 	beforeAfter bool
 }
 
-func (*Bitbucket) Name() string     { return "bitbucket" }
-func (*Bitbucket) Synopsis() string { return "converts a bitbucket pipeline" }
-func (*Bitbucket) Usage() string {
-	return `bitbucket [-downgrade] [bitbucket-pipelines.yml]
+func (*Github) Name() string     { return "github" }
+func (*Github) Synopsis() string { return "converts a github pipeline" }
+func (*Github) Usage() string {
+	return `github [-downgrade] <path to .github/workflows/main.yml>
 `
 }
 
-func (c *Bitbucket) SetFlags(f *flag.FlagSet) {
+func (c *Github) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&c.downgrade, "downgrade", false, "downgrade to the legacy yaml format")
 	f.BoolVar(&c.beforeAfter, "before-after", false, "print the befor and after")
 
@@ -62,27 +62,27 @@ func (c *Bitbucket) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.dockerConn, "docker-connector", "", "dockerhub connector")
 }
 
-func (c *Bitbucket) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+func (c *Github) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	path := f.Arg(0)
 
 	// if the user does not specify the path as
 	// a command line arg, assume the default path.
 	if path == "" {
-		path = "bitbucket-pipelines.yml"
+		path = ".github/workflows/main.yml"
 	}
 
-	// open the bitbucket yaml
+	// open the github yaml
 	before, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Println(err)
 		return subcommands.ExitFailure
 	}
 
-	// convert the bitbucket yaml from the bitbucket
-	// format to the harness format.
-	converter := bitbucket.New(
-		bitbucket.WithDockerhub(c.dockerConn),
-		bitbucket.WithKubernetes(c.kubeConn, c.kubeName),
+	// convert the workflow from the github
+	// format to the harness yaml format.
+	converter := github.New(
+		github.WithDockerhub(c.dockerConn),
+		github.WithKubernetes(c.kubeConn, c.kubeName),
 	)
 	after, err := converter.ConvertBytes(before)
 	if err != nil {
