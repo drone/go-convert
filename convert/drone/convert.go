@@ -17,11 +17,13 @@ package drone
 
 import (
 	"bytes"
-	"errors"
+	"fmt"
 	"io"
 	"os"
+	"strings"
 
-	harness "github.com/drone/spec/dist/go"
+	v1 "github.com/drone/go-convert/convert/drone/yaml"
+	v2 "github.com/drone/spec/dist/go"
 
 	"github.com/drone/go-convert/internal/store"
 	"github.com/ghodss/yaml"
@@ -36,11 +38,11 @@ type Converter struct {
 	dockerhubConn string
 	identifiers   *store.Identifiers
 
-	// // as we walk the yaml, we store a
-	// // a snapshot of the current node and
-	// // its parents.
-	// config *drone.Pipeline
-	// stage  *drone.Stage
+	// as we walk the yaml, we store a
+	// a snapshot of the current node and
+	// its parents.
+	pipeline []*v1.Pipeline
+	stage    *v1.Pipeline
 }
 
 // New creates a new Converter that converts a Drone
@@ -74,13 +76,12 @@ func New(options ...Option) *Converter {
 
 // Convert downgrades a v1 pipeline.
 func (d *Converter) Convert(r io.Reader) ([]byte, error) {
-	// src, err := drone.Parse(r)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// d.config = src // push the drone config to the state
-	// return d.convert()
-	return nil, errors.New("not implemented")
+	src, err := v1.Parse(r)
+	if err != nil {
+		return nil, err
+	}
+	d.pipeline = src // push the drone pipeline to the state
+	return d.convert()
 }
 
 // ConvertString downgrades a v1 pipeline.
@@ -110,20 +111,49 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 // converts converts a Drone pipeline to a Harness pipeline.
 func (d *Converter) convert() ([]byte, error) {
 
-	// create the harness pipeline
-	pipeline := &harness.Pipeline{
-		Version: 1,
-		// Default: convertDefault(d.config),
+	//
+	// TODO convert env substitution to expression
+	//
+
+	//
+	// TODO convert from_secret to expression
+	//
+
+	pipeline := &v2.Pipeline{
+		Default: &v2.Default{
+			Registry: convertRegistry(d.pipeline),
+		},
 	}
 
-	// for _, steps := range d.config.Pipelines.Default {
-	// 	if steps.Stage != nil {
-	// 		// TODO support for fast-fail
-	// 		d.stage = steps.Stage // push the stage to the state
-	// 		stage := d.convertStage()
-	// 		pipeline.Stages = append(pipeline.Stages, stage)
-	// 	}
-	// }
+	for _, from := range d.pipeline {
+		d.stage = from // push the stage to the state
+
+		if from == nil {
+			continue
+		}
+		switch from.Kind {
+		case v1.KindSecret: // TODO
+		case v1.KindSignature: // TODO
+		case v1.KindPipeline:
+			pipeline.Stages = append(pipeline.Stages, &v2.Stage{
+				Name: from.Name,
+				Type: "ci",
+				When: convertCond(from.Trigger),
+				Spec: &v2.StageCI{
+					Clone:    convertClone(from.Clone),
+					Delegate: convertNode(from.Node),
+					Envs:     copyenv(from.Environment),
+					Platform: convertPlatform(from.Platform),
+					Runtime:  convertRuntime(from),
+					Steps:    convertSteps(from),
+
+					// TODO support for stage.tags
+					// TODO support for stage.variables
+					// TODO support for stage.volumes ?
+				},
+			})
+		}
+	}
 
 	// marshal the harness yaml
 	out, err := yaml.Marshal(pipeline)
@@ -131,5 +161,387 @@ func (d *Converter) convert() ([]byte, error) {
 		return nil, err
 	}
 
+	// drone had a bug where it required double-escaping
+	// which can be eliminated going forward.
+	// TODO this will probably require some tweaking.
+	out = bytes.ReplaceAll(out, []byte(`\\\\`), []byte(`\\`))
+
 	return out, nil
+}
+
+func convertRegistry(src []*v1.Pipeline) *v2.Registry {
+	// note that registry credentials in Drone are stored
+	// at the stage level, but in Harness, we are proposing
+	// they are stored at the pipeline level (this could
+	// change in the future).
+	//
+	// this means we need to the combined, unique list
+	// of pull secrets across all stages.
+
+	set := map[string]struct{}{}
+	for _, v := range src {
+		if v == nil {
+			continue
+		}
+		if len(v.PullSecrets) == 0 {
+			continue
+		}
+		for _, s := range v.PullSecrets {
+			set[s] = struct{}{}
+		}
+	}
+	if len(set) == 0 {
+		return nil
+	}
+	dst := &v2.Registry{}
+	for k := range set {
+		dst.Connector = append(dst.Connector, &v2.RegistryConnector{
+			Name: k,
+		})
+	}
+	return dst
+}
+
+func convertSteps(src *v1.Pipeline) []*v2.Step {
+	var dst []*v2.Step
+	for _, v := range src.Services {
+		if v != nil {
+			dst = append(dst, convertBackground(v))
+		}
+	}
+	for _, v := range src.Steps {
+		if v != nil {
+			switch {
+			case v.Detach:
+				dst = append(dst, convertBackground(v))
+			case isPlugin(v):
+				dst = append(dst, convertPlugin(v))
+			default:
+				dst = append(dst, convertRun(v))
+			}
+		}
+	}
+	return dst
+}
+
+func convertPlugin(src *v1.Step) *v2.Step {
+	return &v2.Step{
+		Name: src.Name,
+		Type: "plugin",
+		When: convertCond(src.When),
+		Spec: &v2.StepPlugin{
+			Image:      src.Image,
+			Privileged: src.Privileged,
+			Pull:       convertPull(src.Pull),
+			User:       src.User,
+			Envs:       convertVariables(src.Environment),
+			With:       convertSettings(src.Settings),
+			Resources:  convertResourceLimits(&src.Resource),
+			// Volumes       // FIX
+		},
+	}
+}
+
+func convertBackground(src *v1.Step) *v2.Step {
+	return &v2.Step{
+		Name: src.Name,
+		Type: "background",
+		When: convertCond(src.When),
+		Spec: &v2.StepBackground{
+			Image:      src.Image,
+			Privileged: src.Privileged,
+			Pull:       convertPull(src.Pull),
+			Shell:      convertShell(src.Shell),
+			User:       src.User,
+			Entrypoint: convertEntrypoint(src.Entrypoint),
+			Args:       convertArgs(src.Entrypoint, src.Command),
+			Run:        convertScript(src.Commands),
+			Envs:       convertVariables(src.Environment),
+			Resources:  convertResourceLimits(&src.Resource),
+			// Volumes       // FIX
+		},
+	}
+}
+
+func convertRun(src *v1.Step) *v2.Step {
+	return &v2.Step{
+		Name: src.Name,
+		Type: "script",
+		When: convertCond(src.When),
+		Spec: &v2.StepExec{
+			Image:      src.Image,
+			Privileged: src.Privileged,
+			Pull:       convertPull(src.Pull),
+			Shell:      convertShell(src.Shell),
+			User:       src.User,
+			Entrypoint: convertEntrypoint(src.Entrypoint),
+			Args:       convertArgs(src.Entrypoint, src.Command),
+			Run:        convertScript(src.Commands),
+			Envs:       convertVariables(src.Environment),
+			Resources:  convertResourceLimits(&src.Resource),
+			// Volumes       // FIX
+		},
+	}
+}
+
+func convertResourceLimits(src *v1.Resources) *v2.Resources {
+	if src.Limits.CPU == 0 && src.Limits.Memory == 0 {
+		return nil
+	}
+	return &v2.Resources{
+		Limits: &v2.Resource{
+			Cpu:    v2.StringorInt(src.Requests.CPU),
+			Memory: v2.MemStringorInt(src.Requests.Memory),
+		},
+	}
+}
+
+func convertResourceRequests(src *v1.Resources) *v2.Resources {
+	if src.Requests.CPU == 0 && src.Requests.Memory == 0 {
+		return nil
+	}
+	return &v2.Resources{
+		Requests: &v2.Resource{
+			Cpu:    v2.StringorInt(src.Requests.CPU),
+			Memory: v2.MemStringorInt(src.Requests.Memory),
+		},
+	}
+}
+
+func convertEntrypoint(src []string) string {
+	if len(src) == 0 {
+		return ""
+	} else {
+		return src[0]
+	}
+}
+
+func convertVariables(src map[string]*v1.Variable) map[string]string {
+	dst := map[string]string{}
+	for k, v := range src {
+		switch {
+		case v.Value != "":
+			dst[k] = v.Value
+		case v.Secret != "":
+			dst[k] = fmt.Sprintf("${{ secrets.%s }}", v.Secret) // TODO figure out secret syntax
+		}
+	}
+	return dst
+}
+
+func convertSettings(src map[string]*v1.Parameter) map[string]interface{} {
+	dst := map[string]interface{}{}
+	for k, v := range src {
+		switch {
+		case v.Secret != "":
+			dst[k] = fmt.Sprintf("${{ secrets.get(%q) }}", v.Secret)
+		case v.Value != nil:
+			dst[k] = v.Value
+		}
+	}
+	return dst
+}
+
+func convertScript(src []string) string {
+	if len(src) == 0 {
+		return ""
+	} else {
+		return strings.Join(src, "\n")
+	}
+}
+
+func convertArgs(src1, src2 []string) []string {
+	if len(src1) == 0 {
+		return src2
+	} else {
+		return append(src1[:1], src2...)
+	}
+}
+
+func convertPull(src string) string {
+	switch src {
+	case "always":
+		return "always"
+	case "never":
+		return "never"
+	case "if-not-exists":
+		return "if-not-exists"
+	default:
+		return ""
+	}
+}
+
+func convertShell(src string) string {
+	switch src {
+	case "bash":
+		return "bash"
+	case "sh", "posix":
+		return "sh"
+	case "pwsh", "powershell":
+		return "powershell"
+	default:
+		return ""
+	}
+}
+
+func convertRuntime(src *v1.Pipeline) *v2.Runtime {
+	if src.Type == "kubernetes" {
+		return &v2.Runtime{
+			Type: "kubernetes",
+			Spec: &v2.RuntimeKube{
+				// TODO should harness support `dns_config`
+				// TODO should harness support `host_aliases`
+				// TODO support for `tolerations`
+				Annotations:    src.Metadata.Annotations,
+				Labels:         src.Metadata.Labels,
+				Namespace:      src.Metadata.Namespace,
+				NodeSelector:   src.NodeSelector,
+				Node:           src.NodeName,
+				ServiceAccount: src.ServiceAccount,
+				Resources:      convertResourceRequests(&src.Resource),
+			},
+		}
+	}
+	return &v2.Runtime{
+		Type: "machine",
+		Spec: v2.RuntimeMachine{},
+	}
+}
+
+func convertClone(src v1.Clone) *v2.Clone {
+	dst := new(v2.Clone)
+	if v := src.Depth; v != 0 {
+		dst.Depth = int64(v)
+	}
+	if v := src.Disable; v {
+		dst.Disabled = true
+	}
+	if v := src.SkipVerify; v {
+		dst.Insecure = true
+	}
+	if v := src.Trace; v {
+		dst.Trace = true
+	}
+	return dst
+}
+
+func convertNode(src map[string]string) *v2.Delegate {
+	if len(src) == 0 {
+		return nil
+	}
+	dst := new(v2.Delegate)
+	for k, v := range src {
+		dst.Selectors = append(
+			dst.Selectors, k+":"+v)
+	}
+	return dst
+}
+
+func convertPlatform(src v1.Platform) *v2.Platform {
+	if src.Arch == "" && src.OS == "" {
+		return nil
+	}
+	dst := new(v2.Platform)
+	switch src.OS {
+	case "windows":
+		dst.Os = v2.OSWindows
+	case "darwin":
+		dst.Os = v2.OSDarwin
+	default:
+		dst.Os = v2.OSLinux
+	}
+	switch src.Arch {
+	case "arm":
+		dst.Arch = v2.ArchArm64
+	case "arm64":
+		dst.Arch = v2.ArchArm64
+	default:
+		dst.Arch = v2.ArchAmd64
+	}
+	return dst
+}
+
+func convertCond(src v1.Conditions) *v2.When {
+	if isCondsEmpty(src) {
+		return nil
+	}
+
+	exprs := map[string]*v2.Expr{}
+	if expr := convertExpr(src.Action); expr != nil {
+		exprs["action"] = expr
+	}
+	if expr := convertExpr(src.Branch); expr != nil {
+		exprs["branch"] = expr
+	}
+	if expr := convertExpr(src.Cron); expr != nil {
+		exprs["cron"] = expr
+	}
+	if expr := convertExpr(src.Event); expr != nil {
+		exprs["event"] = expr
+	}
+	if expr := convertExpr(src.Instance); expr != nil {
+		exprs["instance"] = expr
+	}
+	if expr := convertExpr(src.Paths); expr != nil {
+		exprs["paths"] = expr
+	}
+	if expr := convertExpr(src.Ref); expr != nil {
+		exprs["ref"] = expr
+	}
+	if expr := convertExpr(src.Repo); expr != nil {
+		exprs["repo"] = expr
+	}
+	if expr := convertExpr(src.Status); expr != nil {
+		exprs["status"] = expr
+	}
+	if expr := convertExpr(src.Target); expr != nil {
+		exprs["target"] = expr
+	}
+
+	dst := new(v2.When)
+	dst.Cond = []map[string]*v2.Expr{exprs}
+	return dst
+}
+
+func convertExpr(src v1.Condition) *v2.Expr {
+	if len(src.Include) != 0 {
+		return &v2.Expr{In: src.Include}
+	}
+	if len(src.Exclude) != 0 {
+		return &v2.Expr{
+			Not: &v2.Expr{In: src.Exclude},
+		}
+	}
+	return nil
+}
+
+func isCondsEmpty(src v1.Conditions) bool {
+	return isCondEmpty(src.Action) &&
+		isCondEmpty(src.Action) &&
+		isCondEmpty(src.Branch) &&
+		isCondEmpty(src.Cron) &&
+		isCondEmpty(src.Event) &&
+		isCondEmpty(src.Instance) &&
+		isCondEmpty(src.Paths) &&
+		isCondEmpty(src.Ref) &&
+		isCondEmpty(src.Repo) &&
+		isCondEmpty(src.Status) &&
+		isCondEmpty(src.Target)
+}
+
+func isCondEmpty(src v1.Condition) bool {
+	return len(src.Exclude) == 0 && len(src.Include) == 0
+}
+
+func isPlugin(src *v1.Step) bool {
+	return len(src.Settings) > 0
+}
+
+// copyenv returns a copy of the environment variable map.
+func copyenv(src map[string]string) map[string]string {
+	dst := map[string]string{}
+	for k, v := range src {
+		dst[k] = v
+	}
+	return dst
 }

@@ -1,0 +1,28 @@
+kind: pipeline
+type: docker
+name: test-name
+
+clone:
+  depth: 50
+
+steps:
+- name: test-step-1
+  image: golang
+  commands:
+  - go build
+  - go test
+  when:
+    branch:
+    - main
+    - develop
+
+- name: test-plugin-1
+  image: plugins/slack
+  settings:
+    channel: test-channel
+    token:
+      from_secret: test-slack-token
+
+services:
+- name: redis
+  image: redis

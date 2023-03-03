@@ -15,6 +15,7 @@
 package command
 
 import (
+	"bytes"
 	"context"
 	"flag"
 	"io/ioutil"
@@ -110,6 +111,12 @@ func (c *Drone) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) su
 	}
 
 	if c.beforeAfter {
+		// if the original yaml has separator and terminator
+		// lines, strip these before showing the before / after
+		before = bytes.TrimPrefix(before, []byte("---\n"))
+		before = bytes.TrimSuffix(before, []byte("...\n"))
+		before = bytes.TrimSuffix(before, []byte("..."))
+
 		os.Stdout.WriteString("---\n")
 		os.Stdout.Write(before)
 		os.Stdout.WriteString("\n---\n")
