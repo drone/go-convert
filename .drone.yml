@@ -6,7 +6,8 @@ steps:
 - name: test
   image: golang:1.19
   commands:
-  - go test ./...
+  - go test -coverprofile=cover.out ./...
+  - go tool cover -func=cover.out
 
 - name: build
   image: golang:1.19
@@ -17,7 +18,7 @@ steps:
   - GOOS=darwin  GOARCH=arm64   go build -o release/plugin-darwin-arm64
   - GOOS=windows GOARCH=amd64   go build -o release/plugin-windows-amd64.exe
 
-# TODO: uncomment when the `github_token` secret has been added
+# uncomment when the `github_token` secret has been added
 #
 #- name: release
 #  image: plugins/github-release
