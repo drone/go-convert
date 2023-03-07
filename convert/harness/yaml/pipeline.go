@@ -74,6 +74,16 @@ type (
 		Conn      string `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
 	}
 
+	Platform struct {
+		OS   string `json:"os,omitempty"   yaml:"os,omitempty"`
+		Arch string `json:"arch,omitempty" yaml:"arch,omitempty"`
+	}
+
+	Runtime struct {
+		Type string      `json:"type,omitempty"   yaml:"type,omitempty"`
+		Spec interface{} `json:"spec,omitempty"   yaml:"spec,omitempty"`
+	}
+
 	Variable struct {
 		Name  string `json:"name,omitempty"  yaml:"name,omitempty"`
 		Type  string `json:"type,omitempty"  yaml:"type,omitempty"` // Secret|Text

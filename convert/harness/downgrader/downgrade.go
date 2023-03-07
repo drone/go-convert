@@ -192,6 +192,90 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		enableClone = false
 	}
 
+	// create the platform
+	var platform *v0.Platform
+	if spec.Platform != nil {
+		platform = &v0.Platform{
+			OS:   "Linux",
+			Arch: "Amd64",
+		}
+	}
+
+	//
+	// START TODO - refactor this into a helper function
+	//
+
+	var infra *v0.Infrastructure
+	var runtime *v0.Runtime
+
+	if spec.Runtime != nil {
+		// convert kubernetes
+		if kube, ok := spec.Runtime.Spec.(*v1.RuntimeKube); ok {
+			infra = &v0.Infrastructure{
+				Type: v0.InfraTypeKubernetesDirect,
+				Spec: &v0.InfraSpec{
+					Namespace: kube.Namespace,
+					Conn:      kube.Connector,
+				},
+			}
+			if infra.Spec.Namespace == "" {
+				kube.Namespace = d.kubeNamespace
+			}
+			if infra.Spec.Conn == "" {
+				kube.Connector = d.kubeConnector
+			}
+		}
+
+		// convert cloud
+		if _, ok := spec.Runtime.Spec.(*v1.RuntimeCloud); ok {
+			runtime = &v0.Runtime{
+				Type: "Cloud",
+				Spec: struct{}{},
+			}
+
+			if platform == nil {
+				platform = &v0.Platform{
+					OS:   "Linux",
+					Arch: "Amd64",
+				}
+			}
+		}
+	}
+
+	// if neither cloud nor kubernetes are specified
+	// we default to cloud.
+	if runtime == nil && infra == nil {
+		runtime = &v0.Runtime{
+			Type: "Cloud",
+			Spec: struct{}{},
+		}
+
+		if platform == nil {
+			platform = &v0.Platform{
+				OS:   "Linux",
+				Arch: "Amd64",
+			}
+		}
+	}
+
+	// if the user explicitly provides a kubernetes connector,
+	// we should override whatever was in the source yaml and
+	// force kubernetes.
+	if d.kubeConnector != "" {
+		runtime = nil
+		infra = &v0.Infrastructure{
+			Type: v0.InfraTypeKubernetesDirect,
+			Spec: &v0.InfraSpec{
+				Namespace: d.kubeNamespace,
+				Conn:      d.kubeConnector,
+			},
+		}
+	}
+
+	//
+	// END TODO
+	//
+
 	// convert the drone stage to a harness stage.
 	return &v0.Stage{
 		ID: d.identifiers.Generate(
@@ -201,15 +285,11 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		Type: v0.StageTypeCI,
 		Vars: convertVariables(spec.Envs),
 		Spec: v0.StageCI{
-			Cache: convertCache(spec.Cache),
-			Clone: enableClone,
-			Infrastructure: &v0.Infrastructure{
-				Type: v0.InfraTypeKubernetesDirect,
-				Spec: &v0.InfraSpec{
-					Namespace: d.kubeNamespace,
-					Conn:      d.kubeConnector,
-				},
-			},
+			Cache:          convertCache(spec.Cache),
+			Clone:          enableClone,
+			Infrastructure: infra,
+			Platform:       platform,
+			Runtime:        runtime,
 			Execution: v0.Execution{
 				Steps: steps,
 			},
