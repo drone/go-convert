@@ -1,0 +1,8 @@
+workflows:
+  build:
+    jobs:
+      - test:
+          filters:
+            branches:
+              only:
+                - main

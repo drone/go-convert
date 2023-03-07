@@ -1,0 +1,16 @@
+# Example cron filter by branch
+# https://circleci.com/docs/configuration-reference/#triggers
+
+workflows:
+   version: 2
+   nightly:
+     triggers:
+       - schedule:
+           cron: "0 0 * * *"
+           filters:
+             branches:
+               only:
+                 - main
+                 - beta
+     jobs:
+       - test
