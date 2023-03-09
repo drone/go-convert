@@ -423,7 +423,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 		Name:    src.Name,
 		Type:    v0.StepTypePlugin,
 		Timeout: convertTimeout(src.Timeout),
-		Spec: v0.StepPlugin{
+		Spec: &v0.StepPlugin{
 			ConnRef:         d.dockerhubConn,
 			Image:           spec_.Image,
 			ImagePullPolicy: convertImagePull(spec_.Pull),
@@ -445,7 +445,7 @@ func (d *Downgrader) convertStepAction(src *v1.Step) *v0.Step {
 		Name:    src.Name,
 		Type:    v0.StepTypeAction,
 		Timeout: convertTimeout(src.Timeout),
-		Spec: v0.StepAction{
+		Spec: &v0.StepAction{
 			Uses: spec_.Uses,
 			With: convertSettings(spec_.With),
 			Envs: spec_.Envs,
@@ -464,7 +464,7 @@ func (d *Downgrader) convertStepBitrise(src *v1.Step) *v0.Step {
 		Name:    src.Name,
 		Type:    v0.StepTypeBitrise,
 		Timeout: convertTimeout(src.Timeout),
-		Spec: v0.StepBitrise{
+		Spec: &v0.StepBitrise{
 			Uses: spec_.Uses,
 			With: convertSettings(spec_.With),
 			Envs: spec_.Envs,
