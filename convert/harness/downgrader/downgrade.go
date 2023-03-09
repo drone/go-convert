@@ -364,7 +364,7 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 		Name:    src.Name,
 		Type:    v0.StepTypeRun,
 		Timeout: convertTimeout(src.Timeout),
-		Spec: v0.StepRun{
+		Spec: &v0.StepRun{
 			Env:             spec_.Envs,
 			Command:         spec_.Run,
 			ConnRef:         d.dockerhubConn,
@@ -396,7 +396,7 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 		),
 		Name: src.Name,
 		Type: v0.StepTypeBackground,
-		Spec: v0.StepBackground{
+		Spec: &v0.StepBackground{
 			Command:         spec_.Run,
 			ConnRef:         d.dockerhubConn,
 			Entrypoint:      entypoint,
