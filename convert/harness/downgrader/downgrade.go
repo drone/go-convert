@@ -120,13 +120,12 @@ func (d *Downgrader) DowngradeFile(path string) ([]byte, error) {
 
 // downgrade downgrades a v1 pipeline.
 func (d *Downgrader) downgrade(src *v1.Pipeline) ([]byte, error) {
-	dst := new(v0.Pipeline)
-
-	dst.ID = d.pipelineId
-	dst.Name = d.pipelineName
-	dst.Org = d.pipelineOrg
-	dst.Project = d.pipelineProj
-	dst.Props.CI.Codebase = v0.Codebase{
+	config := new(v0.Config)
+	config.Pipeline.ID = d.pipelineId
+	config.Pipeline.Name = d.pipelineName
+	config.Pipeline.Org = d.pipelineOrg
+	config.Pipeline.Project = d.pipelineId
+	config.Pipeline.Props.CI.Codebase = v0.Codebase{
 		Name:  d.codebaseName,
 		Conn:  d.codebaseConn,
 		Build: "<+input>",
@@ -146,12 +145,12 @@ func (d *Downgrader) downgrade(src *v1.Pipeline) ([]byte, error) {
 		}
 
 		// convert the stage and add to the list
-		dst.Stages = append(dst.Stages, &v0.Stages{
+		config.Pipeline.Stages = append(config.Pipeline.Stages, &v0.Stages{
 			Stage: d.convertStage(stage),
 		})
 	}
 
-	return yaml.Marshal(dst)
+	return yaml.Marshal(config)
 }
 
 // helper function converts a drone pipeline stage to a
@@ -421,7 +420,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 			slug.Create(src.Name),
 		),
 		Name:    src.Name,
-		Type:    v0.StepTypeRun,
+		Type:    v0.StepTypePlugin,
 		Timeout: convertTimeout(src.Timeout),
 		Spec: &v0.StepPlugin{
 			ConnRef:         d.dockerhubConn,
