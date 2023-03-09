@@ -161,7 +161,6 @@ func (d *Downgrader) downgrade(src *v1.Pipeline) ([]byte, error) {
 // TODO delegate selectors
 // TODO tags
 // TODO when
-// TODO infrastructure (cloud vs kubernetes)
 // TODO failure strategy
 // TODO matrix strategy
 // TODO runtime / kubernetes / cloud
