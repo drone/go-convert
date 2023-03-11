@@ -1,11 +1,6 @@
+default: {}
 stages:
 - name: test-name
-  type: ci
-  when:
-  - event:
-      in:
-      - push
-      - pull_request
   spec:
     clone:
       depth: 50
@@ -14,25 +9,31 @@ stages:
       type: machine
     steps:
     - name: redis
-      type: background
       spec:
         image: redis
+      type: background
     - name: test-step-1
-      type: script
       spec:
         image: golang
         run: |-
           go build
           go test
+      type: script
       when:
       - branch:
           in:
           - main
           - develop
     - name: test-plugin-1
-      type: plugin
       spec:
         image: plugins/slack
         with:
           channel: test-channel
           token: ${{ secrets.get("test-slack-token") }}
+      type: plugin
+  type: ci
+  when:
+  - event:
+      in:
+      - push
+      - pull_request

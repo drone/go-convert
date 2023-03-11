@@ -29,6 +29,12 @@ import (
 	"github.com/ghodss/yaml"
 )
 
+// conversion context
+type context struct {
+	pipeline []*v1.Pipeline
+	stage    *v1.Pipeline
+}
+
 // Converter converts a Drone pipeline to a Harness
 // v1 pipeline.
 type Converter struct {
@@ -37,12 +43,6 @@ type Converter struct {
 	kubeConnector string
 	dockerhubConn string
 	identifiers   *store.Identifiers
-
-	// as we walk the yaml, we store a
-	// a snapshot of the current node and
-	// its parents.
-	pipeline []*v1.Pipeline
-	stage    *v1.Pipeline
 }
 
 // New creates a new Converter that converts a Drone
@@ -80,8 +80,9 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	d.pipeline = src // push the drone pipeline to the state
-	return d.convert()
+	return d.convert(&context{
+		pipeline: src,
+	})
 }
 
 // ConvertString downgrades a v1 pipeline.
@@ -109,7 +110,7 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 }
 
 // converts converts a Drone pipeline to a Harness pipeline.
-func (d *Converter) convert() ([]byte, error) {
+func (d *Converter) convert(ctx *context) ([]byte, error) {
 
 	//
 	// TODO convert env substitution to expression
@@ -121,13 +122,11 @@ func (d *Converter) convert() ([]byte, error) {
 
 	pipeline := &v2.Pipeline{
 		Default: &v2.Default{
-			Registry: convertRegistry(d.pipeline),
+			Registry: convertRegistry(ctx.pipeline),
 		},
 	}
 
-	for _, from := range d.pipeline {
-		d.stage = from // push the stage to the state
-
+	for _, from := range ctx.pipeline {
 		if from == nil {
 			continue
 		}

@@ -28,6 +28,12 @@ import (
 	"github.com/ghodss/yaml"
 )
 
+// conversion context
+type context struct {
+	config *gitlab.Pipeline
+	job    *gitlab.Job
+}
+
 // Converter converts a Gitlab pipeline to a Harness
 // v1 pipeline.
 type Converter struct {
@@ -37,11 +43,8 @@ type Converter struct {
 	dockerhubConn string
 	identifiers   *store.Identifiers
 
-	// as we walk the yaml, we store a
-	// a snapshot of the current node and
-	// its parents.
-	config *gitlab.Pipeline
-	job    *gitlab.Job
+	// config *gitlab.Pipeline
+	// job    *gitlab.Job
 }
 
 // New creates a new Converter that converts a GitLab
@@ -79,8 +82,9 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	d.config = src // push the gitlab config to the state
-	return d.convert()
+	return d.convert(&context{
+		config: src,
+	})
 }
 
 // ConvertString downgrades a v1 pipeline.
@@ -108,7 +112,7 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 }
 
 // converts converts a GitLab pipeline to a Harness pipeline.
-func (d *Converter) convert() ([]byte, error) {
+func (d *Converter) convert(ctx *context) ([]byte, error) {
 
 	// create the harness pipeline
 	dst := &harness.Pipeline{
@@ -144,14 +148,14 @@ func (d *Converter) convert() ([]byte, error) {
 	dst.Stages = append(dst.Stages, dstStage)
 
 	// iterage through named stages
-	for _, stagename := range d.config.Stages {
+	for _, stagename := range ctx.config.Stages {
 
 		// children steps converted from gitlab to harness.
 		var steps []*harness.Step
 
 		// iterate through jobs and find jobs assigned to
 		// the stage. skip other stages.
-		for jobname, job := range d.config.Jobs {
+		for jobname, job := range ctx.config.Jobs {
 			if job == nil {
 				continue
 			}
@@ -165,12 +169,12 @@ func (d *Converter) convert() ([]byte, error) {
 			if job.Image != nil {
 				spec.Image = job.Image.Name
 				spec.Pull = job.Image.PullPolicy
-			} else if d.config.Default != nil && d.config.Default.Image != nil {
-				spec.Image = d.config.Default.Image.Name
-				spec.Pull = d.config.Default.Image.PullPolicy
-			} else if d.config.Image != nil {
-				spec.Image = d.config.Image.Name
-				spec.Pull = d.config.Image.PullPolicy
+			} else if ctx.config.Default != nil && ctx.config.Default.Image != nil {
+				spec.Image = ctx.config.Default.Image.Name
+				spec.Pull = ctx.config.Default.Image.PullPolicy
+			} else if ctx.config.Image != nil {
+				spec.Image = ctx.config.Image.Name
+				spec.Pull = ctx.config.Image.PullPolicy
 			}
 
 			// aggregate all scripts

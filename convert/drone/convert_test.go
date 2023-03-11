@@ -24,7 +24,7 @@ import (
 )
 
 func TestConvert(t *testing.T) {
-	tests, err := filepath.Glob("testdata/*/*.yaml")
+	tests, err := filepath.Glob("testdata/*.yaml")
 	if err != nil {
 		t.Error(err)
 		return
@@ -66,6 +66,8 @@ func TestConvert(t *testing.T) {
 				t.Errorf("Unexpected conversion result")
 				t.Log(diff)
 			}
+
+			println(string(tmp1))
 		})
 	}
 }

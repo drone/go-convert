@@ -279,7 +279,7 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		ID: d.identifiers.Generate(
 			slug.Create(stage.Name),
 		),
-		Name: stage.Name,
+		Name: slug.Create(stage.Name),
 		Type: v0.StageTypeCI,
 		Vars: convertVariables(spec.Envs),
 		Spec: v0.StageCI{
@@ -360,7 +360,7 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 		ID: d.identifiers.Generate(
 			slug.Create(src.Name),
 		),
-		Name:    src.Name,
+		Name:    slug.Create(src.Name),
 		Type:    v0.StepTypeRun,
 		Timeout: convertTimeout(src.Timeout),
 		Spec: &v0.StepRun{
@@ -393,7 +393,7 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 		ID: d.identifiers.Generate(
 			slug.Create(src.Name),
 		),
-		Name: src.Name,
+		Name: slug.Create(src.Name),
 		Type: v0.StepTypeBackground,
 		Spec: &v0.StepBackground{
 			Command:         spec_.Run,
@@ -419,7 +419,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 		ID: d.identifiers.Generate(
 			slug.Create(src.Name),
 		),
-		Name:    src.Name,
+		Name:    slug.Create(src.Name),
 		Type:    v0.StepTypePlugin,
 		Timeout: convertTimeout(src.Timeout),
 		Spec: &v0.StepPlugin{
@@ -441,7 +441,7 @@ func (d *Downgrader) convertStepAction(src *v1.Step) *v0.Step {
 		ID: d.identifiers.Generate(
 			slug.Create(src.Name),
 		),
-		Name:    src.Name,
+		Name:    slug.Create(src.Name),
 		Type:    v0.StepTypeAction,
 		Timeout: convertTimeout(src.Timeout),
 		Spec: &v0.StepAction{
@@ -460,7 +460,7 @@ func (d *Downgrader) convertStepBitrise(src *v1.Step) *v0.Step {
 		ID: d.identifiers.Generate(
 			slug.Create(src.Name),
 		),
-		Name:    src.Name,
+		Name:    slug.Create(src.Name),
 		Type:    v0.StepTypeBitrise,
 		Timeout: convertTimeout(src.Timeout),
 		Spec: &v0.StepBitrise{
