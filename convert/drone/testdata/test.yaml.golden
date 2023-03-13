@@ -29,7 +29,7 @@ stages:
         image: plugins/slack
         with:
           channel: test-channel
-          token: ${{ secrets.get("test-slack-token") }}
+          token: <+ secrets.getValue("test-slack-token") >
       type: plugin
   type: ci
   when:
