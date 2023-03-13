@@ -322,7 +322,7 @@ func convertVariables(src map[string]*v1.Variable) map[string]string {
 		case v.Value != "":
 			dst[k] = v.Value
 		case v.Secret != "":
-			dst[k] = fmt.Sprintf("${{ secrets.%s }}", v.Secret) // TODO figure out secret syntax
+			dst[k] = fmt.Sprintf("<+ secrets.getValue(%q) >", v.Secret) // TODO figure out secret syntax
 		}
 	}
 	return dst
@@ -333,7 +333,7 @@ func convertSettings(src map[string]*v1.Parameter) map[string]interface{} {
 	for k, v := range src {
 		switch {
 		case v.Secret != "":
-			dst[k] = fmt.Sprintf("${{ secrets.get(%q) }}", v.Secret)
+			dst[k] = fmt.Sprintf("<+ secrets.getValue(%q) >", v.Secret)
 		case v.Value != nil:
 			dst[k] = v.Value
 		}
