@@ -9,13 +9,13 @@ import (
 	"io"
 	"os"
 
-	"gopkg.in/yaml.v3"
+	buildkiteYaml "github.com/buildkite/yaml"
 )
 
 // Parse parses the configuration from io.Reader r.
 func Parse(r io.Reader) ([]*Pipeline, error) {
 	res := []*Pipeline{}
-	dec := yaml.NewDecoder(r)
+	dec := buildkiteYaml.NewDecoder(r)
 	for {
 		out := new(Pipeline)
 		err := dec.Decode(out)
