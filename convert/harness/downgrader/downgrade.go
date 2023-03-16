@@ -17,6 +17,7 @@ package downgrader
 import (
 	"fmt"
 	"io/ioutil"
+	"strings"
 	"time"
 
 	"github.com/docker/go-units"
@@ -297,6 +298,7 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 				Steps: steps,
 			},
 		},
+		When: convertWhen(stage.When, ""),
 	}
 }
 
@@ -361,10 +363,10 @@ func (d *Downgrader) convertStepParallel(src *v1.Step) []*v0.Step {
 // TODO convert reports
 func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepExec)
+	var id = d.identifiers.Generate(
+		slug.Create(src.Name))
 	return &v0.Step{
-		ID: d.identifiers.Generate(
-			slug.Create(src.Name),
-		),
+		ID:      id,
 		Name:    convertName(src.Name),
 		Type:    v0.StepTypeRun,
 		Timeout: convertTimeout(src.Timeout),
@@ -377,6 +379,7 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 			Privileged:      spec_.Privileged,
 			RunAsUser:       spec_.User,
 		},
+		When: convertWhen(src.When, id),
 	}
 }
 
@@ -393,11 +396,10 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 	if spec_.Entrypoint != "" {
 		entypoint = []string{spec_.Entrypoint}
 	}
-
+	var id = d.identifiers.Generate(
+		slug.Create(src.Name))
 	return &v0.Step{
-		ID: d.identifiers.Generate(
-			slug.Create(src.Name),
-		),
+		ID:   id,
 		Name: convertName(src.Name),
 		Type: v0.StepTypeBackground,
 		Spec: &v0.StepBackground{
@@ -410,6 +412,7 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 			Privileged:      spec_.Privileged,
 			RunAsUser:       spec_.User,
 		},
+		When: convertWhen(src.When, id),
 	}
 }
 
@@ -420,10 +423,10 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 // TODO convert reports
 func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepPlugin)
+	var id = d.identifiers.Generate(
+		slug.Create(src.Name))
 	return &v0.Step{
-		ID: d.identifiers.Generate(
-			slug.Create(src.Name),
-		),
+		ID:      id,
 		Name:    convertName(src.Name),
 		Type:    v0.StepTypePlugin,
 		Timeout: convertTimeout(src.Timeout),
@@ -435,6 +438,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 			Privileged:      spec_.Privileged,
 			RunAsUser:       spec_.User,
 		},
+		When: convertWhen(src.When, id),
 	}
 }
 
@@ -442,10 +446,10 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 // structure to the v0 harness structure.
 func (d *Downgrader) convertStepAction(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepAction)
+	var id = d.identifiers.Generate(
+		slug.Create(src.Name))
 	return &v0.Step{
-		ID: d.identifiers.Generate(
-			slug.Create(src.Name),
-		),
+		ID:      id,
 		Name:    convertName(src.Name),
 		Type:    v0.StepTypeAction,
 		Timeout: convertTimeout(src.Timeout),
@@ -454,6 +458,7 @@ func (d *Downgrader) convertStepAction(src *v1.Step) *v0.Step {
 			With: convertSettings(spec_.With),
 			Envs: spec_.Envs,
 		},
+		When: convertWhen(src.When, id),
 	}
 }
 
@@ -461,10 +466,10 @@ func (d *Downgrader) convertStepAction(src *v1.Step) *v0.Step {
 // structure to the v0 harness structure.
 func (d *Downgrader) convertStepBitrise(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepBitrise)
+	var id = d.identifiers.Generate(
+		slug.Create(src.Name))
 	return &v0.Step{
-		ID: d.identifiers.Generate(
-			slug.Create(src.Name),
-		),
+		ID:      id,
 		Name:    convertName(src.Name),
 		Type:    v0.StepTypeBitrise,
 		Timeout: convertTimeout(src.Timeout),
@@ -473,6 +478,7 @@ func (d *Downgrader) convertStepBitrise(src *v1.Step) *v0.Step {
 			With: convertSettings(spec_.With),
 			Envs: spec_.Envs,
 		},
+		When: convertWhen(src.When, id),
 	}
 }
 
@@ -531,4 +537,114 @@ func convertImagePull(v string) (s string) {
 	default:
 		return ""
 	}
+}
+
+func convertWhen(when *v1.When, stepId string) *v0.When {
+	if when == nil {
+		return nil
+	}
+
+	newWhen := &v0.When{
+		StageStatus: "Success", // default
+	}
+	conditions := []string{}
+
+	for _, cond := range when.Cond {
+		for k, v := range cond {
+			switch k {
+			case "event":
+				if v.In != nil {
+					eventConditions := []string{}
+					for _, event := range v.In {
+						eventConditions = append(eventConditions, fmt.Sprintf("<+trigger.event> == \"%s\"", event))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(eventConditions, " || ")))
+				}
+				if v.Not != nil && v.Not.In != nil {
+					notEventConditions := []string{}
+					for _, event := range v.Not.In {
+						notEventConditions = append(notEventConditions, fmt.Sprintf("<+trigger.event> != \"%s\"", event))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notEventConditions, " && ")))
+				}
+			case "status":
+				if v.Eq != "" {
+					newWhen.StageStatus = v.Eq
+				}
+				if v.In != nil {
+					statusConditions := []string{}
+					for _, status := range v.In {
+						statusConditions = append(statusConditions, fmt.Sprintf("<+execution.steps.%s.status> == \"%s\"", stepId, status))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(statusConditions, " || ")))
+				}
+			case "branch":
+				if v.In != nil {
+					branchConditions := []string{}
+					for _, branch := range v.In {
+						branchConditions = append(branchConditions, fmt.Sprintf("<+codebase.sourceBranch> == \"%s\"", branch))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(branchConditions, " || ")))
+				}
+				if v.Not != nil && v.Not.In != nil {
+					notBranchConditions := []string{}
+					for _, branch := range v.Not.In {
+						notBranchConditions = append(notBranchConditions, fmt.Sprintf("<+codebase.sourceBranch> != \"%s\"", branch))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notBranchConditions, " && ")))
+				}
+			case "instance":
+				if v.In != nil {
+					instanceConditions := []string{}
+					for _, instance := range v.In {
+						instanceConditions = append(instanceConditions, fmt.Sprintf("<+instance.name> == \"%s\"", instance))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(instanceConditions, " || ")))
+				}
+				if v.Not != nil && v.Not.In != nil {
+					notInstanceConditions := []string{}
+					for _, instance := range v.Not.In {
+						notInstanceConditions = append(notInstanceConditions, fmt.Sprintf("<+instance.name> != \"%s\"", instance))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notInstanceConditions, " && ")))
+				}
+			case "repo":
+				if v.In != nil {
+					repoConditions := []string{}
+					for _, repo := range v.In {
+						repoConditions = append(repoConditions, fmt.Sprintf("<+repo.full_name> == \"%s\"", repo))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(repoConditions, " || ")))
+				}
+				if v.Not != nil && v.Not.In != nil {
+					notRepoConditions := []string{}
+					for _, repo := range v.Not.In {
+						notRepoConditions = append(notRepoConditions, fmt.Sprintf("<+pipeline.variables.gitConnector> != \"%s\"", repo)) //TODO this needs checked.
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notRepoConditions, " && ")))
+				}
+			case "ref":
+				if v.In != nil {
+					refConditions := []string{}
+					for _, ref := range v.In {
+						refConditions = append(refConditions, fmt.Sprintf("<+codebase.commitRef> == \"%s\"", ref))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(refConditions, " || ")))
+				}
+				if v.Not != nil && v.Not.In != nil {
+					notRefConditions := []string{}
+					for _, ref := range v.Not.In {
+						notRefConditions = append(notRefConditions, fmt.Sprintf("<+codebase.commitRef> != \"%s\"", ref))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notRefConditions, " && ")))
+				}
+			}
+		}
+	}
+
+	if len(conditions) > 0 {
+		newWhen.Condition = strings.Join(conditions, " && ")
+	}
+
+	return newWhen
 }

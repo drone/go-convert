@@ -28,6 +28,7 @@ type (
 		Spec        interface{} `json:"spec,omitempty"         yaml:"spec,omitempty"`
 		Type        string      `json:"type,omitempty"         yaml:"type,omitempty"`
 		Vars        []*Variable `json:"variables,omitempty"    yaml:"variables,omitempty"`
+		When        *When       `json:"when,omitempty"         yaml:"when,omitempty"`
 	}
 
 	// StageApproval defines an approval stage.
