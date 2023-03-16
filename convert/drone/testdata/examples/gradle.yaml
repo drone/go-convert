@@ -1,0 +1,9 @@
+kind: pipeline
+name: default
+
+steps:
+- name: test
+  image: gradle:jdk10
+  commands:
+  - gradle assemble
+  - gradle check

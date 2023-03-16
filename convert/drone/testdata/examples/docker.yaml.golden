@@ -1,0 +1,23 @@
+options: {}
+stages:
+- name: default
+  spec:
+    clone: {}
+    runtime:
+      spec: {}
+      type: machine
+    steps:
+    - name: test
+      spec:
+        image: docker:dind
+        mount:
+        - name: dockersock
+          path: /var/run/docker.sock
+        run: docker ps -a
+      type: script
+    volumes:
+    - name: dockersock
+      spec:
+        path: /var/run/docker.sock
+      type: host
+  type: ci

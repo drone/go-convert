@@ -342,7 +342,7 @@ func convertVolumes(src []*v1.Volume) []*v2.Volume {
 		case v.EmptyDir != nil:
 			dst = append(dst, &v2.Volume{
 				Name: v.Name,
-				Type: "host",
+				Type: "temp",
 				Spec: &v2.VolumeTemp{
 					// TODO convert medium and limit
 				},
