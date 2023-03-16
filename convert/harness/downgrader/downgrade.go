@@ -283,7 +283,9 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 	// convert the drone stage to a harness stage.
 	return &v0.Stage{
 		ID: d.identifiers.Generate(
+			slug.Create(stage.Id),
 			slug.Create(stage.Name),
+			slug.Create(stage.Type),
 		),
 		Name: convertName(stage.Name),
 		Type: v0.StageTypeCI,
