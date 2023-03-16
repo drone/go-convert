@@ -121,7 +121,7 @@ func (d *Converter) convert() ([]byte, error) {
 	// create the harness pipeline
 	pipeline := &harness.Pipeline{
 		Version: 1,
-		Default: convertDefault(d.config),
+		Options: convertDefault(d.config),
 	}
 
 	for _, steps := range d.config.Pipelines.Default {
@@ -173,13 +173,6 @@ func (d *Converter) convertStage() *harness.Stage {
 		spec.Cache = convertCache(d.config.Definitions, paths)
 	}
 
-	// find the unique selectors and append
-	// to the stage.
-	if runson := extractRunsOn(d.stage); len(runson) != 0 {
-		spec.Delegate = new(harness.Delegate)
-		spec.Delegate.Selectors = runson
-	}
-
 	// find the unique services used by this stage and
 	// setup the relevant background steps
 	if services := extractServices(d.stage); len(services) != 0 {
@@ -193,6 +186,13 @@ func (d *Converter) convertStage() *harness.Stage {
 		Spec: spec,
 		// TODO When
 		// TODO On
+	}
+
+	// find the unique selectors and append
+	// to the stage.
+	if runson := extractRunsOn(d.stage); len(runson) != 0 {
+		stage.Delegate = new(harness.Delegate)
+		stage.Delegate.Selectors = runson
 	}
 
 	// default docker service (container-based only)

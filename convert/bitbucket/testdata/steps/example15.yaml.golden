@@ -1,10 +1,6 @@
 stages:
 - name: build
   spec:
-    delegate:
-      selectors:
-      - my.custom.label
-      - self.hosted
     steps:
     - name: Step 1
       spec:
@@ -16,4 +12,8 @@ stages:
         run: echo "This step will run on Atlassian's infrastructure as usual.";
       type: script
   type: ci
+  delegate:
+    selectors:
+    - my.custom.label
+    - self.hosted
 version: 1

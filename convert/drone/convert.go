@@ -121,7 +121,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	//
 
 	pipeline := &v2.Pipeline{
-		Default: &v2.Default{
+		Options: &v2.Default{
 			Registry: convertRegistry(ctx.pipeline),
 		},
 	}
@@ -130,25 +130,26 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		if from == nil {
 			continue
 		}
+
 		switch from.Kind {
 		case v1.KindSecret: // TODO
 		case v1.KindSignature: // TODO
 		case v1.KindPipeline:
 			pipeline.Stages = append(pipeline.Stages, &v2.Stage{
-				Name: from.Name,
-				Type: "ci",
-				When: convertCond(from.Trigger),
+				Name:     from.Name,
+				Type:     "ci",
+				When:     convertCond(from.Trigger),
+				Delegate: convertNode(from.Node),
 				Spec: &v2.StageCI{
 					Clone:    convertClone(from.Clone),
-					Delegate: convertNode(from.Node),
 					Envs:     copyenv(from.Environment),
 					Platform: convertPlatform(from.Platform),
 					Runtime:  convertRuntime(from),
 					Steps:    convertSteps(from),
+					Volumes:  convertVolumes(from.Volumes),
 
-					// TODO support for stage.tags
+					// TODO support for delegate.selectors from from.Node
 					// TODO support for stage.variables
-					// TODO support for stage.volumes ?
 				},
 			})
 		}
@@ -230,6 +231,7 @@ func convertPlugin(src *v1.Step) *v2.Step {
 		When: convertCond(src.When),
 		Spec: &v2.StepPlugin{
 			Image:      src.Image,
+			Mount:      convertMounts(src.Volumes),
 			Privileged: src.Privileged,
 			Pull:       convertPull(src.Pull),
 			User:       src.User,
@@ -248,6 +250,7 @@ func convertBackground(src *v1.Step) *v2.Step {
 		When: convertCond(src.When),
 		Spec: &v2.StepBackground{
 			Image:      src.Image,
+			Mount:      convertMounts(src.Volumes),
 			Privileged: src.Privileged,
 			Pull:       convertPull(src.Pull),
 			Shell:      convertShell(src.Shell),
@@ -269,6 +272,7 @@ func convertRun(src *v1.Step) *v2.Step {
 		When: convertCond(src.When),
 		Spec: &v2.StepExec{
 			Image:      src.Image,
+			Mount:      convertMounts(src.Volumes),
 			Privileged: src.Privileged,
 			Pull:       convertPull(src.Pull),
 			Shell:      convertShell(src.Shell),
@@ -324,6 +328,54 @@ func convertVariables(src map[string]*v1.Variable) map[string]string {
 		case v.Secret != "":
 			dst[k] = fmt.Sprintf("<+ secrets.getValue(%q) >", v.Secret) // TODO figure out secret syntax
 		}
+	}
+	return dst
+}
+
+func convertVolumes(src []*v1.Volume) []*v2.Volume {
+	var dst []*v2.Volume
+	for _, v := range src {
+		if v == nil || v.Name == "" {
+			continue
+		}
+		switch {
+		case v.EmptyDir != nil:
+			dst = append(dst, &v2.Volume{
+				Name: v.Name,
+				Type: "host",
+				Spec: &v2.VolumeTemp{
+					// TODO convert medium and limit
+				},
+			})
+		case v.HostPath != nil:
+			dst = append(dst, &v2.Volume{
+				Name: v.Name,
+				Type: "host",
+				Spec: &v2.VolumeHost{
+					Path: v.HostPath.Path,
+				},
+			})
+		}
+	}
+	if len(dst) == 0 {
+		return nil
+	}
+	return dst
+}
+
+func convertMounts(src []*v1.VolumeMount) []*v2.Mount {
+	var dst []*v2.Mount
+	for _, v := range src {
+		if v == nil || v.Name == "" || v.MountPath == "" {
+			continue
+		}
+		dst = append(dst, &v2.Mount{
+			Name: v.Name,
+			Path: v.MountPath,
+		})
+	}
+	if len(dst) == 0 {
+		return nil
 	}
 	return dst
 }
@@ -407,8 +459,8 @@ func convertRuntime(src *v1.Pipeline) *v2.Runtime {
 	}
 }
 
-func convertClone(src v1.Clone) *v2.Clone {
-	dst := new(v2.Clone)
+func convertClone(src v1.Clone) *v2.CloneStage {
+	dst := new(v2.CloneStage)
 	if v := src.Depth; v != 0 {
 		dst.Depth = int64(v)
 	}
