@@ -34,6 +34,14 @@ func WithKubernetes(namespace, connector string) Option {
 	}
 }
 
+// WithAttempts returns an option to set the number
+// of retry attempts.
+func WithAttempts(attempts int) Option {
+	return func(d *Converter) {
+		d.attempts = attempts
+	}
+}
+
 // WithToken returns an option to set the API token
 // for Chat GPT.
 func WithToken(token string) Option {

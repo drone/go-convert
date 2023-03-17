@@ -29,6 +29,7 @@ import (
 
 type Jenkins struct {
 	token      string
+	attempts   int
 	name       string
 	proj       string
 	org        string
@@ -51,6 +52,7 @@ func (*Jenkins) Usage() string {
 
 func (c *Jenkins) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.token, "token", "", "chat gpt token")
+	f.IntVar(&c.attempts, "attempts", 1, "chat gtp generation attempts")
 	f.BoolVar(&c.downgrade, "downgrade", false, "downgrade to the legacy yaml format")
 	f.BoolVar(&c.beforeAfter, "before-after", false, "print the befor and after")
 

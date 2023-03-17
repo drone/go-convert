@@ -19,6 +19,8 @@ func TestOptions(t *testing.T) {
 	p := New(
 		WithDockerhub("account.docker"),
 		WithKubernetes("namespace", "connector.kubernetes"),
+		WithAttempts(5),
+		WithToken("dummy-da39a3ee5e6b4b0d3255bfef95601890afd80709"),
 	)
 
 	if got, want := p.kubeConnector, "connector.kubernetes"; got != want {
@@ -33,6 +35,13 @@ func TestOptions(t *testing.T) {
 	if got, want := p.dockerhubConn, "account.docker"; got != want {
 		t.Errorf("Want docker connector %q, got %q", want, got)
 	}
+	if got, want := p.attempts, 5; got != want {
+		t.Errorf("Want attempts %v, got %v", want, got)
+	}
+	if got, want := p.token, "dummy-da39a3ee5e6b4b0d3255bfef95601890afd80709"; got != want {
+		t.Errorf("Want token %q, got %q", want, got)
+	}
+
 }
 
 func TestOptions_Defaults(t *testing.T) {
@@ -49,5 +58,8 @@ func TestOptions_Defaults(t *testing.T) {
 	}
 	if got, want := p.dockerhubConn, ""; got != want {
 		t.Errorf("Want docker connector %q, got %q", want, got)
+	}
+	if got, want := p.attempts, 1; got != want {
+		t.Errorf("Want attempts %v, got %v", want, got)
 	}
 }

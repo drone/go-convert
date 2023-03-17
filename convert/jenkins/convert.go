@@ -27,6 +27,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/drone/go-convert/convert/gitlab"
 )
@@ -39,6 +40,7 @@ type Converter struct {
 	kubeConnector string
 	dockerhubConn string
 	token         string
+	attempts      int
 }
 
 // New creates a new Converter that converts a Drone
@@ -62,6 +64,11 @@ func New(options ...Option) *Converter {
 		d.kubeEnabled = true
 	}
 
+	// set the minimum number of attempts
+	if d.attempts == 0 {
+		d.attempts = 1
+	}
+
 	return d
 }
 
@@ -71,17 +78,17 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return d.convert(b)
+	return d.ConvertBytes(b)
 }
 
 // ConvertString downgrades a v1 pipeline.
 func (d *Converter) ConvertBytes(b []byte) ([]byte, error) {
-	return d.convert(b)
+	return d.retry(b)
 }
 
 // ConvertString downgrades a v1 pipeline.
 func (d *Converter) ConvertString(s string) ([]byte, error) {
-	return d.convert([]byte(s))
+	return d.ConvertBytes([]byte(s))
 }
 
 // ConvertFile downgrades a v1 pipeline.
@@ -94,7 +101,28 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 	return d.Convert(f)
 }
 
-// converts converts a Drone pipeline to a Harness pipeline.
+// retry attempts the conversion with a backoff
+func (d *Converter) retry(src []byte) ([]byte, error) {
+	var out []byte
+	var err error
+	for i := 0; i < d.attempts; i++ {
+		// puase before retry
+		if i != 0 {
+			// print status for debug purposes
+			fmt.Fprintln(os.Stderr, "attempt failed")
+			fmt.Fprintln(os.Stderr, err)
+			// 10 seconds before retry
+			time.Sleep(time.Second * 10)
+		}
+		// attempt the conversion
+		if out, err = d.convert(src); err == nil {
+			break
+		}
+	}
+	return out, err
+}
+
+// convert converts a Drone pipeline to a Harness pipeline.
 func (d *Converter) convert(src []byte) ([]byte, error) {
 
 	// gpt input
@@ -103,7 +131,7 @@ func (d *Converter) convert(src []byte) ([]byte, error) {
 		Messages: []*message{
 			{
 				Role:    "user",
-				Content: fmt.Sprintf("Convert this Jenkinsfile to a GitLab Yaml. Omit git clone or git checkout steps.\n\n```\n%s\n```\n", []byte(src)),
+				Content: fmt.Sprintf("Convert this Jenkinsfile to a GitLab Yaml.\n\n```\n%s\n```\n", []byte(src)),
 			},
 		},
 	}
@@ -136,7 +164,7 @@ func (d *Converter) convert(src []byte) ([]byte, error) {
 		os.Stderr.WriteString("\n")
 		os.Stderr.WriteString("\n---")
 		os.Stderr.WriteString("\n")
-		os.Stderr.WriteString(code)
+		os.Stderr.WriteString(res.Choices[0].Message.Content)
 		os.Stderr.WriteString("\n")
 		os.Stderr.WriteString("\n---")
 		os.Stderr.WriteString("\n")
