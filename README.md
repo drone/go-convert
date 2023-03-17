@@ -100,6 +100,12 @@ Convert a Jenkinsfile:
 ./go-convert jenkins --token=<token> samples/Jenkinsfile
 ```
 
+Convert a Jenkinsfile using Drone as the intermediate format:
+
+```
+./go-convert jenkins --drone --token=<token> samples/Jenkinsfile
+```
+
 Convert a Jenkinsfile and downgrade to the Harness v0 format:
 
 ```
