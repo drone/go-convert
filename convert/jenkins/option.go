@@ -49,3 +49,18 @@ func WithToken(token string) Option {
 		d.token = token
 	}
 }
+
+// WithDebug returns an option to use debug mode.
+func WithDebug() Option {
+	return func(d *Converter) {
+		d.debug = true
+	}
+}
+
+// UseDrone returns an option to use Drone as the
+// intermediate yaml representation.
+func UseDrone() Option {
+	return func(d *Converter) {
+		d.fromDone = true
+	}
+}

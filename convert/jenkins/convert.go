@@ -29,6 +29,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/drone/go-convert/convert/drone"
 	"github.com/drone/go-convert/convert/gitlab"
 )
 
@@ -39,6 +40,9 @@ type Converter struct {
 	kubeNamespace string
 	kubeConnector string
 	dockerhubConn string
+	fromDone      bool
+	fromGitlab    bool
+	debug         bool
 	token         string
 	attempts      int
 }
@@ -124,6 +128,10 @@ func (d *Converter) retry(src []byte) ([]byte, error) {
 
 // convert converts a Drone pipeline to a Harness pipeline.
 func (d *Converter) convert(src []byte) ([]byte, error) {
+	format := "GitLab"
+	if d.fromDone {
+		format = "Drone"
+	}
 
 	// gpt input
 	req := &request{
@@ -131,7 +139,7 @@ func (d *Converter) convert(src []byte) ([]byte, error) {
 		Messages: []*message{
 			{
 				Role:    "user",
-				Content: fmt.Sprintf("Convert this Jenkinsfile to a GitLab Yaml.\n\n```\n%s\n```\n", []byte(src)),
+				Content: fmt.Sprintf("Convert this Jenkinsfile to a %s Yaml.\n\n```\n%s\n```\n", format, []byte(src)),
 			},
 		},
 	}
@@ -152,6 +160,20 @@ func (d *Converter) convert(src []byte) ([]byte, error) {
 	// extract the message
 	code := extractCodeFence(res.Choices[0].Message.Content)
 
+	if d.fromDone {
+		// convert the pipeline yaml from the drone
+		// format to the harness yaml format.
+		converter := drone.New(
+			drone.WithDockerhub(d.dockerhubConn),
+			drone.WithKubernetes(d.kubeConnector, d.kubeNamespace),
+		)
+		pipeline, err := converter.ConvertString(code)
+		if err != nil {
+			// TODO write debug messages
+		}
+		return pipeline, err
+	}
+
 	// convert the pipeline yaml from the gitlab
 	// format to the harness yaml format.
 	converter := gitlab.New(
@@ -160,24 +182,25 @@ func (d *Converter) convert(src []byte) ([]byte, error) {
 	)
 	pipeline, err := converter.ConvertString(code)
 	if err != nil {
-		// temporarily dump chat gpt response on error
-		os.Stderr.WriteString("\n")
-		os.Stderr.WriteString("\n---")
-		os.Stderr.WriteString("\n")
-		os.Stderr.WriteString(res.Choices[0].Message.Content)
-		os.Stderr.WriteString("\n")
-		os.Stderr.WriteString("\n---")
-		os.Stderr.WriteString("\n")
+		// TODO write debug messages
 	}
 
 	return pipeline, err
 }
 
 func extractCodeFence(s string) string {
-	_, a, _ := strings.Cut(s, "```")
-	b, _, _ := strings.Cut(a, "```")
-	b = strings.TrimPrefix(b, "yaml")
-	return b
+	// trim space
+	s = strings.TrimSpace(s)
+	s = strings.TrimSuffix(s, "```")
+	// find and trim the code fence prefix
+	if _, c, ok := strings.Cut(s, "```"); ok {
+		s = c
+		// find and trim the code fence suffix
+		if c, _, ok := strings.Cut(s, "```"); ok {
+			s = c
+		}
+	}
+	return strings.TrimPrefix(s, "yaml")
 }
 
 //

@@ -18,3 +18,32 @@ import "testing"
 func TestConvert(t *testing.T) {
 	t.Skip()
 }
+
+func TestExtractCodeFence(t *testing.T) {
+	tests := []struct {
+		before string
+		after  string
+	}{
+		{
+			before: "foo ```bar``` baz",
+			after:  "bar",
+		},
+		{
+			before: "foo ```bar",
+			after:  "bar",
+		},
+		{
+			before: "bar```",
+			after:  "bar",
+		},
+		{
+			before: "bar",
+			after:  "bar",
+		},
+	}
+	for i, test := range tests {
+		if got, want := extractCodeFence(test.before), test.after; got != want {
+			t.Errorf("Want code %q got %q at index %d", want, got, i)
+		}
+	}
+}
