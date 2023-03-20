@@ -168,8 +168,19 @@ func (d *Converter) convert(src []byte) ([]byte, error) {
 			drone.WithKubernetes(d.kubeConnector, d.kubeNamespace),
 		)
 		pipeline, err := converter.ConvertString(code)
-		if err != nil {
-			// TODO write debug messages
+		if err != nil && d.debug {
+			// dump data for debug mode
+			os.Stdout.WriteString("\n")
+			os.Stdout.WriteString("---")
+			os.Stdout.WriteString("\n")
+			os.Stdout.WriteString(res.Choices[0].Message.Content)
+			os.Stdout.WriteString("\n")
+			os.Stdout.WriteString("---")
+			os.Stdout.WriteString("\n")
+			os.Stdout.Write(pipeline)
+			os.Stdout.WriteString("\n")
+			os.Stdout.WriteString("---")
+			os.Stdout.WriteString("\n")
 		}
 		return pipeline, err
 	}
@@ -182,7 +193,20 @@ func (d *Converter) convert(src []byte) ([]byte, error) {
 	)
 	pipeline, err := converter.ConvertString(code)
 	if err != nil {
-		// TODO write debug messages
+		// dump data for debug mode
+		if err != nil && d.debug {
+			os.Stdout.WriteString("\n")
+			os.Stdout.WriteString("---")
+			os.Stdout.WriteString("\n")
+			os.Stdout.WriteString(res.Choices[0].Message.Content)
+			os.Stdout.WriteString("\n")
+			os.Stdout.WriteString("---")
+			os.Stdout.WriteString("\n")
+			os.Stdout.Write(pipeline)
+			os.Stdout.WriteString("\n")
+			os.Stdout.WriteString("---")
+			os.Stdout.WriteString("\n")
+		}
 	}
 
 	return pipeline, err
