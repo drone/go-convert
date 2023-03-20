@@ -190,15 +190,6 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		enableClone = false
 	}
 
-	// create the platform
-	var platform *v0.Platform
-	if spec.Platform != nil {
-		platform = &v0.Platform{
-			OS:   "Linux",
-			Arch: "Amd64",
-		}
-	}
-
 	// convert volumes
 	if len(spec.Volumes) > 0 {
 		// TODO
@@ -235,13 +226,6 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 				Type: "Cloud",
 				Spec: struct{}{},
 			}
-
-			if platform == nil {
-				platform = &v0.Platform{
-					OS:   "Linux",
-					Arch: "Amd64",
-				}
-			}
 		}
 	}
 
@@ -251,13 +235,6 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		runtime = &v0.Runtime{
 			Type: "Cloud",
 			Spec: struct{}{},
-		}
-
-		if platform == nil {
-			platform = &v0.Platform{
-				OS:   "Linux",
-				Arch: "Amd64",
-			}
 		}
 	}
 
@@ -291,7 +268,7 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 			Cache:          convertCache(spec.Cache),
 			Clone:          enableClone,
 			Infrastructure: infra,
-			Platform:       platform,
+			Platform:       convertPlatform(spec.Platform, runtime),
 			Runtime:        runtime,
 			Execution: v0.Execution{
 				Steps: steps,
@@ -530,5 +507,63 @@ func convertImagePull(v string) (s string) {
 		return v0.ImagePullIfNotPresent
 	default:
 		return ""
+	}
+}
+
+func convertPlatform(platform *v1.Platform, runtime *v0.Runtime) *v0.Platform {
+	if platform != nil {
+		var os, arch string
+
+		// convert the OS name
+		switch platform.Os.String() {
+		case "linux":
+			os = "Linux"
+		case "windows":
+			os = "Windows"
+		case "macos", "mac", "darwin":
+			os = "MacOS"
+		default:
+			os = "Linux"
+		}
+
+		// convert the Arch name
+		switch platform.Arch.String() {
+		case "amd64":
+			arch = "Amd64"
+		case "arm", "arm64":
+			arch = "Arm64"
+		default:
+			// choose the default architecture
+			// based on the os.
+			switch os {
+			case "MacOS":
+				arch = "Arm64"
+			default:
+				arch = "Amd64"
+			}
+		}
+
+		// ensure supported infra when using harness cloud
+		if runtime != nil && runtime.Type == "Cloud" {
+			switch os {
+			case "MacOS":
+				// force amd64 for Mac when using Cloud
+				arch = "Arm64"
+			case "Windows":
+				// force amd64 for Windows when using Cloud
+				arch = "Amd64"
+			}
+		}
+
+		return &v0.Platform{
+			OS:   os,
+			Arch: arch,
+		}
+	} else {
+		// default to linux amd64
+		return &v0.Platform{
+			OS:   "Linux",
+			Arch: "Amd64",
+		}
 	}
 }
