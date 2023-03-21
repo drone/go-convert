@@ -82,7 +82,7 @@ func (c *Bitbucket) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}
 	// format to the harness format.
 	converter := bitbucket.New(
 		bitbucket.WithDockerhub(c.dockerConn),
-		bitbucket.WithKubernetes(c.kubeConn, c.kubeName),
+		bitbucket.WithKubernetes(c.kubeName, c.kubeConn),
 	)
 	after, err := converter.ConvertBytes(before)
 	if err != nil {

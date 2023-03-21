@@ -95,7 +95,7 @@ func (c *Jenkins) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 
 	opts := []jenkins.Option{
 		jenkins.WithDockerhub(c.dockerConn),
-		jenkins.WithKubernetes(c.kubeConn, c.kubeName),
+		jenkins.WithKubernetes(c.kubeName, c.kubeConn),
 		jenkins.WithToken(c.token),
 	}
 

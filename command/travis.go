@@ -82,7 +82,7 @@ func (c *Travis) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 	// format to the harness yaml format.
 	converter := travis.New(
 		travis.WithDockerhub(c.dockerConn),
-		travis.WithKubernetes(c.kubeConn, c.kubeName),
+		travis.WithKubernetes(c.kubeName, c.kubeConn),
 	)
 	after, err := converter.ConvertBytes(before)
 	if err != nil {
@@ -97,7 +97,7 @@ func (c *Travis) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 		d := downgrader.New(
 			downgrader.WithCodebase(c.repoName, c.repoConn),
 			downgrader.WithDockerhub(c.dockerConn),
-			downgrader.WithKubernetes(c.kubeName, c.kubeConn),
+			downgrader.WithKubernetes(c.kubeName, c.kubeName),
 			downgrader.WithName(c.name),
 			downgrader.WithOrganization(c.org),
 			downgrader.WithProject(c.proj),
