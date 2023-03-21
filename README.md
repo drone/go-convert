@@ -97,19 +97,19 @@ __Jenkins__
 Convert a Jenkinsfile:
 
 ```
-./go-convert jenkins --token=<token> samples/Jenkinsfile
+./go-convert jenkins --token=<chat-gpt-token> samples/Jenkinsfile
 ```
 
 Convert a Jenkinsfile using Drone as the intermediate format:
 
 ```
-./go-convert jenkins --drone --token=<token> samples/Jenkinsfile
+./go-convert jenkins --drone --token=<chat-gpt-token> samples/Jenkinsfile
 ```
 
 Convert a Jenkinsfile and downgrade to the Harness v0 format:
 
 ```
-./go-convert jenkins --token=<token> --downgrade samples/Jenkinsfile
+./go-convert jenkins --token=<chat-gpt-token> --downgrade samples/Jenkinsfile
 ```
 
 __Syntax Highlighting__
