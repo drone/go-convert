@@ -23,6 +23,14 @@ var defaultInstall = map[string]string{
 	"elm":     "npm install",
 	"erlang":  "rebar get-deps",
 	"go":      "go install",
+	"groovy":  "gradle assemble",
+	"haskell": "cabal install --only-dependencies --enable-tests",
+	"java":    "mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V",
+	"node_js": "npm install",
+	"perl":    "cpanm --quiet --installdeps --notest .",
+	"python":  "pip install -r requirements.txt",
+	"ruby":    "bundle install --jobs=3 --retry=3",
+	"rust":    "cargo build --verbose",
 }
 
 var defaultScript = map[string]string{
@@ -37,4 +45,19 @@ var defaultScript = map[string]string{
 	"elm":     "elm-format --validate . && elm-test",
 	"erlang":  "rebar compile && rebar skip_deps=true eunit",
 	"go":      "go test -v",
+	"groovy":  "gradle check",
+	"haskell": "cabal configure --enable-tests && cabal build && cabal test",
+	"java":    "mvn test -B",
+	"node_js": "npm test",
+	"matlab":  `matlab -batch "results = runtests('IncludeSubfolders',true); assertSuccess(results);"`,
+	"perl":    "perl Build.PL && ./Build test",
+	"perl6":   "PERL6LIB=lib prove --ext .t --ext .t6 -v -r --exec=perl6 t/",
+	"php":     "phpunit",
+	"ruby":    "rake",
+	"rust":    "cargo build --verbose; cargo test --verbose",
+}
+
+var defaultImage = map[string]string{
+	"c":  "gcc",
+	"go": "golang",
 }

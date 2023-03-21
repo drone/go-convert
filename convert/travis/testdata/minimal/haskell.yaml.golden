@@ -1,0 +1,15 @@
+version: 1
+stages:
+- desc: converted from travis.yml
+  name: pipeline
+  type: ci
+  spec:
+    steps:
+    - name: install
+      type: script
+      spec:
+        run: cabal install --only-dependencies --enable-tests
+    - name: script
+      type: script
+      spec:
+        run: cabal configure --enable-tests && cabal build && cabal test
