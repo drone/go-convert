@@ -151,9 +151,10 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		}
 
 		pipeline.Stages = append(pipeline.Stages, &harness.Stage{
-			Name: from.Name,
-			Type: "ci",
-			When: convertCond(&from.On),
+			Name:     from.Name,
+			Type:     "ci",
+			When:     convertCond(&from.On),
+			Strategy: convertStrategy(actionJob.Strategy),
 			Spec: &harness.StageCI{
 				Clone:    cloneStage,
 				Envs:     copyEnv(from.Environment),
@@ -284,6 +285,11 @@ func copyEnv(src map[string]string) map[string]string {
 
 func convertSteps(src *v1.Job) []*harness.Step {
 	var steps []*harness.Step
+	for serviceName, service := range src.Services {
+		if service != nil {
+			steps = append(steps, convertServices(service, serviceName))
+		}
+	}
 	for _, step := range src.Steps {
 		if isCheckoutAction(step.Uses) {
 			continue
@@ -313,7 +319,20 @@ func convertAction(src *v1.Step) *harness.StepAction {
 		Envs: src.Environment,
 	}
 	for key, value := range src.With {
-		dst.With[key] = fmt.Sprintf("%v", value)
+		switch v := value.(type) {
+		case float64:
+			dst.With[key] = fmt.Sprintf("%v", v)
+		case bool:
+			dst.With[key] = value
+		case string:
+			if strings.HasPrefix(v, "'") && strings.HasSuffix(v, "'") {
+				dst.With[key] = value
+			} else {
+				dst.With[key] = fmt.Sprintf("%s", v)
+			}
+		default:
+			dst.With[key] = value
+		}
 	}
 	return dst
 }
@@ -322,6 +341,45 @@ func convertRun(src *v1.Step) *harness.StepExec {
 	dst := &harness.StepExec{
 		Run:  src.Run,
 		Envs: src.Environment,
+	}
+	return dst
+}
+
+func convertServices(service *v1.Service, serviceName string) *harness.Step {
+	return &harness.Step{
+		Name: serviceName,
+		Type: "background",
+		Spec: &harness.StepBackground{
+			Image: service.Image,
+		},
+	}
+}
+
+func convertStrategy(src *v1.Strategy) *harness.Strategy {
+	if src == nil {
+		return nil
+	}
+
+	dst := &harness.Strategy{
+		Type: "matrix",
+		Spec: &harness.Matrix{
+			Axis:    make(map[string][]string),
+			Exclude: make([]map[string]string, 0),
+		},
+	}
+
+	matrixSpec := dst.Spec.(*harness.Matrix)
+
+	for key, values := range src.Matrix {
+		matrixSpec.Axis[key] = values
+	}
+
+	for _, includeMap := range src.Include {
+		convertedMap := make(map[string]string)
+		for key, value := range includeMap {
+			convertedMap[key] = fmt.Sprintf("%v", value)
+		}
+		matrixSpec.Include = append(matrixSpec.Include, convertedMap)
 	}
 	return dst
 }

@@ -1,0 +1,33 @@
+name: default
+stages:
+- name: Ruby
+  spec:
+    clone: {}
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: machine
+    steps:
+    - name: Set up Ruby
+      spec:
+        uses: ruby/setup-ruby@ee2113536afb7f793eed4ce60e8d3b26db912da4
+        with:
+          bundler-cache: true
+          ruby-version: ${{ matrix.ruby-version }}
+      type: action
+    - name: Run tests
+      spec:
+        run: bundle exec rake
+      type: script
+  strategy:
+    spec:
+      axis:
+        ruby-version:
+        - "2.6"
+        - "2.7"
+        - "3.0"
+    type: matrix
+  type: ci
+version: 1

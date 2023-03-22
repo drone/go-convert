@@ -14,9 +14,12 @@ type Event struct {
 }
 
 type Job struct {
-	RunsOn      string            `yaml:"runs-on,omitempty"`
-	Steps       []*Step           `yaml:"steps,omitempty"`
-	Environment map[string]string `yaml:"env,omitempty"`
+	RunsOn      string              `yaml:"runs-on,omitempty"`
+	Container   string              `yaml:"container,omitempty"`
+	Services    map[string]*Service `yaml:"services,omitempty"`
+	Steps       []*Step             `yaml:"steps,omitempty"`
+	Environment map[string]string   `yaml:"env,omitempty"`
+	Strategy    *Strategy           `yaml:"strategy,omitempty"`
 }
 
 type Step struct {
@@ -28,11 +31,20 @@ type Step struct {
 	Environment map[string]string      `yaml:"env,omitempty"`
 }
 
+type Strategy struct {
+	Matrix  map[string][]string      `yaml:"matrix,omitempty"`
+	Include []map[string]interface{} `yaml:"include,omitempty"`
+}
+
+type Service struct {
+	Image string `yaml:"image,omitempty"`
+}
+
 type WorkflowTriggers struct {
 	Push                     *PushCondition                     `yaml:"push,omitempty"`
 	PullRequest              *PullRequestCondition              `yaml:"pull_request,omitempty"`
 	WorkflowDispatch         *WorkflowDispatchCondition         `yaml:"workflow_dispatch,omitempty"`
-	Schedule                 *ScheduleCondition                 `yaml:"schedule,omitempty"`
+	Schedule                 []*ScheduleCondition               `yaml:"schedule,omitempty"`
 	RepositoryDispatch       *RepositoryDispatchCondition       `yaml:"repository_dispatch,omitempty"`
 	IssueComment             *IssueCommentCondition             `yaml:"issue_comment,omitempty"`
 	Issues                   *IssuesCondition                   `yaml:"issues,omitempty"`

@@ -1,0 +1,29 @@
+name: default
+stages:
+- name: Service
+  spec:
+    clone: {}
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: machine
+    steps:
+    - name: postgres
+      spec:
+        image: postgres
+      type: background
+    - name: Install dependencies
+      spec:
+        run: npm ci
+      type: script
+    - name: Connect to PostgreSQL
+      spec:
+        envs:
+          POSTGRES_HOST: postgres
+          POSTGRES_PORT: "5432"
+        run: node client.js
+      type: script
+  type: ci
+version: 1
