@@ -1,6 +1,6 @@
-name: default
+name: Go
 stages:
-- name: Go
+- name: build
   spec:
     clone: {}
     platform:

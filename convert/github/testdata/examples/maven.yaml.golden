@@ -1,6 +1,6 @@
-name: default
+name:  Java CI with Maven
 stages:
-- name: Java CI with Maven
+- name: build
   spec:
     clone: {}
     platform:

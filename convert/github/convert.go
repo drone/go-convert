@@ -124,52 +124,49 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	pipeline := &harness.Pipeline{
 		Version: 1,
 		Stages:  []*harness.Stage{},
-		Name:    "default",
 	}
 
 	for _, from := range ctx.pipeline {
 		if from == nil {
 			continue
 		}
+		pipeline.Name = from.Name
 
-		var actionJob *v1.Job
 		if from.Jobs != nil {
-			for _, job := range from.Jobs {
-				actionJob = &job
-				break
-			}
-		}
-
-		var cloneStage *harness.CloneStage
-		if actionJob != nil {
-			for _, step := range actionJob.Steps {
-				cloneStage = convertClone(step)
-				if cloneStage != nil {
-					break
+			for name, job := range from.Jobs {
+				actionJob := &job
+				var cloneStage *harness.CloneStage
+				if actionJob != nil {
+					for _, step := range actionJob.Steps {
+						cloneStage = convertClone(step)
+						if cloneStage != nil {
+							break
+						}
+					}
 				}
+
+				pipeline.Stages = append(pipeline.Stages, &harness.Stage{
+					Name:     name,
+					Type:     "ci",
+					When:     convertCond(&from.On),
+					Strategy: convertStrategy(actionJob.Strategy),
+					Spec: &harness.StageCI{
+						Clone:    cloneStage,
+						Envs:     copyEnv(from.Environment),
+						Platform: convertRunsOn(actionJob.RunsOn),
+						Runtime: &harness.Runtime{
+							Type: "machine",
+							Spec: harness.RuntimeMachine{},
+						},
+						Steps: convertSteps(actionJob),
+						//Volumes:  convertVolumes(from.Volumes),
+
+						// TODO support for delegate.selectors from from.Node
+						// TODO support for stage.variables
+					},
+				})
 			}
 		}
-
-		pipeline.Stages = append(pipeline.Stages, &harness.Stage{
-			Name:     from.Name,
-			Type:     "ci",
-			When:     convertCond(&from.On),
-			Strategy: convertStrategy(actionJob.Strategy),
-			Spec: &harness.StageCI{
-				Clone:    cloneStage,
-				Envs:     copyEnv(from.Environment),
-				Platform: convertRunsOn(actionJob.RunsOn),
-				Runtime: &harness.Runtime{
-					Type: "machine",
-					Spec: harness.RuntimeMachine{},
-				},
-				Steps: convertSteps(actionJob),
-				//Volumes:  convertVolumes(from.Volumes),
-
-				// TODO support for delegate.selectors from from.Node
-				// TODO support for stage.variables
-			},
-		})
 	}
 
 	// marshal the harness yaml

@@ -1,6 +1,6 @@
-name: default
+name: Service
 stages:
-- name: Service
+- name: container-job
   spec:
     clone: {}
     platform:

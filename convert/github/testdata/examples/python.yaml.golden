@@ -1,6 +1,6 @@
-name: default
+name: Python package
 stages:
-- name: Python package
+- name: build
   spec:
     clone: {}
     platform:

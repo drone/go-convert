@@ -1,6 +1,6 @@
-name: default
+name: Java CI with Gradle
 stages:
-- name: Java CI with Gradle
+- name: build
   spec:
     clone: {}
     platform:

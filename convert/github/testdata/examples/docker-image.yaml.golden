@@ -1,6 +1,6 @@
-name: default
+name: Docker Image CI
 stages:
-- name: Docker Image CI
+- name: build
   spec:
     clone: {}
     platform:

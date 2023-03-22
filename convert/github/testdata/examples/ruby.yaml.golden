@@ -1,6 +1,6 @@
-name: default
+name: Ruby
 stages:
-- name: Ruby
+- name: test
   spec:
     clone: {}
     platform:
