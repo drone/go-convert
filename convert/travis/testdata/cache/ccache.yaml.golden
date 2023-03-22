@@ -1,0 +1,15 @@
+stages:
+- desc: converted from travis.yml
+  name: pipeline
+  spec:
+    cache:
+      enabled: true
+      paths:
+      - ~/.ccache
+    steps:
+    - name: script
+      spec:
+        run: ./configure && make && make test
+      type: script
+  type: ci
+version: 1

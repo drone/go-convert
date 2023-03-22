@@ -25,7 +25,7 @@ func convertImageMaybe(ctx *context, ok bool) (image string) {
 }
 
 func convertImage(ctx *context) string {
-	switch ctx.config.Language {
+	switch strings.ToLower(ctx.config.Language) {
 	case "android":
 		// TODO
 	case "c":

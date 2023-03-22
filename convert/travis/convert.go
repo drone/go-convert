@@ -119,6 +119,12 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		Options: nil, // TODO
 	}
 
+	// conver the clone
+	if v := convertGit(ctx); v != nil {
+		pipeline.Options = new(harness.Default)
+		pipeline.Options.Clone = v
+	}
+
 	// conver pipeilne stages
 	pipeline.Stages = append(pipeline.Stages, &harness.Stage{
 		Name:     "pipeline",
@@ -129,7 +135,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		Strategy: convertStrategy(ctx),
 		// When:     convertCond(from.Trigger),
 		Spec: &harness.StageCI{
-			// Cache:    convertCache(from.Cache)
+			Cache: convertCache(ctx),
 			// Clone:    convertClone(from.Clone),
 			Envs:     createMatrixEnvs(ctx),
 			Platform: convertPlatform(ctx),
@@ -164,7 +170,7 @@ func (d *Converter) convertSteps(ctx *context) []*harness.Step {
 	if len(ctx.config.Install) == 0 {
 		// when no install is defined, travis may automatically
 		// provide the install based on langauge.
-		if script, ok := defaultInstall[ctx.config.Language]; ok {
+		if script, ok := defaultInstall[strings.ToLower(ctx.config.Language)]; ok {
 			steps = append(steps, d.convertStep(ctx, "install", script))
 		}
 	}
@@ -177,7 +183,7 @@ func (d *Converter) convertSteps(ctx *context) []*harness.Step {
 	if len(ctx.config.Script) == 0 {
 		// when no script is defined, travis may automatically
 		// provide the script based on langauge.
-		if script, ok := defaultScript[ctx.config.Language]; ok {
+		if script, ok := defaultScript[strings.ToLower(ctx.config.Language)]; ok {
 			steps = append(steps, d.convertStep(ctx, "script", script))
 		}
 	}
@@ -396,4 +402,74 @@ func convertPlatform(ctx *context) *harness.Platform {
 	// 	Os: os, Arch: arch,
 	// }
 	return nil // TODO `os` and `arch` cannot be enums to support matrix
+}
+
+func convertGit(ctx *context) *harness.Clone {
+	src := ctx.config.Git
+	if src == nil {
+		return nil
+	}
+	dst := new(harness.Clone)
+	if src.Depth != nil {
+		dst.Depth = int64(src.Depth.Value)
+	}
+	// TODO git support for submodules
+	// TODO git support for submodules_depth
+	// TODO git support for lfs_skip_smudge
+	// TODO git support for sparse_checkout
+	// TODO git support for autocrlf
+	return dst
+}
+
+func convertCache(ctx *context) *harness.Cache {
+	src := ctx.config.Cache
+	if src == nil {
+		return nil
+	}
+	dst := new(harness.Cache)
+	dst.Enabled = true
+	dst.Paths = append(dst.Paths, src.Directories...)
+
+	if src.Apt {
+		// behavior not documented
+		// https://docs.travis-ci.com/user/caching/
+	}
+	if src.Bundler {
+		dst.Paths = append(dst.Paths, "~/.rvm")
+		dst.Paths = append(dst.Paths, "vendor/bundle")
+	}
+	if src.Cargo {
+		dst.Paths = append(dst.Paths, "target")
+		dst.Paths = append(dst.Paths, "~/.cargo")
+	}
+	if src.Ccache {
+		dst.Paths = append(dst.Paths, "~/.ccache")
+	}
+	if src.Cocoapods {
+		// paths not documented
+		// https://docs.travis-ci.com/user/caching/
+	}
+	if src.Edge {
+		// behavior not documented
+		// https://docs.travis-ci.com/user/caching/
+	}
+	if src.Npm {
+		dst.Paths = append(dst.Paths, "~/.npm")
+		dst.Paths = append(dst.Paths, "node_modules")
+	}
+	if src.Packages {
+		dst.Paths = append(dst.Paths, "~/R/Library")
+	}
+	if src.Pip {
+		dst.Paths = append(dst.Paths, "~/.cache/pip")
+	}
+	if src.Yarn {
+		dst.Paths = append(dst.Paths, "~/.cache/yarn")
+	}
+
+	// TODO when caching R packages, set R_LIB_USER=~/R/Library
+	// TODO cache support for `branch`
+	// TODO cache support for `timeout`
+
+	return dst
 }

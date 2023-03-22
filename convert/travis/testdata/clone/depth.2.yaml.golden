@@ -1,0 +1,19 @@
+version: 1
+
+options:
+  clone: {} # no depth by default in harness
+
+stages:
+- desc: converted from travis.yml
+  name: pipeline
+  type: ci
+  spec:
+    steps:
+    - name: install
+      type: script
+      spec:
+        run: bundle install --jobs=3 --retry=3
+    - name: script
+      type: script
+      spec:
+        run: rake
