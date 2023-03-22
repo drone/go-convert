@@ -13,3 +13,34 @@
 // limitations under the License.
 
 package travis
+
+import harness "github.com/drone/spec/dist/go"
+
+func (d *Converter) convertServices(services []string) []*harness.Step {
+	// TODO support for addons.mariadb
+	// TODO support for addons.rethinkdb
+
+	// TODO document authentication differences for postgres (password set to "postgres")
+	// TODO document authentication differences for mysql (username set to "root", not "travis")
+	var dst []*harness.Step
+	for _, name := range services {
+		if _, ok := defaultServiceImage[name]; ok {
+			dst = append(dst, d.convertService(name))
+		}
+	}
+	return dst
+}
+
+func (d *Converter) convertService(name string) *harness.Step {
+	return &harness.Step{
+		Name: d.identifiers.Generate(name),
+		Type: "background",
+		Spec: &harness.StepBackground{
+			Image: defaultServiceImage[name],
+			Ports: defaultServicePorts[name],
+			Envs:  defaultServiceEnvs[name],
+			// TODO support for adding an image connector to a background step
+			// Connector: "",
+		},
+	}
+}

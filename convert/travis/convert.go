@@ -159,6 +159,10 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 
 func (d *Converter) convertSteps(ctx *context) []*harness.Step {
 	var steps []*harness.Step
+
+	// convert services to background steps
+	steps = append(steps, d.convertServices(ctx.config.Services)...)
+
 	// from the job lifecycle documentation
 	// https://docs.travis-ci.com/user/job-lifecycle/#the-job-lifecycle
 	for _, script := range ctx.config.BeforeInstall {

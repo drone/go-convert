@@ -1,0 +1,4 @@
+# https://docs.travis-ci.com/user/database-setup/#couchdb
+
+language: ruby
+services: couchdb

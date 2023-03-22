@@ -61,3 +61,52 @@ var defaultImage = map[string]string{
 	"c":  "gcc",
 	"go": "golang",
 }
+
+var defaultServiceImage = map[string]string{
+	"mysql":         "mysql",
+	"postgresql":    "postgres",
+	"mongodb":       "mongo",
+	"couchdb":       "couchdb",
+	"rabbitmq":      "rabbitmq",
+	"redis":         "redis",
+	"memcached":     "memcached",
+	"elasticsearch": "elasticsearch",
+	"neo4j":         "neo4j",
+	"riak":          "basho/riak-kv",
+	"cassandra":     "cassandra",
+}
+
+var defaultServicePorts = map[string][]string{
+	"mysql":         {"3306"},
+	"postgresql":    {"5432"},
+	"mongodb":       {"27017"},
+	"couchdb":       {"5984"},
+	"redis":         {"6379"},
+	"rabbitmq":      {"5672"},
+	"memcached":     {"11211"},
+	"elasticsearch": {"9200"},
+	"neo4j":         {"7687"},
+	"riak":          {"8087", "8098"},
+	"cassandra":     {"7000"},
+}
+
+var defaultServiceEnvs = map[string]map[string]string{
+	"postgresql": {
+		"POSTGRES_USER":     "postgres",
+		"POSTGRES_PASSWORD": "postgres",
+	},
+	"mysql": {
+		"MYSQL_USER":                 "root",
+		"MYSQL_ALLOW_EMPTY_PASSWORD": "yes",
+		"MYSQL_DATABASE":             "test",
+	},
+	"couchdb": {
+		"COUCHDB_USER":     "admin",
+		"COUCHDB_PASSWORD": "travis",
+	},
+	"rabbitmq": {
+		"RABBITMQ_DEFAULT_VHOST": "/",
+		"RABBITMQ_DEFAULT_USER":  "guest",
+		"RABBITMQ_DEFAULT_PASS":  "guest",
+	},
+}
