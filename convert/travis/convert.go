@@ -116,7 +116,6 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	// create the harness pipeline
 	pipeline := &harness.Pipeline{
 		Version: 1,
-		Options: nil, // TODO
 	}
 
 	// conver the clone
@@ -133,18 +132,13 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		Delegate: nil, // No Travis equivalent
 		On:       nil, // No Travis equivalent
 		Strategy: convertStrategy(ctx),
-		// When:     convertCond(from.Trigger),
+		When:     nil, // TODO convert travis condition (if, branches)
 		Spec: &harness.StageCI{
-			Cache: convertCache(ctx),
-			// Clone:    convertClone(from.Clone),
+			Cache:    convertCache(ctx),
 			Envs:     createMatrixEnvs(ctx),
 			Platform: convertPlatform(ctx),
-			// Runtime:  convertRuntime(from),
-			Steps: d.convertSteps(ctx),
-			// Volumes:  convertVolumes(from.Volumes),
-
-			// TODO support for delegate.selectors from from.Node
-			// TODO support for stage.variables
+			Runtime:  nil, // TODO convert runtime
+			Steps:    d.convertSteps(ctx),
 		},
 	})
 
@@ -204,7 +198,7 @@ func (d *Converter) convertSteps(ctx *context) []*harness.Step {
 		steps = append(steps, d.convertStep(ctx, "before_deploy", script))
 	}
 	//
-	// TODO deploy section
+	// TODO support deploy steps
 	//
 	for _, script := range ctx.config.AfterDeploy {
 		steps = append(steps, d.convertStep(ctx, "after_deploy", script))

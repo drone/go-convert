@@ -14,13 +14,25 @@
 
 package yaml
 
+// TODO support for undocumented addons (srcclr, ssh_known_hosts)
+// https://config.travis-ci.com/ref/job/addons
+
 type Addons struct {
 	Apt          *Apt          `yaml:"apt,omitempty"`
+	AptPackage   Stringorslice `yaml:"apt_package,omitempty"`
 	Artifacts    *Artifacts    `yaml:"artifacts,omitempty"`
 	Browserstack *Browserstack `yaml:"browserstack,omitempty"`
+	Chrome       string        `yaml:"chrome,omitempty"`
 	Codeclimate  *Codeclimate  `yaml:"codeclimate,omitempty"`
 	Coverity     *Coverity     `yaml:"coverity_scan,omitempty"`
+	Firefox      string        `yaml:"firefox,omitempty"`
 	Homebrew     *Homebrew     `yaml:"homebrew,omitempty"`
+	Hostname     string        `yaml:"hostname,omitempty"`
+	Hosts        Stringorslice `yaml:"hosts,omitempty"`
+	Mariadb      string        `yaml:"mariadb,omitempty"`
+	Postgres     string        `yaml:"postgresql,omitempty"`
+	Postgresql   string        `yaml:"postgres,omitempty"`
+	Rethinkdb    string        `yaml:"rethinkdb,omitempty"`
 	Sauce        *Sauce        `yaml:"sauce_connect,omitempty"`
 	Snaps        *Snaps        `yaml:"snaps,omitempty"`
 	Sonarcloud   *Sonarcloud   `yaml:"sonarcloud,omitempty"`

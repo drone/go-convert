@@ -27,7 +27,8 @@ func convertImageMaybe(ctx *context, ok bool) (image string) {
 func convertImage(ctx *context) string {
 	switch strings.ToLower(ctx.config.Language) {
 	case "android":
-		// TODO
+		// TODO android image
+		return "cimg/android"
 	case "c":
 		return convertImageC(ctx)
 	case "clojure":
@@ -37,55 +38,67 @@ func convertImage(ctx *context) string {
 	case "crystal":
 		return convertImageCrystal(ctx)
 	case "csharp":
-		// TODO
+		// TODO csharp image
 	case "d":
-		// TODO
+		// TODO dlang image
 	case "dart":
-		// TODO
+		// TODO dart image
+		return "dart"
 	case "elixir":
-		// TODO
+		// TODO elixir image
+		return "elixir"
 	case "elm":
-		// TODO
+		// TODO elm image
 	case "erlang":
 		return convertImageErlang(ctx)
 	case "go":
 		return convertImageGo(ctx)
 	case "groovy":
-		// TODO
+		// TODO groovy image
+		return "groovy"
 	case "hack":
-		// TODO
+		// TODO hack image
 	case "haskell":
-		// TODO
+		// TODO haskell image
 	case "haxe":
-		// TODO
+		// TODO haxe image
+		return "haxe"
 	case "java":
-		// TODO
+		// TODO java image
+		return "java"
 	case "julia":
-		// TODO
+		// TODO julia image
+		return "julia"
 	case "nix":
-		// TODO
+		// TODO nix image
+		return "nixos/nix"
 	case "node_js":
 		return convertImageNode(ctx)
 	case "objective-c":
 		return "" // no docker image for objective c
 	case "perl":
-		// TODO
+		// TODO perl image
+		return "perl"
 	case "perl6":
-		// TODO
+		// TODO perl image
+		return "perl"
 	case "php":
-		// TODO
+		// TODO php image
+		return "php"
 	case "python":
 		return convertImagePy(ctx)
 	case "r":
-		// TODO
+		// TODO r image
+		return "r-base"
 	case "ruby":
-		// TODO
+		// TODO ruby image
+		return "ruby"
 	case "rust":
 		return convertImageRust(ctx)
 	case "scala":
-		// TODO
+		// TODO scala image
 	case "smalltalk":
-		// TODO
+		// TODO smalltalk image
 	case "minimal", "generic", "shell":
 		return "ubuntu"
 	}
@@ -101,7 +114,7 @@ func convertImageC(ctx *context) string {
 		case "gcc":
 			return "gcc"
 		case "clang":
-			return "gcc" // TODO official clang image
+			return "silkeh/clang"
 		}
 	}
 	return "gcc" // TODO strategy to convert C matrix to image

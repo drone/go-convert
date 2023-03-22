@@ -31,6 +31,9 @@ var defaultInstall = map[string]string{
 	"python":  "pip install -r requirements.txt",
 	"ruby":    "bundle install --jobs=3 --retry=3",
 	"rust":    "cargo build --verbose",
+
+	// default to ruby
+	"": "bundle install --jobs=3 --retry=3",
 }
 
 var defaultScript = map[string]string{
@@ -55,6 +58,9 @@ var defaultScript = map[string]string{
 	"php":     "phpunit",
 	"ruby":    "rake",
 	"rust":    "cargo build --verbose; cargo test --verbose",
+
+	// default to ruby
+	"": "rake",
 }
 
 var defaultImage = map[string]string{
