@@ -17,6 +17,7 @@ package travis
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -130,8 +131,8 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		Spec: &harness.StageCI{
 			// Cache:    convertCache(from.Cache)
 			// Clone:    convertClone(from.Clone),
-			Envs: createMatrixEnvs(ctx),
-			// Platform: convertPlatform(from.Platform),
+			Envs:     createMatrixEnvs(ctx),
+			Platform: convertPlatform(ctx),
 			// Runtime:  convertRuntime(from),
 			Steps: d.convertSteps(ctx),
 			// Volumes:  convertVolumes(from.Volumes),
@@ -233,10 +234,7 @@ func (d *Converter) convertStep(ctx *context, section, command string) *harness.
 }
 
 func convertStrategy(ctx *context) *harness.Strategy {
-	// TODO os
-	// TODO arch
 	// TODO env.matrix
-	// TODO compiler
 	// TODO jobs
 	// TODO dart_tasks
 
@@ -250,7 +248,7 @@ func convertStrategy(ctx *context) *harness.Strategy {
 		// ignore empty matrix
 		if len(items) > 0 {
 			var temp []string
-			for _, item := range ctx.config.Go {
+			for _, item := range items {
 				item = strings.ReplaceAll(item, "1.x", "1")
 				temp = append(temp, item)
 			}
@@ -258,6 +256,7 @@ func convertStrategy(ctx *context) *harness.Strategy {
 		}
 	}
 
+	appendAxis("compiler", ctx.config.Compiler)
 	appendAxis("crystal", ctx.config.Crystal)
 	appendAxis("d", ctx.config.D)
 	appendAxis("dart", ctx.config.Dart)
@@ -290,6 +289,8 @@ func convertStrategy(ctx *context) *harness.Strategy {
 	appendAxis("smalltalk", ctx.config.Smalltalk)
 	appendAxis("smalltalk_config", ctx.config.SmalltalkConfig)
 	appendAxis("smalltalk_vm", ctx.config.SmalltalkVM)
+	appendAxis("os", ctx.config.OS)
+	appendAxis("arch", ctx.config.Arch)
 	if len(spec.Axis) == 0 {
 		return nil
 	}
@@ -303,112 +304,96 @@ func createMatrixEnvs(ctx *context) map[string]string {
 	// https://docs.travis-ci.com/user/environment-variables/#default-environment-variables
 	envs := map[string]string{}
 
-	if len(ctx.config.Crystal) > 0 {
-		envs["TRAVIS_CRYSTAL_VERSION"] = "<+matrix.crystal>"
+	appendEnvs := func(name, env string, slice []string) {
+		switch len(slice) {
+		case 0:
+		case 1:
+			if s := slice[0]; s != "" {
+				envs[env] = slice[0]
+			}
+		default:
+			envs[env] = fmt.Sprintf("<+matrix.%s>", name)
+		}
 	}
-	if len(ctx.config.D) > 0 {
-		envs["TRAVIS_D_VERSION"] = "<+matrix.d>"
+
+	appendEnvs("compiler", "TRAVIS_COMPILER", ctx.config.Compiler)
+	appendEnvs("crystal", "TRAVIS_CRYSTAL_VERSION", ctx.config.Crystal)
+	appendEnvs("d", "TRAVIS_D_VERSION", ctx.config.D)
+	appendEnvs("dart", "TRAVIS_DART_VERSION", ctx.config.Dart)
+	appendEnvs("dotnet", "TRAVIS_DOTNET_VERSION", ctx.config.Dotnet)
+	appendEnvs("mono", "TRAVIS_MONO_VERSION", ctx.config.DotnetMono)
+	appendEnvs("solution", "TRAVIS_SOLUTION_VERSION", ctx.config.DotnetSolution)
+	appendEnvs("elixir", "TRAVIS_ELIXIR_VERSION", ctx.config.Elixir)
+	appendEnvs("elm", "TRAVIS_ELM_VERSION", ctx.config.Elm)
+	appendEnvs("otp_release", "TRAVIS_OTP_RELEASE", ctx.config.ErlangOTP)
+	appendEnvs("go", "TRAVIS_GO_VERSION", ctx.config.Go)
+	appendEnvs("hhvm", "TRAVIS_HHVM_VERSION", ctx.config.HHVM)
+	appendEnvs("haxe", "TRAVIS_HAXE_VERSION", ctx.config.Haxe)
+	appendEnvs("gemfile", "TRAVIS_GEMFILE_VERSION", append(ctx.config.RubyGemfile, ctx.config.RubyGemfiles...))
+	appendEnvs("ghc", "TRAVIS_GHC_VERSION", ctx.config.GHC)
+	appendEnvs("jdk", "TRAVIS_JDK_VERSION", ctx.config.JDK)
+	appendEnvs("node_js", "TRAVIS_NODE_VERSION", ctx.config.Node)
+	appendEnvs("julia", "TRAVIS_JULIA_VERSION", ctx.config.Julia)
+	appendEnvs("matlab", "TRAVIS_MATLAB_VERSION", ctx.config.Matlab)
+	appendEnvs("nix", "TRAVIS_NIX_VERSION", ctx.config.Nix)
+	appendEnvs("xcode_scheme", "TRAVIS_XCODE_SCHEME", ctx.config.XcodeScheme)
+	appendEnvs("xcode_sdk", "TRAVIS_XCODE_SDK", ctx.config.XcodeSDK)
+	appendEnvs("php", "TRAVIS_PHP_VERSION", ctx.config.PHP)
+	appendEnvs("perl", "TRAVIS_PERL_VERSION", ctx.config.Perl)
+	appendEnvs("perl6", "TRAVIS_PERL6_VERSION", ctx.config.Perl6)
+	appendEnvs("python", "TRAVIS_PYTHON_VERSION", ctx.config.Python)
+	appendEnvs("r", "TRAVIS_R_VERSION", ctx.config.R)
+	appendEnvs("rust", "TRAVIS_RUST_VERSION", ctx.config.Rust)
+	appendEnvs("rvm", "TRAVIS_RUBY_VERSION", append(ctx.config.Ruby, append(ctx.config.RubyRVM, ctx.config.RubyRBenv...)...))
+	appendEnvs("scala", "TRAVIS_SCALA_VERSION", ctx.config.Scala)
+	appendEnvs("smalltalk", "TRAVIS_SMALLTALK_VERSION", ctx.config.Smalltalk)
+	appendEnvs("smalltalk_config", "TRAVIS_SMALLTALK_CONFIG", ctx.config.SmalltalkConfig)
+	appendEnvs("smalltalk_vm", "TRAVIS_SMALLTALK_VM", ctx.config.SmalltalkVM)
+	appendEnvs("xcode_project", "TRAVIS_XCODE_PROJECT", []string{ctx.config.XcodeProject})
+
+	// append ruby alias
+	if env, ok := envs["TRAVIS_RUBY_VERSION"]; ok {
+		envs["TRAVIS_RVM_VERSION"] = env
 	}
-	if len(ctx.config.Dart) > 0 {
-		envs["TRAVIS_DART_VERSION"] = "<+matrix.dart>"
-	}
-	if len(ctx.config.Dotnet) > 0 {
-		envs["TRAVIS_DOTNET_VERSION"] = "<+matrix.dotnet>"
-	}
-	if len(ctx.config.DotnetMono) > 0 {
-		envs["TRAVIS_MONO_VERSION"] = "<+matrix.mono>"
-	}
-	if len(ctx.config.DotnetSolution) > 0 {
-		envs["TRAVIS_SOLUTION_VERSION"] = "<+matrix.solution>"
-	}
-	if len(ctx.config.Elixir) > 0 {
-		envs["TRAVIS_ELIXIR_VERSION"] = "<+matrix.elixir>"
-	}
-	if len(ctx.config.Elm) > 0 {
-		envs["TRAVIS_ELM_VERSION"] = "<+matrix.elm>"
-	}
-	if len(ctx.config.ErlangOTP) > 0 {
-		envs["TRAVIS_OTP_RELEASE"] = "<+matrix.otp_release>"
-	}
-	if len(ctx.config.Go) > 0 {
-		envs["TRAVIS_GO_VERSION"] = "<+matrix.go>"
-	}
-	if len(ctx.config.HHVM) > 0 {
-		envs["TRAVIS_HHVM_VERSION"] = "<+matrix.hhvm>"
-	}
-	if len(ctx.config.Haxe) > 0 {
-		envs["TRAVIS_HAXE_VERSION"] = "<+matrix.haxe>"
-	}
-	if len(ctx.config.GHC) > 0 {
-		envs["TRAVIS_GHC_VERSION"] = "<+matrix.ghc>"
-	}
-	if len(ctx.config.JDK) > 0 {
-		envs["TRAVIS_JDK_VERSION"] = "<+matrix.jdk>"
-	}
-	if len(ctx.config.Node) > 0 {
-		envs["TRAVIS_NODE_VERSION"] = "<+matrix.node_js>"
-	}
-	if len(ctx.config.Julia) > 0 {
-		envs["TRAVIS_JULIA_VERSION"] = "<+matrix.julia>"
-	}
-	if len(ctx.config.Matlab) > 0 {
-		envs["TRAVIS_MATLAB_VERSION"] = "<+matrix.matlab>"
-	}
-	if len(ctx.config.Nix) > 0 {
-		envs["TRAVIS_NIX_VERSION"] = "<+matrix.nix>"
-	}
-	if len(ctx.config.XcodeScheme) > 0 {
-		envs["TRAVIS_XCODE_SCHEME"] = "<+matrix.xcode_scheme>"
-	}
-	if len(ctx.config.XcodeSDK) > 0 {
-		envs["TRAVIS_XCODE_SDK"] = "<+matrix.xcode_sdk>"
-	}
-	if s := ctx.config.XcodeProject; s != "" {
-		envs["TRAVIS_XCODE_PROJECT"] = s
-	}
-	if len(ctx.config.PHP) > 0 {
-		envs["TRAVIS_PHP_VERSION"] = "<+matrix.php>"
-	}
-	if len(ctx.config.Perl) > 0 {
-		envs["TRAVIS_PERL_VERSION"] = "<+matrix.perl>"
-	}
-	if len(ctx.config.Perl6) > 0 {
-		envs["TRAVIS_PERL6_VERSION"] = "<+matrix.perl6>"
-	}
-	if len(ctx.config.Python) > 0 {
-		envs["TRAVIS_PYTHON_VERSION"] = "<+matrix.python>"
-	}
-	if len(ctx.config.R) > 0 {
-		envs["TRAVIS_R_VERSION"] = "<+matrix.r>"
-	}
-	if len(ctx.config.Ruby) > 0 || len(ctx.config.RubyRVM) > 0 || len(ctx.config.RubyRBenv) > 0 {
-		envs["TRAVIS_RVM_VERSION"] = "<+matrix.rvm>"  // TODO verify rvm environment variable
-		envs["TRAVIS_RUBY_VERSION"] = "<+matrix.rvm>" // TODO verify ruby environment variable
-	}
-	if len(ctx.config.RubyGemfile) > 0 || len(ctx.config.RubyGemfiles) > 0 {
-		// TODO verify gemfile environment variable
-		envs["TRAVIS_GEMFILE_VERSION"] = "<+matrix.gemfile>"
-	}
-	if len(ctx.config.Rust) > 0 {
-		envs["TRAVIS_RUST_VERSION"] = "<+matrix.rust>"
-	}
-	if len(ctx.config.Scala) > 0 {
-		envs["TRAVIS_SCALA_VERSION"] = "<+matrix.scala>"
-	}
-	if len(ctx.config.Smalltalk) > 0 {
-		// TODO verify smalltalk version environment variable
-		envs["TRAVIS_SMALLTALK_VERSION"] = "<+matrix.smalltalk>"
-	}
-	if len(ctx.config.SmalltalkConfig) > 0 {
-		// TODO verify smalltalk config environment variable
-		envs["TRAVIS_SMALLTALK_CONFIG"] = "<+matrix.smalltalk_config>"
-	}
-	if len(ctx.config.SmalltalkVM) > 0 {
-		// TODO verify smalltalk vm environment variable
-		envs["TRAVIS_SMALLTALK_VM"] = "<+matrix.smalltalk_vm>"
-	}
+
 	if len(envs) == 0 {
 		return nil
 	}
 	return envs
+}
+
+func convertPlatform(ctx *context) *harness.Platform {
+	var os, arch string
+
+	switch len(ctx.config.OS) {
+	case 0:
+	case 1:
+		os = ctx.config.OS[0]
+	default:
+		os = "<+matrix.os>"
+	}
+
+	switch len(ctx.config.Arch) {
+	case 0:
+	case 1:
+		arch = ctx.config.Arch[0]
+	default:
+		arch = "<+matrix.arch>"
+	}
+
+	// normalize os
+	switch os {
+	case "mac", "ios", "osx":
+		os = "macos"
+	}
+
+	// return a nil platform if empty which instructs
+	// harness to use the platform defaults.
+	if os == "" && arch == "" {
+		return nil
+	}
+	// return &harness.Platform{
+	// 	Os: os, Arch: arch,
+	// }
+	return nil // TODO `os` and `arch` cannot be enums to support matrix
 }
