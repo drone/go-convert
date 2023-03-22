@@ -124,6 +124,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	pipeline := &harness.Pipeline{
 		Version: 1,
 		Stages:  []*harness.Stage{},
+		Name:    "default",
 	}
 
 	for _, from := range ctx.pipeline {
@@ -308,8 +309,11 @@ func convertSteps(src *v1.Job) []*harness.Step {
 func convertAction(src *v1.Step) *harness.StepAction {
 	dst := &harness.StepAction{
 		Uses: src.Uses,
-		With: src.With,
+		With: make(map[string]interface{}),
 		Envs: src.Environment,
+	}
+	for key, value := range src.With {
+		dst.With[key] = fmt.Sprintf("%v", value)
 	}
 	return dst
 }
