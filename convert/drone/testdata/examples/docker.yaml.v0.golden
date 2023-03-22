@@ -1,0 +1,32 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: default
+      name: default
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - step:
+              identifier: test
+              name: test
+              spec:
+                command: docker ps -a
+                image: docker:dind
+              timeout: ""
+              type: Run
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI

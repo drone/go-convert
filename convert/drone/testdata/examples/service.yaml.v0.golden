@@ -1,0 +1,51 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: testname
+      name: test-name
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - step:
+              identifier: redis
+              name: redis
+              spec:
+                image: redis
+              timeout: ""
+              type: Background
+          - step:
+              identifier: teststep1
+              name: test-step-1
+              spec:
+                command: |-
+                  go build
+                  go test
+                image: golang
+              timeout: ""
+              type: Run
+          - step:
+              identifier: testplugin1
+              name: test-plugin-1
+              spec:
+                image: plugins/slack
+                settings:
+                  channel: test-channel
+                  token: <+ secrets.getValue("test-slack-token") >
+              timeout: ""
+              type: Plugin
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI

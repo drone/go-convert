@@ -19,6 +19,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/drone/go-convert/convert/harness/downgrader"
+
 	"github.com/google/go-cmp/cmp"
 	"gopkg.in/yaml.v3"
 )
@@ -66,6 +68,41 @@ func TestConvert(t *testing.T) {
 				t.Errorf("Unexpected conversion result")
 				t.Log(diff)
 			}
+
+			// downgraded yaml tests
+
+			// parse the downgraded golden yaml file if it exists
+			ddata, err := ioutil.ReadFile(test + ".v0.golden")
+			if err == nil {
+				// downgrade the converted yaml file from drone to harness
+				downgrader := downgrader.New()
+				tmp2, err := downgrader.Downgrade(tmp1)
+				if err != nil {
+					t.Error(err)
+					return
+				}
+
+				// unmarshal the downgraded yaml to a map
+				got = map[string]interface{}{}
+				if err := yaml.Unmarshal(tmp2, &got); err != nil {
+					t.Error(err)
+					return
+				}
+
+				// unmarshal the downgraded golden yaml file to a map
+				want = map[string]interface{}{}
+				if err := yaml.Unmarshal(ddata, &want); err != nil {
+					t.Error(err)
+					return
+				}
+
+				// compare the downgraded yaml to the golden file
+				if diff := cmp.Diff(got, want); diff != "" {
+					t.Errorf("Unexpected conversion result")
+					t.Log(diff)
+				}
+			}
+
 		})
 	}
 }
