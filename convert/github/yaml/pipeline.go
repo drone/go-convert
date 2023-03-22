@@ -32,8 +32,13 @@ type Step struct {
 }
 
 type Strategy struct {
-	Matrix  map[string][]string      `yaml:"matrix,omitempty"`
+	Matrix *Matrix `yaml:"matrix,omitempty"`
+}
+
+type Matrix struct {
+	Matrix  map[string][]string      `yaml:",inline"`
 	Include []map[string]interface{} `yaml:"include,omitempty"`
+	Exclude []map[string]interface{} `yaml:"exclude,omitempty"`
 }
 
 type Service struct {

@@ -6,7 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby-version: ['2.6', '2.7', '3.0']
+        os: [ windows-latest, ubuntu-latest ]
+        node: [ 12, 14, 16 ]
+        include:
+          - os: windows-latest
+            node: 16
+            npm: 6
 
     steps:
       - uses: actions/checkout@v3

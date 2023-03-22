@@ -356,30 +356,33 @@ func convertServices(service *v1.Service, serviceName string) *harness.Step {
 }
 
 func convertStrategy(src *v1.Strategy) *harness.Strategy {
-	if src == nil {
+	if src == nil || src.Matrix == nil {
 		return nil
 	}
 
+	matrix := src.Matrix
+
+	includeMaps := convertInterfaceMapsToStringMaps(matrix.Include)
+	excludeMaps := convertInterfaceMapsToStringMaps(matrix.Exclude)
 	dst := &harness.Strategy{
 		Type: "matrix",
 		Spec: &harness.Matrix{
-			Axis:    make(map[string][]string),
-			Exclude: make([]map[string]string, 0),
+			Axis:    matrix.Matrix,
+			Include: includeMaps,
+			Exclude: excludeMaps,
 		},
 	}
+	return dst
+}
 
-	matrixSpec := dst.Spec.(*harness.Matrix)
-
-	for key, values := range src.Matrix {
-		matrixSpec.Axis[key] = values
-	}
-
-	for _, includeMap := range src.Include {
+func convertInterfaceMapsToStringMaps(maps []map[string]interface{}) []map[string]string {
+	convertedMaps := make([]map[string]string, len(maps))
+	for i, originalMap := range maps {
 		convertedMap := make(map[string]string)
-		for key, value := range includeMap {
+		for key, value := range originalMap {
 			convertedMap[key] = fmt.Sprintf("%v", value)
 		}
-		matrixSpec.Include = append(matrixSpec.Include, convertedMap)
+		convertedMaps[i] = convertedMap
 	}
-	return dst
+	return convertedMaps
 }
