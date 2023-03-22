@@ -71,6 +71,7 @@ var defaultImage = map[string]string{
 var defaultServiceImage = map[string]string{
 	"mysql":         "mysql",
 	"postgresql":    "postgres",
+	"mariadb":       "mariadb",
 	"mongodb":       "mongo",
 	"couchdb":       "couchdb",
 	"rabbitmq":      "rabbitmq",
@@ -79,6 +80,7 @@ var defaultServiceImage = map[string]string{
 	"elasticsearch": "elasticsearch",
 	"neo4j":         "neo4j",
 	"riak":          "basho/riak-kv",
+	"rethinkdb":     "rethinkdb",
 	"cassandra":     "cassandra",
 }
 
@@ -93,6 +95,8 @@ var defaultServicePorts = map[string][]string{
 	"elasticsearch": {"9200"},
 	"neo4j":         {"7687"},
 	"riak":          {"8087", "8098"},
+	"rethinkdb":     {"28015"},
+	"mariadb":       {"3306"},
 	"cassandra":     {"7000"},
 }
 
@@ -100,6 +104,14 @@ var defaultServiceEnvs = map[string]map[string]string{
 	"postgresql": {
 		"POSTGRES_USER":     "postgres",
 		"POSTGRES_PASSWORD": "postgres",
+	},
+	"mariadb": {
+		"MARIADB_DATABASE":                  "test",
+		"MARIADB_USER":                      "root",
+		"MARIADB_ALLOW_EMPTY_ROOT_PASSWORD": "yes",
+		"MYSQL_USER":                        "root",
+		"MYSQL_ALLOW_EMPTY_PASSWORD":        "yes",
+		"MYSQL_DATABASE":                    "test",
 	},
 	"mysql": {
 		"MYSQL_USER":                 "root",

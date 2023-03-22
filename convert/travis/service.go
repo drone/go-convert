@@ -16,16 +16,27 @@ package travis
 
 import harness "github.com/drone/spec/dist/go"
 
-func (d *Converter) convertServices(services []string) []*harness.Step {
-	// TODO support for addons.mariadb
-	// TODO support for addons.rethinkdb
+func (d *Converter) convertServices(ctx *context) []*harness.Step {
+
+	// TODO support for addons.postgres
+	// TODO support for addons.postgresql
 
 	// TODO document authentication differences for postgres (password set to "postgres")
 	// TODO document authentication differences for mysql (username set to "root", not "travis")
 	var dst []*harness.Step
-	for _, name := range services {
+	for _, name := range ctx.config.Services {
 		if _, ok := defaultServiceImage[name]; ok {
 			dst = append(dst, d.convertService(name))
+		}
+	}
+	if addons := ctx.config.Addons; addons != nil {
+		if v := addons.Rethinkdb; v != "" {
+			// TODO support addons.rethinkdb version
+			dst = append(dst, d.convertService("rethinkdb"))
+		}
+		if v := addons.Mariadb; v != "" {
+			// TODO support addons.mariadb version
+			dst = append(dst, d.convertService("mariadb"))
 		}
 	}
 	return dst
