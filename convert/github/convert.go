@@ -24,7 +24,7 @@ import (
 	"strconv"
 	"strings"
 
-	v1 "github.com/drone/go-convert/convert/github/yaml"
+	github "github.com/drone/go-convert/convert/github/yaml"
 	harness "github.com/drone/spec/dist/go"
 
 	"github.com/drone/go-convert/internal/store"
@@ -33,8 +33,8 @@ import (
 
 // conversion context
 type context struct {
-	pipeline []*v1.Pipeline
-	stage    *v1.Pipeline
+	pipeline []*github.Pipeline
+	stage    *github.Pipeline
 }
 
 // Converter converts a GitHub pipeline to a Harness
@@ -84,7 +84,7 @@ func New(options ...Option) *Converter {
 
 // Convert downgrades a v1 pipeline.
 func (d *Converter) Convert(r io.Reader) ([]byte, error) {
-	src, err := v1.Parse(r)
+	src, err := github.Parse(r)
 	if err != nil {
 		return nil, err
 	}
@@ -148,15 +148,15 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 				pipeline.Stages = append(pipeline.Stages, &harness.Stage{
 					Name:     name,
 					Type:     "ci",
-					When:     convertCond(&from.On),
+					When:     convertCond(from.On),
 					Strategy: convertStrategy(actionJob.Strategy),
 					Spec: &harness.StageCI{
 						Clone:    cloneStage,
 						Envs:     copyEnv(from.Environment),
 						Platform: convertRunsOn(actionJob.RunsOn),
 						Runtime: &harness.Runtime{
-							Type: "machine",
-							Spec: harness.RuntimeMachine{},
+							Type: "cloud",
+							Spec: &harness.RuntimeCloud{},
 						},
 						Steps: convertSteps(actionJob),
 						//Volumes:  convertVolumes(from.Volumes),
@@ -178,7 +178,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	return out, nil
 }
 
-func convertClone(src *v1.Step) *harness.CloneStage {
+func convertClone(src *github.Step) *harness.CloneStage {
 	if src == nil || !isCheckoutAction(src.Uses) {
 		return nil
 	}
@@ -191,7 +191,7 @@ func convertClone(src *v1.Step) *harness.CloneStage {
 	return dst
 }
 
-func convertCond(src *v1.WorkflowTriggers) *harness.When {
+func convertCond(src *github.WorkflowTriggers) *harness.When {
 	if src == nil || isTriggersEmpty(src) {
 		return nil
 	}
@@ -209,7 +209,7 @@ func convertCond(src *v1.WorkflowTriggers) *harness.When {
 	return dst
 }
 
-func getEventConditions(src *v1.WorkflowTriggers) map[string][]string {
+func getEventConditions(src *github.WorkflowTriggers) map[string][]string {
 	eventConditions := make(map[string][]string)
 
 	if src.Push != nil {
@@ -228,7 +228,7 @@ func convertEventCondition(src []string) *harness.Expr {
 	return nil
 }
 
-func isTriggersEmpty(src *v1.WorkflowTriggers) bool {
+func isTriggersEmpty(src *github.WorkflowTriggers) bool {
 	return (src.Push == nil || len(src.Push.Branches) == 0) &&
 		(src.PullRequest == nil || len(src.PullRequest.Branches) == 0)
 }
@@ -280,7 +280,7 @@ func copyEnv(src map[string]string) map[string]string {
 	return dst
 }
 
-func convertSteps(src *v1.Job) []*harness.Step {
+func convertSteps(src *github.Job) []*harness.Step {
 	var steps []*harness.Step
 	for serviceName, service := range src.Services {
 		if service != nil {
@@ -309,7 +309,7 @@ func convertSteps(src *v1.Job) []*harness.Step {
 	return steps
 }
 
-func convertAction(src *v1.Step) *harness.StepAction {
+func convertAction(src *github.Step) *harness.StepAction {
 	dst := &harness.StepAction{
 		Uses: src.Uses,
 		With: make(map[string]interface{}),
@@ -334,7 +334,7 @@ func convertAction(src *v1.Step) *harness.StepAction {
 	return dst
 }
 
-func convertRun(src *v1.Step) *harness.StepExec {
+func convertRun(src *github.Step) *harness.StepExec {
 	dst := &harness.StepExec{
 		Run:  src.Run,
 		Envs: src.Environment,
@@ -342,7 +342,7 @@ func convertRun(src *v1.Step) *harness.StepExec {
 	return dst
 }
 
-func convertServices(service *v1.Service, serviceName string) *harness.Step {
+func convertServices(service *github.Service, serviceName string) *harness.Step {
 	return &harness.Step{
 		Name: serviceName,
 		Type: "background",
@@ -352,7 +352,7 @@ func convertServices(service *v1.Service, serviceName string) *harness.Step {
 	}
 }
 
-func convertStrategy(src *v1.Strategy) *harness.Strategy {
+func convertStrategy(src *github.Strategy) *harness.Strategy {
 	if src == nil || src.Matrix == nil {
 		return nil
 	}

@@ -2,7 +2,7 @@ package yaml
 
 type Pipeline struct {
 	Name        string            `yaml:"name,omitempty"`
-	On          WorkflowTriggers  `yaml:"on,omitempty"`
+	On          *WorkflowTriggers `yaml:"on,omitempty"`
 	Jobs        map[string]Job    `yaml:"jobs,omitempty"`
 	Environment map[string]string `yaml:"env,omitempty"`
 }
