@@ -12,22 +12,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package github converts Github pipelines to Harness pipelines.
+// Package github converts GitHub pipelines to Harness pipelines.
 package github
 
 import (
 	"bytes"
-	"errors"
+	"fmt"
 	"io"
 	"os"
+	"regexp"
+	"strconv"
+	"strings"
 
+	github "github.com/drone/go-convert/convert/github/yaml"
 	harness "github.com/drone/spec/dist/go"
 
 	"github.com/drone/go-convert/internal/store"
 	"github.com/ghodss/yaml"
 )
 
-// Converter converts a Github pipeline to a Harness
+// conversion context
+type context struct {
+	pipeline []*github.Pipeline
+	stage    *github.Pipeline
+}
+
+// Converter converts a GitHub pipeline to a Harness
 // v1 pipeline.
 type Converter struct {
 	kubeEnabled   bool
@@ -43,7 +53,7 @@ type Converter struct {
 	// stage  *github.Stage
 }
 
-// New creates a new Converter that converts a Github
+// New creates a new Converter that converts a GitHub
 // pipeline to a Harness v1 pipeline.
 func New(options ...Option) *Converter {
 	d := new(Converter)
@@ -74,16 +84,16 @@ func New(options ...Option) *Converter {
 
 // Convert downgrades a v1 pipeline.
 func (d *Converter) Convert(r io.Reader) ([]byte, error) {
-	// src, err := circle.Parse(r)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// d.config = src // push the github config to the state
-	// return d.convert()
-	return nil, errors.New("not implemented")
+	src, err := github.Parse(r)
+	if err != nil {
+		return nil, err
+	}
+	return d.convert(&context{
+		pipeline: src,
+	})
 }
 
-// ConvertString downgrades a v1 pipeline.
+// ConvertBytes downgrades a v1 pipeline.
 func (d *Converter) ConvertBytes(b []byte) ([]byte, error) {
 	return d.Convert(
 		bytes.NewBuffer(b),
@@ -107,23 +117,57 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 	return d.Convert(f)
 }
 
-// converts converts a github pipeline pipeline.
-func (d *Converter) convert() ([]byte, error) {
+// converts a GitHub pipeline to Harness pipeline.
+func (d *Converter) convert(ctx *context) ([]byte, error) {
 
 	// create the harness pipeline
 	pipeline := &harness.Pipeline{
 		Version: 1,
-		// Default: convertDefault(d.config),
+		Stages:  []*harness.Stage{},
 	}
 
-	// for _, steps := range d.config.Pipelines.Default {
-	// 	if steps.Stage != nil {
-	// 		// TODO support for fast-fail
-	// 		d.stage = steps.Stage // push the stage to the state
-	// 		stage := d.convertStage()
-	// 		pipeline.Stages = append(pipeline.Stages, stage)
-	// 	}
-	// }
+	for _, from := range ctx.pipeline {
+		if from == nil {
+			continue
+		}
+		pipeline.Name = from.Name
+
+		if from.Jobs != nil {
+			for name, job := range from.Jobs {
+				actionJob := &job
+				var cloneStage *harness.CloneStage
+				if actionJob != nil {
+					for _, step := range actionJob.Steps {
+						cloneStage = convertClone(step)
+						if cloneStage != nil {
+							break
+						}
+					}
+				}
+
+				pipeline.Stages = append(pipeline.Stages, &harness.Stage{
+					Name:     name,
+					Type:     "ci",
+					When:     convertCond(from.On),
+					Strategy: convertStrategy(actionJob.Strategy),
+					Spec: &harness.StageCI{
+						Clone:    cloneStage,
+						Envs:     copyEnv(from.Environment),
+						Platform: convertRunsOn(actionJob.RunsOn),
+						Runtime: &harness.Runtime{
+							Type: "cloud",
+							Spec: &harness.RuntimeCloud{},
+						},
+						Steps: convertSteps(actionJob),
+						//Volumes:  convertVolumes(from.Volumes),
+
+						// TODO support for delegate.selectors from from.Node
+						// TODO support for stage.variables
+					},
+				})
+			}
+		}
+	}
 
 	// marshal the harness yaml
 	out, err := yaml.Marshal(pipeline)
@@ -132,4 +176,246 @@ func (d *Converter) convert() ([]byte, error) {
 	}
 
 	return out, nil
+}
+
+func convertClone(src *github.Step) *harness.CloneStage {
+	if src == nil || !isCheckoutAction(src.Uses) {
+		return nil
+	}
+	dst := new(harness.CloneStage)
+	if src.With != nil {
+		if depth, ok := src.With["fetch-depth"]; ok {
+			dst.Depth, _ = toInt64(depth)
+		}
+	}
+	return dst
+}
+
+func convertCond(src *github.WorkflowTriggers) *harness.When {
+	if src == nil || isTriggersEmpty(src) {
+		return nil
+	}
+
+	exprs := map[string]*harness.Expr{}
+
+	for eventName, eventCondition := range getEventConditions(src) {
+		if expr := convertEventCondition(eventCondition); expr != nil {
+			exprs[eventName] = expr
+		}
+	}
+
+	dst := new(harness.When)
+	dst.Cond = []map[string]*harness.Expr{exprs}
+	return dst
+}
+
+func getEventConditions(src *github.WorkflowTriggers) map[string][]string {
+	eventConditions := make(map[string][]string)
+
+	if src.Push != nil {
+		eventConditions["push"] = src.Push.Branches
+	}
+	if src.PullRequest != nil {
+		eventConditions["pull_request"] = src.PullRequest.Branches
+	}
+	return eventConditions
+}
+
+func convertEventCondition(src []string) *harness.Expr {
+	if len(src) != 0 {
+		return &harness.Expr{In: src}
+	}
+	return nil
+}
+
+func isTriggersEmpty(src *github.WorkflowTriggers) bool {
+	return (src.Push == nil || len(src.Push.Branches) == 0) &&
+		(src.PullRequest == nil || len(src.PullRequest.Branches) == 0)
+}
+
+func toInt64(value interface{}) (int64, error) {
+	switch v := value.(type) {
+	case int:
+		return int64(v), nil
+	case int64:
+		return v, nil
+	case float64:
+		return int64(v), nil
+	case string:
+		intValue, err := strconv.Atoi(v)
+		return int64(intValue), err
+	default:
+		return 0, fmt.Errorf("unsupported type for conversion to int64")
+	}
+}
+
+func isCheckoutAction(action string) bool {
+	matched, _ := regexp.MatchString(`^actions/checkout@`, action)
+	return matched
+}
+
+func convertRunsOn(src string) *harness.Platform {
+	if src == "" {
+		return nil
+	}
+	dst := new(harness.Platform)
+	switch {
+	case strings.Contains(src, "windows"), strings.Contains(src, "win"):
+		dst.Os = harness.OSWindows
+	case strings.Contains(src, "darwin"), strings.Contains(src, "macos"), strings.Contains(src, "mac"):
+		dst.Os = harness.OSDarwin
+	default:
+		dst.Os = harness.OSLinux
+	}
+	dst.Arch = harness.ArchAmd64 // we assume amd64 for now
+	return dst
+}
+
+// copyEnv returns a copy of the environment variable map.
+func copyEnv(src map[string]string) map[string]string {
+	dst := map[string]string{}
+	for k, v := range src {
+		dst[k] = v
+	}
+	return dst
+}
+
+func convertSteps(src *github.Job) []*harness.Step {
+	var steps []*harness.Step
+	for serviceName, service := range src.Services {
+		if service != nil {
+			steps = append(steps, convertServices(service, serviceName))
+		}
+	}
+	for _, step := range src.Steps {
+		if isCheckoutAction(step.Uses) {
+			continue
+		}
+		dst := &harness.Step{
+			Name: step.Name,
+		}
+
+		if step.Uses != "" {
+			dst.Name = step.Name
+			dst.Spec = convertAction(step)
+			dst.Type = "action"
+		} else {
+			dst.Name = step.Name
+			dst.Spec = convertRun(step)
+			dst.Type = "script"
+		}
+		steps = append(steps, dst)
+	}
+	return steps
+}
+
+func convertAction(src *github.Step) *harness.StepAction {
+	if src == nil {
+		return nil
+	}
+	dst := &harness.StepAction{
+		Uses: src.Uses,
+		With: make(map[string]interface{}),
+		Envs: src.Environment,
+	}
+	for key, value := range src.With {
+		switch v := value.(type) {
+		case float64:
+			dst.With[key] = fmt.Sprintf("%v", v)
+		case bool:
+			dst.With[key] = value
+		case string:
+			if strings.HasPrefix(v, "'") && strings.HasSuffix(v, "'") {
+				dst.With[key] = value
+			} else {
+				dst.With[key] = fmt.Sprintf("%s", v)
+			}
+		default:
+			dst.With[key] = value
+		}
+	}
+	return dst
+}
+
+func convertRun(src *github.Step) *harness.StepExec {
+	if src == nil {
+		return nil
+	}
+	dst := &harness.StepExec{
+		Run:  src.Run,
+		Envs: src.Environment,
+	}
+	return dst
+}
+
+func convertServices(service *github.Service, serviceName string) *harness.Step {
+	if service == nil {
+		return nil
+	}
+	return &harness.Step{
+		Name: serviceName,
+		Type: "background",
+		Spec: &harness.StepBackground{
+			Image: service.Image,
+			Envs:  service.Env,
+			Mount: convertMounts(service.Volumes),
+			Ports: service.Ports,
+			Args:  service.Options,
+		},
+	}
+}
+
+func convertMounts(volumes []string) []*harness.Mount {
+	if len(volumes) == 0 {
+		return nil
+	}
+	var dst []*harness.Mount
+
+	for _, volume := range volumes {
+		parts := strings.Split(volume, ":")
+
+		var mount harness.Mount
+		if len(parts) > 1 {
+			mount.Name = parts[0]
+			mount.Path = parts[1]
+		} else {
+			mount.Path = parts[0]
+		}
+
+		dst = append(dst, &mount)
+	}
+
+	return dst
+}
+
+func convertStrategy(src *github.Strategy) *harness.Strategy {
+	if src == nil || src.Matrix == nil {
+		return nil
+	}
+
+	matrix := src.Matrix
+
+	includeMaps := convertInterfaceMapsToStringMaps(matrix.Include)
+	excludeMaps := convertInterfaceMapsToStringMaps(matrix.Exclude)
+	dst := &harness.Strategy{
+		Type: "matrix",
+		Spec: &harness.Matrix{
+			Axis:    matrix.Matrix,
+			Include: includeMaps,
+			Exclude: excludeMaps,
+		},
+	}
+	return dst
+}
+
+func convertInterfaceMapsToStringMaps(maps []map[string]interface{}) []map[string]string {
+	convertedMaps := make([]map[string]string, len(maps))
+	for i, originalMap := range maps {
+		convertedMap := make(map[string]string)
+		for key, value := range originalMap {
+			convertedMap[key] = fmt.Sprintf("%v", value)
+		}
+		convertedMaps[i] = convertedMap
+	}
+	return convertedMaps
 }

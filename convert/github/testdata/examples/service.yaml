@@ -1,0 +1,19 @@
+name: Service
+
+jobs:
+  container-job:
+    runs-on: ubuntu-latest
+    container: node:10.18-jessie
+    services:
+      postgres:
+        image: postgres
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm ci
+      - name: Connect to PostgreSQL
+        run: node client.js
+        env:
+          POSTGRES_HOST: postgres
+          POSTGRES_PORT: 5432
