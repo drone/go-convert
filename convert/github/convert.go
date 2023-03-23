@@ -310,6 +310,9 @@ func convertSteps(src *github.Job) []*harness.Step {
 }
 
 func convertAction(src *github.Step) *harness.StepAction {
+	if src == nil {
+		return nil
+	}
 	dst := &harness.StepAction{
 		Uses: src.Uses,
 		With: make(map[string]interface{}),
@@ -335,6 +338,9 @@ func convertAction(src *github.Step) *harness.StepAction {
 }
 
 func convertRun(src *github.Step) *harness.StepExec {
+	if src == nil {
+		return nil
+	}
 	dst := &harness.StepExec{
 		Run:  src.Run,
 		Envs: src.Environment,
@@ -343,13 +349,43 @@ func convertRun(src *github.Step) *harness.StepExec {
 }
 
 func convertServices(service *github.Service, serviceName string) *harness.Step {
+	if service == nil {
+		return nil
+	}
 	return &harness.Step{
 		Name: serviceName,
 		Type: "background",
 		Spec: &harness.StepBackground{
 			Image: service.Image,
+			Envs:  service.Env,
+			Mount: convertMounts(service.Volumes),
+			Ports: service.Ports,
+			Args:  service.Options,
 		},
 	}
+}
+
+func convertMounts(volumes []string) []*harness.Mount {
+	if len(volumes) == 0 {
+		return nil
+	}
+	var dst []*harness.Mount
+
+	for _, volume := range volumes {
+		parts := strings.Split(volume, ":")
+
+		var mount harness.Mount
+		if len(parts) > 1 {
+			mount.Name = parts[0]
+			mount.Path = parts[1]
+		} else {
+			mount.Path = parts[0]
+		}
+
+		dst = append(dst, &mount)
+	}
+
+	return dst
 }
 
 func convertStrategy(src *github.Strategy) *harness.Strategy {

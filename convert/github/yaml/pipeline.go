@@ -42,7 +42,12 @@ type Matrix struct {
 }
 
 type Service struct {
-	Image string `yaml:"image,omitempty"`
+	Image    string            `yaml:"image,omitempty"`
+	Env      map[string]string `yaml:"env,omitempty"`
+	Ports    []string          `yaml:"ports,omitempty"`
+	Options  []string          `yaml:"options,omitempty"`
+	Volumes  []string          `yaml:"volumes,omitempty"`
+	Networks []string          `yaml:"networks,omitempty"`
 }
 
 type WorkflowTriggers struct {
