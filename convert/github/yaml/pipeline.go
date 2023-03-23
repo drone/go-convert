@@ -1,6 +1,7 @@
 package yaml
 
 type Pipeline struct {
+	Concurrency *Concurrency      `yaml:"concurrency"`
 	Name        string            `yaml:"name,omitempty"`
 	On          *WorkflowTriggers `yaml:"on,omitempty"`
 	Jobs        map[string]Job    `yaml:"jobs,omitempty"`
