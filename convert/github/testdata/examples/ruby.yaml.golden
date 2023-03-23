@@ -8,7 +8,7 @@ stages:
       os: linux
     runtime:
       spec: {}
-      type: machine
+      type: cloud
     steps:
     - name: Set up Ruby
       spec:
