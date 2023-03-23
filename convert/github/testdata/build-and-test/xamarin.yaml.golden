@@ -1,0 +1,40 @@
+name: Build Xamarin.iOS app
+stages:
+- name: build
+  spec:
+    clone: {}
+    platform:
+      arch: amd64
+      os: darwin
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - name: Set default Xamarin SDK versions
+      spec:
+        run: |
+          $VM_ASSETS/select-xamarin-sdk-v2.sh --mono=6.12 --ios=14.10
+      type: script
+    - name: Set default Xcode 12.3
+      spec:
+        run: |
+          XCODE_ROOT=/Applications/Xcode_12.3.0.app
+          echo "MD_APPLE_SDK_ROOT=$XCODE_ROOT" >> $GITHUB_ENV
+          sudo xcode-select -s $XCODE_ROOT
+      type: script
+    - name: Setup .NET Core SDK 5.0.x
+      spec:
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 5.0.x
+      type: action
+    - name: Install dependencies
+      spec:
+        run: nuget restore <sln_file_path>
+      type: script
+    - name: Build
+      spec:
+        run: msbuild <csproj_file_path> /p:Configuration=Debug /p:Platform=iPhoneSimulator /t:Rebuild
+      type: script
+  type: ci
+version: 1
