@@ -131,6 +131,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 			continue
 		}
 		pipeline.Name = from.Name
+		//pipeline.When = convertOn(from.On) //GAP
 
 		if from.Jobs != nil {
 			for name, job := range from.Jobs {
@@ -148,8 +149,8 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 				pipeline.Stages = append(pipeline.Stages, &harness.Stage{
 					Name:     name,
 					Type:     "ci",
-					When:     convertCond(from.On),
 					Strategy: convertStrategy(actionJob.Strategy),
+					When:     convertIf(actionJob.If),
 					Spec: &harness.StageCI{
 						Clone:    cloneStage,
 						Envs:     copyEnv(from.Environment),
@@ -191,7 +192,7 @@ func convertClone(src *github.Step) *harness.CloneStage {
 	return dst
 }
 
-func convertCond(src *github.WorkflowTriggers) *harness.When {
+func convertOn(src *github.OnConditions) *harness.When {
 	if src == nil || isTriggersEmpty(src) {
 		return nil
 	}
@@ -209,7 +210,45 @@ func convertCond(src *github.WorkflowTriggers) *harness.When {
 	return dst
 }
 
-func getEventConditions(src *github.WorkflowTriggers) map[string][]string {
+func convertIf(i string) *harness.When {
+	if i == "" {
+		return nil
+	}
+
+	// Replace GitHub-specific variables with Harness variables
+	variableReplacements := []struct {
+		GitHubVar  string
+		HarnessVar string
+	}{
+		{"github.event_name", "eventName"},
+		{"github.event.ref", "eventRef"},
+	}
+
+	for _, r := range variableReplacements {
+		i = strings.ReplaceAll(i, r.GitHubVar, r.HarnessVar)
+	}
+
+	// Replace GitHub-specific expressions with JEXL expressions
+	exprReplacements := []struct {
+		GitHubExpr string
+		JEXLExpr   string
+	}{
+		{"startsWith(", "=^ "},
+		{"endsWith(", "=$ "},
+		{"contains(", "=~ "},
+	}
+
+	for _, r := range exprReplacements {
+		i = strings.ReplaceAll(i, r.GitHubExpr, r.JEXLExpr)
+	}
+
+	// Create a Harness When condition with the translated JEXL expression
+	dst := new(harness.When)
+	dst.Eval = i
+	return dst
+}
+
+func getEventConditions(src *github.OnConditions) map[string][]string {
 	eventConditions := make(map[string][]string)
 
 	if src.Push != nil {
@@ -228,7 +267,7 @@ func convertEventCondition(src []string) *harness.Expr {
 	return nil
 }
 
-func isTriggersEmpty(src *github.WorkflowTriggers) bool {
+func isTriggersEmpty(src *github.OnConditions) bool {
 	return (src.Push == nil || len(src.Push.Branches) == 0) &&
 		(src.PullRequest == nil || len(src.PullRequest.Branches) == 0)
 }
