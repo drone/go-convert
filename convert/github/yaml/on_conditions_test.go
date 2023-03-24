@@ -20,8 +20,8 @@ func TestOnConditions(t *testing.T) {
 		{
 			yaml: `[push, fork]`,
 			want: OnConditions{
-				Push: &PushCondition{},
-				Fork: &ForkCondition{},
+				Push:          &PushCondition{},
+				ForkCondition: &ForkCondition{},
 			},
 		},
 		{
@@ -57,7 +57,7 @@ issues:
     - labeled
 `,
 			want: OnConditions{
-				Issues: &IssuesCondition{
+				IssuesCondition: &IssuesCondition{
 					Types: []string{"opened", "labeled"},
 				},
 			},
@@ -223,6 +223,22 @@ schedule:
 				Schedule: &ScheduleCondition{
 					Cron: []string{"30 5 * * 1,3", "30 5 * * 2,4"},
 				},
+			},
+		},
+		{
+			yaml: `
+  gollum
+`,
+			want: OnConditions{
+				GollumCondition: &GollumCondition{},
+			},
+		},
+		{
+			yaml: `
+  fork
+`,
+			want: OnConditions{
+				ForkCondition: &ForkCondition{},
 			},
 		},
 	}

@@ -10,13 +10,13 @@ type OnConditions struct {
 	CheckSuiteCondition      *CheckSuiteCondition               `yaml:"check_suite,omitempty"`
 	CreateCondition          *CreateCondition                   `yaml:"create,omitempty"`
 	DeleteCondition          *DeleteCondition                   `yaml:"delete,omitempty"`
-	Fork                     *ForkCondition                     `yaml:"fork,omitempty"`
-	IssueComment             *IssueCommentCondition             `yaml:"issue_comment,omitempty"`
-	Issues                   *IssuesCondition                   `yaml:"issues,omitempty"`
+	DiscussionCondition      *DiscussionCondition               `yaml:"discussion,omitempty"`
+	ForkCondition            *ForkCondition                     `yaml:"fork,omitempty"`
+	IssueCommentCondition    *IssueCommentCondition             `yaml:"issue_comment,omitempty"`
+	IssuesCondition          *IssuesCondition                   `yaml:"issues,omitempty"`
 	Label                    *LabelCondition                    `yaml:"label,omitempty"`
 	DiscussionComment        *DiscussionCommentCondition        `yaml:"discussion_comment,omitempty"`
-	Gollum                   *GollumCondition                   `yaml:"gollum,omitempty"`
-	MergeGroup               *MergeGroupCondition               `yaml:"merge_group,omitempty"`
+	GollumCondition          *GollumCondition                   `yaml:"gollum,omitempty"`
 	Milestone                *MilestoneCondition                `yaml:"milestone,omitempty"`
 	PageBuild                *PageBuildCondition                `yaml:"page_build,omitempty"`
 	Project                  *ProjectCondition                  `yaml:"project,omitempty"`
@@ -40,27 +40,13 @@ type OnConditions struct {
 }
 
 type (
-	DiscussionCommentCondition struct {
-		Types []string `yaml:"types,omitempty"`
-	}
-
 	GollumCondition struct{}
 
 	ForkCondition struct{}
 
-	IssueCommentCondition struct {
-		Types []string `yaml:"types,omitempty"`
-	}
-
-	IssuesCondition struct {
-		Types []string `yaml:"types,omitempty"`
-	}
-
 	LabelCondition struct {
 		Types []string `yaml:"types,omitempty"`
 	}
-
-	MergeGroupCondition struct{}
 
 	MilestoneCondition struct {
 		Types []string `yaml:"types,omitempty"`
@@ -145,13 +131,13 @@ func (v *OnConditions) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		CheckSuiteCondition      *CheckSuiteCondition               `yaml:"check_suite,omitempty"`
 		CreateCondition          *CreateCondition                   `yaml:"create,omitempty"`
 		DeleteCondition          *DeleteCondition                   `yaml:"delete,omitempty"`
-		Fork                     *ForkCondition                     `yaml:"fork,omitempty"`
-		IssueComment             *IssueCommentCondition             `yaml:"issue_comment,omitempty"`
-		Issues                   *IssuesCondition                   `yaml:"issues,omitempty"`
+		DiscussionCondition      *DiscussionCondition               `yaml:"discussion,omitempty"`
+		ForkCondition            *ForkCondition                     `yaml:"fork,omitempty"`
+		IssueCommentCondition    *IssueCommentCondition             `yaml:"issue_comment,omitempty"`
+		IssuesCondition          *IssuesCondition                   `yaml:"issues,omitempty"`
 		Label                    *LabelCondition                    `yaml:"label,omitempty"`
 		DiscussionComment        *DiscussionCommentCondition        `yaml:"discussion_comment,omitempty"`
-		Gollum                   *GollumCondition                   `yaml:"gollum,omitempty"`
-		MergeGroup               *MergeGroupCondition               `yaml:"merge_group,omitempty"`
+		GollumCondition          *GollumCondition                   `yaml:"gollum,omitempty"`
 		Milestone                *MilestoneCondition                `yaml:"milestone,omitempty"`
 		PageBuild                *PageBuildCondition                `yaml:"page_build,omitempty"`
 		Project                  *ProjectCondition                  `yaml:"project,omitempty"`
@@ -227,24 +213,24 @@ func (v *OnConditions) setEvent(event string) {
 		v.CreateCondition = &CreateCondition{}
 	case "delete":
 		v.DeleteCondition = &DeleteCondition{}
+	case "discussion":
+		v.DiscussionCondition = &DiscussionCondition{}
 	case "push":
 		v.Push = &PushCondition{}
 	case "pull_request":
 		v.PullRequest = &PullRequestCondition{}
 	case "fork":
-		v.Fork = &ForkCondition{}
+		v.ForkCondition = &ForkCondition{}
 	case "issue_comment":
-		v.IssueComment = &IssueCommentCondition{}
+		v.IssueCommentCondition = &IssueCommentCondition{}
 	case "issues":
-		v.Issues = &IssuesCondition{}
+		v.IssuesCondition = &IssuesCondition{}
 	case "label":
 		v.Label = &LabelCondition{}
 	case "discussion_comment":
 		v.DiscussionComment = &DiscussionCommentCondition{}
 	case "gollum":
-		v.Gollum = &GollumCondition{}
-	case "merge_group":
-		v.MergeGroup = &MergeGroupCondition{}
+		v.GollumCondition = &GollumCondition{}
 	case "milestone":
 		v.Milestone = &MilestoneCondition{}
 	case "page_build":
