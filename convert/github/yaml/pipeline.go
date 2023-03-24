@@ -1,9 +1,9 @@
 package yaml
 
 type Pipeline struct {
-	Concurrency *Concurrency      `yaml:"concurrency"`
-	Name        string            `yaml:"name,omitempty"`
-	On          *WorkflowTriggers `yaml:"on,omitempty"`
+	Concurrency *Concurrency `yaml:"concurrency"`
+	Name        string       `yaml:"name,omitempty"`
+	//On          *WorkflowTriggers `yaml:"on,omitempty"`
 	Jobs        map[string]Job    `yaml:"jobs,omitempty"`
 	Environment map[string]string `yaml:"env,omitempty"`
 }
@@ -20,6 +20,7 @@ type Job struct {
 	Services    map[string]*Service `yaml:"services,omitempty"`
 	Steps       []*Step             `yaml:"steps,omitempty"`
 	Environment map[string]string   `yaml:"env,omitempty"`
+	If          string              `yaml:"if,omitempty"`
 	Strategy    *Strategy           `yaml:"strategy,omitempty"`
 }
 
@@ -49,73 +50,4 @@ type Service struct {
 	Options  []string          `yaml:"options,omitempty"`
 	Volumes  []string          `yaml:"volumes,omitempty"`
 	Networks []string          `yaml:"networks,omitempty"`
-}
-
-type WorkflowTriggers struct {
-	Push                     *PushCondition                     `yaml:"push,omitempty"`
-	PullRequest              *PullRequestCondition              `yaml:"pull_request,omitempty"`
-	WorkflowDispatch         *WorkflowDispatchCondition         `yaml:"workflow_dispatch,omitempty"`
-	Schedule                 []*ScheduleCondition               `yaml:"schedule,omitempty"`
-	RepositoryDispatch       *RepositoryDispatchCondition       `yaml:"repository_dispatch,omitempty"`
-	IssueComment             *IssueCommentCondition             `yaml:"issue_comment,omitempty"`
-	Issues                   *IssuesCondition                   `yaml:"issues,omitempty"`
-	PullRequestReview        *PullRequestReviewCondition        `yaml:"pull_request_review,omitempty"`
-	PullRequestReviewComment *PullRequestReviewCommentCondition `yaml:"pull_request_review_comment,omitempty"`
-	Label                    *LabelCondition                    `yaml:"label,omitempty"`
-	Release                  *ReleaseCondition                  `yaml:"release,omitempty"`
-}
-
-type PushCondition struct {
-	Branches []string `yaml:"branches,omitempty"`
-	Tags     []string `yaml:"tags,omitempty"`
-	Paths    []string `yaml:"paths,omitempty"`
-}
-
-type PullRequestCondition struct {
-	Branches []string `yaml:"branches,omitempty"`
-	Tags     []string `yaml:"tags,omitempty"`
-	Paths    []string `yaml:"paths,omitempty"`
-	Types    []string `yaml:"types,omitempty"`
-}
-
-type WorkflowDispatchCondition struct {
-	Inputs map[string]InputDefinition `yaml:"inputs,omitempty"`
-}
-
-type InputDefinition struct {
-	Description string `yaml:"description,omitempty"`
-	Default     string `yaml:"default,omitempty"`
-	Required    bool   `yaml:"required,omitempty"`
-}
-
-type ScheduleCondition struct {
-	Cron string `yaml:"cron,omitempty"`
-}
-
-type RepositoryDispatchCondition struct {
-	Types []string `yaml:"types,omitempty"`
-}
-
-type IssueCommentCondition struct {
-	Types []string `yaml:"types,omitempty"`
-}
-
-type IssuesCondition struct {
-	Types []string `yaml:"types,omitempty"`
-}
-
-type PullRequestReviewCondition struct {
-	Types []string `yaml:"types,omitempty"`
-}
-
-type PullRequestReviewCommentCondition struct {
-	Types []string `yaml:"types,omitempty"`
-}
-
-type LabelCondition struct {
-	Types []string `yaml:"types,omitempty"`
-}
-
-type ReleaseCondition struct {
-	Types []string `yaml:"types,omitempty"`
 }
