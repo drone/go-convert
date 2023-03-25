@@ -21,30 +21,37 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func TestSchedule(t *testing.T) {
+func TestPerms(t *testing.T) {
 	tests := []struct {
 		yaml string
-		want Schedule
+		want Permissions
 	}{
 		{
-			yaml: `{ cron: '30 5,17 * * *' }`,
-			want: Schedule{
-				Items: []*ScheduleItem{{Cron: "30 5,17 * * *"}},
+			yaml: `{}`,
+			want: Permissions{},
+		},
+		{
+			yaml: `{ actions: read }`,
+			want: Permissions{
+				Actions: "read",
 			},
 		},
 		{
-			yaml: `[ { cron: '30 5 * * 1,3' }, { cron: '30 5 * * 2,4' } ]`,
-			want: Schedule{
-				Items: []*ScheduleItem{
-					{Cron: "30 5 * * 1,3"},
-					{Cron: "30 5 * * 2,4"},
-				},
+			yaml: `read-all`,
+			want: Permissions{
+				ReadAll: true,
+			},
+		},
+		{
+			yaml: `write-all`,
+			want: Permissions{
+				WriteAll: true,
 			},
 		},
 	}
 
 	for i, test := range tests {
-		got := new(Schedule)
+		got := new(Permissions)
 		if err := yaml.Unmarshal([]byte(test.yaml), got); err != nil {
 			t.Log(test.yaml)
 			t.Error(err)
@@ -58,9 +65,40 @@ func TestSchedule(t *testing.T) {
 	}
 }
 
-func TestSchedule_Error(t *testing.T) {
-	err := yaml.Unmarshal([]byte("[[]]"), new(Schedule))
-	if err == nil || err.Error() != "failed to unmarshal on.schedule" {
+func TestPerms_Marshal(t *testing.T) {
+	tests := []struct {
+		before Permissions
+		after  string
+	}{
+		{
+			before: Permissions{ReadAll: true},
+			after:  "read-all\n",
+		},
+		{
+			before: Permissions{WriteAll: true},
+			after:  "write-all\n",
+		},
+		{
+			before: Permissions{Actions: "write"},
+			after:  "actions: write\n",
+		},
+	}
+
+	for _, test := range tests {
+		after, err := yaml.Marshal(&test.before)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if got, want := string(after), test.after; got != want {
+			t.Errorf("want yaml %q, got %q", want, got)
+		}
+	}
+}
+
+func TestPerms_Error(t *testing.T) {
+	err := yaml.Unmarshal([]byte("[[]]"), new(Permissions))
+	if err == nil || err.Error() != "failed to unmarshal permissions" {
 		t.Errorf("Expect error, got %s", err)
 	}
 }
