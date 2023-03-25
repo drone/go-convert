@@ -6,19 +6,31 @@ import (
 	"testing"
 )
 
-func TestOnCheckRunCondition(t *testing.T) {
+func TestOnConditionsSchedule(t *testing.T) {
 	tests := []struct {
 		yaml string
 		want OnConditions
 	}{
 		{
 			yaml: `
-  check_run:
-    types: [requested, completed]
+schedule:
+  cron: '30 5,17 * * *'
 `,
 			want: OnConditions{
-				CheckRunCondition: &CheckRunCondition{
-					Types: []string{"requested", "completed"},
+				Schedule: &ScheduleCondition{
+					Cron: []string{"30 5,17 * * *"},
+				},
+			},
+		},
+		{
+			yaml: `
+schedule:
+  - cron: '30 5 * * 1,3'
+  - cron: '30 5 * * 2,4'
+`,
+			want: OnConditions{
+				Schedule: &ScheduleCondition{
+					Cron: []string{"30 5 * * 1,3", "30 5 * * 2,4"},
 				},
 			},
 		},
@@ -39,7 +51,7 @@ func TestOnCheckRunCondition(t *testing.T) {
 	}
 }
 
-func TestOnCheckRunCondition_Error(t *testing.T) {
+func TestOnConditionSchedule_Error(t *testing.T) {
 	err := yaml.Unmarshal([]byte("[[]]"), new(Concurrency))
 	if err == nil || err.Error() != "failed to unmarshal concurrency" {
 		t.Errorf("Expect error, got %s", err)

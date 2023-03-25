@@ -39,87 +39,166 @@ type OnConditions struct {
 	WorkflowRun              *WorkflowRunCondition              `yaml:"workflow_run,omitempty"`
 }
 
-type (
-	GollumCondition struct{}
+type BranchProtectionRuleCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
 
-	ForkCondition struct{}
+type CheckRunCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
 
-	LabelCondition struct {
-		Types []string `yaml:"types,omitempty"`
-	}
+type CheckSuiteCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
 
-	MilestoneCondition struct {
-		Types []string `yaml:"types,omitempty"`
-	}
+type CreateCondition struct {
+	Branches []string `yaml:"branches,omitempty"`
+	Tags     []string `yaml:"tags,omitempty"`
+}
 
-	PageBuildCondition struct{}
+type DeleteCondition struct {
+	Branches []string `yaml:"branches,omitempty"`
+	Tags     []string `yaml:"tags,omitempty"`
+}
 
-	ProjectCondition struct {
-		Types []string `yaml:"types,omitempty"`
-	}
+type DiscussionCommentCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
 
-	ProjectCardCondition struct {
-		Types []string `yaml:"types,omitempty"`
-	}
+type DiscussionCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
 
-	ProjectColumnCondition struct {
-		Types []string `yaml:"types,omitempty"`
-	}
+type GollumCondition struct{}
 
-	PublicCondition struct{}
+type ForkCondition struct{}
 
-	PullRequestCondition struct {
-		Branches        []string `yaml:"branches,omitempty"`
-		BranchesIgnore  []string `yaml:"branches-ignore,omitempty"`
-		Paths           []string `yaml:"paths,omitempty"`
-		PathsIgnore     []string `yaml:"paths-ignore,omitempty"`
-		Tags            []string `yaml:"tags,omitempty"`
-		TagsIgnore      []string `yaml:"tags-ignore,omitempty"`
-		ReviewApproved  bool     `yaml:"review-approved,omitempty"`
-		ReviewDismissed bool     `yaml:"review-dismissed,omitempty"`
-	}
+type IssueCommentCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
 
-	PullRequestReviewCondition struct {
-		Types []string `yaml:"types,omitempty"`
-	}
+type IssuesCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
 
-	PullRequestReviewCommentCondition struct {
-		Types []string `yaml:"types,omitempty"`
-	}
+type LabelCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
 
-	PullRequestTargetCondition struct {
-		Branches       []string `yaml:"branches,omitempty"`
-		BranchesIgnore []string `yaml:"branches-ignore,omitempty"`
-		Types          []string `yaml:"types,omitempty"`
-	}
+type MilestoneCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
 
-	RegistryPackageCondition struct {
-		Types []string `yaml:"types,omitempty"`
-	}
+type PushCondition struct {
+	Branches       []string `yaml:"branches,omitempty"`
+	BranchesIgnore []string `yaml:"branches-ignore,omitempty"`
+	Paths          []string `yaml:"paths,omitempty"`
+	PathsIgnore    []string `yaml:"paths-ignore,omitempty"`
+	Tags           []string `yaml:"tags,omitempty"`
+	TagsIgnore     []string `yaml:"tags-ignore,omitempty"`
+}
 
-	ReleaseCondition struct {
-		Types []string `yaml:"types,omitempty"`
-	}
+type PageBuildCondition struct{}
 
-	RepositoryDispatchCondition struct {
-		Types []string `yaml:"types,omitempty"`
-	}
+type ProjectCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
 
-	ScheduleCondition struct {
-		Cron []string `yaml:"cron,omitempty"`
-	}
+type ProjectCardCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
 
-	StatusCondition struct{}
+type ProjectColumnCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
 
-	WatchCondition struct {
-		Types []string `yaml:"types,omitempty"`
-	}
+type PublicCondition struct{}
 
-	WorkflowCallSecrets map[string]struct {
-		Description string `yaml:"description,omitempty"`
-		Required    bool   `yaml:"required,omitempty"`
-	}
-)
+type PullRequestCondition struct {
+	Branches        []string `yaml:"branches,omitempty"`
+	BranchesIgnore  []string `yaml:"branches-ignore,omitempty"`
+	Paths           []string `yaml:"paths,omitempty"`
+	PathsIgnore     []string `yaml:"paths-ignore,omitempty"`
+	Tags            []string `yaml:"tags,omitempty"`
+	TagsIgnore      []string `yaml:"tags-ignore,omitempty"`
+	ReviewApproved  bool     `yaml:"review-approved,omitempty"`
+	ReviewDismissed bool     `yaml:"review-dismissed,omitempty"`
+}
+
+type PullRequestReviewCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
+
+type PullRequestReviewCommentCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
+
+type PullRequestTargetCondition struct {
+	Branches       []string `yaml:"branches,omitempty"`
+	BranchesIgnore []string `yaml:"branches-ignore,omitempty"`
+	Types          []string `yaml:"types,omitempty"`
+}
+
+type RegistryPackageCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
+
+type ReleaseCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
+
+type RepositoryDispatchCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
+
+type StatusCondition struct{}
+
+type WatchCondition struct {
+	Types []string `yaml:"types,omitempty"`
+}
+
+type WorkflowCallSecrets map[string]struct {
+	Description string `yaml:"description,omitempty"`
+	Required    bool   `yaml:"required,omitempty"`
+}
+
+type WorkflowCallCondition struct {
+	Workflows []string                   `yaml:"workflows,omitempty"`
+	Inputs    map[string]interface{}     `yaml:"inputs,omitempty"`
+	Outputs   map[string]interface{}     `yaml:"outputs,omitempty"`
+	Secrets   map[string]WorkflowSecrets `yaml:"secrets,omitempty"`
+}
+
+type WorkflowDispatchCondition struct {
+	Inputs map[string]InputDefinition `yaml:"inputs,omitempty"`
+}
+
+type WorkflowSecrets struct {
+	Description string `yaml:"description,omitempty"`
+	Required    bool   `yaml:"required,omitempty"`
+}
+
+type WorkflowRunCondition struct {
+	Workflows      []string `yaml:"workflows,omitempty"`
+	Types          []string `yaml:"types,omitempty"`
+	Branches       []string `yaml:"branches,omitempty"`
+	BranchesIgnore []string `yaml:"branches-ignore,omitempty"`
+}
+
+type Inputs struct {
+	LogLevel    string `yaml:"logLevel"`
+	PrintTags   bool   `yaml:"print_tags"`
+	Tags        string `yaml:"tags"`
+	Environment string `yaml:"environment"`
+}
+
+type InputDefinition struct {
+	Description string      `yaml:"description,omitempty"`
+	Required    bool        `yaml:"required,omitempty"`
+	Default     interface{} `yaml:"default,omitempty"`
+	Type        string      `yaml:"type,omitempty"`
+	Options     interface{} `yaml:"options,omitempty"`
+}
 
 // UnmarshalYAML implements the unmarshal interface for WorkflowTriggers.
 func (v *OnConditions) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -178,27 +257,6 @@ func (v *OnConditions) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	return errors.New("failed to unmarshal on conditions")
-}
-
-func (s *ScheduleCondition) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	var items []map[string]string
-	if err := unmarshal(&items); err != nil {
-		var m map[string]string
-		if err2 := unmarshal(&m); err2 != nil {
-			return err
-		}
-		if cron, ok := m["cron"]; ok {
-			s.Cron = []string{cron}
-		}
-		return nil
-	}
-	s.Cron = make([]string, len(items))
-	for i, item := range items {
-		if cron, ok := item["cron"]; ok {
-			s.Cron[i] = cron
-		}
-	}
-	return nil
 }
 
 func (v *OnConditions) setEvent(event string) {
