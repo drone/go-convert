@@ -35,6 +35,10 @@ func TestStrings(t *testing.T) {
 			want: Stringorslice{"hello", "world"},
 		},
 		{
+			yaml: `[ "hello", 1, true, 100.1 ]`,
+			want: Stringorslice{"hello", "1", "true", "100.1"},
+		},
+		{
 			yaml: `[ ]`,
 			want: nil,
 		},
@@ -58,7 +62,7 @@ func TestStrings_Error(t *testing.T) {
 		t.Errorf("Expect error when unmarshaling a into a string slice")
 	}
 
-	if err := yaml.Unmarshal([]byte("[1]"), new(Stringorslice)); err == nil {
-		t.Errorf("Expect error when unmarshaling a float slice into a string slice")
+	if err := yaml.Unmarshal([]byte("[{}]"), new(Stringorslice)); err == nil {
+		t.Errorf("Expect error when unmarshaling a struct slice into a string slice")
 	}
 }

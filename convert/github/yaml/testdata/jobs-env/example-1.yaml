@@ -1,0 +1,6 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-of-jobsjob_idenv
+
+jobs:
+  job1:
+    env:
+      FIRST_NAME: Mona

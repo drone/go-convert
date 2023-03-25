@@ -33,7 +33,8 @@ stages:
       type: script
     - name: Test with pytest
       spec:
-        run: pytest
+        run: |
+          pytest
       type: script
   strategy:
     spec:

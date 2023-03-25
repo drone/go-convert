@@ -58,6 +58,38 @@ func TestSchedule(t *testing.T) {
 	}
 }
 
+func TestSchedule_Marshal(t *testing.T) {
+	tests := []struct {
+		before Schedule
+		after  string
+	}{
+		{
+			before: Schedule{Items: []*ScheduleItem{
+				{Cron: "30 5,17 * * *"},
+			}},
+			after: "- cron: 30 5,17 * * *\n",
+		},
+		{
+			before: Schedule{Items: []*ScheduleItem{
+				{Cron: "30 5 * * 1,3"},
+				{Cron: "30 5 * * 2,4"},
+			}},
+			after: "- cron: 30 5 * * 1,3\n- cron: 30 5 * * 2,4\n",
+		},
+	}
+
+	for _, test := range tests {
+		after, err := yaml.Marshal(&test.before)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		if got, want := string(after), test.after; got != want {
+			t.Errorf("want yaml %q, got %q", want, got)
+		}
+	}
+}
+
 func TestSchedule_Error(t *testing.T) {
 	err := yaml.Unmarshal([]byte("[[]]"), new(Schedule))
 	if err == nil || err.Error() != "failed to unmarshal on.schedule" {

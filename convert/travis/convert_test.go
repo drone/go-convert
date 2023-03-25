@@ -50,7 +50,8 @@ func TestConvert(t *testing.T) {
 			// parse the golden yaml file
 			data, err := ioutil.ReadFile(test + ".golden")
 			if err != nil {
-				t.Skipf("no golden file")
+				// skip tests with no golden files
+				// TODO all tests should have golden files
 				return
 			}
 

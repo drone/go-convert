@@ -51,9 +51,16 @@ func toStrings(s []interface{}) ([]string, error) {
 	}
 	r := make([]string, len(s))
 	for k, v := range s {
-		if sv, ok := v.(string); ok {
-			r[k] = sv
-		} else {
+		switch vv := v.(type) {
+		case string:
+			r[k] = vv
+		case int:
+			r[k] = fmt.Sprint(vv)
+		case float64:
+			r[k] = fmt.Sprint(vv)
+		case bool:
+			r[k] = fmt.Sprint(vv)
+		default:
 			return nil, fmt.Errorf("cannot unmarshal %v of type %T into a string value", v, v)
 		}
 	}

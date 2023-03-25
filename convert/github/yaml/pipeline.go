@@ -17,10 +17,17 @@ package yaml
 type (
 	Pipeline struct {
 		Concurrency *Concurrency      `yaml:"concurrency,omitempty"`
-		Environment map[string]string `yaml:"env,omitempty"`
+		Defaults    *Defaults         `yaml:"defaults,omitempty"`
+		Env         map[string]string `yaml:"env,omitempty"`
+		Jobs        map[string]*Job   `yaml:"jobs,omitempty"`
 		Name        string            `yaml:"name,omitempty"`
 		On          *On               `yaml:"on,omitempty"`
-		Jobs        map[string]Job    `yaml:"jobs,omitempty"`
+		Permissions *Permissions      `yaml:"permissions,omitempty"`
+		RunName     string            `yaml:"run-name,omitempty"`
+	}
+
+	Defaults struct {
+		Run *Run `yaml:"run,omitempty"`
 	}
 
 	Event struct {
@@ -28,27 +35,37 @@ type (
 	}
 
 	Input struct {
-		Description string      `yaml:"description,omitempty"`
-		Required    bool        `yaml:"required,omitempty"`
 		Default     interface{} `yaml:"default,omitempty"`
-		Type        string      `yaml:"type,omitempty"`
+		Description string      `yaml:"description,omitempty"`
 		Options     interface{} `yaml:"options,omitempty"`
+		Required    bool        `yaml:"required,omitempty"`
+		Type        string      `yaml:"type,omitempty"`
 	}
 
 	Job struct {
-		RunsOn      string              `yaml:"runs-on,omitempty"`
-		Container   string              `yaml:"container,omitempty"`
-		Services    map[string]*Service `yaml:"services,omitempty"`
-		Steps       []*Step             `yaml:"steps,omitempty"`
-		Environment map[string]string   `yaml:"env,omitempty"`
-		If          string              `yaml:"if,omitempty"`
-		Strategy    *Strategy           `yaml:"strategy,omitempty"`
+		Concurrency   *Concurrency        `yaml:"concurrency,omitempty"`
+		Container     string              `yaml:"container,omitempty"`         // TODO struct or string
+		ContinueOnErr bool                `yaml:"continue-on-error,omitempty"` // TODO string instead of bool? `continue-on-error: ${{ matrix.experimental }}`
+		Defaults      *Defaults           `yaml:"defaults,omitempty"`
+		Env           map[string]string   `yaml:"env,omitempty"`
+		Environment   interface{}         `yaml:"environment,omitempty"` // TODO
+		If            string              `yaml:"if,omitempty"`
+		Name          string              `yaml:"name,omitempty"`
+		Needs         Stringorslice       `yaml:"needs,omitempty"`
+		Outputs       map[string]string   `yaml:"outputs,omitempty"`
+		Permissions   *Permissions        `yaml:"permissions,omitempty"`
+		RunsOn        string              `yaml:"runs-on,omitempty"`
+		Services      map[string]*Service `yaml:"services,omitempty"`
+		Steps         []*Step             `yaml:"steps,omitempty"`
+		Strategy      *Strategy           `yaml:"strategy,omitempty"`
+		TimeoutInMin  int                 `yaml:"timeout-in-minutes,omitempty"`
+		Uses          string              `yaml:"uses,omitempty"`
 	}
 
 	Matrix struct {
-		Matrix  map[string][]string      `yaml:",inline"`
-		Include []map[string]interface{} `yaml:"include,omitempty"`
 		Exclude []map[string]interface{} `yaml:"exclude,omitempty"`
+		Include []map[string]interface{} `yaml:"include,omitempty"`
+		Matrix  map[string][]string      `yaml:",inline"`
 	}
 
 	PullRequest struct {
@@ -78,22 +95,27 @@ type (
 		TagsIgnore     []string `yaml:"tags-ignore,omitempty"`
 	}
 
+	Run struct {
+		Shell      string `yaml:"shell,omitempty"`
+		WorkingDir string `yaml:"working-directory,omitempty"`
+	}
+
 	Service struct {
-		Image    string            `yaml:"image,omitempty"`
 		Env      map[string]string `yaml:"env,omitempty"`
-		Ports    []string          `yaml:"ports,omitempty"`
-		Options  []string          `yaml:"options,omitempty"`
-		Volumes  []string          `yaml:"volumes,omitempty"`
+		Image    string            `yaml:"image,omitempty"`
 		Networks []string          `yaml:"networks,omitempty"`
+		Options  []string          `yaml:"options,omitempty"`
+		Ports    []string          `yaml:"ports,omitempty"`
+		Volumes  []string          `yaml:"volumes,omitempty"`
 	}
 
 	Step struct {
-		Name        string                 `yaml:"name,omitempty"`
-		Uses        string                 `yaml:"uses,omitempty"`
-		With        map[string]interface{} `yaml:"with,omitempty"`
-		Run         string                 `yaml:"run,omitempty"`
-		If          string                 `yaml:"if,omitempty"`
-		Environment map[string]string      `yaml:"env,omitempty"`
+		Name string                 `yaml:"name,omitempty"`
+		Env  map[string]string      `yaml:"env,omitempty"`
+		If   string                 `yaml:"if,omitempty"`
+		Run  string                 `yaml:"run,omitempty"`
+		With map[string]interface{} `yaml:"with,omitempty"`
+		Uses string                 `yaml:"uses,omitempty"`
 	}
 
 	Strategy struct {
@@ -101,10 +123,10 @@ type (
 	}
 
 	WorkflowCall struct {
-		Workflows []string                       `yaml:"workflows,omitempty"`
 		Inputs    map[string]interface{}         `yaml:"inputs,omitempty"`
 		Outputs   map[string]interface{}         `yaml:"outputs,omitempty"`
 		Secrets   map[string]*WorkflowCallSecret `yaml:"secrets,omitempty"`
+		Workflows []string                       `yaml:"workflows,omitempty"`
 	}
 
 	WorkflowCallSecret struct {
@@ -117,9 +139,9 @@ type (
 	}
 
 	WorkflowRun struct {
-		Workflows      []string `yaml:"workflows,omitempty"`
-		Types          []string `yaml:"types,omitempty"`
 		Branches       []string `yaml:"branches,omitempty"`
 		BranchesIgnore []string `yaml:"branches-ignore,omitempty"`
+		Types          []string `yaml:"types,omitempty"`
+		Workflows      []string `yaml:"workflows,omitempty"`
 	}
 )

@@ -10,8 +10,9 @@ import (
 
 // Parse parses the configuration from io.Reader r.
 func Parse(r io.Reader) (*Pipeline, error) {
+	buf := repairOn(r)
 	out := new(Pipeline)
-	dec := yaml.NewDecoder(r)
+	dec := yaml.NewDecoder(&buf)
 	err := dec.Decode(out)
 	return out, err
 }

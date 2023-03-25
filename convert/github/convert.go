@@ -130,31 +130,33 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 
 	if ctx.pipeline.Jobs != nil {
 		for name, job := range ctx.pipeline.Jobs {
-			actionJob := &job
+			// skip nil jobs to avoid nil-pointer
+			if job == nil {
+				continue
+			}
+
 			var cloneStage *harness.CloneStage
-			if actionJob != nil {
-				for _, step := range actionJob.Steps {
-					cloneStage = convertClone(step)
-					if cloneStage != nil {
-						break
-					}
+			for _, step := range job.Steps {
+				cloneStage = convertClone(step)
+				if cloneStage != nil {
+					break
 				}
 			}
 
 			pipeline.Stages = append(pipeline.Stages, &harness.Stage{
 				Name:     name,
 				Type:     "ci",
-				Strategy: convertStrategy(actionJob.Strategy),
-				When:     convertIf(actionJob.If),
+				Strategy: convertStrategy(job.Strategy),
+				When:     convertIf(job.If),
 				Spec: &harness.StageCI{
 					Clone:    cloneStage,
-					Envs:     copyEnv(ctx.pipeline.Environment),
-					Platform: convertRunsOn(actionJob.RunsOn),
+					Envs:     ctx.pipeline.Env,
+					Platform: convertRunsOn(job.RunsOn),
 					Runtime: &harness.Runtime{
 						Type: "cloud",
 						Spec: &harness.RuntimeCloud{},
 					},
-					Steps: convertSteps(actionJob),
+					Steps: convertSteps(job),
 					//Volumes:  convertVolumes(from.Volumes),
 
 					// TODO support for delegate.selectors from from.Node
@@ -349,7 +351,7 @@ func convertAction(src *github.Step) *harness.StepAction {
 	dst := &harness.StepAction{
 		Uses: src.Uses,
 		With: make(map[string]interface{}),
-		Envs: src.Environment,
+		Envs: src.Env,
 	}
 	for key, value := range src.With {
 		switch v := value.(type) {
@@ -376,7 +378,7 @@ func convertRun(src *github.Step) *harness.StepExec {
 	}
 	dst := &harness.StepExec{
 		Run:  src.Run,
-		Envs: src.Environment,
+		Envs: src.Env,
 	}
 	return dst
 }
