@@ -1,0 +1,8 @@
+# https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#running-your-pull_request_target-workflow-based-on-the-head-or-base-branch-of-a-pull-request
+
+on:
+  pull_request_target:
+    types:
+      - opened
+    branches:
+      - 'releases/**'

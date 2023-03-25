@@ -1,0 +1,10 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#using-activity-types-and-filters-with-multiple-events
+
+on:
+  push:
+    branches:
+      - main
+  label:
+    types:
+      - created
+  page_build: {}

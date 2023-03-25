@@ -1,0 +1,3 @@
+on:
+  discussion_comment:
+    types: [created, deleted]

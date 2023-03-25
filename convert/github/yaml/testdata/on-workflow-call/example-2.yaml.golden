@@ -1,0 +1,9 @@
+on:
+  workflow_call:
+    outputs:
+      workflow_output1:
+        description: The first job output
+        value: ${{ jobs.my_job.outputs.job_output1 }}
+      workflow_output2:
+        description: The second job output
+        value: ${{ jobs.my_job.outputs.job_output2 }}

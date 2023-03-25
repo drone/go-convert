@@ -2,44 +2,36 @@ package yaml
 
 import (
 	"bytes"
-	"gopkg.in/yaml.v3"
 	"io"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
-func Parse(r io.Reader) ([]*Pipeline, error) {
-	res := []*Pipeline{}
+// Parse parses the configuration from io.Reader r.
+func Parse(r io.Reader) (*Pipeline, error) {
+	out := new(Pipeline)
 	dec := yaml.NewDecoder(r)
-	for {
-		out := new(Pipeline)
-		err := dec.Decode(out)
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-		res = append(res, out)
-	}
-	return res, nil
+	err := dec.Decode(out)
+	return out, err
 }
 
 // ParseBytes parses the configuration from bytes b.
-func ParseBytes(b []byte) ([]*Pipeline, error) {
+func ParseBytes(b []byte) (*Pipeline, error) {
 	return Parse(
 		bytes.NewBuffer(b),
 	)
 }
 
 // ParseString parses the configuration from string s.
-func ParseString(s string) ([]*Pipeline, error) {
+func ParseString(s string) (*Pipeline, error) {
 	return ParseBytes(
 		[]byte(s),
 	)
 }
 
 // ParseFile parses the configuration from path p.
-func ParseFile(p string) ([]*Pipeline, error) {
+func ParseFile(p string) (*Pipeline, error) {
 	f, err := os.Open(p)
 	if err != nil {
 		return nil, err

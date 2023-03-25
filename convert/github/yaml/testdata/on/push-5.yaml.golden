@@ -1,0 +1,10 @@
+on:
+  push:
+    # Sequence of patterns matched against refs/heads
+    branches-ignore:    
+      - 'mona/octocat'
+      - 'releases/**-alpha'
+    # Sequence of patterns matched against refs/tags
+    tags-ignore:        
+      - v2
+      - v1.*
