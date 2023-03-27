@@ -1,0 +1,8 @@
+jobs:
+  job1:
+    steps:
+      - name: date
+        run: 
+        timeout-minutes: 5
+        with:
+          command: date
