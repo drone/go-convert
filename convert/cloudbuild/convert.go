@@ -198,6 +198,10 @@ func (d *Converter) convertRuntime(src *cloudbuild.Config) *harness.Runtime {
 func (d *Converter) convertSteps(src *cloudbuild.Config) []*harness.Step {
 	var steps []*harness.Step
 	for _, step := range src.Steps {
+		// skip git clone steps by default
+		if strings.HasPrefix(step.Name, "gcr.io/cloud-builders/git") {
+			continue
+		}
 		steps = append(steps, d.convertStep(src, step))
 	}
 	return steps
