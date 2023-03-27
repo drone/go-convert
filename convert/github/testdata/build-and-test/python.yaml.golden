@@ -10,11 +10,11 @@ stages:
       spec: {}
       type: cloud
     steps:
-    - name: Set up Python <+matrix.python-version>
+    - name: Set up Python ${{ matrix.python-version }}
       spec:
         uses: actions/setup-python@v4
         with:
-          python-version: <+matrix.python-version>
+          python-version: ${{ matrix.python-version }}
       type: action
     - name: Install dependencies
       spec:

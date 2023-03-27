@@ -16,5 +16,5 @@ jobs:
         run: Test-Path resultsfile.log | Should -Be $true
       - name: Perform a Pester test from the Tests.ps1 file
         shell: pwsh
-        run: |
+        run: |-
           Invoke-Pester Unit.Tests.ps1 -Passthru

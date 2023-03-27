@@ -10,11 +10,11 @@ stages:
       spec: {}
       type: cloud
     steps:
-    - name: Use Node.js <+matrix.node-version>
+    - name: Use Node.js ${{ matrix.node-version }}
       spec:
         uses: actions/setup-node@v3
         with:
-          node-version: <+matrix.node-version>
+          node-version: ${{ matrix.node-version }}
       type: action
     - spec:
         run: npm ci
