@@ -23,6 +23,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	github "github.com/drone/go-convert/convert/github/yaml"
 	harness "github.com/drone/spec/dist/go"
@@ -328,6 +329,10 @@ func convertSteps(src *github.Job) []*harness.Step {
 			Name: step.Name,
 		}
 
+		if step.Timeout != 0 {
+			dst.Timeout = convertTimeout(step)
+		}
+
 		if step.Uses != "" {
 			dst.Name = step.Name
 			dst.Spec = convertAction(step)
@@ -396,6 +401,13 @@ func convertServices(service *github.Service, serviceName string) *harness.Step 
 			Args:  service.Options,
 		},
 	}
+}
+
+func convertTimeout(src *github.Step) string {
+	if src == nil {
+		return "0"
+	}
+	return fmt.Sprint(time.Duration(src.Timeout * int(time.Minute)))
 }
 
 func convertMounts(volumes []string) []*harness.Mount {
