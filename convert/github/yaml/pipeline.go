@@ -26,6 +26,11 @@ type (
 		RunName     string            `yaml:"run-name,omitempty"`
 	}
 
+	Credentials struct {
+		Username string `yaml:"username,omitempty"`
+		Password string `yaml:"password,omitempty"`
+	}
+
 	Defaults struct {
 		Run *Run `yaml:"run,omitempty"`
 	}
@@ -44,22 +49,24 @@ type (
 
 	Job struct {
 		Concurrency   *Concurrency        `yaml:"concurrency,omitempty"`
-		Container     string              `yaml:"container,omitempty"`         // TODO struct or string
+		Container     *Container          `yaml:"container,omitempty"`
 		ContinueOnErr bool                `yaml:"continue-on-error,omitempty"` // TODO string instead of bool? `continue-on-error: ${{ matrix.experimental }}`
 		Defaults      *Defaults           `yaml:"defaults,omitempty"`
 		Env           map[string]string   `yaml:"env,omitempty"`
-		Environment   interface{}         `yaml:"environment,omitempty"` // TODO
+		Environment   Environment         `yaml:"environment,omitempty"`
 		If            string              `yaml:"if,omitempty"`
 		Name          string              `yaml:"name,omitempty"`
 		Needs         Stringorslice       `yaml:"needs,omitempty"`
 		Outputs       map[string]string   `yaml:"outputs,omitempty"`
 		Permissions   *Permissions        `yaml:"permissions,omitempty"`
 		RunsOn        string              `yaml:"runs-on,omitempty"`
+		Secrets       *Secrets            `yaml:"secrets,omitempty"`
 		Services      map[string]*Service `yaml:"services,omitempty"`
 		Steps         []*Step             `yaml:"steps,omitempty"`
 		Strategy      *Strategy           `yaml:"strategy,omitempty"`
 		TimeoutInMin  int                 `yaml:"timeout-in-minutes,omitempty"`
 		Uses          string              `yaml:"uses,omitempty"`
+		With          map[string]string   `yaml:"with,omitempty"`
 	}
 
 	Matrix struct {
@@ -101,12 +108,13 @@ type (
 	}
 
 	Service struct {
-		Env      map[string]string `yaml:"env,omitempty"`
-		Image    string            `yaml:"image,omitempty"`
-		Networks []string          `yaml:"networks,omitempty"`
-		Options  []string          `yaml:"options,omitempty"`
-		Ports    []string          `yaml:"ports,omitempty"`
-		Volumes  []string          `yaml:"volumes,omitempty"`
+		Env         map[string]string `yaml:"env,omitempty"`
+		Image       string            `yaml:"image,omitempty"`
+		Networks    []string          `yaml:"networks,omitempty"`
+		Options     []string          `yaml:"options,omitempty"`
+		Ports       []string          `yaml:"ports,omitempty"`
+		Volumes     []string          `yaml:"volumes,omitempty"`
+		Credentials *Credentials      `yaml:"credentials,omitempty"`
 	}
 
 	Step struct {
@@ -119,7 +127,9 @@ type (
 	}
 
 	Strategy struct {
-		Matrix *Matrix `yaml:"matrix,omitempty"`
+		Matrix      *Matrix `yaml:"matrix,omitempty"`
+		FailFast    *bool   `yaml:"fail-fast,omitempty"`
+		MaxParallel *int    `yaml:"max-parallel,omitempty"`
 	}
 
 	WorkflowCall struct {

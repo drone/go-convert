@@ -1,0 +1,6 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-setting-permissions-for-a-specific-job
+
+jobs:
+  pass-secrets-to-workflow:
+    uses: ./.github/workflows/called-workflow.yml
+    secrets: inherit

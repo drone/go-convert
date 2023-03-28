@@ -15,6 +15,7 @@ require (
 )
 
 require (
+	github.com/antonmedv/expr v1.12.5 // indirect
 	github.com/buildkite/yaml v2.1.0+incompatible // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

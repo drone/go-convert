@@ -211,37 +211,35 @@ func convertIf(i string) *harness.When {
 		return nil
 	}
 
-	// Replace GitHub-specific variables with Harness variables
-	variableReplacements := []struct {
-		GitHubVar  string
-		HarnessVar string
-	}{
-		{"github.event_name", "eventName"},
-		{"github.event.ref", "eventRef"},
-	}
+	i = githubExprToJexlExpr(i)
 
-	for _, r := range variableReplacements {
-		i = strings.ReplaceAll(i, r.GitHubVar, r.HarnessVar)
-	}
-
-	// Replace GitHub-specific expressions with JEXL expressions
-	exprReplacements := []struct {
-		GitHubExpr string
-		JEXLExpr   string
-	}{
-		{"startsWith(", "=^ "},
-		{"endsWith(", "=$ "},
-		{"contains(", "=~ "},
-	}
-
-	for _, r := range exprReplacements {
-		i = strings.ReplaceAll(i, r.GitHubExpr, r.JEXLExpr)
-	}
-
-	// Create a Harness When condition with the translated JEXL expression
 	dst := new(harness.When)
 	dst.Eval = i
 	return dst
+}
+
+func githubExprToJexlExpr(githubExpr string) string {
+	// Replace functions
+	githubExpr = strings.Replace(githubExpr, "!contains(", "!~ ", -1)
+	githubExpr = strings.Replace(githubExpr, "contains(", "=~ ", -1)
+	githubExpr = strings.Replace(githubExpr, "startsWith(", "=^ ", -1)
+	githubExpr = strings.Replace(githubExpr, "endsWith(", "=$ ", -1)
+
+	// Replace variables
+	githubExpr = strings.Replace(githubExpr, "github.event_name", "${{codebase.build.type}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.ref", "${{codebase.branch}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.head_ref", "${{codebase.sourceBranch}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.ref", "${{codebase.sourceBranch}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.base_ref", "${{codebase.targetBranch}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.number", "${{codebase.prNumber}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.title", "${{codebase.prTitle}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.body", "${{codebase.pullRequestBody}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.html_url", "${{codebase.pullRequestLink}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.repository.html_url", "${{codebase.repoUrl}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.actor", "${{codebase.gitUser}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.actor_email", "${{codebase.gitUserEmail}}", -1)
+
+	return githubExpr
 }
 
 func getEventConditions(src *github.On) map[string][]string {
