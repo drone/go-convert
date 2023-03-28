@@ -1,0 +1,5 @@
+jobs:
+  call-workflow:
+    uses: octo-org/example-repo/.github/workflows/called-workflow.yml@main
+    with:
+      username: mona

@@ -1,0 +1,5 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idenvironment
+
+jobs:
+  job1:
+    environment: staging_environment
