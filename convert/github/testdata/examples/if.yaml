@@ -1,0 +1,46 @@
+name: if-example
+on:
+  push:
+    branches:
+      - main
+      - development
+  pull_request:
+    types: [opened, synchronize]
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      test:
+        description: 'Run tests'
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Run tests
+        run: npm test
+    env:
+      NODE_ENV: production
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: "github.event_name == 'push' && github.event.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'skip deploy')"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Deploy
+        run: |
+          echo "Deploying to production server"
+    env:
+      NODE_ENV: production

@@ -1,0 +1,51 @@
+name: if-example
+stages:
+- name: build
+  spec:
+    clone: {}
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - name: Setup Node.js
+      spec:
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+      type: action
+    - name: Install dependencies
+      spec:
+        run: npm ci
+      type: script
+    - name: Build
+      spec:
+        run: npm run build
+      type: script
+    - name: Run tests
+      spec:
+        run: npm test
+      type: script
+  type: ci
+  when: '!~ github.event.head_commit.message, ''skip ci'')'
+- name: deploy
+  spec:
+    clone: {}
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - name: Deploy
+      spec:
+        run: |
+          echo "Deploying to production server"
+      type: script
+  type: ci
+  when: ${{codebase.build.type}} == 'push' && ${{codebase.sourceBranch}} == 'refs/heads/main'
+    && !~ github.event.head_commit.message, 'skip deploy')
+version: 1
