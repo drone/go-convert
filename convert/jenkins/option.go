@@ -14,6 +14,8 @@
 
 package jenkins
 
+import "strings"
+
 // Option configures a Converter option.
 type Option func(*Converter)
 
@@ -57,10 +59,27 @@ func WithDebug() Option {
 	}
 }
 
-// UseDrone returns an option to use Drone as the
-// intermediate yaml representation.
-func UseDrone() Option {
+// WithFormat returns an option to customize
+// the intermediate format.
+func WithFormat(format Format) Option {
 	return func(d *Converter) {
-		d.fromDone = true
+		d.format = format
+	}
+}
+
+// WithFormat returns an option to customize
+// the intermediate format.
+func WithFormatString(format string) Option {
+	return func(d *Converter) {
+		format = strings.TrimSpace(format)
+		format = strings.ToLower(format)
+		switch format {
+		case "github":
+			d.format = FromGithub
+		case "gitlab":
+			d.format = FromGitlab
+		case "drone":
+			d.format = FromDrone
+		}
 	}
 }

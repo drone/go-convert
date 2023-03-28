@@ -30,18 +30,18 @@ import (
 	"time"
 
 	"github.com/drone/go-convert/convert/drone"
+	"github.com/drone/go-convert/convert/github"
 	"github.com/drone/go-convert/convert/gitlab"
 )
 
 // Converter converts a Drone pipeline to a Harness
 // v1 pipeline.
 type Converter struct {
+	format        Format
 	kubeEnabled   bool
 	kubeNamespace string
 	kubeConnector string
 	dockerhubConn string
-	fromDone      bool
-	fromGitlab    bool
 	debug         bool
 	token         string
 	attempts      int
@@ -128,10 +128,6 @@ func (d *Converter) retry(src []byte) ([]byte, error) {
 
 // convert converts a Drone pipeline to a Harness pipeline.
 func (d *Converter) convert(src []byte) ([]byte, error) {
-	format := "GitLab"
-	if d.fromDone {
-		format = "Drone"
-	}
 
 	// gpt input
 	req := &request{
@@ -139,7 +135,7 @@ func (d *Converter) convert(src []byte) ([]byte, error) {
 		Messages: []*message{
 			{
 				Role:    "user",
-				Content: fmt.Sprintf("Convert this Jenkinsfile to a %s Yaml.\n\n```\n%s\n```\n", format, []byte(src)),
+				Content: fmt.Sprintf("Convert this Jenkinsfile to a %s Yaml.\n\n```\n%s\n```\n", d.format.String(), []byte(src)),
 			},
 		},
 	}
@@ -160,7 +156,7 @@ func (d *Converter) convert(src []byte) ([]byte, error) {
 	// extract the message
 	code := extractCodeFence(res.Choices[0].Message.Content)
 
-	if d.fromDone {
+	if d.format == FromDrone {
 		// convert the pipeline yaml from the drone
 		// format to the harness yaml format.
 		converter := drone.New(
@@ -185,11 +181,38 @@ func (d *Converter) convert(src []byte) ([]byte, error) {
 		return pipeline, err
 	}
 
-	// convert the pipeline yaml from the gitlab
+	if d.format == FromGitlab {
+		// convert the pipeline yaml from the gitlab
+		// format to the harness yaml format.
+		converter := gitlab.New(
+			gitlab.WithDockerhub(d.dockerhubConn),
+			gitlab.WithKubernetes(d.kubeConnector, d.kubeNamespace),
+		)
+		pipeline, err := converter.ConvertString(code)
+		if err != nil {
+			// dump data for debug mode
+			if err != nil && d.debug {
+				os.Stdout.WriteString("\n")
+				os.Stdout.WriteString("---")
+				os.Stdout.WriteString("\n")
+				os.Stdout.WriteString(res.Choices[0].Message.Content)
+				os.Stdout.WriteString("\n")
+				os.Stdout.WriteString("---")
+				os.Stdout.WriteString("\n")
+				os.Stdout.Write(pipeline)
+				os.Stdout.WriteString("\n")
+				os.Stdout.WriteString("---")
+				os.Stdout.WriteString("\n")
+			}
+		}
+		return pipeline, err
+	}
+
+	// convert the pipeline yaml from the github
 	// format to the harness yaml format.
-	converter := gitlab.New(
-		gitlab.WithDockerhub(d.dockerhubConn),
-		gitlab.WithKubernetes(d.kubeConnector, d.kubeNamespace),
+	converter := github.New(
+		github.WithDockerhub(d.dockerhubConn),
+		github.WithKubernetes(d.kubeConnector, d.kubeNamespace),
 	)
 	pipeline, err := converter.ConvertString(code)
 	if err != nil {

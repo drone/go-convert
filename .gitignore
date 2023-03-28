@@ -1,4 +1,5 @@
 .DS_Store
+.env
 _NOTES*
 go-convert
 convert/circle/reference

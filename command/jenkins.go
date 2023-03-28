@@ -38,8 +38,7 @@ type Jenkins struct {
 	kubeName   string
 	kubeConn   string
 	dockerConn string
-	fromDrone  bool
-	fromGitlab bool
+	format     string
 
 	downgrade   bool
 	beforeAfter bool
@@ -58,8 +57,7 @@ func (c *Jenkins) SetFlags(f *flag.FlagSet) {
 	f.IntVar(&c.attempts, "attempts", 1, "chat gtp generation attempts")
 	f.BoolVar(&c.downgrade, "downgrade", false, "downgrade to the legacy yaml format")
 	f.BoolVar(&c.beforeAfter, "before-after", false, "print the befor and after")
-	f.BoolVar(&c.fromDrone, "drone", false, "use drone as the intermediate format")
-	f.BoolVar(&c.fromGitlab, "gitlab", false, "use gitlab as the intermediate format")
+	f.StringVar(&c.format, "format", "github", "configure the intermediate yaml format")
 	f.BoolVar(&c.debug, "debug", false, "enable message debugging")
 
 	f.StringVar(&c.org, "org", "default", "harness organization")
@@ -97,12 +95,9 @@ func (c *Jenkins) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) 
 		jenkins.WithDockerhub(c.dockerConn),
 		jenkins.WithKubernetes(c.kubeName, c.kubeConn),
 		jenkins.WithToken(c.token),
+		jenkins.WithFormatString(c.format),
 	}
 
-	if c.fromDrone {
-		// use drone as the intermediate representation.
-		opts = append(opts, jenkins.UseDrone())
-	}
 	if c.debug {
 		opts = append(opts, jenkins.WithDebug())
 	}

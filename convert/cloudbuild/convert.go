@@ -128,18 +128,12 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 	if opts := src.Options; opts != nil {
 		spec.Envs = convertEnv(opts.Env)
 
-		// opts.Sourceprovenancehash
 		// opts.Machinetype
-		// opts.Disksizegb
-		// opts.Substitutionoption
-		// opts.Dynamicsubstitutions
-		// opts.Logstreamingoption
 		// opts.Logging
 		// opts.Defaultlogsbucketbehavior
 		// opts.Secretenv
 		// opts.Volumes
 		// opts.Pool
-		// opts.Requestedverifyoption
 	}
 
 	// src.Timeout
@@ -210,8 +204,9 @@ func (d *Converter) convertSteps(src *cloudbuild.Config) []*harness.Step {
 func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step) *harness.Step {
 	return &harness.Step{
 		Name: d.identifiers.Generate(
-			// extract the last segment of the container name
-			// and use as the base name
+			srcstep.ID,
+			// fallback to the last sebment of the container
+			// name and use as the base name.
 			path.Base(srcstep.Name),
 		),
 		Desc:    "",  // No Google equivalent
