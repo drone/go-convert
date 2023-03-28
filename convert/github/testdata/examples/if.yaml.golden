@@ -46,6 +46,6 @@ stages:
           echo "Deploying to production server"
       type: script
   type: ci
-  when: <+codebase.build.type> == 'push' && github.event.ref == 'refs/heads/main'
+  when: ${{codebase.build.type}} == 'push' && ${{codebase.sourceBranch}} == 'refs/heads/main'
     && !~ github.event.head_commit.message, 'skip deploy')
 version: 1

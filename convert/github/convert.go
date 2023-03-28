@@ -226,17 +226,18 @@ func githubExprToJexlExpr(githubExpr string) string {
 	githubExpr = strings.Replace(githubExpr, "endsWith(", "=$ ", -1)
 
 	// Replace variables
-	githubExpr = strings.Replace(githubExpr, "github.event_name", "<+codebase.build.type>", -1)
-	githubExpr = strings.Replace(githubExpr, "github.ref", "<+codebase.branch>", -1)
-	githubExpr = strings.Replace(githubExpr, "github.head_ref", "<+codebase.sourceBranch>", -1)
-	githubExpr = strings.Replace(githubExpr, "github.base_ref", "<+codebase.targetBranch>", -1)
-	githubExpr = strings.Replace(githubExpr, "github.event.number", "<+codebase.prNumber>", -1)
-	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.title", "<+codebase.prTitle>", -1)
-	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.body", "<+codebase.pullRequestBody>", -1)
-	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.html_url", "<+codebase.pullRequestLink>", -1)
-	githubExpr = strings.Replace(githubExpr, "github.event.repository.html_url", "<+codebase.repoUrl>", -1)
-	githubExpr = strings.Replace(githubExpr, "github.actor", "<+codebase.gitUser>", -1)
-	githubExpr = strings.Replace(githubExpr, "github.actor_email", "<+codebase.gitUserEmail>", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event_name", "${{codebase.build.type}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.ref", "${{codebase.branch}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.head_ref", "${{codebase.sourceBranch}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.ref", "${{codebase.sourceBranch}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.base_ref", "${{codebase.targetBranch}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.number", "${{codebase.prNumber}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.title", "${{codebase.prTitle}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.body", "${{codebase.pullRequestBody}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.html_url", "${{codebase.pullRequestLink}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.repository.html_url", "${{codebase.repoUrl}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.actor", "${{codebase.gitUser}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.actor_email", "${{codebase.gitUserEmail}}", -1)
 
 	return githubExpr
 }
