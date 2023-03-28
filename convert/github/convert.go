@@ -328,6 +328,10 @@ func convertSteps(src *github.Job) []*harness.Step {
 			Name: step.Name,
 		}
 
+		if step.Timeout != "" {
+			// convert '10' to '10m'
+		}
+
 		if step.Uses != "" {
 			dst.Name = step.Name
 			dst.Spec = convertAction(step)

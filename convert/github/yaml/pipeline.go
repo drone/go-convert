@@ -64,7 +64,7 @@ type (
 		Services      map[string]*Service `yaml:"services,omitempty"`
 		Steps         []*Step             `yaml:"steps,omitempty"`
 		Strategy      *Strategy           `yaml:"strategy,omitempty"`
-		TimeoutInMin  int                 `yaml:"timeout-in-minutes,omitempty"`
+		TimeoutMin    int                 `yaml:"timeout-minutes,omitempty"`
 		Uses          string              `yaml:"uses,omitempty"`
 		With          map[string]string   `yaml:"with,omitempty"`
 	}
@@ -118,12 +118,13 @@ type (
 	}
 
 	Step struct {
-		Name string                 `yaml:"name,omitempty"`
-		Env  map[string]string      `yaml:"env,omitempty"`
-		If   string                 `yaml:"if,omitempty"`
-		Run  string                 `yaml:"run,omitempty"`
-		With map[string]interface{} `yaml:"with,omitempty"`
-		Uses string                 `yaml:"uses,omitempty"`
+		Name    string                 `yaml:"name,omitempty"`
+		Env     map[string]string      `yaml:"env,omitempty"`
+		If      string                 `yaml:"if,omitempty"`
+		Run     string                 `yaml:"run,omitempty"`
+		Timeout string                 `yaml:"timeout,omitempty"`
+		With    map[string]interface{} `yaml:"with,omitempty"`
+		Uses    string                 `yaml:"uses,omitempty"`
 	}
 
 	Strategy struct {
