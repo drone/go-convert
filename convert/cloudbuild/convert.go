@@ -17,13 +17,16 @@ package cloudbuild
 
 import (
 	"bytes"
-	"errors"
 	"io"
 	"os"
+	"path"
+	"strings"
+	"time"
 
+	cloudbuild "github.com/drone/go-convert/convert/cloudbuild/yaml"
+	"github.com/drone/go-convert/internal/store"
 	harness "github.com/drone/spec/dist/go"
 
-	"github.com/drone/go-convert/internal/store"
 	"github.com/ghodss/yaml"
 )
 
@@ -74,13 +77,11 @@ func New(options ...Option) *Converter {
 
 // Convert downgrades a v1 pipeline.
 func (d *Converter) Convert(r io.Reader) ([]byte, error) {
-	// src, err := cloudbuild.Parse(r)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// d.config = src // push the cloudbuild config to the state
-	// return d.convert()
-	return nil, errors.New("not implemented")
+	src, err := cloudbuild.Parse(r)
+	if err != nil {
+		return nil, err
+	}
+	return d.convert(src)
 }
 
 // ConvertString downgrades a v1 pipeline.
@@ -108,22 +109,60 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 }
 
 // converts converts a Cloud Build pipeline to a Harness pipeline.
-func (d *Converter) convert() ([]byte, error) {
+func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 
 	// create the harness pipeline
 	pipeline := &harness.Pipeline{
 		Version: 1,
-		// Default: convertDefault(d.config),
 	}
 
-	// for _, steps := range d.config.Pipelines.Default {
-	// 	if steps.Stage != nil {
-	// 		// TODO support for fast-fail
-	// 		d.stage = steps.Stage // push the stage to the state
-	// 		stage := d.convertStage()
-	// 		pipeline.Stages = append(pipeline.Stages, stage)
-	// 	}
-	// }
+	spec := &harness.StageCI{
+		Cache:    nil, // No Google equivalent
+		Platform: nil, // TODO
+		Envs:     envMappingJexl,
+		Runtime:  d.convertRuntime(src),
+		Steps:    d.convertSteps(src),
+	}
+
+	// add global environment variables
+	if opts := src.Options; opts != nil {
+		spec.Envs = convertEnv(opts.Env)
+
+		// opts.Sourceprovenancehash
+		// opts.Machinetype
+		// opts.Disksizegb
+		// opts.Substitutionoption
+		// opts.Dynamicsubstitutions
+		// opts.Logstreamingoption
+		// opts.Logging
+		// opts.Defaultlogsbucketbehavior
+		// opts.Secretenv
+		// opts.Volumes
+		// opts.Pool
+		// opts.Requestedverifyoption
+	}
+
+	// src.Timeout
+	// src.Queuettl
+	// src.Logsbucket
+	// src.Substitutions
+	// src.Tags
+	// src.Serviceaccount
+	// src.Secrets
+	// src.Availablesecrets
+	// src.Artifacts
+	// src.Images
+
+	// conver pipeilne stages
+	pipeline.Stages = append(pipeline.Stages, &harness.Stage{
+		Name:     "pipeline",
+		Desc:     "converted from google cloud build",
+		Type:     "ci",
+		Delegate: nil, // No Google equivalent
+		On:       nil, // No Google equivalent
+		When:     nil, // No Google equivalent
+		Spec:     spec,
+	})
 
 	// marshal the harness yaml
 	out, err := yaml.Marshal(pipeline)
@@ -131,5 +170,127 @@ func (d *Converter) convert() ([]byte, error) {
 		return nil, err
 	}
 
+	// find and replace google cloudbuild variables with
+	// the harness equivalents.
+	for before, after := range envMapping {
+		out = bytes.ReplaceAll(out, []byte(before), []byte(after))
+	}
+
 	return out, nil
+}
+
+func (d *Converter) convertRuntime(src *cloudbuild.Config) *harness.Runtime {
+	if d.kubeEnabled {
+		return &harness.Runtime{
+			Type: "kubernetes",
+			Spec: &harness.RuntimeKube{
+				Namespace: d.kubeNamespace,
+				Connector: d.kubeConnector,
+			},
+		}
+	}
+	return &harness.Runtime{
+		Type: "cloud",
+		Spec: harness.RuntimeMachine{},
+	}
+}
+
+func (d *Converter) convertSteps(src *cloudbuild.Config) []*harness.Step {
+	var steps []*harness.Step
+	for _, step := range src.Steps {
+		// skip git clone steps by default
+		if strings.HasPrefix(step.Name, "gcr.io/cloud-builders/git") {
+			continue
+		}
+		steps = append(steps, d.convertStep(src, step))
+	}
+	return steps
+}
+
+func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step) *harness.Step {
+	return &harness.Step{
+		Name: d.identifiers.Generate(
+			// extract the last segment of the container name
+			// and use as the base name
+			path.Base(srcstep.Name),
+		),
+		Desc:    "",  // No Google equivalent
+		When:    nil, // No Google equivalent
+		On:      nil, // No Google equivalent
+		Type:    "script",
+		Timeout: convertTimeout(srcstep.Timeout),
+		Spec: &harness.StepExec{
+			Image:      srcstep.Name,
+			Connector:  d.dockerhubConn,
+			Privileged: isPrivileged(srcstep.Name),
+			Mount:      nil, // TODO
+			Pull:       "",  // No Google equivalent
+			Shell:      "",  // No Google equivalent
+			User:       "",  // No Google equivalent
+			Group:      "",  // No Google equivalent
+			Network:    "",  // No Google equivalent
+			Entrypoint: srcstep.Entrypoint,
+			Args:       srcstep.Args,
+			Run:        srcstep.Script,
+			Envs:       convertEnv(srcstep.Env),
+			Resources:  nil, // No Google equivalent
+			Reports:    nil, // No Google equivalent
+
+			// TODO support step.allowFailure
+			// TODO support step.allowExitCodes
+			// TODO support step.dir
+			// TODO support step.waitFor
+			// TODO support step.secretEnv
+		},
+	}
+}
+
+// helper function returns true if a container
+// should be started in privileged mode.
+func isPrivileged(name string) bool {
+	// TODO should we mount /var/run/docker.sock for this image?
+	// Or does it execute docker-in-docker.
+	return strings.HasPrefix(name, "gcr.io/cloud-builders/docker")
+}
+
+// helper function returns a timeout string. If there
+// is no timeout, a zero value is returned.
+func convertTimeout(src time.Duration) string {
+	if dst := src.String(); dst == "0s" {
+		return ""
+	} else {
+		return dst
+	}
+}
+
+// helper function that converts a string slice of
+// environment variables in key=value format to a map.
+func convertEnv(src []string) map[string]string {
+	dst := map[string]string{}
+	for _, env := range src {
+		parts := strings.SplitN(env, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		k := parts[0]
+		v := parts[1]
+		dst[k] = v
+	}
+	if len(dst) == 0 {
+		return nil
+	} else {
+		return dst
+	}
+}
+
+// helper function combines one or more maps of environment
+// variables into a single map.
+func combineEnv(env ...map[string]string) map[string]string {
+	c := map[string]string{}
+	for _, e := range env {
+		for k, v := range e {
+			c[k] = v
+		}
+	}
+	return c
 }
