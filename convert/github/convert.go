@@ -404,7 +404,7 @@ func convertServices(service *github.Service, serviceName string) *harness.Step 
 }
 
 func convertTimeout(src *github.Step) string {
-	if src == nil {
+	if src == nil || src.Timeout == 0 {
 		return "0"
 	}
 	return fmt.Sprint(time.Duration(src.Timeout * int(time.Minute)))
