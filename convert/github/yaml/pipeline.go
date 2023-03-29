@@ -53,7 +53,7 @@ type (
 		ContinueOnErr bool                `yaml:"continue-on-error,omitempty"` // TODO string instead of bool? `continue-on-error: ${{ matrix.experimental }}`
 		Defaults      *Defaults           `yaml:"defaults,omitempty"`
 		Env           map[string]string   `yaml:"env,omitempty"`
-		Environment   Environment         `yaml:"environment,omitempty"`
+		Environment   *Environment        `yaml:"environment,omitempty"`
 		If            string              `yaml:"if,omitempty"`
 		Name          string              `yaml:"name,omitempty"`
 		Needs         Stringorslice       `yaml:"needs,omitempty"`
@@ -64,7 +64,7 @@ type (
 		Services      map[string]*Service `yaml:"services,omitempty"`
 		Steps         []*Step             `yaml:"steps,omitempty"`
 		Strategy      *Strategy           `yaml:"strategy,omitempty"`
-		TimeoutInMin  int                 `yaml:"timeout-in-minutes,omitempty"`
+		TimeoutMin    int                 `yaml:"timeout-minutes,omitempty"`
 		Uses          string              `yaml:"uses,omitempty"`
 		With          map[string]string   `yaml:"with,omitempty"`
 	}
@@ -118,18 +118,19 @@ type (
 	}
 
 	Step struct {
-		Name string                 `yaml:"name,omitempty"`
-		Env  map[string]string      `yaml:"env,omitempty"`
-		If   string                 `yaml:"if,omitempty"`
-		Run  string                 `yaml:"run,omitempty"`
-		With map[string]interface{} `yaml:"with,omitempty"`
-		Uses string                 `yaml:"uses,omitempty"`
+		Name    string                 `yaml:"name,omitempty"`
+		Env     map[string]string      `yaml:"env,omitempty"`
+		If      string                 `yaml:"if,omitempty"`
+		Run     string                 `yaml:"run,omitempty"`
+		Timeout int                    `yaml:"timeout-minutes,omitempty"`
+		With    map[string]interface{} `yaml:"with,omitempty"`
+		Uses    string                 `yaml:"uses,omitempty"`
 	}
 
 	Strategy struct {
 		Matrix      *Matrix `yaml:"matrix,omitempty"`
-		FailFast    *bool   `yaml:"fail-fast,omitempty"`
-		MaxParallel *int    `yaml:"max-parallel,omitempty"`
+		FailFast    bool    `yaml:"fail-fast,omitempty"`
+		MaxParallel int     `yaml:"max-parallel,omitempty"`
 	}
 
 	WorkflowCall struct {

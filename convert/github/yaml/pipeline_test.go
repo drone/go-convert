@@ -33,8 +33,8 @@ func TestPipeline(t *testing.T) {
 	for _, test := range tests {
 
 		switch test {
-		case "testdata/matrix/example-4.yaml",
-			"testdata/matrix/example-10.yaml":
+		case "testdata/matrix/example-3.yaml",
+			"testdata/matrix/example-8.yaml":
 			// skip these tests due to unsupported syntax
 			// TODO these should be eventually re-enabled
 			continue

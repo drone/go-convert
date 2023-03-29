@@ -1,12 +1,14 @@
-# https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs#example-adding-configurations
+# https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs#handling-failures
 
 jobs:
-  includes_only:
+  test:
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
+      fail-fast: true
       matrix:
+        version: [6, 7, 8]
+        experimental: [false]
         include:
-          - site: "production"
-            datacenter: "site-a"
-          - site: "staging"
-            datacenter: "site-b"
+          - version: 9
+            experimental: true

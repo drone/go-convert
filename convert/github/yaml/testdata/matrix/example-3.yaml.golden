@@ -1,10 +1,6 @@
-# https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs#example-using-contexts-to-create-matrices
-
-on:
-  repository_dispatch:
-    types:
-      - test
- 
+repository_dispatch:
+  types:
+    - test
 jobs:
   example_matrix:
     runs-on: ubuntu-latest
@@ -14,4 +10,4 @@ jobs:
     steps:
       - uses: actions/setup-node@v3
         with:
-          node-version: 1
+          node-version: ${{ matrix.version }}

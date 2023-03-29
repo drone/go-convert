@@ -1,0 +1,24 @@
+# https://github.com/bahmutov/cypress-gh-action-example/blob/master/.github/workflows/timeouts.yml
+
+name: timeouts
+
+# on: [push]
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        # individual step timeout
+        # maximum workflow time is 35 days https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration#usage-limits
+        timeout-minutes: 48960
+        with:
+          command: npm run expect -- --env lastName=Smith
+        env:
+          CYPRESS_firstName: Joe
+      - name: example
+        run: echo example
+        timeout-minutes: 32

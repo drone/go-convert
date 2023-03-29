@@ -29,5 +29,5 @@ func (v *Container) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		*v = out2
 		return nil
 	}
-	return errors.New("failed to unmarshal environment")
+	return errors.New("failed to unmarshal container")
 }

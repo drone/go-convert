@@ -1,0 +1,5 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idtimeout-minutes
+
+jobs:
+  job1:
+    timeout-minutes: 10
