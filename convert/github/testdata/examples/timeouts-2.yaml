@@ -1,0 +1,20 @@
+# https://github.com/bahmutov/cypress-gh-action-example/blob/master/.github/workflows/timeouts.yml
+
+name: timeouts
+
+# on: [push]
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        # individual step timeout
+        timeout-minutes: 60
+        with:
+          command: npm run expect -- --env lastName=Smith
+        env:
+          CYPRESS_firstName: Joe
