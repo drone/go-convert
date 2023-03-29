@@ -1,10 +1,9 @@
-# https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs#expanding-or-adding-matrix-configurations
 jobs:
   job1:
     strategy:
       matrix:
-        fruit: [apple, pear]
         animal: [cat, dog]
+        fruit: [apple, pear]
         include:
           - color: green
           - color: pink
