@@ -77,7 +77,7 @@ func TestContainer(t *testing.T) {
 
 func TestContainer_Error(t *testing.T) {
 	err := yaml.Unmarshal([]byte("[[]]"), new(Container))
-	if err == nil || err.Error() != "failed to unmarshal environment" {
+	if err == nil || err.Error() != "failed to unmarshal container" {
 		t.Errorf("Expect error, got %s", err)
 	}
 }

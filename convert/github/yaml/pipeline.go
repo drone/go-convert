@@ -53,7 +53,7 @@ type (
 		ContinueOnErr bool                `yaml:"continue-on-error,omitempty"` // TODO string instead of bool? `continue-on-error: ${{ matrix.experimental }}`
 		Defaults      *Defaults           `yaml:"defaults,omitempty"`
 		Env           map[string]string   `yaml:"env,omitempty"`
-		Environment   Environment         `yaml:"environment,omitempty"`
+		Environment   *Environment        `yaml:"environment,omitempty"`
 		If            string              `yaml:"if,omitempty"`
 		Name          string              `yaml:"name,omitempty"`
 		Needs         Stringorslice       `yaml:"needs,omitempty"`
@@ -128,8 +128,8 @@ type (
 
 	Strategy struct {
 		Matrix      *Matrix `yaml:"matrix,omitempty"`
-		FailFast    *bool   `yaml:"fail-fast,omitempty"`
-		MaxParallel *int    `yaml:"max-parallel,omitempty"`
+		FailFast    bool    `yaml:"fail-fast,omitempty"`
+		MaxParallel int     `yaml:"max-parallel,omitempty"`
 	}
 
 	WorkflowCall struct {
