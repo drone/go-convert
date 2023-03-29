@@ -25,7 +25,7 @@ type (
 		Queuettl         time.Duration     `yaml:"queueTtl,omitempty"`
 		Logsbucket       string            `yaml:"logsBucket,omitempty"`
 		Options          *Options          `yaml:"options,omitempty"`
-		Substitutions    string            `yaml:"substitutions,omitempty"`
+		Substitutions    map[string]string `yaml:"substitutions,omitempty"`
 		Tags             []string          `yaml:"tags,omitempty"`
 		Serviceaccount   string            `yaml:"serviceAccount,omitempty"`
 		Secrets          []*Secret         `yaml:"secrets,omitempty"`

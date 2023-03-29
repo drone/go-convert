@@ -38,12 +38,6 @@ type Converter struct {
 	kubeConnector string
 	dockerhubConn string
 	identifiers   *store.Identifiers
-
-	// // as we walk the yaml, we store a
-	// // a snapshot of the current node and
-	// // its parents.
-	// config *cloudbuild.Pipeline
-	// stage  *cloudbuild.Stage
 }
 
 // New creates a new Converter that converts a Cloud Build
@@ -114,38 +108,56 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 	// create the harness pipeline
 	pipeline := &harness.Pipeline{
 		Version: 1,
+		Options: new(harness.Default),
+	}
+
+	// convert subsitutions to inputs
+	if v := src.Substitutions; len(v) != 0 {
+		pipeline.Inputs = map[string]*harness.Input{}
+		for key, val := range src.Substitutions {
+			pipeline.Inputs[key] = &harness.Input{
+				Type:    "string",
+				Default: val,
+			}
+		}
+	}
+
+	// convert pipeline timeout
+	if v := src.Timeout; v != 0 {
+		pipeline.Options.Timeout = convertTimeout(v)
 	}
 
 	spec := &harness.StageCI{
-		Cache:    nil, // No Google equivalent
-		Platform: nil, // TODO
-		Envs:     envMappingJexl,
-		Runtime:  d.convertRuntime(src),
-		Steps:    d.convertSteps(src),
+		Cache: nil, // No Google equivalent
+		Envs:  nil,
+		Platform: &harness.Platform{
+			Os:   harness.OSLinux,
+			Arch: harness.ArchAmd64,
+		},
+		Runtime: d.convertRuntime(src),
+		Steps:   d.convertSteps(src),
 	}
 
 	// add global environment variables
 	if opts := src.Options; opts != nil {
 		spec.Envs = convertEnv(opts.Env)
 
-		// opts.Machinetype
-		// opts.Logging
-		// opts.Defaultlogsbucketbehavior
 		// opts.Secretenv
 		// opts.Volumes
-		// opts.Pool
 	}
 
-	// src.Timeout
-	// src.Queuettl
-	// src.Logsbucket
-	// src.Substitutions
-	// src.Tags
-	// src.Serviceaccount
 	// src.Secrets
 	// src.Availablesecrets
-	// src.Artifacts
-	// src.Images
+
+	// append steps to publish artifacts
+	if v := src.Artifacts; v != nil {
+		// TODO
+	}
+
+	// append steps to push docker images
+	if v := src.Images; len(v) != 0 {
+		// TODO
+	}
 
 	// conver pipeilne stages
 	pipeline.Stages = append(pipeline.Stages, &harness.Stage{
@@ -158,16 +170,27 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 		Spec:     spec,
 	})
 
-	// marshal the harness yaml
-	out, err := yaml.Marshal(pipeline)
+	// replace google cloud build substitution variable
+	// with harness jexl expressions
+	pipeline, err := replaceAll(
+		pipeline,
+		combineEnv(
+			envMappingJexl,
+			mapInputsToExpr(src.Substitutions),
+		),
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	// find and replace google cloudbuild variables with
-	// the harness equivalents.
-	for before, after := range envMapping {
-		out = bytes.ReplaceAll(out, []byte(before), []byte(after))
+	// map cloud build environment variables to harness
+	// environment variables using jexl.
+	pipeline.Options.Envs = envMappingJexl
+
+	// marshal the harness yaml
+	out, err := yaml.Marshal(pipeline)
+	if err != nil {
+		return nil, err
 	}
 
 	return out, nil
@@ -183,9 +206,13 @@ func (d *Converter) convertRuntime(src *cloudbuild.Config) *harness.Runtime {
 			},
 		}
 	}
+	spec := new(harness.RuntimeCloud)
+	if src.Options != nil {
+		spec.Size = convertMachine(src.Options.Machinetype)
+	}
 	return &harness.Runtime{
 		Type: "cloud",
-		Spec: harness.RuntimeMachine{},
+		Spec: spec,
 	}
 }
 
@@ -217,13 +244,13 @@ func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step
 		Spec: &harness.StepExec{
 			Image:      srcstep.Name,
 			Connector:  d.dockerhubConn,
-			Privileged: isPrivileged(srcstep.Name),
-			Mount:      nil, // TODO
-			Pull:       "",  // No Google equivalent
-			Shell:      "",  // No Google equivalent
-			User:       "",  // No Google equivalent
-			Group:      "",  // No Google equivalent
-			Network:    "",  // No Google equivalent
+			Mount:      nil,   // TODO
+			Privileged: false, // No Google Equivalent
+			Pull:       "",    // No Google equivalent
+			Shell:      "",    // No Google equivalent
+			User:       "",    // No Google equivalent
+			Group:      "",    // No Google equivalent
+			Network:    "",    // No Google equivalent
 			Entrypoint: srcstep.Entrypoint,
 			Args:       srcstep.Args,
 			Run:        srcstep.Script,
@@ -240,14 +267,6 @@ func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step
 	}
 }
 
-// helper function returns true if a container
-// should be started in privileged mode.
-func isPrivileged(name string) bool {
-	// TODO should we mount /var/run/docker.sock for this image?
-	// Or does it execute docker-in-docker.
-	return strings.HasPrefix(name, "gcr.io/cloud-builders/docker")
-}
-
 // helper function returns a timeout string. If there
 // is no timeout, a zero value is returned.
 func convertTimeout(src time.Duration) string {
@@ -255,6 +274,19 @@ func convertTimeout(src time.Duration) string {
 		return ""
 	} else {
 		return dst
+	}
+}
+
+// helper function returns a machine size that corresponds
+// to the google cloud machine type.
+func convertMachine(src string) string {
+	switch src {
+	case "N1_HIGHCPU_8", "E2_HIGHCPU_8":
+		return "standard"
+	case "N1_HIGHCPU_32", "E2_HIGHCPU_32":
+		return "" // TODO convert 32 core machines
+	default:
+		return ""
 	}
 }
 
@@ -288,4 +320,34 @@ func combineEnv(env ...map[string]string) map[string]string {
 		}
 	}
 	return c
+}
+
+// helper function maps input variables to expressions.
+func mapInputsToExpr(envs map[string]string) map[string]string {
+	out := map[string]string{}
+	for k := range envs {
+		out[k] = "<+inputs." + k + ">"
+	}
+	return out
+}
+
+func replaceAll(in *harness.Pipeline, envs map[string]string) (*harness.Pipeline, error) {
+	// marshal the harness yaml
+	b, err := yaml.Marshal(in)
+	if err != nil {
+		return in, err
+	}
+
+	// find and replace google cloudbuild variables with
+	// the harness equivalents.
+	for before, after := range envs {
+		b = bytes.ReplaceAll(b, []byte("${"+before+"}"), []byte(after))
+	}
+
+	// unarmarshal the yaml
+	out, err := harness.ParseBytes(b)
+	if err != nil {
+		return in, err
+	}
+	return out, nil
 }

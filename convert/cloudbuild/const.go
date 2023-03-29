@@ -28,14 +28,13 @@ var envMapping = map[string]string{
 }
 
 var envMappingJexl = map[string]string{
-	// "PROJECT_ID":     "",
-	// "PROJECT_NUMBER": "",
-	// "LOCATION":       "",
-	// "BUILD_ID":       "",
-	"REPO_NAME":   "<+trigger.payload.repository.name>",
-	"BRANCH_NAME": "<+trigger.branch>",
-	// "TAG_NAME":       "",
-	"REVISION_ID": "<+trigger.commitSha>",
-	"COMMIT_SHA":  "<+trigger.commitSha>",
-	"SHORT_SHA":   "<+trigger.commitSha>",
+	"PROJECT_ID":     "<+project.name>",
+	"PROJECT_NUMBER": "<+pipeline.sequenceId>",
+	"BUILD_ID":       "<+pipeline.sequenceId>",
+	"REPO_NAME":      "<+trigger.payload.repository.name>",
+	"BRANCH_NAME":    "<+trigger.branch>",
+	"TAG_NAME":       "<+trigger.commitSha>",
+	"REVISION_ID":    "<+trigger.commitSha>",
+	"COMMIT_SHA":     "<+trigger.commitSha>",
+	"SHORT_SHA":      "<+codebase.shortCommitSha>",
 }
