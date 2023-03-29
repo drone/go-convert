@@ -19,7 +19,6 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/docker/go-units"
 	"github.com/drone/go-convert/internal/slug"
 	"github.com/drone/go-convert/internal/store"
 
@@ -485,15 +484,9 @@ func convertSettings(src map[string]interface{}) map[string]string {
 }
 
 func convertTimeout(s string) v0.Duration {
-	i, _ := units.FromHumanSize(s)
-	if i == -1 {
-		return v0.Duration{
-			Duration: time.Duration(0),
-		}
-	} else {
-		return v0.Duration{
-			Duration: time.Duration(i),
-		}
+	d, _ := time.ParseDuration(s)
+	return v0.Duration{
+		Duration: d,
 	}
 }
 
