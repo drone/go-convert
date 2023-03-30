@@ -142,12 +142,48 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 	if opts := src.Options; opts != nil {
 		spec.Envs = convertEnv(opts.Env)
 
-		// opts.Secretenv
-		// opts.Volumes
+		// add global volumes
+		if vols := opts.Volumes; len(vols) > 0 {
+			for _, vol := range vols {
+				spec.Volumes = append(spec.Volumes, &harness.Volume{
+					Name: vol.Name,
+					Type: "temp",
+					Spec: &harness.VolumeTemp{},
+				})
+			}
+		}
+
+		// add step volumes
+		for _, step := range src.Steps {
+			for _, vol := range step.Volumes {
+				spec.Volumes = append(spec.Volumes, &harness.Volume{
+					Name: vol.Name,
+					Type: "temp",
+					Spec: &harness.VolumeTemp{},
+				})
+			}
+		}
 	}
 
-	// src.Secrets
-	// src.Availablesecrets
+	if d.kubeEnabled {
+		spec.Volumes = append(spec.Volumes, &harness.Volume{
+			Name: "dockersock",
+			Type: "temp",
+			Spec: &harness.VolumeTemp{},
+		})
+	} else {
+		spec.Volumes = append(spec.Volumes, &harness.Volume{
+			Name: "dockersock",
+			Type: "host",
+			Spec: &harness.VolumeHost{
+				Path: "/var/run/docker.sock",
+			},
+		})
+	}
+
+	// TODO src.Secrets
+	// TODO src.Availablesecrets
+	// TODO opts.Secretenv
 
 	// append steps to publish artifacts
 	if v := src.Artifacts; v != nil {
@@ -244,7 +280,6 @@ func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step
 		Spec: &harness.StepExec{
 			Image:      srcstep.Name,
 			Connector:  d.dockerhubConn,
-			Mount:      nil,   // TODO
 			Privileged: false, // No Google Equivalent
 			Pull:       "",    // No Google equivalent
 			Shell:      "",    // No Google equivalent
@@ -257,6 +292,12 @@ func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step
 			Envs:       convertEnv(srcstep.Env),
 			Resources:  nil, // No Google equivalent
 			Reports:    nil, // No Google equivalent
+			Mount: []*harness.Mount{
+				{
+					Name: "dockersock",
+					Path: "/var/run/docker.sock",
+				},
+			}, // TODO mount global and step volumes
 
 			// TODO support step.allowFailure
 			// TODO support step.allowExitCodes

@@ -1,0 +1,9 @@
+# https://cloud.google.com/build/docs/build-config-file-schema#substitutions
+
+steps:
+- name: 'ubuntu'
+  args: ['echo', 'hello ${_SUB_VALUE}']
+substitutions:
+    _SUB_VALUE: world
+options:
+    substitution_option: 'ALLOW_LOOSE'
