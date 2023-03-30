@@ -1,0 +1,9 @@
+language: go
+go:
+  - '1.16'
+  - '1.15'
+install:
+  - go get ./...
+  - go install .
+script:
+  - goveralls

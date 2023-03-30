@@ -1,0 +1,21 @@
+# https://cloud.google.com/build/docs/samples/cloudbuild-config
+
+steps:
+- id: 'Prepare config'
+  # This step builds the final manifests for the app
+  # using kustomize and the configuration files
+  # available in the repository.
+  name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: '/bin/sh'
+  args: ['-c', 'mkdir hydrated-manifests && kubectl kustomize config/prod > hydrated-manifests/prod.yaml']
+- id: 'Download policies'
+  # This step fetches the policies from the Anthos Config Management repository
+  # and consolidates every resource in a single file.
+  name: 'gcr.io/kpt-dev/kpt'
+  entrypoint: '/bin/sh'
+  args: ['-c', 'kpt pkg get https://github.com/GoogleCloudPlatform/anthos-config-management-samples.git/ci-app/acm-repo/cluster@main constraints
+                  && kpt fn source constraints/ hydrated-manifests/ > hydrated-manifests/kpt-manifests.yaml']
+- id: 'Validate against policies'
+  # This step validates that all resources comply with all policies.
+  name: 'gcr.io/kpt-fn/gatekeeper:v0.2'
+  args: ['--input', 'hydrated-manifests/kpt-manifests.yaml']

@@ -82,7 +82,7 @@ func (c *Azure) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) su
 	// format to the harness yaml format.
 	converter := azure.New(
 		azure.WithDockerhub(c.dockerConn),
-		azure.WithKubernetes(c.kubeConn, c.kubeName),
+		azure.WithKubernetes(c.kubeName, c.kubeConn),
 	)
 	after, err := converter.ConvertBytes(before)
 	if err != nil {

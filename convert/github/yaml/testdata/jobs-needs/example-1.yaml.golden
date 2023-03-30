@@ -1,0 +1,6 @@
+jobs:
+  job1:
+  job2:
+    needs: [job1]
+  job3:
+    needs: [job1, job2]

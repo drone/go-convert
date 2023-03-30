@@ -1,0 +1,28 @@
+name: timeouts
+stages:
+- name: cypress-run
+  spec:
+    clone: {}
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - name: Cypress run
+      spec:
+        envs:
+          CYPRESS_firstName: Joe
+        uses: cypress-io/github-action@v2
+        with:
+          command: npm run expect -- --env lastName=Smith
+      timeout: 816h0m0s
+      type: action
+    - name: example
+      spec:
+        run: echo example
+      timeout: 32m0s
+      type: script
+  type: ci
+version: 1

@@ -1,0 +1,4 @@
+jobs:
+  job1:
+    environment:
+      name: staging_environment

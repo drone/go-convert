@@ -83,7 +83,7 @@ func (c *Drone) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) su
 	// format to the harness yaml format.
 	converter := drone.New(
 		drone.WithDockerhub(c.dockerConn),
-		drone.WithKubernetes(c.kubeConn, c.kubeName),
+		drone.WithKubernetes(c.kubeName, c.kubeConn),
 	)
 	after, err := converter.ConvertBytes(before)
 	if err != nil {

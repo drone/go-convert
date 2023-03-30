@@ -1,0 +1,16 @@
+version: 1
+
+stages:
+- desc: converted from travis.yml
+  name: pipeline
+  type: ci
+  spec:
+    steps:
+    - name: install
+      type: script
+      spec:
+        run: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+    - name: script
+      type: script
+      spec:
+        run: mvn test -B

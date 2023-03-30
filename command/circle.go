@@ -82,7 +82,7 @@ func (c *Circle) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 	// format to the harness yaml format.
 	converter := circle.New(
 		circle.WithDockerhub(c.dockerConn),
-		circle.WithKubernetes(c.kubeConn, c.kubeName),
+		circle.WithKubernetes(c.kubeName, c.kubeConn),
 	)
 	after, err := converter.ConvertBytes(before)
 	if err != nil {

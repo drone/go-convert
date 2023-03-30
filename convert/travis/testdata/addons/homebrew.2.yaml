@@ -1,0 +1,7 @@
+# https://docs.travis-ci.com/user/installing-dependencies/#installing-packages-on-macos
+
+addons:
+  homebrew:
+    packages:
+    - beanstalk
+    update: true

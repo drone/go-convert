@@ -1,0 +1,15 @@
+version: 1
+stages:
+- desc: converted from travis.yml
+  name: pipeline
+  type: ci
+  spec:
+    steps:
+    - name: install
+      type: script
+      spec:
+        run: cpanm --quiet --installdeps --notest .
+    - name: script
+      type: script
+      spec:
+        run: perl Build.PL && ./Build test

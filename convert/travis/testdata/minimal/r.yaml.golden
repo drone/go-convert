@@ -1,0 +1,7 @@
+version: 1
+
+stages:
+- desc: converted from travis.yml
+  name: pipeline
+  type: ci
+  spec: {}

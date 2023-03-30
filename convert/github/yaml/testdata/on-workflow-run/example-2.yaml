@@ -1,0 +1,8 @@
+on:
+  workflow_run:
+    workflows:
+      - Build
+    types:
+      - requested
+    branches:
+      - releases/**

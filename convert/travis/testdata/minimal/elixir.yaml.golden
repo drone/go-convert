@@ -1,0 +1,16 @@
+version: 1
+
+stages:
+- desc: converted from travis.yml
+  name: pipeline
+  type: ci
+  spec:
+    steps:
+    - name: install
+      type: script
+      spec:
+        run: mix local.rebar --force; mix local.hex --force; mix deps.get
+    - name: script
+      type: script
+      spec:
+        run: mix test

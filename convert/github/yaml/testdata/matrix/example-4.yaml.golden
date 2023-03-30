@@ -1,0 +1,15 @@
+jobs:
+  job1:
+    strategy:
+      matrix:
+        animal: [cat, dog]
+        fruit: [apple, pear]
+        include:
+          - color: green
+          - color: pink
+            animal: cat
+          - fruit: apple
+            shape: circle
+          - fruit: banana
+          - fruit: banana
+            animal: cat

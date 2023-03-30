@@ -92,6 +92,20 @@ Convert a Gitlab pipeline and downgrade to the Harness v0 format:
 ./go-convert gitlab --downgrade samples/gitlab.yaml
 ```
 
+__Jenkins__
+
+Convert a Jenkinsfile:
+
+```
+./go-convert jenkins --token=<chat-gpt-token> samples/Jenkinsfile
+```
+
+Convert a Jenkinsfile and downgrade to the Harness v0 format:
+
+```
+./go-convert jenkins --token=<chat-gpt-token> --downgrade samples/Jenkinsfile
+```
+
 __Syntax Highlighting__
 
 The command line tools are compatble with [bat](https://github.com/sharkdp/bat) for syntax highlight.

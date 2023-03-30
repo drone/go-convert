@@ -1,0 +1,6 @@
+on:
+  discussion:
+    types:
+      - created
+      - edited
+      - answered

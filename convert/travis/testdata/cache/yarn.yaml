@@ -1,0 +1,5 @@
+# https://docs.travis-ci.com/user/caching/#yarn-cache
+
+language: node_js
+node_js: '6' # or another
+cache: yarn

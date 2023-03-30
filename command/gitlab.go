@@ -82,7 +82,7 @@ func (c *Gitlab) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) s
 	// format to the harness yaml format.
 	converter := gitlab.New(
 		gitlab.WithDockerhub(c.dockerConn),
-		gitlab.WithKubernetes(c.kubeConn, c.kubeName),
+		gitlab.WithKubernetes(c.kubeName, c.kubeConn),
 	)
 	after, err := converter.ConvertBytes(before)
 	if err != nil {

@@ -1,0 +1,18 @@
+name: Docker Image CI
+stages:
+- name: build
+  spec:
+    clone: {}
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - name: Build the Docker image
+      spec:
+        run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      type: script
+  type: ci
+version: 1

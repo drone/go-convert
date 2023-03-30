@@ -1,0 +1,28 @@
+name: Go package
+stages:
+- name: build
+  spec:
+    clone: {}
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - name: Set up Go
+      spec:
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.15"
+      type: action
+    - name: Build
+      spec:
+        run: go build -v ./...
+      type: script
+    - name: Test
+      spec:
+        run: go test -v ./...
+      type: script
+  type: ci
+version: 1

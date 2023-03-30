@@ -1,0 +1,21 @@
+stages:
+- desc: converted from travis.yml
+  name: pipeline
+  spec:
+    steps:
+    - name: rethinkdb
+      spec:
+        image: rethinkdb
+        ports:
+        - "28015"
+      type: background
+    - name: install
+      spec:
+        run: bundle install --jobs=3 --retry=3
+      type: script
+    - name: script
+      spec:
+        run: rake
+      type: script
+  type: ci
+version: 1

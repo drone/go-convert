@@ -1,0 +1,7 @@
+jobs:
+  job1:
+  job2:
+    needs: [job1]
+  job3:
+    if: ${{ always() }}
+    needs: [job1, job2]

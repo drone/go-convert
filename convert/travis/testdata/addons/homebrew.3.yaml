@@ -1,0 +1,6 @@
+# https://docs.travis-ci.com/user/installing-dependencies/#installing-packages-on-macos
+
+addons:
+  homebrew:
+    casks:
+    - dotnet-sdk

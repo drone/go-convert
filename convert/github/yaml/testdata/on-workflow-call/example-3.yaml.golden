@@ -1,0 +1,6 @@
+on:
+  workflow_call:
+    secrets:
+      access-token:
+        description: A token passed from the caller workflow
+        # required is not output since it is false (zero-value)

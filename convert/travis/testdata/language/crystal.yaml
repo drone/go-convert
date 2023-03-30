@@ -1,0 +1,8 @@
+# https://docs.travis-ci.com/user/languages/crystal/#configuration-options
+
+dist: xenial
+language: crystal
+crystal:
+  - latest
+  - nightly
+  - 0.35.1. # example of specific version

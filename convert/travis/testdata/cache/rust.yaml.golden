@@ -1,0 +1,20 @@
+stages:
+- desc: converted from travis.yml
+  name: pipeline
+  spec:
+    cache:
+      enabled: true
+      paths:
+      - target
+      - ~/.cargo
+    steps:
+    - name: install
+      spec:
+        run: cargo build --verbose
+      type: script
+    - name: script
+      spec:
+        run: cargo build --verbose; cargo test --verbose
+      type: script
+  type: ci
+version: 1
