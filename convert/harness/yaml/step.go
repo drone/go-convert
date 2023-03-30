@@ -29,7 +29,7 @@ type (
 		Timeout     Duration          `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
 		Type        string            `json:"type,omitempty"              yaml:"type,omitempty"`
 		When        *When             `json:"when,omitempty"              yaml:"when,omitempty"`
-		Env         map[string]string `json:"env,omitempty"               yaml:"envVariables,omitempty"`
+		Env         map[string]string `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
 	}
 
 	//

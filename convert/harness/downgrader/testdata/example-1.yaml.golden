@@ -16,7 +16,7 @@ pipeline:
         execution:
           steps:
           - step:
-              env:
+              envVariables:
                 RUBY_VERSION: "3.1"
                 my-key: my-value
               identifier: setupruby
@@ -28,7 +28,7 @@ pipeline:
               timeout: ""
               type: Action
           - step:
-              env:
+              envVariables:
                 RUBY_VERSION: "3.1"
                 my-key: my-value
               identifier: installdependencies
@@ -38,7 +38,7 @@ pipeline:
               timeout: ""
               type: Run
           - step:
-              env:
+              envVariables:
                 RUBY_VERSION: "3.1"
                 my-key: my-value
               identifier: runtests
