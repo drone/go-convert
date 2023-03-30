@@ -16,9 +16,6 @@ pipeline:
         execution:
           steps:
           - step:
-              envVariables:
-                RUBY_VERSION: "3.1"
-                my-key: my-value
               identifier: setupruby
               name: Set up Ruby
               spec:
@@ -28,9 +25,6 @@ pipeline:
               timeout: ""
               type: Action
           - step:
-              envVariables:
-                RUBY_VERSION: "3.1"
-                my-key: my-value
               identifier: installdependencies
               name: Install dependencies
               spec:
@@ -38,9 +32,6 @@ pipeline:
               timeout: ""
               type: Run
           - step:
-              envVariables:
-                RUBY_VERSION: "3.1"
-                my-key: my-value
               identifier: runtests
               name: Run tests
               spec:
@@ -54,3 +45,10 @@ pipeline:
           spec: {}
           type: Cloud
       type: CI
+  variables:
+  - name: RUBY_VERSION
+    type: String
+    value: "3.1"
+  - name: my-key
+    type: String
+    value: my-value

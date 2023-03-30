@@ -28,6 +28,8 @@ stages:
       spec:
         run: npm test
       type: script
+    envs:
+      NODE_ENV: production
   type: ci
   when: '!~ github.event.head_commit.message, ''skip ci'')'
 - name: deploy
@@ -45,6 +47,8 @@ stages:
         run: |
           echo "Deploying to production server"
       type: script
+    envs:
+      NODE_ENV: production
   type: ci
   when: ${{codebase.build.type}} == 'push' && ${{codebase.sourceBranch}} == 'refs/heads/main'
     && !~ github.event.head_commit.message, 'skip deploy')

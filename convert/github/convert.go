@@ -127,6 +127,13 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	}
 
 	pipeline.Name = ctx.pipeline.Name
+
+	if ctx.pipeline.Env != nil {
+		pipeline.Options = &harness.Default{
+			Envs: ctx.pipeline.Env,
+		}
+	}
+
 	//pipeline.When = convertOn(from.On) //GAP
 
 	if ctx.pipeline.Jobs != nil {
@@ -151,7 +158,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 				When:     convertIf(job.If),
 				Spec: &harness.StageCI{
 					Clone:    cloneStage,
-					Envs:     ctx.pipeline.Env,
+					Envs:     job.Env,
 					Platform: convertRunsOn(job.RunsOn),
 					Runtime: &harness.Runtime{
 						Type: "cloud",
@@ -160,7 +167,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 					Steps: convertSteps(job),
 					//Volumes:  convertVolumes(from.Volumes),
 
-					// TODO support for delegate.selectors from from.Node
+					// TODO support for delegate.selectors from.Node
 					// TODO support for stage.variables
 				},
 			})

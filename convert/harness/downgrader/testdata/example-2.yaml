@@ -1,10 +1,12 @@
+options:
+  envs:
+    RUBY_VERSION: "3.1"
+    my-key: my-value
+
 stages:
   - name: test
     spec:
       clone: {}
-      envs:
-        RUBY_VERSION: "3.1"
-        my-key: my-value
       platform:
         arch: amd64
         os: linux
@@ -28,4 +30,3 @@ stages:
           type: script
     type: ci
 version: 1
-
