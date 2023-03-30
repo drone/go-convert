@@ -1,0 +1,20 @@
+stages:
+  - name: job1
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+        - name: echo
+          spec:
+            envs:
+              MESSAGE: world
+            uses: actions/hello-world-javascript-action@main
+            with:
+              who-to-greet: $MESSAGE
+          type: action
+    type: ci
+version: 1

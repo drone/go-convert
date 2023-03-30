@@ -135,13 +135,13 @@ type (
 	StepAction struct {
 		Uses string            `json:"uses,omitempty"            yaml:"uses,omitempty"`
 		With map[string]string `json:"with,omitempty"            yaml:"with,omitempty"`
-		Envs map[string]string `json:"evn,omitempty"             yaml:"env,omitempty"`
+		Envs map[string]string `json:"env,omitempty"             yaml:"env,omitempty"`
 	}
 
 	StepBitrise struct {
 		Uses string            `json:"uses,omitempty"            yaml:"uses,omitempty"`
 		With map[string]string `json:"with,omitempty"            yaml:"with,omitempty"`
-		Envs map[string]string `json:"evn,omitempty"             yaml:"env,omitempty"`
+		Envs map[string]string `json:"env,omitempty"             yaml:"env,omitempty"`
 	}
 
 	StepRun struct {

@@ -1,0 +1,35 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: job1
+      name: job1
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - step:
+              identifier: echo
+              name: echo
+              spec:
+                env:
+                  MESSAGE: world
+                uses: actions/hello-world-javascript-action@main
+                with:
+                  who-to-greet: $MESSAGE
+              timeout: ""
+              type: Action
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI
