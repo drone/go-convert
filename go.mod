@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/bmatcuk/doublestar v1.3.4
+	github.com/buildkite/yaml v2.1.0+incompatible
 	github.com/docker/go-units v0.4.0
 	github.com/drone/spec v0.0.0-20230330193014-737aceb47e26
 	github.com/ghodss/yaml v1.0.0
@@ -14,8 +15,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require (
-	github.com/antonmedv/expr v1.12.5 // indirect
-	github.com/buildkite/yaml v2.1.0+incompatible // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
-)
+require gopkg.in/yaml.v2 v2.4.0 // indirect
