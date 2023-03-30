@@ -1,0 +1,54 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: test
+      name: test
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - step:
+              identifier: setupruby
+              name: Set up Ruby
+              spec:
+                uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+                with:
+                  ruby-version: "3.1"
+              timeout: ""
+              type: Action
+          - step:
+              identifier: installdependencies
+              name: Install dependencies
+              spec:
+                command: bundle install
+              timeout: ""
+              type: Run
+          - step:
+              identifier: runtests
+              name: Run tests
+              spec:
+                command: bundle exec rake
+              timeout: ""
+              type: Run
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI
+  variables:
+  - name: RUBY_VERSION
+    type: String
+    value: "3.1"
+  - name: my-key
+    type: String
+    value: my-value

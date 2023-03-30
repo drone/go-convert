@@ -127,6 +127,13 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	}
 
 	pipeline.Name = ctx.pipeline.Name
+
+	if ctx.pipeline.Env != nil {
+		pipeline.Options = &harness.Default{
+			Envs: ctx.pipeline.Env,
+		}
+	}
+
 	//pipeline.When = convertOn(from.On) //GAP
 
 	if ctx.pipeline.Jobs != nil {

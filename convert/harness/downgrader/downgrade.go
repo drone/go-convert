@@ -131,10 +131,13 @@ func (d *Downgrader) downgrade(src *v1.Pipeline) ([]byte, error) {
 		Conn:  d.codebaseConn,
 		Build: "<+input>",
 	}
+	if src.Options != nil {
+		config.Pipeline.Variables = convertVariables(src.Options.Envs)
+	}
 
 	// convert stages
 	for _, stage := range src.Stages {
-		// skip nil stages. this is un-necessary but we have
+		// skip nil stages. this is un-necessary, we have
 		// this logic in place just to be safe.
 		if stage == nil {
 			continue
@@ -481,6 +484,9 @@ func convertCache(src *v1.Cache) *v0.Cache {
 }
 
 func convertVariables(src map[string]string) []*v0.Variable {
+	if src == nil {
+		return nil
+	}
 	var vars []*v0.Variable
 	for k, v := range src {
 		vars = append(vars, &v0.Variable{
