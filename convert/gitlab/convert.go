@@ -21,8 +21,8 @@ import (
 	"os"
 	"strings"
 
+	gitlab "github.com/drone/go-convert/convert/gitlab/yaml"
 	harness "github.com/drone/spec/dist/go"
-	gitlab "github.com/drone/spec/dist/go/convert/gitlab/yaml"
 
 	"github.com/drone/go-convert/internal/store"
 	"github.com/ghodss/yaml"

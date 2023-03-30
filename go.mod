@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/bmatcuk/doublestar v1.3.4
 	github.com/docker/go-units v0.4.0
-	github.com/drone/spec v0.0.0-20230316030012-8fb992844a55
+	github.com/drone/spec v0.0.0-20230330193014-737aceb47e26
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-cmp v0.5.9
 	github.com/google/subcommands v1.2.0

@@ -274,7 +274,7 @@ func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step
 		),
 		Desc:    "",  // No Google equivalent
 		When:    nil, // No Google equivalent
-		On:      nil, // No Google equivalent
+		On:      createFailurestrategy(srcstep),
 		Type:    "script",
 		Timeout: convertTimeout(srcstep.Timeout),
 		Spec: &harness.StepExec{
@@ -304,6 +304,20 @@ func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step
 			// TODO support step.dir
 			// TODO support step.waitFor
 			// TODO support step.secretEnv
+		},
+	}
+}
+
+func createFailurestrategy(src *cloudbuild.Step) *harness.On {
+	if src.Allowfailure == false && len(src.Allowexitcodes) == 0 {
+		return nil
+	}
+	return &harness.On{
+		Failure: &harness.Failure{
+			Type:      "ignore",
+			Spec:      &harness.Ignore{},
+			Errors:    []string{"all"},
+			ExitCodes: src.Allowexitcodes,
 		},
 	}
 }

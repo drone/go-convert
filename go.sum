@@ -14,6 +14,10 @@ github.com/drone/spec v0.0.0-20230316024828-d5af305581dc h1:oGy4yRIMEGpl/iE9TPZQ
 github.com/drone/spec v0.0.0-20230316024828-d5af305581dc/go.mod h1:pdaL6nOipGF/5L6jAu1DwAeLzmZdaU3+UIvQ1MUIZ9Y=
 github.com/drone/spec v0.0.0-20230316030012-8fb992844a55 h1:3JssRUXnMnGVSXUni4mkln4TGzvHMgcN4lpviuH35dY=
 github.com/drone/spec v0.0.0-20230316030012-8fb992844a55/go.mod h1:pdaL6nOipGF/5L6jAu1DwAeLzmZdaU3+UIvQ1MUIZ9Y=
+github.com/drone/spec v0.0.0-20230328162846-c2bc4a6d62ab h1:SCRvpZOFAS/kFo6q0c+oeH+ID0OBDPLpDAx4uHYQwYo=
+github.com/drone/spec v0.0.0-20230328162846-c2bc4a6d62ab/go.mod h1:pdaL6nOipGF/5L6jAu1DwAeLzmZdaU3+UIvQ1MUIZ9Y=
+github.com/drone/spec v0.0.0-20230330193014-737aceb47e26 h1:X7tVVHfcmYfvy+oirywynFQvvA6kFTQUsvV9erIwHt8=
+github.com/drone/spec v0.0.0-20230330193014-737aceb47e26/go.mod h1:pdaL6nOipGF/5L6jAu1DwAeLzmZdaU3+UIvQ1MUIZ9Y=
 github.com/ghodss/yaml v1.0.0 h1:wQHKEahhL6wmXdzwWG11gIVCkOv05bNOh+Rxn0yngAk=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=

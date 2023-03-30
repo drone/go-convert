@@ -107,7 +107,7 @@ type (
 		Name           string        `yaml:"name,omitempty"`
 		Args           []string      `yaml:"args,omitempty"`
 		Env            []string      `yaml:"env,omitempty"`
-		Allowfailure   string        `yaml:"allowFailure,omitempty"`
+		Allowfailure   bool          `yaml:"allowFailure,omitempty"`
 		Allowexitcodes []string      `yaml:"allowExitCodes,omitempty"`
 		Dir            string        `yaml:"dir,omitempty"`
 		ID             string        `yaml:"id,omitempty"`
