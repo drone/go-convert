@@ -1,0 +1,31 @@
+stages:
+  - name: test
+    spec:
+      clone: {}
+      envs:
+        RUBY_VERSION: "3.1"
+        my-key: my-value
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+        - name: Set up Ruby
+          spec:
+            uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+            with:
+              ruby-version: "3.1"
+          type: action
+        - name: Install dependencies
+          spec:
+            run: bundle install
+          type: script
+        - name: Run tests
+          spec:
+            run: bundle exec rake
+          type: script
+    type: ci
+version: 1
+
