@@ -9,23 +9,44 @@ pipeline:
         build: <+input>
   stages:
   - stage:
-      identifier: job1
-      name: job1
+      identifier: test
+      name: test
       spec:
         cloneCodebase: true
         execution:
           steps:
           - step:
-              identifier: echo
-              name: echo
+              env:
+                RUBY_VERSION: "3.1"
+                my-key: my-value
+              identifier: setupruby
+              name: Set up Ruby
               spec:
-                env:
-                  MESSAGE: world
-                uses: actions/hello-world-javascript-action@main
+                uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
                 with:
-                  who-to-greet: $MESSAGE
+                  ruby-version: "3.1"
               timeout: ""
               type: Action
+          - step:
+              env:
+                RUBY_VERSION: "3.1"
+                my-key: my-value
+              identifier: installdependencies
+              name: Install dependencies
+              spec:
+                command: bundle install
+              timeout: ""
+              type: Run
+          - step:
+              env:
+                RUBY_VERSION: "3.1"
+                my-key: my-value
+              identifier: runtests
+              name: Run tests
+              spec:
+                command: bundle exec rake
+              timeout: ""
+              type: Run
         platform:
           arch: Amd64
           os: Linux
