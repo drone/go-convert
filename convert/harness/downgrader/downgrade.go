@@ -17,6 +17,7 @@ package downgrader
 import (
 	"fmt"
 	"io/ioutil"
+	"strings"
 	"time"
 
 	"github.com/docker/go-units"
@@ -109,7 +110,7 @@ func (d *Downgrader) DowngradeString(s string) ([]byte, error) {
 	return d.Downgrade([]byte(s))
 }
 
-// DowngradeString downgrades a v1 pipeline.
+// DowngradeFile downgrades a v1 pipeline.
 func (d *Downgrader) DowngradeFile(path string) ([]byte, error) {
 	out, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -259,7 +260,9 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 	// convert the drone stage to a harness stage.
 	return &v0.Stage{
 		ID: d.identifiers.Generate(
+			slug.Create(stage.Id),
 			slug.Create(stage.Name),
+			slug.Create(stage.Type),
 		),
 		Name: convertName(stage.Name),
 		Type: v0.StageTypeCI,
@@ -274,6 +277,7 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 				Steps: steps,
 			},
 		},
+		When: convertWhen(stage.When, ""),
 	}
 }
 
@@ -338,10 +342,10 @@ func (d *Downgrader) convertStepParallel(src *v1.Step) []*v0.Step {
 // TODO convert reports
 func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepExec)
+	var id = d.identifiers.Generate(
+		slug.Create(src.Name))
 	return &v0.Step{
-		ID: d.identifiers.Generate(
-			slug.Create(src.Name),
-		),
+		ID:      id,
 		Name:    convertName(src.Name),
 		Type:    v0.StepTypeRun,
 		Timeout: convertTimeout(src.Timeout),
@@ -354,6 +358,7 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 			Privileged:      spec_.Privileged,
 			RunAsUser:       spec_.User,
 		},
+		When: convertWhen(src.When, id),
 	}
 }
 
@@ -370,11 +375,10 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 	if spec_.Entrypoint != "" {
 		entypoint = []string{spec_.Entrypoint}
 	}
-
+	var id = d.identifiers.Generate(
+		slug.Create(src.Name))
 	return &v0.Step{
-		ID: d.identifiers.Generate(
-			slug.Create(src.Name),
-		),
+		ID:   id,
 		Name: convertName(src.Name),
 		Type: v0.StepTypeBackground,
 		Spec: &v0.StepBackground{
@@ -387,6 +391,7 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 			Privileged:      spec_.Privileged,
 			RunAsUser:       spec_.User,
 		},
+		When: convertWhen(src.When, id),
 	}
 }
 
@@ -397,10 +402,10 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 // TODO convert reports
 func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepPlugin)
+	var id = d.identifiers.Generate(
+		slug.Create(src.Name))
 	return &v0.Step{
-		ID: d.identifiers.Generate(
-			slug.Create(src.Name),
-		),
+		ID:      id,
 		Name:    convertName(src.Name),
 		Type:    v0.StepTypePlugin,
 		Timeout: convertTimeout(src.Timeout),
@@ -412,6 +417,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 			Privileged:      spec_.Privileged,
 			RunAsUser:       spec_.User,
 		},
+		When: convertWhen(src.When, id),
 	}
 }
 
@@ -419,10 +425,10 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 // structure to the v0 harness structure.
 func (d *Downgrader) convertStepAction(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepAction)
+	var id = d.identifiers.Generate(
+		slug.Create(src.Name))
 	return &v0.Step{
-		ID: d.identifiers.Generate(
-			slug.Create(src.Name),
-		),
+		ID:      id,
 		Name:    convertName(src.Name),
 		Type:    v0.StepTypeAction,
 		Timeout: convertTimeout(src.Timeout),
@@ -431,6 +437,7 @@ func (d *Downgrader) convertStepAction(src *v1.Step) *v0.Step {
 			With: convertSettings(spec_.With),
 			Envs: spec_.Envs,
 		},
+		When: convertWhen(src.When, id),
 	}
 }
 
@@ -438,10 +445,10 @@ func (d *Downgrader) convertStepAction(src *v1.Step) *v0.Step {
 // structure to the v0 harness structure.
 func (d *Downgrader) convertStepBitrise(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepBitrise)
+	var id = d.identifiers.Generate(
+		slug.Create(src.Name))
 	return &v0.Step{
-		ID: d.identifiers.Generate(
-			slug.Create(src.Name),
-		),
+		ID:      id,
 		Name:    convertName(src.Name),
 		Type:    v0.StepTypeBitrise,
 		Timeout: convertTimeout(src.Timeout),
@@ -450,6 +457,7 @@ func (d *Downgrader) convertStepBitrise(src *v1.Step) *v0.Step {
 			With: convertSettings(spec_.With),
 			Envs: spec_.Envs,
 		},
+		When: convertWhen(src.When, id),
 	}
 }
 
@@ -566,4 +574,99 @@ func convertPlatform(platform *v1.Platform, runtime *v0.Runtime) *v0.Platform {
 			Arch: "Amd64",
 		}
 	}
+}
+
+func convertWhen(when *v1.When, stepId string) *v0.When {
+	if when == nil {
+		return nil
+	}
+
+	newWhen := &v0.When{
+		StageStatus: "Success", // default
+	}
+	var conditions []string
+
+	for _, cond := range when.Cond {
+		for k, v := range cond {
+			switch k {
+			case "event":
+				if v.In != nil {
+					var eventConditions []string
+					for _, event := range v.In {
+						eventConditions = append(eventConditions, fmt.Sprintf("<+trigger.event> =~ %q", event))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(eventConditions, " || ")))
+				}
+				if v.Not != nil && v.Not.In != nil {
+					var notEventConditions []string
+					for _, event := range v.Not.In {
+						notEventConditions = append(notEventConditions, fmt.Sprintf("<+trigger.event> !~ %q", event))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notEventConditions, " && ")))
+				}
+			case "status":
+				if v.Eq != "" {
+					newWhen.StageStatus = v.Eq
+				}
+				if v.In != nil {
+					var statusConditions []string
+					for _, status := range v.In {
+						statusConditions = append(statusConditions, fmt.Sprintf("<+execution.steps.%s.status> =~ %q", stepId, status))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(statusConditions, " || ")))
+				}
+			case "branch":
+				if v.In != nil {
+					var branchConditions []string
+					for _, branch := range v.In {
+						branchConditions = append(branchConditions, fmt.Sprintf("<+trigger.branch> =~ %q", branch))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(branchConditions, " || ")))
+				}
+				if v.Not != nil && v.Not.In != nil {
+					var notBranchConditions []string
+					for _, branch := range v.Not.In {
+						notBranchConditions = append(notBranchConditions, fmt.Sprintf("<+trigger.branch> !~ %q", branch))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notBranchConditions, " && ")))
+				}
+			case "repo":
+				if v.In != nil {
+					var repoConditions []string
+					for _, repo := range v.In {
+						repoConditions = append(repoConditions, fmt.Sprintf("<+trigger.payload.repository.name> =~ %q", repo))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(repoConditions, " || ")))
+				}
+				if v.Not != nil && v.Not.In != nil {
+					var notRepoConditions []string
+					for _, repo := range v.Not.In {
+						notRepoConditions = append(notRepoConditions, fmt.Sprintf("<+trigger.payload.repository.name> !~ %q", repo))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notRepoConditions, " && ")))
+				}
+			case "ref":
+				if v.In != nil {
+					var refConditions []string
+					for _, ref := range v.In {
+						refConditions = append(refConditions, fmt.Sprintf("<+codebase.commitRef> =~ %q", ref))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(refConditions, " || ")))
+				}
+				if v.Not != nil && v.Not.In != nil {
+					var notRefConditions []string
+					for _, ref := range v.Not.In {
+						notRefConditions = append(notRefConditions, fmt.Sprintf("<+codebase.commitRef> !~ %q", ref))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notRefConditions, " && ")))
+				}
+			}
+		}
+	}
+
+	if len(conditions) > 0 {
+		newWhen.Condition = strings.Join(conditions, " && ")
+	}
+
+	return newWhen
 }
