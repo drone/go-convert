@@ -301,8 +301,6 @@ func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step
 			Reports:    nil, // No Google equivalent
 			Mount:      createMounts(src, srcstep),
 
-			// TODO support step.allowFailure
-			// TODO support step.allowExitCodes
 			// TODO support step.dir
 			// TODO support step.waitFor
 			// TODO support step.secretEnv

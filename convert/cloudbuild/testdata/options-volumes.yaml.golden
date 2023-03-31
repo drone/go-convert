@@ -20,26 +20,25 @@ stages:
       spec: {}
       type: cloud
     steps:
-    - name: ubuntu
+    - name: mvn
       spec:
         args:
-        - -c
-        - |
-          echo "Hello, world!" > /persistent_volume/file
-        entrypoint: bash
-        image: ubuntu
+        - install
+        image: gcr.io/cloud-builders/mvn
         mount:
         - name: dockersock
           path: /var/run/docker.sock
         - name: vol1
           path: /persistent_volume
       type: script
-    - name: ubuntu1
+    - name: docker
       spec:
         args:
-        - cat
-        - /persistent_volume/file
-        image: ubuntu
+        - build
+        - -t
+        - gcr.io/my-project-id/myimage
+        - .
+        image: gcr.io/cloud-builders/docker
         mount:
         - name: dockersock
           path: /var/run/docker.sock
