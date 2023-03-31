@@ -336,6 +336,10 @@ func convertSteps(src *github.Job) []*harness.Step {
 			Name: step.Name,
 		}
 
+		if step.ContinueOnErr {
+			dst.On = convertContinueOnError(step)
+		}
+
 		if step.Timeout != 0 {
 			dst.Timeout = convertTimeout(step)
 		}
@@ -380,6 +384,20 @@ func convertAction(src *github.Step) *harness.StepAction {
 		}
 	}
 	return dst
+}
+
+func convertContinueOnError(src *github.Step) *harness.On {
+	if !src.ContinueOnErr {
+		return nil
+	}
+
+	return &harness.On{
+		Failure: &harness.Failure{
+			Type:   "ignore",
+			Spec:   &harness.Ignore{},
+			Errors: []string{"all"},
+		},
+	}
 }
 
 func convertRun(src *github.Step) *harness.StepExec {

@@ -118,13 +118,14 @@ type (
 	}
 
 	Step struct {
-		Name    string                 `yaml:"name,omitempty"`
-		Env     map[string]string      `yaml:"env,omitempty"`
-		If      string                 `yaml:"if,omitempty"`
-		Run     string                 `yaml:"run,omitempty"`
-		Timeout int                    `yaml:"timeout-minutes,omitempty"`
-		With    map[string]interface{} `yaml:"with,omitempty"`
-		Uses    string                 `yaml:"uses,omitempty"`
+		ContinueOnErr bool                   `yaml:"continue-on-error,omitempty"`
+		Env           map[string]string      `yaml:"env,omitempty"`
+		If            string                 `yaml:"if,omitempty"`
+		Name          string                 `yaml:"name,omitempty"`
+		Run           string                 `yaml:"run,omitempty"`
+		Timeout       int                    `yaml:"timeout-minutes,omitempty"`
+		With          map[string]interface{} `yaml:"with,omitempty"`
+		Uses          string                 `yaml:"uses,omitempty"`
 	}
 
 	Strategy struct {
