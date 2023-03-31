@@ -139,12 +139,14 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 	}
 
 	// add global environment variables
+	uniqueVols := map[string]struct{}{}
 	if opts := src.Options; opts != nil {
 		spec.Envs = convertEnv(opts.Env)
 
 		// add global volumes
 		if vols := opts.Volumes; len(vols) > 0 {
 			for _, vol := range vols {
+				uniqueVols[vol.Name] = struct{}{}
 				spec.Volumes = append(spec.Volumes, &harness.Volume{
 					Name: vol.Name,
 					Type: "temp",
@@ -152,16 +154,20 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 				})
 			}
 		}
-
-		// add step volumes
-		for _, step := range src.Steps {
-			for _, vol := range step.Volumes {
-				spec.Volumes = append(spec.Volumes, &harness.Volume{
-					Name: vol.Name,
-					Type: "temp",
-					Spec: &harness.VolumeTemp{},
-				})
+	}
+	// add step volumes
+	for _, step := range src.Steps {
+		for _, vol := range step.Volumes {
+			// do not add the volume if already exists
+			if _, ok := uniqueVols[vol.Name]; ok {
+				continue
 			}
+			uniqueVols[vol.Name] = struct{}{}
+			spec.Volumes = append(spec.Volumes, &harness.Volume{
+				Name: vol.Name,
+				Type: "temp",
+				Spec: &harness.VolumeTemp{},
+			})
 		}
 	}
 
@@ -265,6 +271,7 @@ func (d *Converter) convertSteps(src *cloudbuild.Config) []*harness.Step {
 }
 
 func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step) *harness.Step {
+
 	return &harness.Step{
 		Name: d.identifiers.Generate(
 			srcstep.ID,
@@ -292,12 +299,7 @@ func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step
 			Envs:       convertEnv(srcstep.Env),
 			Resources:  nil, // No Google equivalent
 			Reports:    nil, // No Google equivalent
-			Mount: []*harness.Mount{
-				{
-					Name: "dockersock",
-					Path: "/var/run/docker.sock",
-				},
-			}, // TODO mount global and step volumes
+			Mount:      createMounts(src, srcstep),
 
 			// TODO support step.allowFailure
 			// TODO support step.allowExitCodes
@@ -320,6 +322,30 @@ func createFailurestrategy(src *cloudbuild.Step) *harness.On {
 			ExitCodes: src.Allowexitcodes,
 		},
 	}
+}
+
+func createMounts(src *cloudbuild.Config, srcstep *cloudbuild.Step) []*harness.Mount {
+	var mounts = []*harness.Mount{
+		{
+			Name: "dockersock",
+			Path: "/var/run/docker.sock",
+		},
+	}
+	for _, vol := range srcstep.Volumes {
+		mounts = append(mounts, &harness.Mount{
+			Name: vol.Name,
+			Path: vol.Path,
+		})
+	}
+	if src.Options != nil {
+		for _, vol := range src.Options.Volumes {
+			mounts = append(mounts, &harness.Mount{
+				Name: vol.Name,
+				Path: vol.Path,
+			})
+		}
+	}
+	return mounts
 }
 
 // helper function returns a timeout string. If there

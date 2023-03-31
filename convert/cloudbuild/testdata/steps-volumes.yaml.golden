@@ -1,0 +1,58 @@
+options:
+  envs:
+    BRANCH_NAME: <+trigger.branch>
+    BUILD_ID: <+pipeline.sequenceId>
+    COMMIT_SHA: <+trigger.commitSha>
+    PROJECT_ID: <+project.name>
+    PROJECT_NUMBER: <+pipeline.sequenceId>
+    REPO_NAME: <+trigger.payload.repository.name>
+    REVISION_ID: <+trigger.commitSha>
+    SHORT_SHA: <+codebase.shortCommitSha>
+    TAG_NAME: <+trigger.commitSha>
+stages:
+- desc: converted from google cloud build
+  name: pipeline
+  spec:
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - name: ubuntu
+      spec:
+        args:
+        - -c
+        - |
+          echo "Hello, world!" > /persistent_volume/file
+        entrypoint: bash
+        image: ubuntu
+        mount:
+        - name: dockersock
+          path: /var/run/docker.sock
+        - name: vol1
+          path: /persistent_volume
+      type: script
+    - name: ubuntu1
+      spec:
+        args:
+        - cat
+        - /persistent_volume/file
+        image: ubuntu
+        mount:
+        - name: dockersock
+          path: /var/run/docker.sock
+        - name: vol1
+          path: /persistent_volume
+      type: script
+    volumes:
+    - name: dockersock
+      type: host
+      spec:
+        path: /var/run/docker.sock
+    - name: vol1
+      type: temp
+      spec: {}
+  type: ci
+version: 1

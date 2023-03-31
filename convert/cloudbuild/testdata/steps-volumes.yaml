@@ -1,0 +1,17 @@
+# https://cloud.google.com/build/docs/build-config-file-schema#volumes
+
+steps:
+- name: 'ubuntu'
+  volumes:
+  - name: 'vol1'
+    path: '/persistent_volume'
+  entrypoint: 'bash'
+  args:
+  - '-c'
+  - |
+        echo "Hello, world!" > /persistent_volume/file
+- name: 'ubuntu'
+  volumes:
+  - name: 'vol1'
+    path: '/persistent_volume'
+  args: ['cat', '/persistent_volume/file']
