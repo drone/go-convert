@@ -194,11 +194,15 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 	// append steps to publish artifacts
 	if v := src.Artifacts; v != nil {
 		// TODO
+		// https://cloud.google.com/build/docs/build-config-file-schema#artifacts
+		// https://cloud.google.com/build/docs/build-config-file-schema#mavenartifacts
+		// https://cloud.google.com/build/docs/build-config-file-schema#pythonpackages
 	}
 
 	// append steps to push docker images
 	if v := src.Images; len(v) != 0 {
 		// TODO
+		// https://cloud.google.com/build/docs/build-config-file-schema#images
 	}
 
 	// conver pipeilne stages
@@ -302,7 +306,6 @@ func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step
 			Mount:      createMounts(src, srcstep),
 
 			// TODO support step.dir
-			// TODO support step.waitFor
 			// TODO support step.secretEnv
 		},
 	}
