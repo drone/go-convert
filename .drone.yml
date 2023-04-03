@@ -11,6 +11,8 @@ steps:
 
 - name: build
   image: golang:1.19
+  environment:
+    CGO_ENABLED: 1
   commands:
   - GOOS=linux   GOARCH=amd64   go build -o release/plugin-linux-amd64
   - GOOS=linux   GOARCH=arm64   go build -o release/plugin-linux-arm64
