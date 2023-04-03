@@ -38,14 +38,16 @@ type (
 		Matrix   *Matrix
 		Type     string
 		Requires []string
+		Params   map[string]interface{} // custom params
 	}
 
 	workflowJob struct {
-		Context  Stringorslice `yaml:"context,omitempty"`
-		Filters  *Filters      `yaml:"filters,omitempty"`
-		Matrix   *Matrix       `yaml:"matrix,omitempty"`
-		Type     string        `yaml:"type,omitempty"` // approval
-		Requires []string      `yaml:"requires,omitempty"`
+		Context  Stringorslice          `yaml:"context,omitempty"`
+		Filters  *Filters               `yaml:"filters,omitempty"`
+		Matrix   *Matrix                `yaml:"matrix,omitempty"`
+		Type     string                 `yaml:"type,omitempty"` // approval
+		Requires []string               `yaml:"requires,omitempty"`
+		Params   map[string]interface{} `yaml:",inline"` // custom params
 	}
 )
 
@@ -70,6 +72,7 @@ func (v *WorkflowJob) UnmarshalYAML(unmarshal func(interface{}) error) error {
 			v.Matrix = val.Matrix
 			v.Type = val.Type
 			v.Requires = val.Requires
+			v.Params = val.Params
 		}
 		return nil
 	}
@@ -80,7 +83,7 @@ func (v *WorkflowJob) UnmarshalYAML(unmarshal func(interface{}) error) error {
 // MarshalYAML implements the marshal interface.
 func (v *WorkflowJob) MarshalYAML() (interface{}, error) {
 	// if the structure is empty, output the string only
-	if len(v.Context) == 0 && v.Filters == nil && v.Matrix == nil && v.Type == "" && len(v.Requires) == 0 {
+	if len(v.Context) == 0 && len(v.Params) == 0 && v.Filters == nil && v.Matrix == nil && v.Type == "" && len(v.Requires) == 0 {
 		return v.Name, nil
 	}
 	return map[string]*workflowJob{
@@ -90,6 +93,7 @@ func (v *WorkflowJob) MarshalYAML() (interface{}, error) {
 			Matrix:   v.Matrix,
 			Type:     v.Type,
 			Requires: v.Requires,
+			Params:   v.Params,
 		},
 	}, nil
 }
