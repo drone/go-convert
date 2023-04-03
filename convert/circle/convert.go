@@ -17,9 +17,15 @@ package circle
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"io"
+	"io/ioutil"
 	"os"
+
+	"github.com/drone/go-convert/convert/circle/commons"
+	"github.com/drone/go-convert/convert/circle/converter"
+	"github.com/drone/go-convert/convert/circle/converter/circleci"
 
 	harness "github.com/drone/spec/dist/go"
 
@@ -74,16 +80,29 @@ func New(options ...Option) *Converter {
 
 // Convert downgrades a v1 pipeline.
 func (d *Converter) Convert(r io.Reader) ([]byte, error) {
-	// src, err := circle.Parse(r)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// d.config = src // push the circle config to the state
-	// return d.convert()
-	return nil, errors.New("not implemented")
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var opts commons.Opts
+	pipelines, err := circleci.Convert(opts, data)
+	if err != nil {
+		return nil, err
+	}
+	if len(pipelines) == 0 {
+		return nil, errors.New("no pipelines")
+	}
+
+	b, err := json.Marshal(pipelines[0])
+	if err != nil {
+		return nil, err
+	}
+
+	return converter.JSONToYAML(b)
 }
 
-// ConvertString downgrades a v1 pipeline.
+// ConvertBytes downgrades a v1 pipeline.
 func (d *Converter) ConvertBytes(b []byte) ([]byte, error) {
 	return d.Convert(
 		bytes.NewBuffer(b),

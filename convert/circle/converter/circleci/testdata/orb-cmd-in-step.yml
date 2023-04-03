@@ -1,0 +1,23 @@
+version: 2.1
+
+orbs:
+  aws-s3: circleci/aws-s3@x.y.z
+
+jobs:
+  build:
+    docker:
+      - image: 'cimg/python:3.6'
+        auth:
+          username: mydockerhub-user
+          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
+    steps:
+      - checkout
+      - run: mkdir bucket && echo "lorem ipsum" > bucket/build_asset.txt
+      # using the aws-s3 orb's "copy" command.
+      - aws-s3/copy:
+          from: bucket/build_asset.txt
+          to: 's3://my-s3-bucket-name'
+workflows:
+  test:
+    jobs:
+      - build
