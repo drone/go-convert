@@ -323,22 +323,51 @@ func (d *Converter) convertRun(step *circle.Step, job *circle.Job, config *circl
 
 // helper function converts a Circle Restore Cache step.
 func (d *Converter) convertRestoreCache(step *circle.Step) *harness.Step {
+	// TODO support restore_cache.keys (plural)
 	return &harness.Step{
-		Name: step.RestoreCache.Name,
-		Type: "script",
+		Name: d.identifiers.Generate(step.RestoreCache.Name, "restore_cache"),
+		Type: "plugin",
 		Spec: &harness.StepPlugin{
-			// TODO
+			Image: "plugins/cache",
+			With: map[string]interface{}{
+				"bucket":                          `<+ secrets.getValue("aws_bucket") >`,
+				"region":                          `<+ secrets.getValue("aws_region") >`,
+				"access_key":                      `<+ secrets.getValue("aws_access_key_id") >`,
+				"secret_key":                      `<+ secrets.getValue("aws_secret_access_key") >`,
+				"cache_key":                       step.RestoreCache.Key,
+				"restore":                         "true",
+				"exit_code":                       "true",
+				"archive_format":                  "tar",
+				"backend":                         "s3",
+				"backend_operation_timeout":       "1800s",
+				"fail_restore_if_key_not_present": "false",
+			},
 		},
 	}
 }
 
 // helper function converts a Save Cache step.
 func (d *Converter) convertSaveCache(step *circle.Step) *harness.Step {
+	// TODO support save_cache.when
 	return &harness.Step{
-		Name: *&step.SaveCache.Name,
+		Name: d.identifiers.Generate(step.SaveCache.Name, "save_cache"),
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
-			// TODO
+			Image: "plugins/cache",
+			With: map[string]interface{}{
+				"bucket":                          `<+ secrets.getValue("aws_bucket") >`,
+				"region":                          `<+ secrets.getValue("aws_region") >`,
+				"access_key":                      `<+ secrets.getValue("aws_access_key_id") >`,
+				"secret_key":                      `<+ secrets.getValue("aws_secret_access_key") >`,
+				"cache_key":                       step.SaveCache.Key,
+				"rebuild":                         "true",
+				"mount":                           step.SaveCache.Paths,
+				"exit_code":                       "true",
+				"archive_format":                  "tar",
+				"backend":                         "s3",
+				"backend_operation_timeout":       "1800s",
+				"fail_restore_if_key_not_present": "false",
+			},
 		},
 	}
 }
@@ -347,36 +376,51 @@ func (d *Converter) convertSaveCache(step *circle.Step) *harness.Step {
 func (d *Converter) convertAddSSHKeys(step *circle.Step) *harness.Step {
 	// TODO step.AddSSHKeys.Fingerprints
 	return &harness.Step{
-		Name: step.AddSSHKeys.Name,
+		Name: d.identifiers.Generate(step.AddSSHKeys.Name, "add_ssh_keys"),
 		Type: "script",
 		Spec: &harness.StepExec{
-			Run: "",
+			Run: "echo unable to convert add_ssh_keys step",
 		},
 	}
 }
 
 // helper function converts a Store Artifacts step.
 func (d *Converter) convertStoreArtifacts(step *circle.Step) *harness.Step {
-	// TODO step.StoreArtifacts.Destination
-	// TODO step.StoreArtifacts.Path
+	src := step.StoreArtifacts.Path
+	dst := step.StoreArtifacts.Destination
+	if dst == "" {
+		dst = "/"
+	}
 	return &harness.Step{
-		Name: step.StoreArtifacts.Name,
-		Type: "script",
-		Spec: &harness.StepExec{
-			Run: "",
+		Name: d.identifiers.Generate(step.StoreArtifacts.Name, "store_artifacts"),
+		Type: "plugin",
+		Spec: &harness.StepPlugin{
+			Image: "plugins/s3",
+			With: map[string]interface{}{
+				"bucket":     `<+ secrets.getValue("aws_bucket") >`,
+				"region":     `<+ secrets.getValue("aws_region") >`,
+				"access_key": `<+ secrets.getValue("aws_access_key_id") >`,
+				"secret_key": `<+ secrets.getValue("aws_secret_access_key") >`,
+				"source":     src,
+				"target":     dst,
+			},
 		},
 	}
 }
 
 // helper function converts a Test Results step.
 func (d *Converter) convertStoreTestResults(step *circle.Step) *harness.Step {
-	// TODO step.StoreTestResults.Name
-	// TODO step.StoreTestResults.Path
 	return &harness.Step{
-		Name: step.StoreTestResults.Name,
+		Name: d.identifiers.Generate(step.StoreTestResults.Name, "store_test_results"),
 		Type: "script",
 		Spec: &harness.StepExec{
-			Run: "",
+			Run: "echo upload unit test results",
+			Reports: []*harness.Report{
+				{
+					Path: []string{step.StoreTestResults.Path},
+					Type: "junit",
+				},
+			},
 		},
 	}
 }
