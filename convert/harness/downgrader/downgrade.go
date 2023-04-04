@@ -282,7 +282,7 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 				Steps: steps,
 			},
 		},
-		When: convertWhen(stage.When, ""),
+		When: convertStageWhen(stage.When, ""),
 	}
 }
 
@@ -363,7 +363,7 @@ func (d *Downgrader) convertStepRun(src *v1.Step, stageEnv map[string]string) *v
 			Privileged:      spec_.Privileged,
 			RunAsUser:       spec_.User,
 		},
-		When: convertWhen(src.When, id),
+		When: convertStepWhen(src.When, id),
 		Env:  stageEnv,
 	}
 }
@@ -397,7 +397,7 @@ func (d *Downgrader) convertStepBackground(src *v1.Step, stageEnv map[string]str
 			Privileged:      spec_.Privileged,
 			RunAsUser:       spec_.User,
 		},
-		When: convertWhen(src.When, id),
+		When: convertStepWhen(src.When, id),
 		Env:  stageEnv,
 	}
 }
@@ -424,7 +424,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step, stageEnv map[string]string)
 			Privileged:      spec_.Privileged,
 			RunAsUser:       spec_.User,
 		},
-		When: convertWhen(src.When, id),
+		When: convertStepWhen(src.When, id),
 		Env:  stageEnv,
 	}
 }
@@ -445,7 +445,7 @@ func (d *Downgrader) convertStepAction(src *v1.Step, stageEnv map[string]string)
 			With: convertSettings(spec_.With),
 			Envs: spec_.Envs,
 		},
-		When: convertWhen(src.When, id),
+		When: convertStepWhen(src.When, id),
 		Env:  stageEnv,
 	}
 }
@@ -466,7 +466,7 @@ func (d *Downgrader) convertStepBitrise(src *v1.Step, stageEnv map[string]string
 			With: convertSettings(spec_.With),
 			Envs: spec_.Envs,
 		},
-		When: convertWhen(src.When, id),
+		When: convertStepWhen(src.When, id),
 		Env:  stageEnv,
 	}
 }
@@ -583,12 +583,12 @@ func convertPlatform(platform *v1.Platform, runtime *v0.Runtime) *v0.Platform {
 	}
 }
 
-func convertWhen(when *v1.When, stepId string) *v0.When {
+func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 	if when == nil {
 		return nil
 	}
 
-	newWhen := &v0.When{
+	newWhen := &v0.StepWhen{
 		StageStatus: "Success", // default
 	}
 	var conditions []string
@@ -614,6 +614,101 @@ func convertWhen(when *v1.When, stepId string) *v0.When {
 			case "status":
 				if v.Eq != "" {
 					newWhen.StageStatus = v.Eq
+				}
+				if v.In != nil {
+					var statusConditions []string
+					for _, status := range v.In {
+						statusConditions = append(statusConditions, fmt.Sprintf("<+execution.steps.%s.status> =~ %q", stepId, status))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(statusConditions, " || ")))
+				}
+			case "branch":
+				if v.In != nil {
+					var branchConditions []string
+					for _, branch := range v.In {
+						branchConditions = append(branchConditions, fmt.Sprintf("<+trigger.branch> =~ %q", branch))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(branchConditions, " || ")))
+				}
+				if v.Not != nil && v.Not.In != nil {
+					var notBranchConditions []string
+					for _, branch := range v.Not.In {
+						notBranchConditions = append(notBranchConditions, fmt.Sprintf("<+trigger.branch> !~ %q", branch))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notBranchConditions, " && ")))
+				}
+			case "repo":
+				if v.In != nil {
+					var repoConditions []string
+					for _, repo := range v.In {
+						repoConditions = append(repoConditions, fmt.Sprintf("<+trigger.payload.repository.name> =~ %q", repo))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(repoConditions, " || ")))
+				}
+				if v.Not != nil && v.Not.In != nil {
+					var notRepoConditions []string
+					for _, repo := range v.Not.In {
+						notRepoConditions = append(notRepoConditions, fmt.Sprintf("<+trigger.payload.repository.name> !~ %q", repo))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notRepoConditions, " && ")))
+				}
+			case "ref":
+				if v.In != nil {
+					var refConditions []string
+					for _, ref := range v.In {
+						refConditions = append(refConditions, fmt.Sprintf("<+codebase.commitRef> =~ %q", ref))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(refConditions, " || ")))
+				}
+				if v.Not != nil && v.Not.In != nil {
+					var notRefConditions []string
+					for _, ref := range v.Not.In {
+						notRefConditions = append(notRefConditions, fmt.Sprintf("<+codebase.commitRef> !~ %q", ref))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notRefConditions, " && ")))
+				}
+			}
+		}
+	}
+
+	if len(conditions) > 0 {
+		newWhen.Condition = strings.Join(conditions, " && ")
+	}
+
+	return newWhen
+}
+
+func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
+	if when == nil {
+		return nil
+	}
+
+	newWhen := &v0.StageWhen{
+		PipelineStatus: "Success", // default
+	}
+	var conditions []string
+
+	for _, cond := range when.Cond {
+		for k, v := range cond {
+			switch k {
+			case "event":
+				if v.In != nil {
+					var eventConditions []string
+					for _, event := range v.In {
+						eventConditions = append(eventConditions, fmt.Sprintf("<+trigger.event> =~ %q", event))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(eventConditions, " || ")))
+				}
+				if v.Not != nil && v.Not.In != nil {
+					var notEventConditions []string
+					for _, event := range v.Not.In {
+						notEventConditions = append(notEventConditions, fmt.Sprintf("<+trigger.event> !~ %q", event))
+					}
+					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notEventConditions, " && ")))
+				}
+			case "status":
+				if v.Eq != "" {
+					newWhen.PipelineStatus = v.Eq
 				}
 				if v.In != nil {
 					var statusConditions []string
