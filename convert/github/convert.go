@@ -350,7 +350,7 @@ func convertSteps(src *github.Job) []*harness.Step {
 			dst.Type = "action"
 		} else {
 			dst.Name = step.Name
-			dst.Spec = convertRun(step)
+			dst.Spec = convertRun(step, src.Container)
 			dst.Type = "script"
 		}
 		steps = append(steps, dst)
@@ -400,13 +400,16 @@ func convertContinueOnError(src *github.Step) *harness.On {
 	}
 }
 
-func convertRun(src *github.Step) *harness.StepExec {
+func convertRun(src *github.Step, container *github.Container) *harness.StepExec {
 	if src == nil {
 		return nil
 	}
 	dst := &harness.StepExec{
 		Run:  src.Run,
 		Envs: src.Env,
+	}
+	if container != nil {
+		dst.Image = container.Image
 	}
 	return dst
 }
