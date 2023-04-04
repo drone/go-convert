@@ -174,10 +174,12 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 				Envs:     job.Environment,
 				Platform: convertPlatform(job, config),
 				Runtime:  convertRuntime(job, config),
-				Steps:    d.convertSteps(job.Steps, job, config),
+				Steps: append(
+					defaultBackgroundSteps(job, config),
+					d.convertSteps(job.Steps, job, config)...,
+				),
 			}
 
-			// TODO executor.docker
 			// TODO executor.resource_class
 			// TODO executor.machine
 			// TODO executor.shell
@@ -498,6 +500,42 @@ func (d *Converter) convertUnlessStep(step *circle.Step, job *circle.Job, config
 func (d *Converter) convertCustomStep(step *circle.Step) *harness.Step {
 	return nil
 }
+
+func defaultBackgroundSteps(job *circle.Job, config *circle.Config) []*harness.Step {
+	var steps []*harness.Step
+
+	executor := extractExecutor(job, config)
+	// exit if the executor is nil or if there are
+	// no background containers defined.
+	if executor == nil || len(executor.Docker) < 1 {
+		return nil
+	}
+	for i := 1; i < len(executor.Docker); i++ {
+		docker := executor.Docker[i]
+		steps = append(steps, &harness.Step{
+			Type: "background",
+			Spec: &harness.StepBackground{
+				Envs:  docker.Environment,
+				Image: docker.Image,
+				// TODO entrypoint
+				// Entrypoint: docker.Entrypoint,
+				Args: docker.Command,
+				User: docker.User,
+			},
+		})
+	}
+	return steps
+}
+
+// func extractBackgroundSteps(job *circle.Job, config *circle.Config) []*circle.Docker {
+// 	executor := extractExecutor(job, config)
+// 	// exit if the executor is nil or if there are
+// 	// no background containers defined.
+// 	if executor == nil || len(executor.Docker) < 1 {
+// 		return nil
+// 	}
+// 	return executor.Docker[1:]
+// }
 
 func extractDocker(job *circle.Job, config *circle.Config) *circle.Docker {
 	executor := extractExecutor(job, config)
