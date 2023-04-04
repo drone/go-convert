@@ -1,0 +1,20 @@
+# https://circleci.com/docs/executor-intro/#windows
+
+version: 2.1
+
+orbs:
+  win: circleci/windows@4.1.1 # The Windows orb gives you everything you need to start using the Windows executor
+
+jobs:
+  build: # name of your job
+    executor: win/server-2022 # use one of the executors defined within the windows orb
+
+    steps:
+      # Commands are run in a Windows virtual machine environment
+      - checkout
+      - run: Write-Host 'Hello, Windows'
+
+workflows:
+  build:
+    jobs:
+      - build

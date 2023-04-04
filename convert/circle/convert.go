@@ -18,8 +18,10 @@ package circle
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	circle "github.com/drone/go-convert/convert/circle/yaml"
 	harness "github.com/drone/spec/dist/go"
@@ -124,7 +126,14 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 	// create the harness pipeline
 	pipeline := &harness.Pipeline{
 		Version: 1,
-		// Default: convertDefault(d.config),
+	}
+
+	// TODO .commands
+	// TODO .orbs
+
+	// convert pipeline and job parameters to inputs
+	if params := extractParameters(config); len(params) != 0 {
+		pipeline.Inputs = convertParameters(params)
 	}
 
 	// require a minimum of 1 workflows
@@ -144,6 +153,15 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 	// job to a stage.
 	for _, workflowjob := range workflow.Jobs {
 
+		// TODO workflows.[*].triggers
+		// TODO workflows.[*].unless
+		// TODO workflows.[*].when
+		// TODO workflows.[*].jobs[*].context
+		// TODO workflows.[*].jobs[*].filters
+		// TODO workflows.[*].jobs[*].matrix
+		// TODO workflows.[*].jobs[*].type
+		// TODO workflows.[*].jobs[*].requires
+
 		// loop through jobs
 		for name, job := range config.Jobs {
 			// skip jobs that do not match
@@ -159,27 +177,27 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 				Steps:    d.convertSteps(job.Steps, job, config),
 			}
 
+			// TODO executor.docker
+			// TODO executor.resource_class
+			// TODO executor.machine
+			// TODO executor.shell
+			// TODO executor.working_directory
+			// TODO executor.environment
+
 			// if there are no steps in the stage we
 			// can skip adding the stage to the pipeline.
 			if len(spec.Steps) == 0 {
 				continue
 			}
 
-			// TODO job.Branches
-			// TODO job.Docker
-			// TODO job.Executor
-			// TODO job.IPRanges
-			// TODO job.Machine
-			// TODO job.Macos
-			// TODO job.Parallelism
-			// TODO job.Parameters
-			// TODO job.ResourceClass
-			// TODO job.Shell
-			// TODO job.WorkingDir
+			// TODO jobs.[*].branches
+			// TODO jobs.[*].parallelism
+			// TODO jobs.[*].parameters
 
 			// create the stage
 			stage := &harness.Stage{}
 			stage.Name = workflowjob.Name
+			stage.Type = "ci"
 			stage.Spec = spec
 
 			// append the stage to the pipeline
@@ -193,33 +211,49 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 		return nil, err
 	}
 
+	// replace circle parameters with harness parameters
+	out = replaceParams(out)
+
 	return out, nil
 }
 
 func convertPlatform(job *circle.Job, config *circle.Config) *harness.Platform {
-	if job.Macos != nil {
+	executor := extractExecutor(job, config)
+	if executor == nil {
+		return nil
+	}
+	if executor.Windows != nil {
+		return &harness.Platform{
+			Os:   harness.OSWindows,
+			Arch: harness.ArchAmd64,
+		}
+	}
+	if executor.Machine != nil {
+		if strings.Contains(executor.Machine.Image, "win") ||
+			strings.Contains(executor.ResourceClass, "win") {
+			return &harness.Platform{
+				Os:   harness.OSWindows,
+				Arch: harness.ArchAmd64,
+			}
+		}
+		if strings.Contains(executor.Machine.Image, "arm") ||
+			strings.Contains(executor.ResourceClass, "arm") {
+			return &harness.Platform{
+				Os:   harness.OSLinux,
+				Arch: harness.ArchArm64,
+			}
+		}
+	}
+	if executor.Macos != nil {
 		return &harness.Platform{
 			Os:   harness.OSMacos,
 			Arch: harness.ArchArm64,
 		}
 	}
-	// else if the job uses a global executor.
-	if job.Executor != nil {
-		// loop through the global executors.
-		for name, executor := range config.Executors {
-			// find the matching execturo.
-			if name != job.Executor.Name {
-				continue
-			}
-			if executor.Macos != nil {
-				return &harness.Platform{
-					Os:   harness.OSMacos,
-					Arch: harness.ArchArm64,
-				}
-			}
-		}
+	return &harness.Platform{
+		Os:   harness.OSLinux,
+		Arch: harness.ArchAmd64,
 	}
-	return nil
 }
 
 func convertRuntime(job *circle.Job, config *circle.Config) *harness.Runtime {
@@ -279,6 +313,11 @@ func (d *Converter) convertRun(step *circle.Step, job *circle.Job, config *circl
 	// TODO run.shell
 	// TODO run.when
 	// TODO run.working_directory
+	// TODO docker.auth.username
+	// TODO docker.auth.password
+	// TODO docker.aws_auth.aws_access_key_id
+	// TODO docker.aws_auth.aws_secret_access_key
+
 	var image string
 	var entrypoint string
 	var args []string
@@ -461,28 +500,86 @@ func (d *Converter) convertCustomStep(step *circle.Step) *harness.Step {
 }
 
 func extractDocker(job *circle.Job, config *circle.Config) *circle.Docker {
-	// if the job defines a docker executor
-	// we can extract the default docker image.
-	if len(job.Docker) != 0 {
+	executor := extractExecutor(job, config)
+	// if the executor defines a docker environment,
+	// use the first docker container as the execution
+	// container.
+	if executor != nil && len(executor.Docker) != 0 {
 		return job.Docker[0]
 	}
-	// else if the job uses a global executor.
+	return nil
+}
+
+func extractParameters(config *circle.Config) map[string]*circle.Parameter {
+	params := map[string]*circle.Parameter{}
+
+	// extract the parameters from the jobs.
+	for _, job := range config.Jobs {
+		for k, v := range job.Parameters {
+			params[k] = v
+		}
+	}
+	// extract the parameters from the pipeline.
+	// these will override job parameters by design.
+	for k, v := range config.Parameters {
+		params[k] = v
+	}
+	return params
+}
+
+func extractExecutor(job *circle.Job, config *circle.Config) *circle.Executor {
+	// return the named executor for the job
 	if job.Executor != nil {
 		// loop through the global executors.
 		for name, executor := range config.Executors {
-			// find the matching execturo.
-			if name != job.Executor.Name {
-				continue
-			}
-			// if the matching executor defines
-			// a docker execution environment, return
-			// the first container in the list.
-			if len(executor.Docker) != 0 {
-				return executor.Docker[0]
+			if name == job.Executor.Name {
+				return executor
 			}
 		}
 	}
-	return nil
+	// else create an executor based on the job
+	// configuration. we do this because it is easier to
+	// work with an executor struct, than both an executor
+	// and a job struct.
+	return &circle.Executor{
+		Docker:        job.Docker,
+		ResourceClass: job.ResourceClass,
+		Machine:       job.Machine,
+		Macos:         job.Macos,
+		Windows:       nil,
+		Shell:         job.Shell,
+		WorkingDir:    job.WorkingDir,
+		Environment:   job.Environment,
+	}
+}
+
+func convertParameters(in map[string]*circle.Parameter) map[string]*harness.Input {
+	out := map[string]*harness.Input{}
+	for name, param := range in {
+		t := param.Type
+		switch t {
+		case "integer":
+			t = "number"
+		case "string", "enum", "env_var_name":
+			t = "string"
+		case "boolean":
+			t = "boolean"
+		case "executor", "steps":
+			// TODO parameter.type execution not supported
+			// TODO parameter.type steps not supported
+			continue // skip
+		}
+		var d string
+		if param.Default != nil {
+			d = fmt.Sprint(param.Default)
+		}
+		out[name] = &harness.Input{
+			Type:        t,
+			Default:     d,
+			Description: param.Description,
+		}
+	}
+	return out
 }
 
 // helper function combines environment variables.

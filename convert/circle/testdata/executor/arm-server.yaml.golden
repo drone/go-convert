@@ -1,0 +1,36 @@
+version: 1
+
+stages:
+- name: build-medium
+  type: ci
+  spec:
+    platform:
+      os: linux
+      arch: arm64
+    runtime:
+      type: cloud
+      spec: {}
+    steps:
+    - type: script
+      spec:
+        run: uname -a
+    - type: script
+      spec:
+        run: echo "Hello, Arm!"
+
+- name: build-large
+  type: ci
+  spec:
+    platform:
+      os: linux
+      arch: arm64
+    runtime:
+      type: cloud
+      spec: {}
+    steps:
+    - type: script
+      spec:
+        run: uname -a
+    - type: script
+      spec:
+        run: echo "Hello, Arm!"

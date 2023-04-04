@@ -1,0 +1,15 @@
+version: 2.1
+
+orbs:
+  win: circleci/windows@4.1.1
+
+jobs:
+  build:
+    executor: win/server-2019-cuda
+    steps:
+      - run: 'Write-Host ''Hello, Windows'''
+
+workflows:
+  build:
+    jobs:
+      - build
