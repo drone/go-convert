@@ -20,6 +20,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"strings"
 
 	circle "github.com/drone/go-convert/convert/circle/yaml"
 	harness "github.com/drone/spec/dist/go"
@@ -255,7 +256,7 @@ func (d *Converter) convertStep(step *circle.Step, job *circle.Job, config *circ
 	case step.When != nil:
 		return d.convertWhenStep(step, job, config)
 	case step.Custom != nil:
-		return d.convertCustomStep(step)
+		return d.convertCustom(step, job, config)
 	default:
 		return nil
 	}
@@ -448,7 +449,81 @@ func (d *Converter) convertUnlessStep(step *circle.Step, job *circle.Job, config
 }
 
 // helper function converts a Custom step.
-func (d *Converter) convertCustomStep(step *circle.Step) *harness.Step {
+func (d *Converter) convertCustom(step *circle.Step, job *circle.Job, config *circle.Config) *harness.Step {
+	// check to see if the step is a re-usable command.
+	if _, ok := config.Commands[step.Custom.Name]; ok {
+		return d.convertCommand(step, job, config)
+	}
+	// else convert the orb
+	return d.convertOrb(step, job, config)
+}
 
-	return nil
+// helper function converts a Command step.
+func (d *Converter) convertCommand(step *circle.Step, job *circle.Job, config *circle.Config) *harness.Step {
+	// extract the command
+	command, ok := config.Commands[step.Custom.Name]
+	if !ok {
+		return nil
+	}
+	// convert the circle steps to harness steps
+	steps := d.convertSteps(command.Steps, job, config)
+	if len(steps) == 0 {
+		return nil
+	}
+	// TODO find and replace command.Parameters
+	// https://circleci.com/docs/reusing-config/#using-the-parameters-declaration
+
+	// return a step group
+	return &harness.Step{
+		Type: "group",
+		Spec: &harness.StepGroup{
+			Steps: steps,
+		},
+	}
+}
+
+// helper function converts an Orb step.
+func (d *Converter) convertOrb(step *circle.Step, job *circle.Job, config *circle.Config) *harness.Step {
+
+	// get the orb alias
+	alias := strings.Split(step.Custom.Name, "/")[0]
+	orb, ok := config.Orbs[alias]
+	if !ok {
+		return nil
+	}
+
+	// convert inline orbs
+	if orb.Name == "" {
+		// TODO support inline orbs
+		// https://circleci.com/docs/reusing-config/#writing-inline-orbs
+
+		// return a dummy step indicating we cannot
+		// convert the inline orb.
+		return &harness.Step{
+			Name: d.identifiers.Generate(step.Custom.Name),
+			Type: "script",
+			Spec: &harness.StepExec{
+				Run: "echo unable to convert inline orb",
+			},
+		}
+	}
+
+	// strip the version number from the name since
+	// it is not material to the conversion
+	name := strings.Split(orb.Name, "@")[0]
+
+	// append the orb action to the name if exists
+	if parts := strings.Split(step.Custom.Name, "/"); len(parts) == 2 {
+		name = name + "/" + parts[1]
+	}
+
+	// convert the orb based on the name and action
+	switch name {
+	case "circleci/slack", "circleci/slack/notify":
+		return convertSlack(step.Custom)
+	case "circleci/node/install", "circleci/node/install-packages", "circleci/node/install-yarn":
+		return convertNodeInstall(step.Custom)
+	default:
+		return nil
+	}
 }

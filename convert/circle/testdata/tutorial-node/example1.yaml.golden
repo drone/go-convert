@@ -1,0 +1,25 @@
+version: 1
+
+stages:
+- name: build_and_test
+  type: ci
+  spec:
+    platform:
+      os: linux
+      arch: amd64
+    runtime:
+      type: cloud
+      spec: {}
+    steps:
+    - name: install_packages
+      type: script
+      spec:
+        run: yarn install
+    - name: Run tests
+      type: script
+      spec:
+        run: yarn test
+    - name: Build app
+      type: script
+      spec:
+        run: yarn build
