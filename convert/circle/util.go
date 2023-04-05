@@ -210,12 +210,45 @@ func convertPlatform(job *circle.Job, config *circle.Config) *harness.Platform {
 	}
 }
 
+// helper function converts circle resource class
+// to a harness resource class.
+func convertResourceClass(s string) string {
+	// TODO map circle resource class to harness resource classes
+	switch s {
+	case "small":
+	case "medium":
+	case "medium+":
+	case "large":
+	case "xlarge":
+	case "2xlarge":
+	case "2xlarge+":
+	case "arm.medium":
+	case "arm.large":
+	case "arm.xlarge":
+	case "arm.2xlarge":
+	case "macos.m1.large.gen1":
+	case "macos.x86.metal.gen1":
+	case "gpu.nvidia.small":
+	case "gpu.nvidia.medium":
+	case "gpu.nvidia.large":
+	case "windows.gpu.nvidia.medium":
+	}
+
+	return ""
+}
+
 // helper function converts circle executor to a
 // harness runtime.
 func convertRuntime(job *circle.Job, config *circle.Config) *harness.Runtime {
+	spec := new(harness.RuntimeCloud)
+	// get the executor associated with this config
+	// and convert the resource class to harness size.
+	if exec := extractExecutor(job, config); exec != nil {
+		spec.Size = convertResourceClass(exec.ResourceClass)
+	}
 	return &harness.Runtime{
 		Type: "cloud",
-		Spec: &harness.RuntimeCloud{},
+		Spec: spec,
 	}
 }
 

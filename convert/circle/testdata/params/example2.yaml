@@ -1,0 +1,27 @@
+# https://circleci.com/docs/reusing-config/#using-the-parameters-declaration
+# adapted to use the default parameter
+
+version: 2.1
+commands: # a reusable command with parameters
+  greeting:
+    parameters:
+      to:
+        default: "world"
+        type: string
+    steps:
+      - run: echo "Hello <<parameters.to>>"
+jobs:
+  my-job:
+    docker:
+      - image: cimg/base:stable
+        auth:
+          username: mydockerhub-user
+          password: $DOCKERHUB_PASSWORD
+    steps:
+      - greeting: {}
+          # this line is commented out to test default values
+          # to: "My-Name"
+workflows:
+  my-workflow:
+    jobs:
+      - my-job

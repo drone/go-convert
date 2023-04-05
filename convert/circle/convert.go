@@ -18,6 +18,7 @@ package circle
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 
@@ -126,9 +127,6 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 		Version: 1,
 	}
 
-	// TODO .commands
-	// TODO .orbs
-
 	// convert pipeline and job parameters to inputs
 	if params := extractParameters(config); len(params) != 0 {
 		pipeline.Inputs = convertParameters(params)
@@ -218,7 +216,6 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 			),
 		}
 
-		// TODO executor.resource_class
 		// TODO executor.machine
 		// TODO executor.shell
 		// TODO executor.working_directory
@@ -250,7 +247,7 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 	}
 
 	// replace circle parameters with harness parameters
-	out = replaceParams(out)
+	out = replaceParams(out, params)
 
 	return out, nil
 }
@@ -299,6 +296,10 @@ func (d *Converter) convertStep(step *circle.Step, job *circle.Job, config *circ
 		return nil
 	}
 }
+
+//
+// Step Types
+//
 
 // helper function converts a Circle Run step.
 func (d *Converter) convertRun(step *circle.Step, job *circle.Job, config *circle.Config) *harness.Step {
@@ -503,13 +504,23 @@ func (d *Converter) convertCommand(step *circle.Step, job *circle.Job, config *c
 	if !ok {
 		return nil
 	}
+
+	// find and replace parameters
+	// https://circleci.com/docs/reusing-config/#using-the-parameters-declaration
+	params := map[string]string{}
+	for k, v := range command.Parameters {
+		params["parameters."+k] = fmt.Sprint(v.Default)
+	}
+	for k, v := range step.Custom.Params {
+		params["parameters."+k] = fmt.Sprint(v)
+	}
+	expandParamsT(command, params)
+
 	// convert the circle steps to harness steps
 	steps := d.convertSteps(command.Steps, job, config)
 	if len(steps) == 0 {
 		return nil
 	}
-	// TODO find and replace command.Parameters
-	// https://circleci.com/docs/reusing-config/#using-the-parameters-declaration
 
 	// return a step group
 	return &harness.Step{

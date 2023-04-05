@@ -66,9 +66,56 @@ func TestReplaceParams(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.before, func(t *testing.T) {
-			out := replaceParams([]byte(test.before))
+			out := replaceParams([]byte(test.before), params)
 			if got, want := string(out), test.after; got != want {
 				t.Errorf("Got replace params %q, want %q", got, want)
+			}
+		})
+	}
+}
+
+func TestExpandParams(t *testing.T) {
+	tests := []struct {
+		before string
+		after  string
+	}{
+		// no params
+		{
+			before: "foo\nbar\nbaz\n",
+			after:  "foo\nbar\nbaz\n",
+		},
+		// open bracket only
+		{
+			before: "foo\nbar<<baz\n",
+			after:  "foo\nbar<<baz\n",
+		},
+		// close bracket only
+		{
+			before: "foo\nbar>>baz\n",
+			after:  "foo\nbar>>baz\n",
+		},
+		// open bracket before close bracket
+		{
+			before: "foo\n>>bar<<baz\n",
+			after:  "foo\n>>bar<<baz\n",
+		},
+		// unknown param
+		{
+			before: "foo\n<< foo.bar >>\nbaz\n",
+			after:  "foo\n<< foo.bar >>\nbaz\n",
+		},
+		// known parameter
+		{
+			before: "foo\n<< pipeline.branch >>\nbaz\n",
+			after:  "foo\nmain\nbaz\n",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.before, func(t *testing.T) {
+			out := expandParams([]byte(test.before), map[string]string{"pipeline.branch": "main"})
+			if got, want := string(out), test.after; got != want {
+				t.Errorf("Got expanded param %q, want %q", got, want)
 			}
 		})
 	}
@@ -99,6 +146,7 @@ func TestExractParam(t *testing.T) {
 			before: "foo\n>>bar<<baz\n",
 			after:  "",
 		},
+		// known parameter
 		{
 			before: "foo\n<< pipeline.id >>\nbaz\n",
 			after:  "pipeline.id",

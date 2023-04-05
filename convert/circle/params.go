@@ -18,11 +18,13 @@ import (
 	"bufio"
 	"bytes"
 	"strings"
+
+	"github.com/ghodss/yaml"
 )
 
 // replaceParams finds and replaces circle pipeline
 // parameters with harness pipeline parameters.
-func replaceParams(in []byte) []byte {
+func replaceParams(in []byte, params map[string]string) []byte {
 	// optimization to exit early and return the input,
 	// unmodified, if there are no parameters present
 	// in the yaml.
@@ -82,6 +84,79 @@ func replaceParams(in []byte) []byte {
 	}
 
 	return out.Bytes()
+}
+
+// expandParams finds and replaces circle pipeline
+// parameters with the literal values.
+func expandParams(in []byte, params map[string]string) []byte {
+	// optimization to exit early and return the input,
+	// unmodified, if there are no parameters present
+	// in the yaml.
+	if !bytes.Contains(in, []byte("<<")) {
+		return in
+	}
+
+	var out bytes.Buffer
+	scanner := bufio.NewScanner(
+		bytes.NewBuffer(in),
+	)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		// detect paramter bracket start and end position
+		a := strings.Index(line, "<<")
+		b := strings.LastIndex(line, ">>")
+
+		// skip this line and write to the buffer if no
+		// brackets are detected.
+		if a == -1 || b == -1 || b < a {
+			out.WriteString(line)
+			out.WriteString("\n")
+			continue
+		}
+
+		// extract the string
+		s := line[a : b+2]
+		s = strings.TrimPrefix(s, "<<")
+		s = strings.TrimSuffix(s, ">>")
+		s = strings.TrimSpace(s)
+
+		// if the parameter is not found we can skip
+		// and leave the parameter as-is.
+		p, ok := params[s]
+		if !ok {
+			out.WriteString(line)
+			out.WriteString("\n")
+			continue
+		}
+
+		out.WriteString(line[:a])
+		out.WriteString(p)
+		out.WriteString(line[b+2:])
+		out.WriteString("\n")
+	}
+
+	return out.Bytes()
+}
+
+// expandParams finds and replaces circle pipeline
+// parameters with the literal values in the provided
+// structure T.
+func expandParamsT(in interface{}, params map[string]string) error {
+	// if no parameters defined we can early exit
+	// to avoid the un-necessary cycles.
+	if len(params) == 0 {
+		return nil
+	}
+	// marshal the input to yaml
+	out, err := yaml.Marshal(in)
+	if err != nil {
+		return err
+	}
+	// find and replace all the strings
+	out = expandParams(out, params)
+	// unmarshal the yaml back into the input
+	return yaml.Unmarshal(out, in)
 }
 
 // helper function extracts a circle parameter.
