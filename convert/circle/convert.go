@@ -601,27 +601,4 @@ func (d *Converter) convertOrb(step *circle.Step, job *circle.Job, config *circl
 			Run: fmt.Sprintf("echo unable to convert orb %s/%s", name, command),
 		},
 	}
-
-	// // append the orb command to the name if exists
-	// if command != "" {
-	// 	name = name + "/" + command
-	// }
-
-	// // convert the orb based on the name and action
-	// switch name {
-	// case "circleci/slack", "circleci/slack/notify":
-	// 	return convertSlack(step.Custom)
-	// case "circleci/node/install", "circleci/node/install-packages", "circleci/node/install-yarn":
-	// 	return convertNodeInstall(step.Custom)
-	// case "circleci/node/test":
-	// 	return convertNodeTest(step.Custom)
-	// default:
-	// 	return &harness.Step{
-	// 		Name: d.identifiers.Generate(name),
-	// 		Type: "script",
-	// 		Spec: &harness.StepExec{
-	// 			Run: "echo unable to convert orb " + name,
-	// 		},
-	// 	}
-	// }
 }
