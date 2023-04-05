@@ -15,6 +15,8 @@
 package circle
 
 import (
+	"fmt"
+
 	circle "github.com/drone/go-convert/convert/circle/yaml"
 	harness "github.com/drone/spec/dist/go"
 )
@@ -51,6 +53,34 @@ func convertNodeInstall(step *circle.Custom) *harness.Step {
 		Type: "script",
 		Spec: &harness.StepExec{
 			Run: "npm install",
+		},
+	}
+}
+
+// helper function converts a node/test
+// orb to a run step.
+//
+// https://github.com/CircleCI-Public/node-orb/blob/master/src/jobs/test.yml
+func convertNodeTest(step *circle.Custom) *harness.Step {
+	cmd := "test"
+	run := "npm %s"
+
+	switch step.Params["test-results-for"] {
+	case "mocha":
+		run = `npm run %s -- --reporter mocha-multi --reporter-options spec=-,mocha-junit-reporter=-`
+	case "jest":
+		run = `npm run %s -- --reporters=default --reporters=jest-junit`
+	}
+
+	if p, ok := step.Params["run-command"].(string); ok {
+		cmd = p
+	}
+
+	return &harness.Step{
+		Name: "test",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Run: fmt.Sprintf(run, cmd),
 		},
 	}
 }

@@ -172,19 +172,39 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 			// lookup the orb and silently skip the
 			// job if not found
 			orb, ok := config_.Orbs[alias]
-			if !ok || orb.Inline == nil {
-				continue
-			}
-
-			// lookup the orb command and silently skip
-			// the job if not found
-			job, ok = orb.Inline.Jobs[command]
 			if !ok {
 				continue
 			}
 
-			// replace the config_ with the orb
-			config_ = orb.Inline
+			// HACK (bradrydzewski) this is a temporary
+			// hack to create the configuration for an
+			// orb referenced directly in the workflow.
+			if orb.Inline == nil {
+				// config_ = new(circle.Config)
+				// config_.Orbs = map[string]*circle.Orb{
+				// 	orb.Name: {},
+				// }
+				job = &circle.Job{
+					Steps: []*circle.Step{
+						{
+							Custom: &circle.Custom{
+								Name:   workflowjob.Name,
+								Params: workflowjob.Params,
+							},
+						},
+					},
+				}
+			} else {
+				// lookup the orb command and silently skip
+				// the job if not found
+				job, ok = orb.Inline.Jobs[command]
+				if !ok {
+					continue
+				}
+
+				// replace the config_ with the orb
+				config_ = orb.Inline
+			}
 		}
 
 		// create stage spec
@@ -551,7 +571,15 @@ func (d *Converter) convertOrb(step *circle.Step, job *circle.Job, config *circl
 		return convertSlack(step.Custom)
 	case "circleci/node/install", "circleci/node/install-packages", "circleci/node/install-yarn":
 		return convertNodeInstall(step.Custom)
+	case "circleci/node/test":
+		return convertNodeTest(step.Custom)
 	default:
-		return nil
+		return &harness.Step{
+			Name: d.identifiers.Generate(name),
+			Type: "script",
+			Spec: &harness.StepExec{
+				Run: "echo unable to convert " + name,
+			},
+		}
 	}
 }
