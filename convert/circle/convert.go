@@ -22,6 +22,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/drone/go-convert/convert/circle/internal/orbs"
 	circle "github.com/drone/go-convert/convert/circle/yaml"
 	harness "github.com/drone/spec/dist/go"
 
@@ -587,26 +588,40 @@ func (d *Converter) convertOrb(step *circle.Step, job *circle.Job, config *circl
 	// it is not material to the conversion
 	name, _ := splitOrbVersion(orb.Name)
 
-	// append the orb command to the name if exists
-	if command != "" {
-		name = name + "/" + command
+	// convert the orb
+	out := orbs.Convert(name, command, step.Custom)
+	if out != nil {
+		return out
 	}
 
-	// convert the orb based on the name and action
-	switch name {
-	case "circleci/slack", "circleci/slack/notify":
-		return convertSlack(step.Custom)
-	case "circleci/node/install", "circleci/node/install-packages", "circleci/node/install-yarn":
-		return convertNodeInstall(step.Custom)
-	case "circleci/node/test":
-		return convertNodeTest(step.Custom)
-	default:
-		return &harness.Step{
-			Name: d.identifiers.Generate(name),
-			Type: "script",
-			Spec: &harness.StepExec{
-				Run: "echo unable to convert " + name,
-			},
-		}
+	return &harness.Step{
+		Name: d.identifiers.Generate(name),
+		Type: "script",
+		Spec: &harness.StepExec{
+			Run: fmt.Sprintf("echo unable to convert orb %s/%s", name, command),
+		},
 	}
+
+	// // append the orb command to the name if exists
+	// if command != "" {
+	// 	name = name + "/" + command
+	// }
+
+	// // convert the orb based on the name and action
+	// switch name {
+	// case "circleci/slack", "circleci/slack/notify":
+	// 	return convertSlack(step.Custom)
+	// case "circleci/node/install", "circleci/node/install-packages", "circleci/node/install-yarn":
+	// 	return convertNodeInstall(step.Custom)
+	// case "circleci/node/test":
+	// 	return convertNodeTest(step.Custom)
+	// default:
+	// 	return &harness.Step{
+	// 		Name: d.identifiers.Generate(name),
+	// 		Type: "script",
+	// 		Spec: &harness.StepExec{
+	// 			Run: "echo unable to convert orb " + name,
+	// 		},
+	// 	}
+	// }
 }
