@@ -50,11 +50,11 @@ func convertSize(size bitbucket.Size) string {
 
 // helper function converts the bitbucket stage clone
 // configuration to a harness stage clone configuration.
-func convertClone(stage *bitbucket.Stage) *harness.Clone {
+func convertClone(stage *bitbucket.Stage) *harness.CloneStage {
 	var clones []*bitbucket.Clone
 
 	// loop through the steps and if a step
-	// defines cache directories
+	// defines clone behavior
 	for _, step := range extractSteps(stage) {
 		if step.Clone != nil {
 			clones = append(clones, step.Clone)
@@ -67,7 +67,7 @@ func convertClone(stage *bitbucket.Stage) *harness.Clone {
 		return nil
 	}
 
-	clone := new(harness.Clone)
+	clone := new(harness.CloneStage)
 	for _, v := range clones {
 		if v.Depth != nil {
 			if v.Depth.Value > int(clone.Depth) {

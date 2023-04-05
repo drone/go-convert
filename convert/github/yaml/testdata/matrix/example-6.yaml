@@ -1,0 +1,12 @@
+# https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs#example-adding-configurations
+
+jobs:
+  includes_only:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - site: "production"
+            datacenter: "site-a"
+          - site: "staging"
+            datacenter: "site-b"

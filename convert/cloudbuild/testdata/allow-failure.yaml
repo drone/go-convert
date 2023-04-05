@@ -1,0 +1,8 @@
+# https://cloud.google.com/build/docs/build-config-file-schema#allowfailure
+
+steps:
+- name: 'ubuntu'
+  args: ['-c', 'exit 1']
+  allowFailure: true
+- name: 'ubuntu'
+  args: ['echo', 'Hello World']

@@ -28,6 +28,7 @@ type (
 		Spec        interface{} `json:"spec,omitempty"         yaml:"spec,omitempty"`
 		Type        string      `json:"type,omitempty"         yaml:"type,omitempty"`
 		Vars        []*Variable `json:"variables,omitempty"    yaml:"variables,omitempty"`
+		When        *StageWhen  `json:"when,omitempty"         yaml:"when,omitempty"`
 	}
 
 	// StageApproval defines an approval stage.
@@ -37,10 +38,12 @@ type (
 
 	// StageCI defines a continuous integration stage.
 	StageCI struct {
-		Cache          *Cache          `json:"cache,omitempty"              yaml:"cache,omitempty"`
+		Cache          *Cache          `json:"cache,omitempty"               yaml:"cache,omitempty"`
 		Clone          bool            `json:"cloneCodebase,omitempty"       yaml:"cloneCodebase,omitempty"`
 		Execution      Execution       `json:"execution,omitempty"           yaml:"execution,omitempty"`
 		Infrastructure *Infrastructure `json:"infrastructure,omitempty"      yaml:"infrastructure,omitempty"`
+		Platform       *Platform       `json:"platform,omitempty"            yaml:"platform,omitempty"`
+		Runtime        *Runtime        `json:"runtime,omitempty"            yaml:"runtime,omitempty"`
 		Services       []*Service      `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
 		SharedPaths    []string        `json:"sharedPaths,omitempty"         yaml:"sharedPaths,omitempty"`
 	}
@@ -53,6 +56,11 @@ type (
 	// StageFeatureFlag defines a feature flag stage.
 	StageFeatureFlag struct {
 		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
+	}
+
+	StageWhen struct {
+		PipelineStatus string `json:"pipelineStatus,omitempty" yaml:"pipelineStatus,omitempty"`
+		Condition      string `json:"condition,omitempty" yaml:"condition,omitempty"`
 	}
 )
 

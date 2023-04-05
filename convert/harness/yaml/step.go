@@ -21,14 +21,15 @@ import (
 
 type (
 	Step struct { // TODO missing failure strategies
-		ID          string      `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
-		Description string      `json:"description,omitempty"       yaml:"description,omitempty"`
-		Name        string      `json:"name,omitempty"              yaml:"name,omitempty"`
-		Skip        string      `json:"skipCondition,omitempty"     yaml:"skipCondition,omitempty"`
-		Spec        interface{} `json:"spec,omitempty"              yaml:"spec,omitempty"`
-		Timeout     Duration    `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
-		Type        string      `json:"type,omitempty"              yaml:"type,omitempty"`
-		When        *When       `json:"when,omitempty"              yaml:"when,omitempty"`
+		ID          string            `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
+		Description string            `json:"description,omitempty"       yaml:"description,omitempty"`
+		Name        string            `json:"name,omitempty"              yaml:"name,omitempty"`
+		Skip        string            `json:"skipCondition,omitempty"     yaml:"skipCondition,omitempty"`
+		Spec        interface{}       `json:"spec,omitempty"              yaml:"spec,omitempty"`
+		Timeout     Duration          `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
+		Type        string            `json:"type,omitempty"              yaml:"type,omitempty"`
+		When        *StepWhen         `json:"when,omitempty"              yaml:"when,omitempty"`
+		Env         map[string]string `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
 	}
 
 	//
@@ -135,13 +136,13 @@ type (
 	StepAction struct {
 		Uses string            `json:"uses,omitempty"            yaml:"uses,omitempty"`
 		With map[string]string `json:"with,omitempty"            yaml:"with,omitempty"`
-		Envs map[string]string `json:"evn,omitempty"             yaml:"env,omitempty"`
+		Envs map[string]string `json:"env,omitempty"             yaml:"env,omitempty"`
 	}
 
 	StepBitrise struct {
 		Uses string            `json:"uses,omitempty"            yaml:"uses,omitempty"`
 		With map[string]string `json:"with,omitempty"            yaml:"with,omitempty"`
-		Envs map[string]string `json:"evn,omitempty"             yaml:"env,omitempty"`
+		Envs map[string]string `json:"env,omitempty"             yaml:"env,omitempty"`
 	}
 
 	StepRun struct {
@@ -231,7 +232,7 @@ type (
 		Script string `json:"script,omitempty" yaml:"script,omitempty"`
 	}
 
-	When struct {
+	StepWhen struct {
 		StageStatus string `json:"stageStatus,omitempty" yaml:"stageStatus,omitempty"`
 		Condition   string `json:"condition,omitempty" yaml:"condition,omitempty"`
 	}

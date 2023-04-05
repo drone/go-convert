@@ -1,0 +1,16 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepscontinue-on-error
+
+name: example
+
+jobs:
+  job1:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: step1
+        run: echo continue on error
+        continue-on-error: true
+      - name: step2
+        run: echo do not continue on error
+        continue-on-error: false
+      - name: step3                                                           
+        run: echo step3                                                        

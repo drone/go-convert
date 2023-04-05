@@ -1,0 +1,28 @@
+version: 1
+
+stages:
+- desc: converted from travis.yml
+  name: pipeline
+  type: ci
+  spec:
+    envs:
+      TRAVIS_GO_VERSION: <+matrix.go>
+    steps:
+    - name: install
+      type: script
+      spec:
+        run: go install
+    - name: script
+      type: script
+      spec:
+        run: go test -v
+  strategy:
+    type: matrix
+    spec:
+      axis:
+        go:
+        - "1"
+        - "1.10"
+        - "1.11"
+        - master
+

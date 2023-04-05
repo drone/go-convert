@@ -22,14 +22,15 @@ type (
 
 	// Pipeline defines a pipeline.
 	Pipeline struct {
-		ID      string     `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
-		Name    string     `json:"name,omitempty"              yaml:"name,omitempty"`
-		Desc    string     `json:"description,omitempty"       yaml:"description,omitempty"`
-		Account string     `json:"accountIdentifier,omitempty" yaml:"accountIdentifier,omitempty"`
-		Project string     `json:"projectIdentifier,omitempty" yaml:"projectIdentifier,omitempty"`
-		Org     string     `json:"orgIdentifier,omitempty"     yaml:"orgIdentifier,omitempty"`
-		Props   Properties `json:"properties,omitempty"        yaml:"properties,omitempty"`
-		Stages  []*Stages  `json:"stages,omitempty"            yaml:"stages"`
+		ID        string      `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
+		Name      string      `json:"name,omitempty"              yaml:"name,omitempty"`
+		Desc      string      `json:"description,omitempty"       yaml:"description,omitempty"`
+		Account   string      `json:"accountIdentifier,omitempty" yaml:"accountIdentifier,omitempty"`
+		Project   string      `json:"projectIdentifier,omitempty" yaml:"projectIdentifier,omitempty"`
+		Org       string      `json:"orgIdentifier,omitempty"     yaml:"orgIdentifier,omitempty"`
+		Props     Properties  `json:"properties,omitempty"        yaml:"properties,omitempty"`
+		Stages    []*Stages   `json:"stages,omitempty"            yaml:"stages"`
+		Variables []*Variable `json:"variables,omitempty"         yaml:"variables,omitempty"`
 	}
 
 	// Properties defines pipeline properties.
@@ -72,6 +73,16 @@ type (
 	InfraSpec struct {
 		Namespace string `json:"namespace,omitempty"    yaml:"namespace,omitempty"`
 		Conn      string `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
+	}
+
+	Platform struct {
+		OS   string `json:"os,omitempty"   yaml:"os,omitempty"`
+		Arch string `json:"arch,omitempty" yaml:"arch,omitempty"`
+	}
+
+	Runtime struct {
+		Type string      `json:"type,omitempty"   yaml:"type,omitempty"`
+		Spec interface{} `json:"spec,omitempty"   yaml:"spec,omitempty"`
 	}
 
 	Variable struct {

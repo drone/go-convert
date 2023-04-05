@@ -1,0 +1,39 @@
+options: {}
+stages:
+- name: test-name
+  spec:
+    clone:
+      depth: 50
+    runtime:
+      spec: {}
+      type: machine
+    steps:
+    - name: redis
+      spec:
+        image: redis
+      type: background
+    - name: test-step-1
+      spec:
+        image: golang
+        run: |-
+          go build
+          go test
+      type: script
+      when:
+      - branch:
+          in:
+          - main
+          - develop
+    - name: test-plugin-1
+      spec:
+        image: plugins/slack
+        with:
+          channel: test-channel
+          token: <+ secrets.getValue("test-slack-token") >
+      type: plugin
+  type: ci
+  when:
+  - event:
+      in:
+      - push
+      - pull_request

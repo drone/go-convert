@@ -1,0 +1,4 @@
+jobs:
+  job1:
+    env:
+      FIRST_NAME: Mona

@@ -1,0 +1,4 @@
+steps:
+- name: 'ubuntu'
+  args: ['sleep', '600']
+timeout: 660s

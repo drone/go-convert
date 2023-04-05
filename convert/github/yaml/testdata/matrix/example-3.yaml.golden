@@ -1,0 +1,13 @@
+repository_dispatch:
+  types:
+    - test
+jobs:
+  example_matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ${{ github.event.client_payload.versions }}
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.version }}

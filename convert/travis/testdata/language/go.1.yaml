@@ -1,0 +1,9 @@
+# https://docs.travis-ci.com/user/languages/go/#specifying-a-go-version-to-use
+
+language: go
+
+go:
+- 1.x
+- "1.10"
+- 1.11.x
+- master

@@ -1,0 +1,7 @@
+---
+jobs:
+  pass-secrets-to-workflow:
+    uses: ./.github/workflows/called-workflow.yml
+    secrets:
+      access-token: token
+      secret: secret

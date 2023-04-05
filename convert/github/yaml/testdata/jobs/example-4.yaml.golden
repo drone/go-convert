@@ -1,0 +1,6 @@
+---
+jobs:
+  pass-secrets-to-workflow:
+    uses: ./.github/workflows/called-workflow.yml
+    secrets:
+      inherit: true

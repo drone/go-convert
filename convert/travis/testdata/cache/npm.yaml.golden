@@ -1,0 +1,28 @@
+stages:
+- desc: converted from travis.yml
+  name: pipeline
+  spec:
+    cache:
+      enabled: true
+      paths:
+      - ~/.npm
+      - node_modules
+    envs:
+      TRAVIS_NODE_VERSION: "6"
+    steps:
+    - name: install
+      spec:
+        run: npm install
+      type: script
+    - name: script
+      spec:
+        run: npm test
+      type: script
+  strategy:
+    spec:
+      axis:
+        node_js:
+        - "6"
+    type: matrix
+  type: ci
+version: 1

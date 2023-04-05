@@ -1,0 +1,4 @@
+# https://docs.travis-ci.com/user/caching/#npm-cache
+language: node_js
+node_js: '6' # or another
+cache: npm

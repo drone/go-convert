@@ -1,0 +1,22 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idservices
+
+jobs:
+  job1:
+    services:
+       nginx:
+        image: nginx
+        ports:
+          - 8080:80
+       redis:
+        image: redis
+        ports:
+          - 6379/tcp
+        env:
+          db: redis
+          user: user
+          password: password
+        volumes:
+          - my_docker_volume:/volume_mount
+          - /data/my_data
+          - /source/directory:/destination/directory
+        options: [--restart always]

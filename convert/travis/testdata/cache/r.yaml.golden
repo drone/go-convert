@@ -1,0 +1,10 @@
+stages:
+- desc: converted from travis.yml
+  name: pipeline
+  spec:
+    cache:
+      enabled: true
+      paths:
+      - ~/R/Library
+  type: ci
+version: 1

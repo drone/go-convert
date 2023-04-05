@@ -1,0 +1,7 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-creating-jobs
+
+jobs:
+  my_first_job:
+    name: My first job
+  my_second_job:
+    name: My second job

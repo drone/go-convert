@@ -1,0 +1,17 @@
+options: {}
+stages:
+- name: default
+  spec:
+    clone: {}
+    runtime:
+      spec: {}
+      type: machine
+    steps:
+    - name: test
+      spec:
+        image: gradle:jdk10
+        run: |-
+          gradle assemble
+          gradle check
+      type: script
+  type: ci

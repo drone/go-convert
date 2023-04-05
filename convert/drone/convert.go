@@ -29,6 +29,12 @@ import (
 	"github.com/ghodss/yaml"
 )
 
+// conversion context
+type context struct {
+	pipeline []*v1.Pipeline
+	stage    *v1.Pipeline
+}
+
 // Converter converts a Drone pipeline to a Harness
 // v1 pipeline.
 type Converter struct {
@@ -37,12 +43,6 @@ type Converter struct {
 	kubeConnector string
 	dockerhubConn string
 	identifiers   *store.Identifiers
-
-	// as we walk the yaml, we store a
-	// a snapshot of the current node and
-	// its parents.
-	pipeline []*v1.Pipeline
-	stage    *v1.Pipeline
 }
 
 // New creates a new Converter that converts a Drone
@@ -80,8 +80,9 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	d.pipeline = src // push the drone pipeline to the state
-	return d.convert()
+	return d.convert(&context{
+		pipeline: src,
+	})
 }
 
 // ConvertString downgrades a v1 pipeline.
@@ -109,7 +110,7 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 }
 
 // converts converts a Drone pipeline to a Harness pipeline.
-func (d *Converter) convert() ([]byte, error) {
+func (d *Converter) convert(ctx *context) ([]byte, error) {
 
 	//
 	// TODO convert env substitution to expression
@@ -120,36 +121,35 @@ func (d *Converter) convert() ([]byte, error) {
 	//
 
 	pipeline := &v2.Pipeline{
-		Default: &v2.Default{
-			Registry: convertRegistry(d.pipeline),
+		Options: &v2.Default{
+			Registry: convertRegistry(ctx.pipeline),
 		},
 	}
 
-	for _, from := range d.pipeline {
-		d.stage = from // push the stage to the state
-
+	for _, from := range ctx.pipeline {
 		if from == nil {
 			continue
 		}
+
 		switch from.Kind {
 		case v1.KindSecret: // TODO
 		case v1.KindSignature: // TODO
 		case v1.KindPipeline:
 			pipeline.Stages = append(pipeline.Stages, &v2.Stage{
-				Name: from.Name,
-				Type: "ci",
-				When: convertCond(from.Trigger),
+				Name:     from.Name,
+				Type:     "ci",
+				When:     convertCond(from.Trigger),
+				Delegate: convertNode(from.Node),
 				Spec: &v2.StageCI{
 					Clone:    convertClone(from.Clone),
-					Delegate: convertNode(from.Node),
 					Envs:     copyenv(from.Environment),
 					Platform: convertPlatform(from.Platform),
 					Runtime:  convertRuntime(from),
 					Steps:    convertSteps(from),
+					Volumes:  convertVolumes(from.Volumes),
 
-					// TODO support for stage.tags
+					// TODO support for delegate.selectors from from.Node
 					// TODO support for stage.variables
-					// TODO support for stage.volumes ?
 				},
 			})
 		}
@@ -231,6 +231,7 @@ func convertPlugin(src *v1.Step) *v2.Step {
 		When: convertCond(src.When),
 		Spec: &v2.StepPlugin{
 			Image:      src.Image,
+			Mount:      convertMounts(src.Volumes),
 			Privileged: src.Privileged,
 			Pull:       convertPull(src.Pull),
 			User:       src.User,
@@ -249,6 +250,7 @@ func convertBackground(src *v1.Step) *v2.Step {
 		When: convertCond(src.When),
 		Spec: &v2.StepBackground{
 			Image:      src.Image,
+			Mount:      convertMounts(src.Volumes),
 			Privileged: src.Privileged,
 			Pull:       convertPull(src.Pull),
 			Shell:      convertShell(src.Shell),
@@ -270,6 +272,7 @@ func convertRun(src *v1.Step) *v2.Step {
 		When: convertCond(src.When),
 		Spec: &v2.StepExec{
 			Image:      src.Image,
+			Mount:      convertMounts(src.Volumes),
 			Privileged: src.Privileged,
 			Pull:       convertPull(src.Pull),
 			Shell:      convertShell(src.Shell),
@@ -323,8 +326,56 @@ func convertVariables(src map[string]*v1.Variable) map[string]string {
 		case v.Value != "":
 			dst[k] = v.Value
 		case v.Secret != "":
-			dst[k] = fmt.Sprintf("${{ secrets.%s }}", v.Secret) // TODO figure out secret syntax
+			dst[k] = fmt.Sprintf("<+ secrets.getValue(%q) >", v.Secret) // TODO figure out secret syntax
 		}
+	}
+	return dst
+}
+
+func convertVolumes(src []*v1.Volume) []*v2.Volume {
+	var dst []*v2.Volume
+	for _, v := range src {
+		if v == nil || v.Name == "" {
+			continue
+		}
+		switch {
+		case v.EmptyDir != nil:
+			dst = append(dst, &v2.Volume{
+				Name: v.Name,
+				Type: "temp",
+				Spec: &v2.VolumeTemp{
+					// TODO convert medium and limit
+				},
+			})
+		case v.HostPath != nil:
+			dst = append(dst, &v2.Volume{
+				Name: v.Name,
+				Type: "host",
+				Spec: &v2.VolumeHost{
+					Path: v.HostPath.Path,
+				},
+			})
+		}
+	}
+	if len(dst) == 0 {
+		return nil
+	}
+	return dst
+}
+
+func convertMounts(src []*v1.VolumeMount) []*v2.Mount {
+	var dst []*v2.Mount
+	for _, v := range src {
+		if v == nil || v.Name == "" || v.MountPath == "" {
+			continue
+		}
+		dst = append(dst, &v2.Mount{
+			Name: v.Name,
+			Path: v.MountPath,
+		})
+	}
+	if len(dst) == 0 {
+		return nil
 	}
 	return dst
 }
@@ -334,7 +385,7 @@ func convertSettings(src map[string]*v1.Parameter) map[string]interface{} {
 	for k, v := range src {
 		switch {
 		case v.Secret != "":
-			dst[k] = fmt.Sprintf("${{ secrets.get(%q) }}", v.Secret)
+			dst[k] = fmt.Sprintf("<+ secrets.getValue(%q) >", v.Secret)
 		case v.Value != nil:
 			dst[k] = v.Value
 		}
@@ -408,8 +459,8 @@ func convertRuntime(src *v1.Pipeline) *v2.Runtime {
 	}
 }
 
-func convertClone(src v1.Clone) *v2.Clone {
-	dst := new(v2.Clone)
+func convertClone(src v1.Clone) *v2.CloneStage {
+	dst := new(v2.CloneStage)
 	if v := src.Depth; v != 0 {
 		dst.Depth = int64(v)
 	}
@@ -443,17 +494,15 @@ func convertPlatform(src v1.Platform) *v2.Platform {
 	}
 	dst := new(v2.Platform)
 	switch src.OS {
-	case "windows":
+	case "windows", "win", "win32":
 		dst.Os = v2.OSWindows
-	case "darwin":
+	case "darwin", "macos", "mac":
 		dst.Os = v2.OSDarwin
 	default:
 		dst.Os = v2.OSLinux
 	}
 	switch src.Arch {
-	case "arm":
-		dst.Arch = v2.ArchArm64
-	case "arm64":
+	case "arm", "arm64":
 		dst.Arch = v2.ArchArm64
 	default:
 		dst.Arch = v2.ArchAmd64

@@ -1,0 +1,8 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-requiring-successful-dependent-jobs
+
+jobs:
+  job1:
+  job2:
+    needs: job1
+  job3:
+    needs: [job1, job2]

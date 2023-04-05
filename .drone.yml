@@ -1,0 +1,40 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: test
+  image: golang:1.19
+  commands:
+  - go test -coverprofile=cover.out ./...
+  - go tool cover -func=cover.out
+
+- name: build
+  image: golang:1.19
+  commands:
+  - GOOS=linux   GOARCH=amd64   go build -o release/plugin-linux-amd64
+  - GOOS=linux   GOARCH=arm64   go build -o release/plugin-linux-arm64
+  - GOOS=darwin  GOARCH=amd64   go build -o release/plugin-darwin-amd64
+  - GOOS=darwin  GOARCH=arm64   go build -o release/plugin-darwin-arm64
+  - GOOS=windows GOARCH=amd64   go build -o release/plugin-windows-amd64.exe
+
+# uncomment when the `github_token` secret has been added
+#
+#- name: release
+#  image: plugins/github-release
+#  settings:
+#    files:
+#      - release/plugin-linux-amd64
+#      - release/plugin-linux-arm64
+#      - release/plugin-darwin-amd64
+#      - release/plugin-darwin-arm64
+#      - release/plugin-windows-amd64.exe
+#    api_key:
+#      from_secret: github_token
+#  when:
+#    ref:
+#      - refs/tags/*
+
+trigger:
+  branch:
+  - master

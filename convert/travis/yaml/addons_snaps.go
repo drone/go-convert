@@ -64,9 +64,7 @@ func (v *Snap) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	if err := unmarshal(&out2); err == nil {
-		v.Name = out2.Name
-		v.Classic = out2.Classic
-		v.Channel = out2.Channel
+		*v = out2
 		return nil
 	}
 

@@ -82,7 +82,7 @@ func (c *Cloudbuild) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{
 	// format to the harness yaml format.
 	converter := cloudbuild.New(
 		cloudbuild.WithDockerhub(c.dockerConn),
-		cloudbuild.WithKubernetes(c.kubeConn, c.kubeName),
+		cloudbuild.WithKubernetes(c.kubeName, c.kubeConn),
 	)
 	after, err := converter.ConvertBytes(before)
 	if err != nil {

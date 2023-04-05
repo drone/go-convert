@@ -1,0 +1,5 @@
+jobs:
+  job1:
+    environment:
+      name: production_environment
+      url: https://github.com

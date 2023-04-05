@@ -45,6 +45,76 @@ func TestCache(t *testing.T) {
 				Directories: Stringorslice{"/go", "/node"},
 			},
 		},
+		{
+			yaml: `"apt"`,
+			want: Cache{
+				Timeout: 3,
+				Apt:     true,
+			},
+		},
+		{
+			yaml: `"bundler"`,
+			want: Cache{
+				Timeout: 3,
+				Bundler: true,
+			},
+		},
+		{
+			yaml: `"cargo"`,
+			want: Cache{
+				Timeout: 3,
+				Cargo:   true,
+			},
+		},
+		{
+			yaml: `"ccache"`,
+			want: Cache{
+				Timeout: 3,
+				Ccache:  true,
+			},
+		},
+		{
+			yaml: `"cocoapods"`,
+			want: Cache{
+				Timeout:   3,
+				Cocoapods: true,
+			},
+		},
+		{
+			yaml: `"npm"`,
+			want: Cache{
+				Timeout: 3,
+				Npm:     true,
+			},
+		},
+		{
+			yaml: `"packages"`,
+			want: Cache{
+				Timeout:  3,
+				Packages: true,
+			},
+		},
+		{
+			yaml: `"pip"`,
+			want: Cache{
+				Timeout: 3,
+				Pip:     true,
+			},
+		},
+		{
+			yaml: `"yarn"`,
+			want: Cache{
+				Timeout: 3,
+				Yarn:    true,
+			},
+		},
+		{
+			yaml: `"edge"`,
+			want: Cache{
+				Timeout: 3,
+				Edge:    true,
+			},
+		},
 	}
 
 	for i, test := range tests {

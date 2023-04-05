@@ -1,0 +1,31 @@
+name: Java CI
+stages:
+- name: build
+  spec:
+    clone: {}
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - name: Set up JDK 17
+      spec:
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: "17"
+      type: action
+    - name: Validate Gradle wrapper
+      spec:
+        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+      type: action
+    - name: Build with Gradle
+      spec:
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: build
+      type: action
+  type: ci
+version: 1

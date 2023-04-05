@@ -1,0 +1,25 @@
+name: Java CI
+stages:
+- name: build
+  spec:
+    clone: {}
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - name: Set up JDK 17
+      spec:
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: "17"
+      type: action
+    - name: Build with Ant
+      spec:
+        run: ant -noinput -buildfile build.xml
+      type: script
+  type: ci
+version: 1

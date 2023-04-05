@@ -1,0 +1,7 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idenvironment
+
+jobs:
+  job1:
+    environment:
+      name: production_environment
+      url: https://github.com

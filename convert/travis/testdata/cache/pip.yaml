@@ -1,0 +1,4 @@
+# https://docs.travis-ci.com/user/caching/#pip-cache
+language: python
+
+cache: pip

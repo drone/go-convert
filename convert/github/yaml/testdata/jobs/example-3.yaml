@@ -1,0 +1,7 @@
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-setting-permissions-for-a-specific-job
+
+jobs:
+  call-workflow:
+    uses: octo-org/example-repo/.github/workflows/called-workflow.yml@main
+    with:
+      username: mona

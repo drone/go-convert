@@ -1,0 +1,27 @@
+name: Java CI with Gradle
+stages:
+- name: build
+  spec:
+    clone: {}
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - name: Set up JDK 11
+      spec:
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: "11"
+      type: action
+    - name: Build with Gradle
+      spec:
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: build
+      type: action
+  type: ci
+version: 1

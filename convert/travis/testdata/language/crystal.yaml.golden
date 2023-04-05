@@ -1,0 +1,26 @@
+version: 1
+
+stages:
+- desc: converted from travis.yml
+  name: pipeline
+  type: ci
+  spec:
+    envs:
+      TRAVIS_CRYSTAL_VERSION: <+matrix.crystal>
+    steps:
+    - name: install
+      type: script
+      spec:
+        run: shards install
+    - name: script
+      type: script
+      spec:
+        run: crystal spec
+  strategy:
+    type: matrix
+    spec:
+      axis:
+        crystal:
+        - latest
+        - nightly
+        - 0.35.1.

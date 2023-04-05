@@ -35,7 +35,8 @@ type Cache struct {
 // UnmarshalYAML implements the unmarshal interface.
 func (v *Cache) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var out1 bool
-	var out2 = struct {
+	var out2 string
+	var out3 = struct {
 		Directories Stringorslice `yaml:"directories"`
 		Apt         bool          `yaml:"apt"`
 		Bundler     bool          `yaml:"bundler"`
@@ -57,18 +58,45 @@ func (v *Cache) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	if err := unmarshal(&out2); err == nil {
-		v.Directories = out2.Directories
-		v.Apt = out2.Apt
-		v.Bundler = out2.Bundler
-		v.Cargo = out2.Cargo
-		v.Ccache = out2.Ccache
-		v.Cocoapods = out2.Cocoapods
-		v.Npm = out2.Npm
-		v.Packages = out2.Packages
-		v.Pip = out2.Pip
-		v.Edge = out2.Edge
-		v.Branch = out2.Branch
-		v.Timeout = out2.Timeout
+		v.Timeout = 3
+		switch out2 {
+		case "apt":
+			v.Apt = true
+		case "bundler":
+			v.Bundler = true
+		case "cargo":
+			v.Cargo = true
+		case "ccache":
+			v.Ccache = true
+		case "cocoapods":
+			v.Cocoapods = true
+		case "npm":
+			v.Npm = true
+		case "packages":
+			v.Packages = true
+		case "pip":
+			v.Pip = true
+		case "yarn":
+			v.Yarn = true
+		case "edge":
+			v.Edge = true
+		}
+		return nil
+	}
+
+	if err := unmarshal(&out3); err == nil {
+		v.Directories = out3.Directories
+		v.Apt = out3.Apt
+		v.Bundler = out3.Bundler
+		v.Cargo = out3.Cargo
+		v.Ccache = out3.Ccache
+		v.Cocoapods = out3.Cocoapods
+		v.Npm = out3.Npm
+		v.Packages = out3.Packages
+		v.Pip = out3.Pip
+		v.Edge = out3.Edge
+		v.Branch = out3.Branch
+		v.Timeout = out3.Timeout
 		if v.Timeout == 0 {
 			v.Timeout = 3
 		}

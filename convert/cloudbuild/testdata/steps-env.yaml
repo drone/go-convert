@@ -1,0 +1,10 @@
+# https://cloud.google.com/build/docs/build-config-file-schema#env
+
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/myproject/myimage', '.']
+- name: 'gcr.io/cloud-builders/kubectl'
+  args: ['set', 'image', 'deployment/myimage', 'frontend=gcr.io/myproject/myimage']
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=us-east1-b'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=node-example-cluster'

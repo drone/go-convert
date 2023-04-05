@@ -1,0 +1,6 @@
+on:
+  push:
+    paths:
+      - '**.js'
+    paths-ignore:
+      - '**.md'

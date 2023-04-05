@@ -1,0 +1,5 @@
+# https://docs.travis-ci.com/user/caching/#r-package-cache
+
+language: R
+
+cache: packages
