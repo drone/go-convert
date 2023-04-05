@@ -121,13 +121,14 @@ func extractExecutor(job *circle.Job, config *circle.Config) *circle.Executor {
 
 // helper function converts a map[string]interface to
 // a map[string]string.
-func convertMatrix(in *circle.Matrix) *harness.Strategy {
+func convertMatrix(job *circle.Job, matrix *circle.Matrix) *harness.Strategy {
 	spec := new(harness.Matrix)
 	spec.Axis = map[string][]string{}
+	spec.Concurrency = int64(job.Parallelism)
 
 	// convert from map[string]interface{} to
 	// map[string]string
-	for name, params := range in.Parameters {
+	for name, params := range matrix.Parameters {
 		var items []string
 		for _, param := range params {
 			items = append(items, fmt.Sprint(param))
@@ -137,7 +138,7 @@ func convertMatrix(in *circle.Matrix) *harness.Strategy {
 
 	// convert from map[string]interface{} to
 	// map[string]string
-	for _, exclude := range in.Exclude {
+	for _, exclude := range matrix.Exclude {
 		m := map[string]string{}
 		for name, param := range exclude {
 			m[name] = fmt.Sprint(param)

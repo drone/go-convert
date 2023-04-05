@@ -206,7 +206,7 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 		stage.Name = workflowjob.Name
 
 		if v := workflowjob.Matrix; v != nil {
-			stage.Strategy = convertMatrix(v)
+			stage.Strategy = convertMatrix(job, v)
 		}
 
 		// TODO workflows.[*].triggers
