@@ -173,7 +173,7 @@ type (
 	}
 
 	RestoreCache struct {
-		Key  *string       `yaml:"key,omitempty"`
+		Key  string        `yaml:"key,omitempty"`
 		Name string        `yaml:"name,omitempty"`
 		Keys Stringorslice `yaml:"keys,omitempty"`
 	}

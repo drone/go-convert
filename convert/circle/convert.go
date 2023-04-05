@@ -139,11 +139,47 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 	}
 
 	// choose the first workflow in the list, for now
-	// TODO convert multiple workflows
-	var workflow *circle.Workflow
-	for _, item := range config.Workflows.Items {
-		workflow = item
-		break
+	var pipelines []*harness.Pipeline
+	for _, workflow := range config.Workflows.Items {
+		pipelines = append(pipelines, d.convertPipeline(workflow, config))
+	}
+
+	var buf bytes.Buffer
+	for i, pipeline := range pipelines {
+		// marshal the harness yaml
+		out, err := yaml.Marshal(pipeline)
+		if err != nil {
+			return nil, err
+		}
+
+		// replace circle parameters with harness parameters
+		out = replaceParams(out, params)
+
+		// write the pipeline to the buffer. if there are
+		// multiple yaml files they need to be separated
+		// by the document separator.
+		if i > 0 {
+			buf.WriteString("\n")
+			buf.WriteString("---")
+			buf.WriteString("\n")
+		}
+		buf.Write(out)
+	}
+
+	return buf.Bytes(), nil
+}
+
+// converts converts a circle pipeline pipeline.
+func (d *Converter) convertPipeline(workflow *circle.Workflow, config *circle.Config) *harness.Pipeline {
+
+	// create the harness pipeline
+	pipeline := &harness.Pipeline{
+		Version: 1,
+	}
+
+	// convert pipeline and job parameters to inputs
+	if params := extractParameters(config); len(params) != 0 {
+		pipeline.Inputs = convertParameters(params)
 	}
 
 	// loop through workflow jobs and convert each
@@ -229,19 +265,10 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 		pipeline.Stages = append(pipeline.Stages, stage)
 	}
 
-	// marshal the harness yaml
-	out, err := yaml.Marshal(pipeline)
-	if err != nil {
-		return nil, err
-	}
-
-	// replace circle parameters with harness parameters
-	out = replaceParams(out, params)
-
-	return out, nil
+	return pipeline
 }
 
-// helper function converts Circle workflow to a Harness stage.
+// helper function converts Circle job to a Harness stage.
 func (d *Converter) convertStage(job *circle.Job, config *circle.Config) *harness.Stage {
 
 	// create stage spec
@@ -268,6 +295,8 @@ func (d *Converter) convertStage(job *circle.Job, config *circle.Config) *harnes
 	// TODO job.branches
 	// TODO job.parallelism
 	// TODO job.parameters
+
+	optimizeCache(spec)
 
 	// create the stage
 	stage := &harness.Stage{}
