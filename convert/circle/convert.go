@@ -124,7 +124,14 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 	// create the harness pipeline
 	pipeline := &harness.Pipeline{
 		Version: 1,
-		// Default: convertDefault(d.config),
+	}
+
+	// TODO .commands
+	// TODO .orbs
+
+	// convert pipeline and job parameters to inputs
+	if params := extractParameters(config); len(params) != 0 {
+		pipeline.Inputs = convertParameters(params)
 	}
 
 	// require a minimum of 1 workflows
@@ -143,48 +150,97 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 	// loop through workflow jobs and convert each
 	// job to a stage.
 	for _, workflowjob := range workflow.Jobs {
+		// snapshot the config
+		config_ := config
 
-		// loop through jobs
-		for name, job := range config.Jobs {
-			// skip jobs that do not match
-			if workflowjob.Name != name {
+		// TODO workflows.[*].triggers
+		// TODO workflows.[*].unless
+		// TODO workflows.[*].when
+		// TODO workflows.[*].jobs[*].context
+		// TODO workflows.[*].jobs[*].filters
+		// TODO workflows.[*].jobs[*].matrix
+		// TODO workflows.[*].jobs[*].type
+		// TODO workflows.[*].jobs[*].requires
+
+		// lookup the named job
+		job, ok := config_.Jobs[workflowjob.Name]
+		if !ok {
+			// if the job does not exist, check to
+			// see if the job is an orb.
+			alias, command := splitOrb(workflowjob.Name)
+
+			// lookup the orb and silently skip the
+			// job if not found
+			orb, ok := config_.Orbs[alias]
+			if !ok {
 				continue
 			}
 
-			// create stage spec
-			spec := &harness.StageCI{
-				Envs:     job.Environment,
-				Platform: convertPlatform(job, config),
-				Runtime:  convertRuntime(job, config),
-				Steps:    d.convertSteps(job.Steps, job, config),
+			// HACK (bradrydzewski) this is a temporary
+			// hack to create the configuration for an
+			// orb referenced directly in the workflow.
+			if orb.Inline == nil {
+				// config_ = new(circle.Config)
+				// config_.Orbs = map[string]*circle.Orb{
+				// 	orb.Name: {},
+				// }
+				job = &circle.Job{
+					Steps: []*circle.Step{
+						{
+							Custom: &circle.Custom{
+								Name:   workflowjob.Name,
+								Params: workflowjob.Params,
+							},
+						},
+					},
+				}
+			} else {
+				// lookup the orb command and silently skip
+				// the job if not found
+				job, ok = orb.Inline.Jobs[command]
+				if !ok {
+					continue
+				}
+
+				// replace the config_ with the orb
+				config_ = orb.Inline
 			}
-
-			// if there are no steps in the stage we
-			// can skip adding the stage to the pipeline.
-			if len(spec.Steps) == 0 {
-				continue
-			}
-
-			// TODO job.Branches
-			// TODO job.Docker
-			// TODO job.Executor
-			// TODO job.IPRanges
-			// TODO job.Machine
-			// TODO job.Macos
-			// TODO job.Parallelism
-			// TODO job.Parameters
-			// TODO job.ResourceClass
-			// TODO job.Shell
-			// TODO job.WorkingDir
-
-			// create the stage
-			stage := &harness.Stage{}
-			stage.Name = workflowjob.Name
-			stage.Spec = spec
-
-			// append the stage to the pipeline
-			pipeline.Stages = append(pipeline.Stages, stage)
 		}
+
+		// create stage spec
+		spec := &harness.StageCI{
+			Envs:     job.Environment,
+			Platform: convertPlatform(job, config_),
+			Runtime:  convertRuntime(job, config_),
+			Steps: append(
+				defaultBackgroundSteps(job, config_),
+				d.convertSteps(job.Steps, job, config_)...,
+			),
+		}
+
+		// TODO executor.resource_class
+		// TODO executor.machine
+		// TODO executor.shell
+		// TODO executor.working_directory
+
+		// if there are no steps in the stage we
+		// can skip adding the stage to the pipeline.
+		if len(spec.Steps) == 0 {
+			continue
+		}
+
+		// TODO jobs.[*].branches
+		// TODO jobs.[*].parallelism
+		// TODO jobs.[*].parameters
+
+		// create the stage
+		stage := &harness.Stage{}
+		stage.Name = workflowjob.Name
+		stage.Type = "ci"
+		stage.Spec = spec
+
+		// append the stage to the pipeline
+		pipeline.Stages = append(pipeline.Stages, stage)
 	}
 
 	// marshal the harness yaml
@@ -193,40 +249,10 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 		return nil, err
 	}
 
+	// replace circle parameters with harness parameters
+	out = replaceParams(out)
+
 	return out, nil
-}
-
-func convertPlatform(job *circle.Job, config *circle.Config) *harness.Platform {
-	if job.Macos != nil {
-		return &harness.Platform{
-			Os:   harness.OSMacos,
-			Arch: harness.ArchArm64,
-		}
-	}
-	// else if the job uses a global executor.
-	if job.Executor != nil {
-		// loop through the global executors.
-		for name, executor := range config.Executors {
-			// find the matching execturo.
-			if name != job.Executor.Name {
-				continue
-			}
-			if executor.Macos != nil {
-				return &harness.Platform{
-					Os:   harness.OSMacos,
-					Arch: harness.ArchArm64,
-				}
-			}
-		}
-	}
-	return nil
-}
-
-func convertRuntime(job *circle.Job, config *circle.Config) *harness.Runtime {
-	return &harness.Runtime{
-		Type: "cloud",
-		Spec: &harness.RuntimeCloud{},
-	}
 }
 
 // helper function converts Circle steps to Harness steps.
@@ -268,7 +294,7 @@ func (d *Converter) convertStep(step *circle.Step, job *circle.Job, config *circ
 	case step.When != nil:
 		return d.convertWhenStep(step, job, config)
 	case step.Custom != nil:
-		return d.convertCustomStep(step)
+		return d.convertCustom(step, job, config)
 	default:
 		return nil
 	}
@@ -279,6 +305,11 @@ func (d *Converter) convertRun(step *circle.Step, job *circle.Job, config *circl
 	// TODO run.shell
 	// TODO run.when
 	// TODO run.working_directory
+	// TODO docker.auth.username
+	// TODO docker.auth.password
+	// TODO docker.aws_auth.aws_access_key_id
+	// TODO docker.aws_auth.aws_secret_access_key
+
 	var image string
 	var entrypoint string
 	var args []string
@@ -456,42 +487,99 @@ func (d *Converter) convertUnlessStep(step *circle.Step, job *circle.Job, config
 }
 
 // helper function converts a Custom step.
-func (d *Converter) convertCustomStep(step *circle.Step) *harness.Step {
-	return nil
+func (d *Converter) convertCustom(step *circle.Step, job *circle.Job, config *circle.Config) *harness.Step {
+	// check to see if the step is a re-usable command.
+	if _, ok := config.Commands[step.Custom.Name]; ok {
+		return d.convertCommand(step, job, config)
+	}
+	// else convert the orb
+	return d.convertOrb(step, job, config)
 }
 
-func extractDocker(job *circle.Job, config *circle.Config) *circle.Docker {
-	// if the job defines a docker executor
-	// we can extract the default docker image.
-	if len(job.Docker) != 0 {
-		return job.Docker[0]
+// helper function converts a Command step.
+func (d *Converter) convertCommand(step *circle.Step, job *circle.Job, config *circle.Config) *harness.Step {
+	// extract the command
+	command, ok := config.Commands[step.Custom.Name]
+	if !ok {
+		return nil
 	}
-	// else if the job uses a global executor.
-	if job.Executor != nil {
-		// loop through the global executors.
-		for name, executor := range config.Executors {
-			// find the matching execturo.
-			if name != job.Executor.Name {
-				continue
-			}
-			// if the matching executor defines
-			// a docker execution environment, return
-			// the first container in the list.
-			if len(executor.Docker) != 0 {
-				return executor.Docker[0]
-			}
-		}
+	// convert the circle steps to harness steps
+	steps := d.convertSteps(command.Steps, job, config)
+	if len(steps) == 0 {
+		return nil
 	}
-	return nil
+	// TODO find and replace command.Parameters
+	// https://circleci.com/docs/reusing-config/#using-the-parameters-declaration
+
+	// return a step group
+	return &harness.Step{
+		Type: "group",
+		Spec: &harness.StepGroup{
+			Steps: steps,
+		},
+	}
 }
 
-// helper function combines environment variables.
-func conbineEnvs(env ...map[string]string) map[string]string {
-	c := map[string]string{}
-	for _, e := range env {
-		for k, v := range e {
-			c[k] = v
+// helper function converts an Orb step.
+func (d *Converter) convertOrb(step *circle.Step, job *circle.Job, config *circle.Config) *harness.Step {
+	// get the orb alias and command
+	alias, command := splitOrb(step.Custom.Name)
+
+	// get the orb from the configuration
+	orb, ok := config.Orbs[alias]
+	if !ok {
+		return nil
+	}
+
+	// convert inline orbs
+	if orb.Inline != nil {
+		// use the command to get the job name
+		// if the action does not exist, silently
+		// ignore the orb.
+		job, ok := orb.Inline.Jobs[command]
+		if !ok {
+			return nil
+		}
+		// convert the orb steps to harness steps
+		// if not steps are returned, silently ignore
+		// the orb.
+		steps := d.convertSteps(job.Steps, job, orb.Inline)
+		if len(steps) == 0 {
+			return nil
+		}
+		// return a step group
+		return &harness.Step{
+			Type: "group",
+			Spec: &harness.StepGroup{
+				Steps: steps,
+			},
 		}
 	}
-	return c
+
+	// strip the version number from the name since
+	// it is not material to the conversion
+	name, _ := splitOrbVersion(orb.Name)
+
+	// append the orb command to the name if exists
+	if command != "" {
+		name = name + "/" + command
+	}
+
+	// convert the orb based on the name and action
+	switch name {
+	case "circleci/slack", "circleci/slack/notify":
+		return convertSlack(step.Custom)
+	case "circleci/node/install", "circleci/node/install-packages", "circleci/node/install-yarn":
+		return convertNodeInstall(step.Custom)
+	case "circleci/node/test":
+		return convertNodeTest(step.Custom)
+	default:
+		return &harness.Step{
+			Name: d.identifiers.Generate(name),
+			Type: "script",
+			Spec: &harness.StepExec{
+				Run: "echo unable to convert " + name,
+			},
+		}
+	}
 }

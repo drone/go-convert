@@ -1,0 +1,20 @@
+version: 1
+
+stages:
+- name: build
+  type: ci
+  spec:
+    platform:
+      os: linux
+      arch: amd64
+    runtime:
+      type: cloud
+      spec: {}
+    steps:
+    - name: The First Step
+      type: script
+      spec:
+        image: alpine:3.15
+        run: |
+          echo 'Hello World!'
+          echo 'This is the delivery pipeline'

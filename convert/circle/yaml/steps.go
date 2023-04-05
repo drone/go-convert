@@ -14,7 +14,9 @@
 
 package yaml
 
-import "errors"
+import (
+	"errors"
+)
 
 type (
 	Step struct {
@@ -30,7 +32,7 @@ type (
 		StoreTestResults   *StoreTestResults
 		Unless             *Unless
 		When               *When
-		Custom             map[string]interface{} `yaml:",inline"`
+		Custom             *Custom
 	}
 
 	step struct {
@@ -82,7 +84,9 @@ func (v *Step) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		case "when":
 			v.When = new(When)
 		default:
-			return errors.New("unknown step type")
+			v.Custom = new(Custom)
+			v.Custom.Name = out1
+			v.Custom.Params = map[string]interface{}{}
 		}
 		return nil
 	}
@@ -100,7 +104,14 @@ func (v *Step) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		v.StoreTestResults = out2.StoreTestResults
 		v.Unless = out2.Unless
 		v.When = out2.When
-		v.Custom = out2.Custom
+		for name, params := range out2.Custom {
+			v.Custom = new(Custom)
+			v.Custom.Name = name
+			if vv, ok := params.(map[string]interface{}); ok {
+				v.Custom.Params = vv
+			}
+		}
+
 		return nil
 	}
 
@@ -109,6 +120,11 @@ func (v *Step) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 // MarshalYAML implements the marshal interface.
 func (v *Step) MarshalYAML() (interface{}, error) {
+	if v.Custom != nil {
+		return map[string]interface{}{
+			v.Custom.Name: v.Custom.Params,
+		}, nil
+	}
 	return &step{
 		AddSSHKeys:         v.AddSSHKeys,
 		AttachWorkspace:    v.AttachWorkspace,
@@ -122,7 +138,6 @@ func (v *Step) MarshalYAML() (interface{}, error) {
 		StoreTestResults:   v.StoreTestResults,
 		Unless:             v.Unless,
 		When:               v.When,
-		Custom:             v.Custom,
 	}, nil
 }
 
@@ -146,23 +161,28 @@ type (
 		Path string `yaml:"path,omitempty"`
 	}
 
+	Custom struct {
+		Name   string
+		Params map[string]interface{}
+	}
+
 	PersistToWorkspace struct {
-		Name  string   `yaml:"name,omitempty"`
-		Paths []string `yaml:"paths,omitempty"`
-		Root  string   `yaml:"root,omitempty"`
+		Name  string        `yaml:"name,omitempty"`
+		Paths Stringorslice `yaml:"paths,omitempty"`
+		Root  string        `yaml:"root,omitempty"`
 	}
 
 	RestoreCache struct {
-		Key  *string  `yaml:"key,omitempty"`
-		Name string   `yaml:"name,omitempty"`
-		Keys []string `yaml:"keys,omitempty"`
+		Key  *string       `yaml:"key,omitempty"`
+		Name string        `yaml:"name,omitempty"`
+		Keys Stringorslice `yaml:"keys,omitempty"`
 	}
 
 	SaveCache struct {
-		Key   string   `yaml:"key,omitempty"`
-		Name  string   `yaml:"name,omitempty"`
-		Paths []string `yaml:"paths,omitempty"`
-		When  string   `yaml:"when,omitempty"`
+		Key   string        `yaml:"key,omitempty"`
+		Name  string        `yaml:"name,omitempty"`
+		Paths Stringorslice `yaml:"paths,omitempty"`
+		When  string        `yaml:"when,omitempty"`
 	}
 
 	SetupRemoteDocker struct {

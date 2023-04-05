@@ -1,0 +1,13 @@
+# https://circleci.com/docs/executor-intro/#macos
+
+jobs:
+  build: # name of your job
+    macos: # executor type
+      xcode: 14.2.0
+    steps:
+      - run: echo "Hello Mac"
+
+workflows:
+  build:
+    jobs:
+      - build

@@ -16,14 +16,14 @@ package yaml
 
 type (
 	Config struct {
-		Commands   map[string]*Command    `yaml:"commands,omitempty"`
-		Executors  map[string]*Executor   `yaml:"executors,omitempty"`
-		Jobs       map[string]*Job        `yaml:"jobs,omitempty"`
-		Orbs       map[string]interface{} `yaml:"orbs,omitempty"` // TODO value is string or inline orb. https://circleci.com/docs/reusing-config/#writing-inline-orbs
-		Parameters map[string]*Parameter  `yaml:"parameters,omitempty"`
-		Setup      bool                   `yaml:"setup,omitempty"`
-		Workflows  *Workflows             `yaml:"workflows,omitempty"`
-		Version    string                 `yaml:"version,omitempty"`
+		Commands   map[string]*Command   `yaml:"commands,omitempty"`
+		Executors  map[string]*Executor  `yaml:"executors,omitempty"`
+		Jobs       map[string]*Job       `yaml:"jobs,omitempty"`
+		Orbs       map[string]*Orb       `yaml:"orbs,omitempty"`
+		Parameters map[string]*Parameter `yaml:"parameters,omitempty"`
+		Setup      bool                  `yaml:"setup,omitempty"`
+		Workflows  *Workflows            `yaml:"workflows,omitempty"`
+		Version    string                `yaml:"version,omitempty"`
 	}
 
 	Docker struct {

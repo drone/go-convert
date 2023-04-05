@@ -1,0 +1,27 @@
+version: 1
+
+stages:
+- name: build
+  type: ci
+  spec:
+    platform:
+      os: linux
+      arch: amd64
+    runtime:
+      type: cloud
+      spec: {}
+    steps:
+    - name: The First Step
+      type: script
+      spec:
+        image: cimg/base:2021.04
+        run: |
+          echo 'Hello World!'
+          echo 'This is the delivery pipeline'
+    - name: The Second Step
+      type: script
+      spec:
+        image: cimg/base:2021.04
+        run: |
+          ls -al
+          echo '^^^The files in your repo^^^'
