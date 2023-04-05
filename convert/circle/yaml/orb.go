@@ -18,23 +18,15 @@ import "errors"
 
 type (
 	Orb struct {
-		Name      string
-		Commands  map[string]*Command
-		Executors map[string]*Executor
-		Steps     []*Step
-	}
-
-	orb struct {
-		Commands  map[string]*Command  `yaml:"commands,omitempty"`
-		Executors map[string]*Executor `yaml:"executors,omitempty"`
-		Steps     []*Step              `yaml:"steps,omitempty"`
+		Name   string
+		Inline *Config
 	}
 )
 
 // UnmarshalYAML implements the unmarshal interface.
 func (v *Orb) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var out1 string
-	var out2 *orb
+	var out2 *Config
 
 	if err := unmarshal(&out1); err == nil {
 		v.Name = out1
@@ -42,9 +34,7 @@ func (v *Orb) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	if err := unmarshal(&out2); err == nil {
-		v.Commands = out2.Commands
-		v.Executors = out2.Executors
-		v.Steps = out2.Steps
+		v.Inline = out2
 		return nil
 	}
 
@@ -56,9 +46,5 @@ func (v *Orb) MarshalYAML() (interface{}, error) {
 	if v.Name != "" {
 		return v.Name, nil
 	}
-	return &orb{
-		Commands:  v.Commands,
-		Executors: v.Executors,
-		Steps:     v.Steps,
-	}, nil
+	return v.Inline, nil
 }

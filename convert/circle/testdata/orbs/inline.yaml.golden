@@ -1,0 +1,27 @@
+version: 1
+
+stages:
+- name: my-orb/my_job
+  type: ci
+  spec:
+    platform:
+      os: linux
+      arch: amd64
+    runtime:
+      type: cloud
+      spec: {}
+    steps:
+    - spec:
+        steps:
+        - type: script
+          spec:
+            run: echo "Run my tests"
+      type: group
+    - name: store_test_results
+      type: script
+      spec:
+        run: echo upload unit test results
+        reports:
+        - type: junit
+          path:
+          - test-results

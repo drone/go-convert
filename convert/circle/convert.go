@@ -20,7 +20,6 @@ import (
 	"errors"
 	"io"
 	"os"
-	"strings"
 
 	circle "github.com/drone/go-convert/convert/circle/yaml"
 	harness "github.com/drone/spec/dist/go"
@@ -151,6 +150,8 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 	// loop through workflow jobs and convert each
 	// job to a stage.
 	for _, workflowjob := range workflow.Jobs {
+		// snapshot the config
+		config_ := config
 
 		// TODO workflows.[*].triggers
 		// TODO workflows.[*].unless
@@ -161,48 +162,65 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 		// TODO workflows.[*].jobs[*].type
 		// TODO workflows.[*].jobs[*].requires
 
-		// loop through jobs
-		for name, job := range config.Jobs {
-			// skip jobs that do not match
-			if workflowjob.Name != name {
+		// lookup the named job
+		job, ok := config_.Jobs[workflowjob.Name]
+		if !ok {
+			// if the job does not exist, check to
+			// see if the job is an orb.
+			alias, command := splitOrb(workflowjob.Name)
+
+			// lookup the orb and silently skip the
+			// job if not found
+			orb, ok := config_.Orbs[alias]
+			if !ok || orb.Inline == nil {
 				continue
 			}
 
-			// create stage spec
-			spec := &harness.StageCI{
-				Envs:     job.Environment,
-				Platform: convertPlatform(job, config),
-				Runtime:  convertRuntime(job, config),
-				Steps: append(
-					defaultBackgroundSteps(job, config),
-					d.convertSteps(job.Steps, job, config)...,
-				),
-			}
-
-			// TODO executor.resource_class
-			// TODO executor.machine
-			// TODO executor.shell
-			// TODO executor.working_directory
-
-			// if there are no steps in the stage we
-			// can skip adding the stage to the pipeline.
-			if len(spec.Steps) == 0 {
+			// lookup the orb command and silently skip
+			// the job if not found
+			job, ok = orb.Inline.Jobs[command]
+			if !ok {
 				continue
 			}
 
-			// TODO jobs.[*].branches
-			// TODO jobs.[*].parallelism
-			// TODO jobs.[*].parameters
-
-			// create the stage
-			stage := &harness.Stage{}
-			stage.Name = workflowjob.Name
-			stage.Type = "ci"
-			stage.Spec = spec
-
-			// append the stage to the pipeline
-			pipeline.Stages = append(pipeline.Stages, stage)
+			// replace the config_ with the orb
+			config_ = orb.Inline
 		}
+
+		// create stage spec
+		spec := &harness.StageCI{
+			Envs:     job.Environment,
+			Platform: convertPlatform(job, config_),
+			Runtime:  convertRuntime(job, config_),
+			Steps: append(
+				defaultBackgroundSteps(job, config_),
+				d.convertSteps(job.Steps, job, config_)...,
+			),
+		}
+
+		// TODO executor.resource_class
+		// TODO executor.machine
+		// TODO executor.shell
+		// TODO executor.working_directory
+
+		// if there are no steps in the stage we
+		// can skip adding the stage to the pipeline.
+		if len(spec.Steps) == 0 {
+			continue
+		}
+
+		// TODO jobs.[*].branches
+		// TODO jobs.[*].parallelism
+		// TODO jobs.[*].parameters
+
+		// create the stage
+		stage := &harness.Stage{}
+		stage.Name = workflowjob.Name
+		stage.Type = "ci"
+		stage.Spec = spec
+
+		// append the stage to the pipeline
+		pipeline.Stages = append(pipeline.Stages, stage)
 	}
 
 	// marshal the harness yaml
@@ -484,37 +502,47 @@ func (d *Converter) convertCommand(step *circle.Step, job *circle.Job, config *c
 
 // helper function converts an Orb step.
 func (d *Converter) convertOrb(step *circle.Step, job *circle.Job, config *circle.Config) *harness.Step {
+	// get the orb alias and command
+	alias, command := splitOrb(step.Custom.Name)
 
-	// get the orb alias
-	alias := strings.Split(step.Custom.Name, "/")[0]
+	// get the orb from the configuration
 	orb, ok := config.Orbs[alias]
 	if !ok {
 		return nil
 	}
 
 	// convert inline orbs
-	if orb.Name == "" {
-		// TODO support inline orbs
-		// https://circleci.com/docs/reusing-config/#writing-inline-orbs
-
-		// return a dummy step indicating we cannot
-		// convert the inline orb.
+	if orb.Inline != nil {
+		// use the command to get the job name
+		// if the action does not exist, silently
+		// ignore the orb.
+		job, ok := orb.Inline.Jobs[command]
+		if !ok {
+			return nil
+		}
+		// convert the orb steps to harness steps
+		// if not steps are returned, silently ignore
+		// the orb.
+		steps := d.convertSteps(job.Steps, job, orb.Inline)
+		if len(steps) == 0 {
+			return nil
+		}
+		// return a step group
 		return &harness.Step{
-			Name: d.identifiers.Generate(step.Custom.Name),
-			Type: "script",
-			Spec: &harness.StepExec{
-				Run: "echo unable to convert inline orb",
+			Type: "group",
+			Spec: &harness.StepGroup{
+				Steps: steps,
 			},
 		}
 	}
 
 	// strip the version number from the name since
 	// it is not material to the conversion
-	name := strings.Split(orb.Name, "@")[0]
+	name, _ := splitOrbVersion(orb.Name)
 
-	// append the orb action to the name if exists
-	if parts := strings.Split(step.Custom.Name, "/"); len(parts) == 2 {
-		name = name + "/" + parts[1]
+	// append the orb command to the name if exists
+	if command != "" {
+		name = name + "/" + command
 	}
 
 	// convert the orb based on the name and action

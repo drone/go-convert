@@ -22,6 +22,26 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
+// helper function splits the orb alias and command.
+func splitOrb(s string) (alias string, command string) {
+	parts := strings.Split(s, "/")
+	alias = parts[0]
+	if len(parts) > 1 {
+		command = parts[1]
+	}
+	return
+}
+
+// helper function splits the orb alias and command.
+func splitOrbVersion(s string) (orb string, version string) {
+	parts := strings.Split(s, "@")
+	orb = parts[0]
+	if len(parts) > 1 {
+		version = parts[1]
+	}
+	return
+}
+
 // helper function converts docker containers from the
 // docker executor to background steps.
 func defaultBackgroundSteps(job *circle.Job, config *circle.Config) []*harness.Step {
