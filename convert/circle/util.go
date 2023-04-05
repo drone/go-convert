@@ -119,6 +119,17 @@ func extractExecutor(job *circle.Job, config *circle.Config) *circle.Executor {
 	}
 }
 
+// helper function extracts matrix parameters.
+func extractMatrixParams(matrix *circle.Matrix) []string {
+	var params []string
+	if matrix != nil {
+		for name := range matrix.Parameters {
+			params = append(params, name)
+		}
+	}
+	return params
+}
+
 // helper function converts a map[string]interface to
 // a map[string]string.
 func convertMatrix(job *circle.Job, matrix *circle.Matrix) *harness.Strategy {

@@ -197,6 +197,13 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 			}
 		}
 
+		// this section replaces circle matrix expressions
+		// with harness circle matrix expressions.
+		//
+		// before: << parameters.foo >>
+		// after: << matrix.foo >>
+		replaceParamsMatrix(job, workflowjob.Matrix)
+
 		// convert the circle job to a stage and silently
 		// skip any stages that cannot be converted.
 		stage := d.convertStage(job, config_)
@@ -524,14 +531,7 @@ func (d *Converter) convertCommand(step *circle.Step, job *circle.Job, config *c
 
 	// find and replace parameters
 	// https://circleci.com/docs/reusing-config/#using-the-parameters-declaration
-	params := map[string]string{}
-	for k, v := range command.Parameters {
-		params["parameters."+k] = fmt.Sprint(v.Default)
-	}
-	for k, v := range step.Custom.Params {
-		params["parameters."+k] = fmt.Sprint(v)
-	}
-	expandParamsT(command, params)
+	expandParamsCommand(command, step)
 
 	// convert the circle steps to harness steps
 	steps := d.convertSteps(command.Steps, job, config)

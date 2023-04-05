@@ -17,8 +17,10 @@ package circle
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"strings"
 
+	circle "github.com/drone/go-convert/convert/circle/yaml"
 	"github.com/ghodss/yaml"
 )
 
@@ -84,6 +86,36 @@ func replaceParams(in []byte, params map[string]string) []byte {
 	}
 
 	return out.Bytes()
+}
+
+// replaceParamsT finds and replaces circle pipeline
+// parameters with harness pipeline parameters.
+func replaceParamsT(in interface{}, params map[string]string) error {
+	// if no parameters defined we can early exit
+	// to avoid the un-necessary cycles.
+	if len(params) == 0 {
+		return nil
+	}
+	// marshal the input to yaml
+	out, err := yaml.Marshal(in)
+	if err != nil {
+		return err
+	}
+	// find and replace all the strings
+	out = replaceParams(out, params)
+	// unmarshal the yaml back into the input
+	return yaml.Unmarshal(out, in)
+}
+
+// replaceParamsMatrix finds and replaces circle
+// matrix parameters with harness syntax.
+func replaceParamsMatrix(job *circle.Job, matrix *circle.Matrix) error {
+	keys := extractMatrixParams(matrix)
+	params := map[string]string{}
+	for _, key := range keys {
+		params["parameters."+key] = "matrix." + key
+	}
+	return replaceParamsT(job, params)
 }
 
 // expandParams finds and replaces circle pipeline
@@ -157,6 +189,20 @@ func expandParamsT(in interface{}, params map[string]string) error {
 	out = expandParams(out, params)
 	// unmarshal the yaml back into the input
 	return yaml.Unmarshal(out, in)
+}
+
+// expandParamsCommands finds and replaces circle pipeline
+// parameters with the literal values in the provided
+// structure T.
+func expandParamsCommand(command *circle.Command, step *circle.Step) error {
+	params := map[string]string{}
+	for k, v := range command.Parameters {
+		params["parameters."+k] = fmt.Sprint(v.Default)
+	}
+	for k, v := range step.Custom.Params {
+		params["parameters."+k] = fmt.Sprint(v)
+	}
+	return expandParamsT(command, params)
 }
 
 // helper function extracts a circle parameter.
