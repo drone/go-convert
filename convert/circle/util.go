@@ -119,6 +119,38 @@ func extractExecutor(job *circle.Job, config *circle.Config) *circle.Executor {
 	}
 }
 
+// helper function converts a map[string]interface to
+// a map[string]string.
+func convertMatrix(in *circle.Matrix) *harness.Strategy {
+	spec := new(harness.Matrix)
+	spec.Axis = map[string][]string{}
+
+	// convert from map[string]interface{} to
+	// map[string]string
+	for name, params := range in.Parameters {
+		var items []string
+		for _, param := range params {
+			items = append(items, fmt.Sprint(param))
+		}
+		spec.Axis[name] = items
+	}
+
+	// convert from map[string]interface{} to
+	// map[string]string
+	for _, exclude := range in.Exclude {
+		m := map[string]string{}
+		for name, param := range exclude {
+			m[name] = fmt.Sprint(param)
+		}
+		spec.Exclude = append(spec.Exclude, m)
+	}
+
+	return &harness.Strategy{
+		Type: "matrix",
+		Spec: spec,
+	}
+}
+
 // helper function extracts and aggregates the circle
 // input parameters from the circle pipeline and job.
 func extractParameters(config *circle.Config) map[string]*circle.Parameter {
@@ -253,7 +285,7 @@ func convertRuntime(job *circle.Job, config *circle.Config) *harness.Runtime {
 }
 
 // helper function combines environment variables.
-func conbineEnvs(env ...map[string]string) map[string]string {
+func combineEnvs(env ...map[string]string) map[string]string {
 	c := map[string]string{}
 	for _, e := range env {
 		for k, v := range e {

@@ -151,15 +151,6 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 		// snapshot the config
 		config_ := config
 
-		// TODO workflows.[*].triggers
-		// TODO workflows.[*].unless
-		// TODO workflows.[*].when
-		// TODO workflows.[*].jobs[*].context
-		// TODO workflows.[*].jobs[*].filters
-		// TODO workflows.[*].jobs[*].matrix
-		// TODO workflows.[*].jobs[*].type
-		// TODO workflows.[*].jobs[*].requires
-
 		// lookup the named job
 		job, ok := config_.Jobs[workflowjob.Name]
 		if !ok {
@@ -205,38 +196,28 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 			}
 		}
 
-		// create stage spec
-		spec := &harness.StageCI{
-			Envs:     job.Environment,
-			Platform: convertPlatform(job, config_),
-			Runtime:  convertRuntime(job, config_),
-			Steps: append(
-				defaultBackgroundSteps(job, config_),
-				d.convertSteps(job.Steps, job, config_)...,
-			),
-		}
-
-		// TODO executor.machine
-		// TODO executor.shell
-		// TODO executor.working_directory
-
-		// if there are no steps in the stage we
-		// can skip adding the stage to the pipeline.
-		if len(spec.Steps) == 0 {
+		// convert the circle job to a stage and silently
+		// skip any stages that cannot be converted.
+		stage := d.convertStage(job, config_)
+		if stage == nil {
 			continue
 		}
 
-		// TODO jobs.[*].branches
-		// TODO jobs.[*].parallelism
-		// TODO jobs.[*].parameters
-
-		// create the stage
-		stage := &harness.Stage{}
 		stage.Name = workflowjob.Name
-		stage.Type = "ci"
-		stage.Spec = spec
 
-		// append the stage to the pipeline
+		if v := workflowjob.Matrix; v != nil {
+			stage.Strategy = convertMatrix(v)
+		}
+
+		// TODO workflows.[*].triggers
+		// TODO workflows.[*].unless
+		// TODO workflows.[*].when
+		// TODO workflows.[*].jobs[*].context
+		// TODO workflows.[*].jobs[*].filters
+		// TODO workflows.[*].jobs[*].type
+		// TODO workflows.[*].jobs[*].requires
+
+		// append the converted stage to the pipeline.
 		pipeline.Stages = append(pipeline.Stages, stage)
 	}
 
@@ -250,6 +231,41 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 	out = replaceParams(out, params)
 
 	return out, nil
+}
+
+// helper function converts Circle workflow to a Harness stage.
+func (d *Converter) convertStage(job *circle.Job, config *circle.Config) *harness.Stage {
+
+	// create stage spec
+	spec := &harness.StageCI{
+		Envs:     job.Environment,
+		Platform: convertPlatform(job, config),
+		Runtime:  convertRuntime(job, config),
+		Steps: append(
+			defaultBackgroundSteps(job, config),
+			d.convertSteps(job.Steps, job, config)...,
+		),
+	}
+
+	// TODO executor.machine
+	// TODO executor.shell
+	// TODO executor.working_directory
+
+	// if there are no steps in the stage we
+	// can skip adding the stage to the pipeline.
+	if len(spec.Steps) == 0 {
+		return nil
+	}
+
+	// TODO job.branches
+	// TODO job.parallelism
+	// TODO job.parameters
+
+	// create the stage
+	stage := &harness.Stage{}
+	stage.Type = "ci"
+	stage.Spec = spec
+	return stage
 }
 
 // helper function converts Circle steps to Harness steps.
@@ -330,7 +346,7 @@ func (d *Converter) convertRun(step *circle.Step, job *circle.Job, config *circl
 			Type: "background",
 			Spec: &harness.StepBackground{
 				Run:        step.Run.Command,
-				Envs:       conbineEnvs(step.Run.Environment, envs),
+				Envs:       combineEnvs(step.Run.Environment, envs),
 				Image:      image,
 				Entrypoint: entrypoint,
 				Args:       args,
@@ -343,7 +359,7 @@ func (d *Converter) convertRun(step *circle.Step, job *circle.Job, config *circl
 			Type: "script",
 			Spec: &harness.StepExec{
 				Run:        step.Run.Command,
-				Envs:       conbineEnvs(step.Run.Environment, envs),
+				Envs:       combineEnvs(step.Run.Environment, envs),
 				Image:      image,
 				Entrypoint: entrypoint,
 				Args:       args,
