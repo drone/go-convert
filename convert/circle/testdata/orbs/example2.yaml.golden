@@ -1,0 +1,17 @@
+version: 1
+
+stages:
+- name: test
+  type: ci
+  spec:
+    platform:
+      os: linux
+      arch: amd64
+    runtime:
+      type: cloud
+      spec: {}
+    steps:
+    - name: install_packages
+      type: script
+      spec:
+        run: npm install

@@ -1,0 +1,17 @@
+version: 1
+
+stages:
+- name: hello-job
+  type: ci
+  spec:
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - type: script
+      spec:
+        image: cimg/node:17.2.0
+        run: echo "hello world"

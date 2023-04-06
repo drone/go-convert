@@ -1,0 +1,25 @@
+version: "2.1"
+
+commands:
+  print:
+    parameters:
+      message:
+        type: string
+    steps:
+      - run: echo << parameters.message >>
+
+jobs:
+  daily-message:
+    machine: true
+    parameters:
+      message:
+        type: string
+    steps:
+      - print:
+          message: Printing << parameters.message >>
+
+workflows:
+  my-workflow:
+    jobs:
+      - daily-message:
+         message: echo << parameters.message >>

@@ -2,4 +2,4 @@
 .env
 _NOTES*
 go-convert
-convert/circle/reference
+convert/circle/reference/**

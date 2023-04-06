@@ -1,0 +1,16 @@
+version: 1
+stages:
+- name: node/test
+  type: ci
+  spec:
+    platform:
+      os: linux
+      arch: amd64
+    runtime:
+      type: cloud
+      spec: {}
+    steps:
+    - name: test
+      type: script
+      spec:
+        run: npm test

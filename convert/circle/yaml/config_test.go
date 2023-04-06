@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package circle
+package yaml
 
 import (
 	"io/ioutil"
@@ -23,7 +23,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func TestConvert(t *testing.T) {
+func TestPipeline(t *testing.T) {
 	tests, err := filepath.Glob("testdata/*/*.yaml")
 	if err != nil {
 		t.Error(err)
@@ -32,40 +32,46 @@ func TestConvert(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test, func(t *testing.T) {
-			// convert the yaml file from circle to harness
-			converter := New()
-			tmp1, err := converter.ConvertFile(test)
+			// parse the yaml file
+			tmp1, err := ParseFile(test)
 			if err != nil {
 				t.Error(err)
 				return
 			}
 
-			// unmarshal the converted yaml file to a map
-			got := map[string]interface{}{}
-			if err := yaml.Unmarshal(tmp1, &got); err != nil {
+			// marshal the yaml file
+			tmp2, err := yaml.Marshal(tmp1)
+			if err != nil {
 				t.Error(err)
 				return
 			}
 
-			// parse the golden yaml file
+			// unmarshal the yaml file to a map
+			got := map[string]interface{}{}
+			if err := yaml.Unmarshal(tmp2, &got); err != nil {
+				t.Error(err)
+				return
+			}
+
+			// parse the golden yaml file and unmarshal
 			data, err := ioutil.ReadFile(test + ".golden")
 			if err != nil {
-				// t.Error(err)
-				t.Logf("Skipping test due to lack of .golden file")
+				t.Skipf("no golden file")
 				return
 			}
 
-			// unmarshal the golden yaml file to a map
+			// unmarshal the golden yaml file
 			want := map[string]interface{}{}
 			if err := yaml.Unmarshal(data, &want); err != nil {
 				t.Error(err)
 				return
 			}
 
-			// compare the converted yaml to the golden file
+			// compare the parsed yaml file to the golden yaml file
 			if diff := cmp.Diff(got, want); diff != "" {
-				t.Errorf("Unexpected conversion result")
+				t.Errorf("Unexpected parsing result")
 				t.Log(diff)
+				println(string(tmp2))
 			}
 		})
 	}

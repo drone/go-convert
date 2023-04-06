@@ -1,0 +1,26 @@
+# https://circleci.com/docs/executor-intro/#arm
+
+version: 2.1
+
+jobs:
+  build-medium:
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.medium
+    steps:
+      - run: uname -a
+      - run: echo "Hello, Arm!"
+
+  build-large:
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.large
+    steps:
+      - run: uname -a
+      - run: echo "Hello, Arm!"
+
+workflows:
+  build:
+    jobs:
+      - build-medium
+      - build-large

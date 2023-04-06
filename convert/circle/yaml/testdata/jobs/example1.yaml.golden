@@ -1,0 +1,14 @@
+jobs:
+  build:
+    docker:
+      - image: cimg/base:2022.09
+        auth:
+          username: mydockerhub-user
+          password: $DOCKERHUB_PASSWORD # context / project UI env-var reference
+    environment:
+      FOO: bar
+    parallelism: 3
+    resource_class: large
+    working_directory: ~/my-app
+    steps:
+      - run: go test -v $(go list ./... | circleci tests split)

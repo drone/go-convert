@@ -1,0 +1,20 @@
+version: 2.1
+
+orbs:
+  win: circleci/windows@5.0.0 # The Windows orb gives you everything you need to start using the Windows executor.
+
+jobs:
+  hello-job:
+    executor:
+      name: win/default # executor type
+      size: "medium" # resource class, can be "medium", "large", "xlarge", "2xlarge", defaults to "medium" if not specified
+
+    steps:
+      # Commands are run in a Windows virtual machine environment
+      - checkout
+      - run: Write-Host 'Hello, Windows'
+
+workflows:
+  my-workflow:
+    jobs:
+      - hello-job

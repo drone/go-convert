@@ -1,0 +1,12 @@
+# https://circleci.com/docs/orb-intro/#benefits-of-using-orbs
+
+version: 2.1
+
+orbs:
+  node: circleci/node@x.y # replace orb version https://circleci.com/developer/orbs/orb/circleci/node#quick-start
+
+workflows:
+  test_my_app:
+    jobs:
+      - node/test:
+          version: <node-version> # replace node version

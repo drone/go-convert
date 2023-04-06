@@ -1,0 +1,14 @@
+version: 2.1
+
+jobs:
+  hello-job:
+    macos:
+      xcode: 13.4.1
+    steps:
+      - checkout # check out the code in the project directory
+      - run: echo "hello world" # run the `echo` command
+
+workflows:
+  my-workflow:
+    jobs:
+      - hello-job

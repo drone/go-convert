@@ -1,0 +1,16 @@
+version: 1
+
+stages:
+- type: ci
+  name: build
+  spec:
+    platform:
+      os: linux
+      arch: amd64
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - type: script
+      spec:
+        run: Write-Host 'Hello, Windows'

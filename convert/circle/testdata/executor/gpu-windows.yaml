@@ -1,0 +1,14 @@
+version: 2.1
+
+jobs:
+  build:
+    machine:
+      image: windows-server-2019-cuda
+    resource_class: gpu.nvidia.small
+    steps:
+      - run: nvidia-smi
+
+workflows:
+  build:
+    jobs:
+      - build

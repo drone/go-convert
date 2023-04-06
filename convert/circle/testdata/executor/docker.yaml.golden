@@ -1,0 +1,17 @@
+version: 1
+
+stages:
+- name: build
+  type: ci
+  spec:
+    platform:
+      os: linux
+      arch: amd64
+    runtime:
+      type: cloud
+      spec: {}
+    steps:
+    - type: script
+      spec:
+        image: cimg/base:stable
+        run: echo "Hello World"

@@ -1,0 +1,18 @@
+jobs:
+  build:
+    steps:
+      - checkout
+      - run: echo << parameters.a >>
+      - run: echo << parameters.b >>
+
+workflows:
+  workflow:
+    jobs:
+      - build:
+          matrix:
+            parameters:
+              a: [1, 2, 3]
+              b: [4, 5, 6]
+            exclude:
+              - a: 3
+                b: 5

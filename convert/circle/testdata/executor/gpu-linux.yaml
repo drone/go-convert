@@ -1,0 +1,16 @@
+# https://circleci.com/docs/executor-intro/#gpu
+
+version: 2.1
+
+jobs:
+  build:
+    resource_class: gpu.nvidia.small
+    machine:
+      image: ubuntu-2004-cuda-11.4:202110-01
+    steps:
+      - run: nvidia-smi
+
+workflows:
+  build:
+    jobs:
+      - build
