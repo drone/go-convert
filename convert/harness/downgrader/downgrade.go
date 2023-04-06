@@ -600,14 +600,14 @@ func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 				if v.In != nil {
 					var eventConditions []string
 					for _, event := range v.In {
-						eventConditions = append(eventConditions, fmt.Sprintf("<+trigger.event> =~ %q", event))
+						eventConditions = append(eventConditions, fmt.Sprintf("<+trigger.event> == %q", event))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(eventConditions, " || ")))
 				}
 				if v.Not != nil && v.Not.In != nil {
 					var notEventConditions []string
 					for _, event := range v.Not.In {
-						notEventConditions = append(notEventConditions, fmt.Sprintf("<+trigger.event> !~ %q", event))
+						notEventConditions = append(notEventConditions, fmt.Sprintf("<+trigger.event> != %q", event))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notEventConditions, " && ")))
 				}
@@ -618,7 +618,7 @@ func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 				if v.In != nil {
 					var statusConditions []string
 					for _, status := range v.In {
-						statusConditions = append(statusConditions, fmt.Sprintf("<+execution.steps.%s.status> =~ %q", stepId, status))
+						statusConditions = append(statusConditions, fmt.Sprintf("<+execution.steps.%s.status> == %q", stepId, status))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(statusConditions, " || ")))
 				}
@@ -626,14 +626,14 @@ func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 				if v.In != nil {
 					var branchConditions []string
 					for _, branch := range v.In {
-						branchConditions = append(branchConditions, fmt.Sprintf("<+trigger.branch> =~ %q", branch))
+						branchConditions = append(branchConditions, fmt.Sprintf("<+trigger.branch> == %q", branch))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(branchConditions, " || ")))
 				}
 				if v.Not != nil && v.Not.In != nil {
 					var notBranchConditions []string
 					for _, branch := range v.Not.In {
-						notBranchConditions = append(notBranchConditions, fmt.Sprintf("<+trigger.branch> !~ %q", branch))
+						notBranchConditions = append(notBranchConditions, fmt.Sprintf("<+trigger.branch> != %q", branch))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notBranchConditions, " && ")))
 				}
@@ -641,14 +641,14 @@ func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 				if v.In != nil {
 					var repoConditions []string
 					for _, repo := range v.In {
-						repoConditions = append(repoConditions, fmt.Sprintf("<+trigger.payload.repository.name> =~ %q", repo))
+						repoConditions = append(repoConditions, fmt.Sprintf("<+trigger.payload.repository.name> == %q", repo))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(repoConditions, " || ")))
 				}
 				if v.Not != nil && v.Not.In != nil {
 					var notRepoConditions []string
 					for _, repo := range v.Not.In {
-						notRepoConditions = append(notRepoConditions, fmt.Sprintf("<+trigger.payload.repository.name> !~ %q", repo))
+						notRepoConditions = append(notRepoConditions, fmt.Sprintf("<+trigger.payload.repository.name> != %q", repo))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notRepoConditions, " && ")))
 				}
@@ -656,14 +656,14 @@ func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 				if v.In != nil {
 					var refConditions []string
 					for _, ref := range v.In {
-						refConditions = append(refConditions, fmt.Sprintf("<+codebase.commitRef> =~ %q", ref))
+						refConditions = append(refConditions, fmt.Sprintf("<+trigger.payload.ref> == %q", ref))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(refConditions, " || ")))
 				}
 				if v.Not != nil && v.Not.In != nil {
 					var notRefConditions []string
 					for _, ref := range v.Not.In {
-						notRefConditions = append(notRefConditions, fmt.Sprintf("<+codebase.commitRef> !~ %q", ref))
+						notRefConditions = append(notRefConditions, fmt.Sprintf("<+trigger.payload.ref> != %q", ref))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notRefConditions, " && ")))
 				}
@@ -695,14 +695,14 @@ func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
 				if v.In != nil {
 					var eventConditions []string
 					for _, event := range v.In {
-						eventConditions = append(eventConditions, fmt.Sprintf("<+trigger.event> =~ %q", event))
+						eventConditions = append(eventConditions, fmt.Sprintf("<+trigger.event> == %q", event))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(eventConditions, " || ")))
 				}
 				if v.Not != nil && v.Not.In != nil {
 					var notEventConditions []string
 					for _, event := range v.Not.In {
-						notEventConditions = append(notEventConditions, fmt.Sprintf("<+trigger.event> !~ %q", event))
+						notEventConditions = append(notEventConditions, fmt.Sprintf("<+trigger.event> != %q", event))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notEventConditions, " && ")))
 				}
@@ -713,7 +713,7 @@ func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
 				if v.In != nil {
 					var statusConditions []string
 					for _, status := range v.In {
-						statusConditions = append(statusConditions, fmt.Sprintf("<+execution.steps.%s.status> =~ %q", stepId, status))
+						statusConditions = append(statusConditions, fmt.Sprintf("<+execution.steps.%s.status> == %q", stepId, status))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(statusConditions, " || ")))
 				}
@@ -721,14 +721,14 @@ func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
 				if v.In != nil {
 					var branchConditions []string
 					for _, branch := range v.In {
-						branchConditions = append(branchConditions, fmt.Sprintf("<+trigger.branch> =~ %q", branch))
+						branchConditions = append(branchConditions, fmt.Sprintf("<+trigger.branch> == %q", branch))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(branchConditions, " || ")))
 				}
 				if v.Not != nil && v.Not.In != nil {
 					var notBranchConditions []string
 					for _, branch := range v.Not.In {
-						notBranchConditions = append(notBranchConditions, fmt.Sprintf("<+trigger.branch> !~ %q", branch))
+						notBranchConditions = append(notBranchConditions, fmt.Sprintf("<+trigger.branch> != %q", branch))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notBranchConditions, " && ")))
 				}
@@ -736,14 +736,14 @@ func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
 				if v.In != nil {
 					var repoConditions []string
 					for _, repo := range v.In {
-						repoConditions = append(repoConditions, fmt.Sprintf("<+trigger.payload.repository.name> =~ %q", repo))
+						repoConditions = append(repoConditions, fmt.Sprintf("<+trigger.payload.repository.name> == %q", repo))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(repoConditions, " || ")))
 				}
 				if v.Not != nil && v.Not.In != nil {
 					var notRepoConditions []string
 					for _, repo := range v.Not.In {
-						notRepoConditions = append(notRepoConditions, fmt.Sprintf("<+trigger.payload.repository.name> !~ %q", repo))
+						notRepoConditions = append(notRepoConditions, fmt.Sprintf("<+trigger.payload.repository.name> != %q", repo))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notRepoConditions, " && ")))
 				}
@@ -751,14 +751,14 @@ func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
 				if v.In != nil {
 					var refConditions []string
 					for _, ref := range v.In {
-						refConditions = append(refConditions, fmt.Sprintf("<+codebase.commitRef> =~ %q", ref))
+						refConditions = append(refConditions, fmt.Sprintf("<+trigger.payload.ref> == %q", ref))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(refConditions, " || ")))
 				}
 				if v.Not != nil && v.Not.In != nil {
 					var notRefConditions []string
 					for _, ref := range v.Not.In {
-						notRefConditions = append(notRefConditions, fmt.Sprintf("<+codebase.commitRef> !~ %q", ref))
+						notRefConditions = append(notRefConditions, fmt.Sprintf("<+trigger.payload.ref> != %q", ref))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notRefConditions, " && ")))
 				}
