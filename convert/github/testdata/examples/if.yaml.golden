@@ -50,6 +50,6 @@ stages:
     envs:
       NODE_ENV: production
   type: ci
-  when: ${{codebase.build.type}} == 'push' && ${{codebase.sourceBranch}} == 'refs/heads/main'
+  when: <+trigger.event> == 'push' && <+trigger.payload.ref> == 'refs/heads/main'
     && !~ github.event.head_commit.message, 'skip deploy')
 version: 1
