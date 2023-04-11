@@ -15,11 +15,14 @@
 package downgrader
 
 import (
-	"github.com/google/go-cmp/cmp"
-	"gopkg.in/yaml.v3"
+	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
+	"gopkg.in/yaml.v3"
 )
 
 func TestConvert(t *testing.T) {
@@ -46,6 +49,8 @@ func TestConvert(t *testing.T) {
 				return
 			}
 
+			got = normalizeMap(got)
+
 			// parse the golden yaml file
 			data, err := os.ReadFile(test + ".golden")
 			if err != nil {
@@ -60,6 +65,8 @@ func TestConvert(t *testing.T) {
 				return
 			}
 
+			want = normalizeMap(want)
+
 			// compare the converted yaml to the golden file
 			if diff := cmp.Diff(got, want); diff != "" {
 				t.Errorf("Unexpected conversion result")
@@ -67,4 +74,32 @@ func TestConvert(t *testing.T) {
 			}
 		})
 	}
+}
+
+func normalizeMap(m map[string]interface{}) map[string]interface{} {
+	normalized := make(map[string]interface{}, len(m))
+	keys := make([]string, 0, len(m))
+
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		v := m[k]
+		switch t := v.(type) {
+		case map[string]interface{}:
+			normalized[k] = normalizeMap(t)
+		case map[interface{}]interface{}:
+			normalizedMap := make(map[string]interface{}, len(t))
+			for k, v := range t {
+				normalizedMap[fmt.Sprintf("%v", k)] = v
+			}
+			normalized[k] = normalizeMap(normalizedMap)
+		default:
+			normalized[k] = v
+		}
+	}
+
+	return normalized
 }
