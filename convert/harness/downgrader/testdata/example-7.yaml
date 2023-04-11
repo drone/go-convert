@@ -1,0 +1,17 @@
+name: service
+stages:
+  - name: test
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+        - name: nginx
+          spec:
+            image: nginx
+          type: background
+    type: ci
+version: 1

@@ -478,10 +478,11 @@ func convertPorts(ports []string) map[string]string {
 	bindings := make(map[string]string, len(ports))
 	for _, port := range ports {
 		split := strings.Split(port, ":")
-		if len(split) != 2 {
-			return nil
+		if len(split) == 1 {
+			bindings[split[0]] = split[0]
+		} else if len(split) == 2 {
+			bindings[split[0]] = split[1]
 		}
-		bindings[split[0]] = split[1]
 	}
 	return bindings
 }
