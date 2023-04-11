@@ -372,7 +372,6 @@ func (d *Downgrader) convertStepRun(src *v1.Step, stageEnv map[string]string) *v
 // structure to the v0 harness structure.
 //
 // TODO convert resources
-// TODO convert ports
 func (d *Downgrader) convertStepBackground(src *v1.Step, stageEnv map[string]string) *v0.Step {
 	spec_ := src.Spec.(*v1.StepBackground)
 
@@ -396,6 +395,7 @@ func (d *Downgrader) convertStepBackground(src *v1.Step, stageEnv map[string]str
 			ImagePullPolicy: convertImagePull(spec_.Pull),
 			Privileged:      spec_.Privileged,
 			RunAsUser:       spec_.User,
+			PortBindings:    convertPorts(spec_.Ports),
 		},
 		When: convertStepWhen(src.When, id),
 		Env:  stageEnv,
@@ -469,6 +469,21 @@ func (d *Downgrader) convertStepBitrise(src *v1.Step, stageEnv map[string]string
 		When: convertStepWhen(src.When, id),
 		Env:  stageEnv,
 	}
+}
+
+func convertPorts(ports []string) map[string]string {
+	if len(ports) == 0 {
+		return nil
+	}
+	bindings := make(map[string]string, len(ports))
+	for _, port := range ports {
+		split := strings.Split(port, ":")
+		if len(split) != 2 {
+			return nil
+		}
+		bindings[split[0]] = split[1]
+	}
+	return bindings
 }
 
 func convertCache(src *v1.Cache) *v0.Cache {
