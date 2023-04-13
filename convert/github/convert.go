@@ -234,18 +234,18 @@ func githubExprToJexlExpr(githubExpr string) string {
 	githubExpr = strings.Replace(githubExpr, "endsWith(", "=$ ", -1)
 
 	// Replace variables
-	githubExpr = strings.Replace(githubExpr, "github.event_name", "${{codebase.build.type}}", -1)
-	githubExpr = strings.Replace(githubExpr, "github.ref", "${{codebase.branch}}", -1)
-	githubExpr = strings.Replace(githubExpr, "github.head_ref", "${{codebase.sourceBranch}}", -1)
-	githubExpr = strings.Replace(githubExpr, "github.event.ref", "${{codebase.sourceBranch}}", -1)
-	githubExpr = strings.Replace(githubExpr, "github.base_ref", "${{codebase.targetBranch}}", -1)
-	githubExpr = strings.Replace(githubExpr, "github.event.number", "${{codebase.prNumber}}", -1)
-	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.title", "${{codebase.prTitle}}", -1)
-	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.body", "${{codebase.pullRequestBody}}", -1)
-	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.html_url", "${{codebase.pullRequestLink}}", -1)
-	githubExpr = strings.Replace(githubExpr, "github.event.repository.html_url", "${{codebase.repoUrl}}", -1)
-	githubExpr = strings.Replace(githubExpr, "github.actor", "${{codebase.gitUser}}", -1)
-	githubExpr = strings.Replace(githubExpr, "github.actor_email", "${{codebase.gitUserEmail}}", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event_name", "<+trigger.event>", -1)
+	githubExpr = strings.Replace(githubExpr, "github.ref", "<+trigger.payload.ref>", -1)
+	githubExpr = strings.Replace(githubExpr, "github.head_ref", "<+trigger.sourceBranch>", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.ref", "<+trigger.payload.ref>", -1)
+	githubExpr = strings.Replace(githubExpr, "github.base_ref", "<+trigger.targetBranch>", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.number", "<+trigger.prNumber>", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.title", "<+trigger.prTitle>", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.body", "<+trigger.payload.pull_request.body>", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.pull_request.html_url", "<+trigger.payload.pull_request.html_url>", -1)
+	githubExpr = strings.Replace(githubExpr, "github.event.repository.html_url", "<+trigger.repoUrl>", -1)
+	githubExpr = strings.Replace(githubExpr, "github.actor", "<+trigger.gitUser>", -1)
+	githubExpr = strings.Replace(githubExpr, "github.actor_email", "<+codebase.gitUserEmail>", -1)
 
 	return githubExpr
 }
@@ -336,6 +336,10 @@ func convertSteps(src *github.Job) []*harness.Step {
 			Name: step.Name,
 		}
 
+		if step.ContinueOnErr {
+			dst.On = convertContinueOnError(step)
+		}
+
 		if step.Timeout != 0 {
 			dst.Timeout = convertTimeout(step)
 		}
@@ -346,7 +350,7 @@ func convertSteps(src *github.Job) []*harness.Step {
 			dst.Type = "action"
 		} else {
 			dst.Name = step.Name
-			dst.Spec = convertRun(step)
+			dst.Spec = convertRun(step, src.Container)
 			dst.Type = "script"
 		}
 		steps = append(steps, dst)
@@ -382,13 +386,30 @@ func convertAction(src *github.Step) *harness.StepAction {
 	return dst
 }
 
-func convertRun(src *github.Step) *harness.StepExec {
+func convertContinueOnError(src *github.Step) *harness.On {
+	if !src.ContinueOnErr {
+		return nil
+	}
+
+	return &harness.On{
+		Failure: &harness.Failure{
+			Type:   "ignore",
+			Spec:   &harness.Ignore{},
+			Errors: []string{"all"},
+		},
+	}
+}
+
+func convertRun(src *github.Step, container *github.Container) *harness.StepExec {
 	if src == nil {
 		return nil
 	}
 	dst := &harness.StepExec{
 		Run:  src.Run,
 		Envs: src.Env,
+	}
+	if container != nil {
+		dst.Image = container.Image
 	}
 	return dst
 }

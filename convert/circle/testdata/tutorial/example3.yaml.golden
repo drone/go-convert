@@ -1,0 +1,55 @@
+version: 1
+
+stages:
+- name: Hello-World
+  type: ci
+  spec:
+    platform:
+      os: linux
+      arch: amd64
+    runtime:
+      type: cloud
+      spec: {}
+    steps:
+    - name: Saying Hello
+      type: script
+      spec:
+        image: cimg/base:2021.04
+        run: |
+          echo 'Hello World!'
+          echo 'This is the delivery pipeline'
+
+- name: Fetch-Code
+  type: ci
+  spec:
+    platform:
+      os: linux
+      arch: amd64
+    runtime:
+      type: cloud
+      spec: {}
+    steps:
+    - name: Getting the Code
+      type: script
+      spec:
+        image: cimg/base:2021.04
+        run: |
+          ls -al
+          echo '^^^Your repo files^^^'
+
+- name: Using-Node
+  type: ci
+  spec:
+    platform:
+      os: linux
+      arch: amd64
+    runtime:
+      type: cloud
+      spec: {}
+    steps:
+    - name: Running the Node Container
+      type: script
+      spec:
+        image: cimg/node:17.2
+        run: |
+          node -v

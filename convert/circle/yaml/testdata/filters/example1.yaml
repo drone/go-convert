@@ -1,0 +1,11 @@
+# Example filter Jobs by branch
+# https://support.circleci.com/hc/en-us/articles/115015953868-Filter-workflows-by-branch-
+
+workflows:
+  build:
+    jobs:
+      - test:
+          filters:
+            branches:
+              only:
+                - main

@@ -1,0 +1,35 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: containertestjob
+      name: container-test-job
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - step:
+              identifier: nodeversion
+              name: Node version
+              spec:
+                command: node --version
+                image: node:14.16
+              timeout: ""
+              type: Run
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI
+      when:
+        condition: <+trigger.payload.ref> == "refs/heads/master" || <+trigger.payload.ref> == "refs/tags/v*"
+        pipelineStatus: Success

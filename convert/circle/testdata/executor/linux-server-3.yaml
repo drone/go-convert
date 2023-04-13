@@ -1,0 +1,12 @@
+# https://circleci.com/docs/executor-intro/#linux-vm
+
+jobs:
+  build: # name of your job
+    machine: true # executor type
+    steps:
+      - run: echo "Hello World"
+
+workflows:
+  build:
+    jobs:
+      - build

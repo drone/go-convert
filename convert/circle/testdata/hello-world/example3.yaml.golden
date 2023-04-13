@@ -1,0 +1,16 @@
+version: 1
+
+stages:
+- name: hello-job
+  type: ci
+  spec:
+    platform:
+      arch: arm64
+      os: macos
+    runtime:
+      type: cloud
+      spec: {}
+    steps:
+    - type: script
+      spec:
+        run: echo "hello world"

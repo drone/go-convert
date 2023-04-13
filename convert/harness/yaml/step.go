@@ -28,7 +28,7 @@ type (
 		Spec        interface{}       `json:"spec,omitempty"              yaml:"spec,omitempty"`
 		Timeout     Duration          `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
 		Type        string            `json:"type,omitempty"              yaml:"type,omitempty"`
-		When        *When             `json:"when,omitempty"              yaml:"when,omitempty"`
+		When        *StepWhen         `json:"when,omitempty"              yaml:"when,omitempty"`
 		Env         map[string]string `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
 	}
 
@@ -232,7 +232,7 @@ type (
 		Script string `json:"script,omitempty" yaml:"script,omitempty"`
 	}
 
-	When struct {
+	StepWhen struct {
 		StageStatus string `json:"stageStatus,omitempty" yaml:"stageStatus,omitempty"`
 		Condition   string `json:"condition,omitempty" yaml:"condition,omitempty"`
 	}

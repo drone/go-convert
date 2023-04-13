@@ -1,0 +1,20 @@
+# Example of global parameters in conditional workflows
+# https://circleci.com/docs/pipeline-variables/#conditional-workflows
+
+version: 2.1
+
+parameters:
+  run_integration_tests:
+    type: boolean
+    default: false
+
+workflows:
+  integration_tests:
+    when: << pipeline.parameters.run_integration_tests >>
+    jobs:
+      - mytestjob
+
+jobs:
+  mytestjob:
+    steps:
+      - checkout

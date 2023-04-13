@@ -33,3 +33,23 @@ func WithKubernetes(namespace, connector string) Option {
 		d.kubeConnector = connector
 	}
 }
+
+// WithGCS returns an option to the set the default
+// storage provider to GCS.
+func WithGCS(bucket, token string) Option {
+	return func(d *Converter) {
+		d.gcsBucket = bucket
+		d.gcsToken = token
+	}
+}
+
+// WithS3 returns an option to the set the default
+// storage provider to S3.
+func WithS3(access, secret, region, bucket string) Option {
+	return func(d *Converter) {
+		d.s3AccessKey = access
+		d.s3SecretKey = secret
+		d.s3Region = region
+		d.s3Bucket = bucket
+	}
+}

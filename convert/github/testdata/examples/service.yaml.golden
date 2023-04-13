@@ -16,6 +16,7 @@ stages:
       type: background
     - name: Install dependencies
       spec:
+        image: node:10.18-jessie
         run: npm ci
       type: script
     - name: Connect to PostgreSQL
@@ -23,6 +24,7 @@ stages:
         envs:
           POSTGRES_HOST: postgres
           POSTGRES_PORT: "5432"
+        image: node:10.18-jessie
         run: node client.js
       type: script
   type: ci

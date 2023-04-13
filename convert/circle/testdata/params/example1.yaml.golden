@@ -1,0 +1,19 @@
+version: 1
+stages:
+- name: my-job
+  type: ci
+  spec:
+    platform:
+      os: linux
+      arch: amd64
+    runtime:
+      type: cloud
+      spec: {}
+    steps:
+    - type: group
+      spec:
+        steps:
+        - type: script
+          spec:
+            image: cimg/base:stable
+            run: echo "Hello My-Name"
