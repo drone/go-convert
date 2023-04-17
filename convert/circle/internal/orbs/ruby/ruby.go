@@ -49,7 +49,7 @@ func convertRspecTest(step *circle.Custom) *harness.Step {
 
 	var script []string
 	script = append(script, fmt.Sprintf(`mkdir -p %q`, outpath))
-	script = append(script, fmt.Sprint(
+	script = append(script, fmt.Sprintf(
 		`bundle exec rspec --profile 10 --format RspecJunitFormatter --out %s/results.xml --format progress`,
 		outpath,
 	),
@@ -85,8 +85,8 @@ func convertInstallDeps(step *circle.Custom) *harness.Step {
 		script = append(script, `bundle config deployment 'true'`)
 	}
 
-	script = append(script, fmt.Sprint(`bundle config gemfile %q`, gemfile))
-	script = append(script, fmt.Sprint(`bundle config path %q`, path))
+	script = append(script, fmt.Sprintf(`bundle config gemfile %q`, gemfile))
+	script = append(script, fmt.Sprintf(`bundle config path %q`, path))
 
 	if clean {
 		script = append(script, `bundle check || (bundle install && bundle clean --force)`)
@@ -122,12 +122,12 @@ func convertRubocopCheck(step *circle.Custom) *harness.Step {
 	}
 
 	var buf bytes.Buffer
-	buf.WriteString(fmt.Sprint(`mkdir -p %q`, outpath))
+	buf.WriteString(fmt.Sprintf(`mkdir -p %q`, outpath))
 	buf.WriteString("\n")
 
 	if !parallel {
 		buf.WriteString(
-			fmt.Sprint(
+			fmt.Sprintf(
 				`bundle exec rubocop %s --out %s/check-results.xml --format %s`,
 				checkpath,
 				outpath,
@@ -136,7 +136,7 @@ func convertRubocopCheck(step *circle.Custom) *harness.Step {
 		)
 	} else {
 		buf.WriteString(
-			fmt.Sprint(
+			fmt.Sprintf(
 				`bundle exec rubocop %s --out %s/check-results.xml --format %s --parallel`,
 				checkpath,
 				outpath,
