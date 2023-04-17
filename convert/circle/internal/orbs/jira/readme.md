@@ -1,0 +1,1 @@
+https://circleci.com/developer/orbs/orb/circleci/jira
