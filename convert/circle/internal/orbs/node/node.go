@@ -21,45 +21,39 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
-// Convert converts an Orb step to a Harness step.
+// Convert converts an Orb to a Harness step.
 func Convert(command string, step *circle.Custom) *harness.Step {
 	switch command {
 	case "install", "install-packages", "install-yarn":
-		return convertInstall(step)
+		return convertInstallCmd(step)
+	case "run":
+		return convertRunJob(step)
 	case "test":
-		return convertTest(step)
+		return convertTestJob(step)
 	default:
-		return convertTest(step)
+		return nil
 	}
 }
 
-// helper function converts a node/install-packages
-// orb to a run step.
-func convertInstall(step *circle.Custom) *harness.Step {
-	if step.Params["install-yarn"] == true ||
-		step.Params["pkg-manager"] == "yarn" {
-		return &harness.Step{
-			Name: "install_packages",
-			Type: "script",
-			Spec: &harness.StepExec{
-				Run: "yarn install",
-			},
-		}
-	}
+// helper function converts a node/test job
+func convertTestJob(step *circle.Custom) *harness.Step {
+	var steps []*harness.Step
+	steps = append(steps, convertInstallCmd(step))
+	steps = append(steps, convertTestCmd(step))
 	return &harness.Step{
-		Name: "install_packages",
-		Type: "script",
-		Spec: &harness.StepExec{
-			Run: "npm install",
+		Name: "test",
+		Type: "group",
+		Spec: &harness.StepGroup{
+			Steps: steps,
 		},
 	}
 }
 
 // helper function converts a node/test
-// orb to a run step.
+// command to a run step.
 //
 // https://github.com/CircleCI-Public/node-orb/blob/master/src/jobs/test.yml
-func convertTest(step *circle.Custom) *harness.Step {
+func convertTestCmd(step *circle.Custom) *harness.Step {
 	cmd := "test"
 	run := "npm %s"
 
@@ -75,10 +69,68 @@ func convertTest(step *circle.Custom) *harness.Step {
 	}
 
 	return &harness.Step{
-		Name: "test",
+		Name: "run_tests",
 		Type: "script",
 		Spec: &harness.StepExec{
 			Run: fmt.Sprintf(run, cmd),
+		},
+	}
+}
+
+// helper function converts a node/test job
+func convertRunJob(step *circle.Custom) *harness.Step {
+	var steps []*harness.Step
+	steps = append(steps, convertInstallCmd(step))
+	steps = append(steps, convertRunCmd(step))
+	return &harness.Step{
+		Name: "test",
+		Type: "group",
+		Spec: &harness.StepGroup{
+			Steps: steps,
+		},
+	}
+}
+
+// helper function converts a node/run
+// orb to a run step.
+func convertRunCmd(step *circle.Custom) *harness.Step {
+	manager := "npm"
+	command := "ci"
+	if s := step.Params["yarn-run"].(string); s != "" {
+		manager = "yarn"
+		command = s
+	}
+	if s := step.Params["npm-run"].(string); s != "" {
+		manager = "npm"
+		command = s
+	}
+	return &harness.Step{
+		Name: fmt.Sprintf("%s_run", manager),
+		Type: "script",
+		Spec: &harness.StepExec{
+			Run: fmt.Sprintf("%s run %s", manager, command),
+		},
+	}
+}
+
+// helper function converts a node/install-packages
+// command to a run step.
+func convertInstallCmd(step *circle.Custom) *harness.Step {
+	if step.Params["install-yarn"] == true ||
+		step.Params["pkg-manager"] == "yarn" {
+		return &harness.Step{
+			Name: "install_packages",
+			Type: "script",
+			Spec: &harness.StepExec{
+				Run: "yarn install",
+			},
+		}
+	}
+	return &harness.Step{
+		Name: "install_packages",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Run: "npm install",
 		},
 	}
 }

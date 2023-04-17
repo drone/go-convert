@@ -66,3 +66,18 @@ func optimizeCache(stage *harness.StageCI) {
 		Paths:   save.With["mount"].(circle.Stringorslice),
 	}
 }
+
+// this is a helper function that optimizes stages that
+// have a single group step.
+func optimizeGroup(stage *harness.StageCI) {
+	if len(stage.Steps) != 1 {
+		return
+	}
+	step := stage.Steps[0]
+	if step.Spec == nil {
+		return // should never happen
+	}
+	if group, ok := step.Spec.(*harness.StepGroup); ok {
+		stage.Steps = group.Steps
+	}
+}

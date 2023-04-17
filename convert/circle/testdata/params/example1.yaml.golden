@@ -10,10 +10,7 @@ stages:
       type: cloud
       spec: {}
     steps:
-    - type: group
+    - type: script
       spec:
-        steps:
-        - type: script
-          spec:
-            image: cimg/base:stable
-            run: echo "Hello My-Name"
+        image: cimg/base:stable
+        run: echo "Hello My-Name"

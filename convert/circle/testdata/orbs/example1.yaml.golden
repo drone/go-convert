@@ -10,7 +10,11 @@ stages:
       type: cloud
       spec: {}
     steps:
-    - name: test
+    - name: install_packages
+      type: script
+      spec:
+        run: npm install
+    - name: run_tests
       type: script
       spec:
         run: npm test

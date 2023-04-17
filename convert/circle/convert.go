@@ -297,6 +297,7 @@ func (d *Converter) convertStage(job *circle.Job, config *circle.Config) *harnes
 	// TODO job.parameters
 
 	optimizeCache(spec)
+	optimizeGroup(spec)
 
 	// create the stage
 	stage := &harness.Stage{}
