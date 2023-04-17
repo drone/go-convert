@@ -43,7 +43,7 @@ func Convert(command string, step *circle.Custom) *harness.Step {
 // orb to a run step.
 func convertRspecTest(step *circle.Custom) *harness.Step {
 	outpath := "/tmp/test-results/rspec"
-	if s := step.Params["path"].(string); s != "" {
+	if s, _ := step.Params["path"].(string); s != "" {
 		outpath = s
 	}
 
@@ -70,13 +70,13 @@ func convertInstallDeps(step *circle.Custom) *harness.Step {
 	path := "./vendor/bundle"
 	clean := false
 	gemfile := "Gemfile"
-	if s := step.Params["path"].(string); s != "" {
+	if s, _ := step.Params["path"].(string); s != "" {
 		path = s
 	}
-	if s := step.Params["gemfile"].(string); s != "" {
+	if s, _ := step.Params["gemfile"].(string); s != "" {
 		gemfile = s
 	}
-	if s := step.Params["clean-bundle"].(bool); s {
+	if s, _ := step.Params["clean-bundle"].(bool); s {
 		clean = s
 	}
 
@@ -111,13 +111,13 @@ func convertRubocopCheck(step *circle.Custom) *harness.Step {
 	outpath := "/tmp/rubocop-results"
 	parallel := false
 
-	if s := step.Params["check-path"].(string); s != "" {
+	if s, _ := step.Params["check-path"].(string); s != "" {
 		checkpath = s
 	}
-	if s := step.Params["out-path"].(string); s != "" {
+	if s, _ := step.Params["out-path"].(string); s != "" {
 		outpath = s
 	}
-	if s := step.Params["parallel"].(bool); s {
+	if s, _ := step.Params["parallel"].(bool); s {
 		parallel = s
 	}
 

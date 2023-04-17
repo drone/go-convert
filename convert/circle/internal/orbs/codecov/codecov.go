@@ -38,7 +38,7 @@ func convertUpload(step *circle.Custom) *harness.Step {
 		token = s
 	}
 	name := "$DRONE_BUILD_NUMBER"
-	if s := step.Params["upload_name"].(string); s != "" {
+	if s, _ := step.Params["upload_name"].(string); s != "" {
 		name = s
 	}
 
@@ -49,7 +49,7 @@ func convertUpload(step *circle.Custom) *harness.Step {
 	}
 
 	return &harness.Step{
-		Name: "rubocop_check",
+		Name: "codecov",
 		Type: "script",
 		Spec: &harness.StepExec{
 			Run: strings.Join(parts, "\n"),

@@ -19,6 +19,7 @@ import (
 	harness "github.com/drone/spec/dist/go"
 
 	"github.com/drone/go-convert/convert/circle/internal/orbs/codecov"
+	"github.com/drone/go-convert/convert/circle/internal/orbs/golang"
 	"github.com/drone/go-convert/convert/circle/internal/orbs/node"
 	"github.com/drone/go-convert/convert/circle/internal/orbs/ruby"
 	"github.com/drone/go-convert/convert/circle/internal/orbs/slack"
@@ -29,6 +30,8 @@ func Convert(name, command string, step *circle.Custom) *harness.Step {
 	switch name {
 	case "codecov/codecov":
 		return codecov.Convert(command, step)
+	case "circleci/go":
+		return golang.Convert(command, step)
 	case "circleci/node":
 		return node.Convert(command, step)
 	case "circleci/ruby":

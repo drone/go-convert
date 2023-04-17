@@ -96,11 +96,11 @@ func convertRunJob(step *circle.Custom) *harness.Step {
 func convertRunCmd(step *circle.Custom) *harness.Step {
 	manager := "npm"
 	command := "ci"
-	if s := step.Params["yarn-run"].(string); s != "" {
+	if s, _ := step.Params["yarn-run"].(string); s != "" {
 		manager = "yarn"
 		command = s
 	}
-	if s := step.Params["npm-run"].(string); s != "" {
+	if s, _ := step.Params["npm-run"].(string); s != "" {
 		manager = "npm"
 		command = s
 	}
