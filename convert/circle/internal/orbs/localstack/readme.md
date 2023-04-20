@@ -1,1 +1,0 @@
-https://circleci.com/developer/orbs/orb/localstack/platform

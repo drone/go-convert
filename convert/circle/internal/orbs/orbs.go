@@ -21,6 +21,7 @@ import (
 	"github.com/drone/go-convert/convert/circle/internal/orbs/codecov"
 	"github.com/drone/go-convert/convert/circle/internal/orbs/coveralls"
 	"github.com/drone/go-convert/convert/circle/internal/orbs/golang"
+	"github.com/drone/go-convert/convert/circle/internal/orbs/localstack"
 	"github.com/drone/go-convert/convert/circle/internal/orbs/node"
 	"github.com/drone/go-convert/convert/circle/internal/orbs/ruby"
 	"github.com/drone/go-convert/convert/circle/internal/orbs/slack"
@@ -41,6 +42,8 @@ func Convert(name, command string, step *circle.Custom) *harness.Step {
 		return ruby.Convert(command, step)
 	case "circleci/slack":
 		return slack.Convert(command, step)
+	case "localstack/platform":
+		return localstack.Convert(command, step)
 	default:
 		return nil
 	}
