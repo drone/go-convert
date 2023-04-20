@@ -34,7 +34,7 @@ func Convert(command string, step *circle.Custom) *harness.Step {
 
 func convertUpload(step *circle.Custom) *harness.Step {
 	token := ""
-	if s := step.Params["token"].(string); s != "" {
+	if s, _ := step.Params["token"].(string); s != "" {
 		token = s
 	}
 	name := "$DRONE_BUILD_NUMBER"
