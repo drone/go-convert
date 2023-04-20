@@ -78,3 +78,9 @@ func TestUploadParams(t *testing.T) {
 		t.Log(diff)
 	}
 }
+
+func TestUnknownCommand(t *testing.T) {
+	if Convert("unknown", nil) != nil {
+		t.Errorf("Expect unknown command returns nil step")
+	}
+}
