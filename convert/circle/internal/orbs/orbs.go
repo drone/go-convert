@@ -24,6 +24,7 @@ import (
 	"github.com/drone/go-convert/convert/circle/internal/orbs/localstack"
 	"github.com/drone/go-convert/convert/circle/internal/orbs/node"
 	"github.com/drone/go-convert/convert/circle/internal/orbs/ruby"
+	"github.com/drone/go-convert/convert/circle/internal/orbs/saucelabs"
 	"github.com/drone/go-convert/convert/circle/internal/orbs/slack"
 )
 
@@ -44,6 +45,8 @@ func Convert(name, command string, step *circle.Custom) *harness.Step {
 		return slack.Convert(command, step)
 	case "localstack/platform":
 		return localstack.Convert(command, step)
+	case "saucelabs/saucectl-run":
+		return saucelabs.Convert(command, step)
 	default:
 		return nil
 	}
