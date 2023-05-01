@@ -76,7 +76,7 @@ func New(options ...Option) *Downgrader {
 		d.pipelineOrg = "default"
 	}
 
-	// set the default pipeline org.
+	// set the default pipeline project.
 	if d.pipelineProj == "" {
 		d.pipelineProj = "default"
 	}
@@ -123,8 +123,8 @@ func (d *Downgrader) downgrade(src *v1.Pipeline) ([]byte, error) {
 	config := new(v0.Config)
 	config.Pipeline.ID = d.pipelineId
 	config.Pipeline.Name = d.pipelineName
-	config.Pipeline.Org = d.pipelineOrg
-	config.Pipeline.Project = d.pipelineProj
+	config.Pipeline.Org = slug.Create(d.pipelineOrg)
+	config.Pipeline.Project = slug.Create(d.pipelineProj)
 	config.Pipeline.Props.CI.Codebase = v0.Codebase{
 		Name:  d.codebaseName,
 		Conn:  d.codebaseConn,
