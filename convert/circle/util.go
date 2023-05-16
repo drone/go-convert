@@ -87,7 +87,7 @@ func extractDocker(job *circle.Job, config *circle.Config) *circle.Docker {
 	// use the first docker container as the execution
 	// container.
 	if executor != nil && len(executor.Docker) != 0 {
-		return job.Docker[0]
+		return executor.Docker[0]
 	}
 	return nil
 }
