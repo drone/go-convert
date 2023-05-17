@@ -45,6 +45,12 @@ type Downgrader struct {
 	identifiers   *store.Identifiers
 }
 
+var eventMap = map[string]string{
+	"pull_request": "PR",
+	"push":         "PUSH",
+	"tag":          "refs/tags/.*",
+}
+
 // New creates a new Downgrader that downgrades pipelines
 // from the v0 harness configuration format to the v1
 // configuration format.
@@ -616,14 +622,22 @@ func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 				if v.In != nil {
 					var eventConditions []string
 					for _, event := range v.In {
-						eventConditions = append(eventConditions, fmt.Sprintf("<+trigger.event> == %q", event))
+						harnessEvent, ok := eventMap[event]
+						if !ok {
+							continue
+						}
+						eventConditions = append(eventConditions, fmt.Sprintf("<+trigger.event> == %q", harnessEvent))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(eventConditions, " || ")))
 				}
 				if v.Not != nil && v.Not.In != nil {
 					var notEventConditions []string
 					for _, event := range v.Not.In {
-						notEventConditions = append(notEventConditions, fmt.Sprintf("<+trigger.event> != %q", event))
+						harnessEvent, ok := eventMap[event]
+						if !ok {
+							continue
+						}
+						notEventConditions = append(notEventConditions, fmt.Sprintf("<+trigger.event> != %q", harnessEvent))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notEventConditions, " && ")))
 				}
@@ -711,14 +725,22 @@ func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
 				if v.In != nil {
 					var eventConditions []string
 					for _, event := range v.In {
-						eventConditions = append(eventConditions, fmt.Sprintf("<+trigger.event> == %q", event))
+						harnessEvent, ok := eventMap[event]
+						if !ok {
+							continue
+						}
+						eventConditions = append(eventConditions, fmt.Sprintf("<+trigger.event> == %q", harnessEvent))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(eventConditions, " || ")))
 				}
 				if v.Not != nil && v.Not.In != nil {
 					var notEventConditions []string
 					for _, event := range v.Not.In {
-						notEventConditions = append(notEventConditions, fmt.Sprintf("<+trigger.event> != %q", event))
+						harnessEvent, ok := eventMap[event]
+						if !ok {
+							continue
+						}
+						notEventConditions = append(notEventConditions, fmt.Sprintf("<+trigger.event> != %q", harnessEvent))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notEventConditions, " && ")))
 				}
