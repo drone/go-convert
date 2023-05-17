@@ -60,7 +60,7 @@ var eventMap = map[string]map[string]string{
 	},
 	"tag": {
 		"jexl":            "<+trigger.payload.ref>",
-		"event":           "refs/tags/.*",
+		"event":           "refs/tags/",
 		"operator":        "=^",
 		"inverseOperator": "!^",
 	},
