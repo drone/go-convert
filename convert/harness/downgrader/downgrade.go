@@ -45,6 +45,27 @@ type Downgrader struct {
 	identifiers   *store.Identifiers
 }
 
+var eventMap = map[string]map[string]string{
+	"pull_request": {
+		"jexl":            "<+trigger.event>",
+		"event":           "PR",
+		"operator":        "==",
+		"inverseOperator": "!=",
+	},
+	"push": {
+		"jexl":            "<+trigger.event>",
+		"event":           "PUSH",
+		"operator":        "==",
+		"inverseOperator": "!=",
+	},
+	"tag": {
+		"jexl":            "<+trigger.payload.ref>",
+		"event":           "refs/tags/",
+		"operator":        "=^",
+		"inverseOperator": "!^",
+	},
+}
+
 // New creates a new Downgrader that downgrades pipelines
 // from the v0 harness configuration format to the v1
 // configuration format.
@@ -616,16 +637,28 @@ func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 				if v.In != nil {
 					var eventConditions []string
 					for _, event := range v.In {
-						eventConditions = append(eventConditions, fmt.Sprintf("<+trigger.event> == %q", event))
+						eventMapping, ok := eventMap[event]
+						if !ok {
+							continue
+						}
+						eventConditions = append(eventConditions, fmt.Sprintf("%s %s %q", eventMapping["jexl"], eventMapping["operator"], eventMapping["event"]))
 					}
-					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(eventConditions, " || ")))
+					if len(eventConditions) > 0 {
+						conditions = append(conditions, fmt.Sprintf("(%s)", strings.Join(eventConditions, " || ")))
+					}
 				}
 				if v.Not != nil && v.Not.In != nil {
 					var notEventConditions []string
 					for _, event := range v.Not.In {
-						notEventConditions = append(notEventConditions, fmt.Sprintf("<+trigger.event> != %q", event))
+						eventMapping, ok := eventMap[event]
+						if !ok {
+							continue
+						}
+						notEventConditions = append(notEventConditions, fmt.Sprintf("%s %s %q", eventMapping["jexl"], eventMapping["inverseOperator"], eventMapping["event"]))
 					}
-					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notEventConditions, " && ")))
+					if len(notEventConditions) > 0 {
+						conditions = append(conditions, fmt.Sprintf("(%s)", strings.Join(notEventConditions, " && ")))
+					}
 				}
 			case "status":
 				if v.Eq != "" {
@@ -711,16 +744,28 @@ func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
 				if v.In != nil {
 					var eventConditions []string
 					for _, event := range v.In {
-						eventConditions = append(eventConditions, fmt.Sprintf("<+trigger.event> == %q", event))
+						eventMapping, ok := eventMap[event]
+						if !ok {
+							continue
+						}
+						eventConditions = append(eventConditions, fmt.Sprintf("%s %s %q", eventMapping["jexl"], eventMapping["operator"], eventMapping["event"]))
 					}
-					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(eventConditions, " || ")))
+					if len(eventConditions) > 0 {
+						conditions = append(conditions, fmt.Sprintf("(%s)", strings.Join(eventConditions, " || ")))
+					}
 				}
 				if v.Not != nil && v.Not.In != nil {
 					var notEventConditions []string
 					for _, event := range v.Not.In {
-						notEventConditions = append(notEventConditions, fmt.Sprintf("<+trigger.event> != %q", event))
+						eventMapping, ok := eventMap[event]
+						if !ok {
+							continue
+						}
+						notEventConditions = append(notEventConditions, fmt.Sprintf("%s %s %q", eventMapping["jexl"], eventMapping["inverseOperator"], eventMapping["event"]))
 					}
-					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notEventConditions, " && ")))
+					if len(notEventConditions) > 0 {
+						conditions = append(conditions, fmt.Sprintf("(%s)", strings.Join(notEventConditions, " && ")))
+					}
 				}
 			case "status":
 				if v.Eq != "" {

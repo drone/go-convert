@@ -1,0 +1,49 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: default
+      name: default
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - step:
+              identifier: build
+              name: build
+              spec:
+                command: |-
+                  go build
+                  go test
+                image: golang:1.16
+              timeout: ""
+              type: Run
+          - step:
+              identifier: publish
+              name: publish
+              spec:
+                image: plugins/docker
+                settings:
+                  password: <+ secrets.getValue("docker_password") >
+                  repo: octocat/hello-world
+                  tags: '[latest 1 1.1 1.1.1]'
+                  username: <+ secrets.getValue("docker_username") >
+              timeout: ""
+              type: Plugin
+              when:
+                condition: (<+trigger.event> != "PR")
+                stageStatus: Success
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI
