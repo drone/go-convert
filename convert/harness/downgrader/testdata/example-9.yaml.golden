@@ -38,7 +38,7 @@ pipeline:
               timeout: ""
               type: Plugin
               when:
-                condition: <+trigger.event> != "PR"
+                condition: (<+trigger.event> != "PR")
                 stageStatus: Success
         platform:
           arch: Amd64

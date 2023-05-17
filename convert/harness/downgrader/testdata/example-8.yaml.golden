@@ -38,7 +38,8 @@ pipeline:
               timeout: ""
               type: Plugin
               when:
-                condition: <+trigger.event> == "PUSH" || <+trigger.event> == "refs/tags/.*"
+                condition: (<+trigger.event> == "PUSH" || <+trigger.payload.ref> =^
+                  "refs/tags/.*")
                 stageStatus: Success
         platform:
           arch: Amd64
