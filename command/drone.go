@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/drone/go-convert/convert/drone"
 	"github.com/drone/go-convert/convert/harness/downgrader"
@@ -37,6 +38,7 @@ type Drone struct {
 	kubeName   string
 	kubeConn   string
 	dockerConn string
+	orgSecrets string
 
 	downgrade   bool
 	beforeAfter bool
@@ -61,6 +63,7 @@ func (c *Drone) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.kubeConn, "kube-connector", "", "kubernetes connector")
 	f.StringVar(&c.kubeName, "kube-namespace", "", "kubernets namespace")
 	f.StringVar(&c.dockerConn, "docker-connector", "", "dockerhub connector")
+	f.StringVar(&c.orgSecrets, "org-secrets", "", "organization secrets, comma separated")
 }
 
 func (c *Drone) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
@@ -70,6 +73,11 @@ func (c *Drone) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) su
 	// a command line arg, assume the default path.
 	if path == "" {
 		path = ".drone.yml"
+	}
+
+	var orgSecrets []string
+	if c.orgSecrets != "" {
+		orgSecrets = strings.Split(c.orgSecrets, ",")
 	}
 
 	// open the drone yaml
@@ -84,6 +92,7 @@ func (c *Drone) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) su
 	converter := drone.New(
 		drone.WithDockerhub(c.dockerConn),
 		drone.WithKubernetes(c.kubeName, c.kubeConn),
+		drone.WithOrgSecrets(orgSecrets...),
 	)
 	after, err := converter.ConvertBytes(before)
 	if err != nil {

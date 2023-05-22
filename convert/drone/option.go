@@ -33,3 +33,10 @@ func WithKubernetes(namespace, connector string) Option {
 		d.kubeConnector = connector
 	}
 }
+
+// WithOrgSecrets returns an option to set org secrets.
+func WithOrgSecrets(secrets ...string) Option {
+	return func(d *Converter) {
+		d.orgSecrets = secrets
+	}
+}
