@@ -237,7 +237,7 @@ func convertPlugin(src *v1.Step, orgSecrets []string) *v2.Step {
 			Pull:       convertPull(src.Pull),
 			User:       src.User,
 			Envs:       convertVariables(src.Environment, orgSecrets),
-			With:       convertSettings(src.Settings),
+			With:       convertSettings(src.Settings, orgSecrets),
 			Resources:  convertResourceLimits(&src.Resource),
 			// Volumes       // FIX
 		},
@@ -391,12 +391,22 @@ func convertMounts(src []*v1.VolumeMount) []*v2.Mount {
 	return dst
 }
 
-func convertSettings(src map[string]*v1.Parameter) map[string]interface{} {
+func convertSettings(src map[string]*v1.Parameter, orgSecrets []string) map[string]interface{} {
 	dst := map[string]interface{}{}
+
+	orgSecretsMap := make(map[string]bool, len(orgSecrets))
+	for _, secret := range orgSecrets {
+		orgSecretsMap[secret] = true
+	}
+
 	for k, v := range src {
 		switch {
 		case v.Secret != "":
-			dst[k] = fmt.Sprintf("<+ secrets.getValue(%q) >", v.Secret)
+			secretID := v.Secret
+			if _, exists := orgSecretsMap[secretID]; exists {
+				secretID = "org." + secretID
+			}
+			dst[k] = fmt.Sprintf("<+ secrets.getValue(%q) >", secretID)
 		case v.Value != nil:
 			dst[k] = v.Value
 		}
