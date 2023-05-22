@@ -32,8 +32,14 @@ func TestConvert(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test, func(t *testing.T) {
+			orgSecrets := []string{
+				"FIRST_ORG_SECRET",
+				"SECOND_ORG_SECRET",
+			}
 			// convert the yaml file from drone to harness
-			converter := New()
+			converter := New(
+				WithOrgSecrets(orgSecrets...),
+			)
 			tmp1, err := converter.ConvertFile(test)
 			if err != nil {
 				t.Error(err)
