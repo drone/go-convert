@@ -8,6 +8,9 @@ clone:
 steps:
 - name: test-step-1
   image: golang
+  environment:
+    MY_PASSWORD:
+      from_secret: SECOND_ORG_SECRET
   commands:
   - go build
   - go test
