@@ -43,6 +43,7 @@ type Converter struct {
 	kubeConnector string
 	dockerhubConn string
 	identifiers   *store.Identifiers
+	orgSecrets    []string
 }
 
 // New creates a new Converter that converts a Drone
@@ -145,7 +146,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 					Envs:     copyenv(from.Environment),
 					Platform: convertPlatform(from.Platform),
 					Runtime:  convertRuntime(from),
-					Steps:    convertSteps(from),
+					Steps:    convertSteps(from, d.orgSecrets),
 					Volumes:  convertVolumes(from.Volumes),
 
 					// TODO support for delegate.selectors from from.Node
@@ -202,29 +203,29 @@ func convertRegistry(src []*v1.Pipeline) *v2.Registry {
 	return dst
 }
 
-func convertSteps(src *v1.Pipeline) []*v2.Step {
+func convertSteps(src *v1.Pipeline, orgSecrets []string) []*v2.Step {
 	var dst []*v2.Step
 	for _, v := range src.Services {
 		if v != nil {
-			dst = append(dst, convertBackground(v))
+			dst = append(dst, convertBackground(v, orgSecrets))
 		}
 	}
 	for _, v := range src.Steps {
 		if v != nil {
 			switch {
 			case v.Detach:
-				dst = append(dst, convertBackground(v))
+				dst = append(dst, convertBackground(v, orgSecrets))
 			case isPlugin(v):
-				dst = append(dst, convertPlugin(v))
+				dst = append(dst, convertPlugin(v, orgSecrets))
 			default:
-				dst = append(dst, convertRun(v))
+				dst = append(dst, convertRun(v, orgSecrets))
 			}
 		}
 	}
 	return dst
 }
 
-func convertPlugin(src *v1.Step) *v2.Step {
+func convertPlugin(src *v1.Step, orgSecrets []string) *v2.Step {
 	return &v2.Step{
 		Name: src.Name,
 		Type: "plugin",
@@ -235,7 +236,7 @@ func convertPlugin(src *v1.Step) *v2.Step {
 			Privileged: src.Privileged,
 			Pull:       convertPull(src.Pull),
 			User:       src.User,
-			Envs:       convertVariables(src.Environment),
+			Envs:       convertVariables(src.Environment, orgSecrets),
 			With:       convertSettings(src.Settings),
 			Resources:  convertResourceLimits(&src.Resource),
 			// Volumes       // FIX
@@ -243,7 +244,7 @@ func convertPlugin(src *v1.Step) *v2.Step {
 	}
 }
 
-func convertBackground(src *v1.Step) *v2.Step {
+func convertBackground(src *v1.Step, orgSecrets []string) *v2.Step {
 	return &v2.Step{
 		Name: src.Name,
 		Type: "background",
@@ -258,14 +259,14 @@ func convertBackground(src *v1.Step) *v2.Step {
 			Entrypoint: convertEntrypoint(src.Entrypoint),
 			Args:       convertArgs(src.Entrypoint, src.Command),
 			Run:        convertScript(src.Commands),
-			Envs:       convertVariables(src.Environment),
+			Envs:       convertVariables(src.Environment, orgSecrets),
 			Resources:  convertResourceLimits(&src.Resource),
 			// Volumes       // FIX
 		},
 	}
 }
 
-func convertRun(src *v1.Step) *v2.Step {
+func convertRun(src *v1.Step, orgSecrets []string) *v2.Step {
 	return &v2.Step{
 		Name: src.Name,
 		Type: "script",
@@ -280,7 +281,7 @@ func convertRun(src *v1.Step) *v2.Step {
 			Entrypoint: convertEntrypoint(src.Entrypoint),
 			Args:       convertArgs(src.Entrypoint, src.Command),
 			Run:        convertScript(src.Commands),
-			Envs:       convertVariables(src.Environment),
+			Envs:       convertVariables(src.Environment, orgSecrets),
 			Resources:  convertResourceLimits(&src.Resource),
 			// Volumes       // FIX
 		},
@@ -319,14 +320,24 @@ func convertEntrypoint(src []string) string {
 	}
 }
 
-func convertVariables(src map[string]*v1.Variable) map[string]string {
+func convertVariables(src map[string]*v1.Variable, orgSecrets []string) map[string]string {
 	dst := map[string]string{}
+
+	orgSecretsMap := make(map[string]bool, len(orgSecrets))
+	for _, secret := range orgSecrets {
+		orgSecretsMap[secret] = true
+	}
+
 	for k, v := range src {
 		switch {
 		case v.Value != "":
 			dst[k] = v.Value
 		case v.Secret != "":
-			dst[k] = fmt.Sprintf("<+ secrets.getValue(%q) >", v.Secret) // TODO figure out secret syntax
+			secretID := v.Secret
+			if _, exists := orgSecretsMap[secretID]; exists {
+				secretID = "org." + secretID
+			}
+			dst[k] = fmt.Sprintf("<+ secrets.getValue(%q) >", secretID) // TODO figure out secret syntax
 		}
 	}
 	return dst
