@@ -569,6 +569,11 @@ func (d *Converter) convertCommand(step *circle.Step, job *circle.Job, config *c
 		return nil
 	}
 
+	// If there is only one step, return it directly instead of creating a group
+	if len(steps) == 1 {
+		return steps[0]
+	}
+
 	// return a step group
 	return &harness.Step{
 		Type: "group",

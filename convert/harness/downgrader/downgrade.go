@@ -45,6 +45,8 @@ type Downgrader struct {
 	identifiers   *store.Identifiers
 }
 
+const MaxDepth = 100
+
 var eventMap = map[string]map[string]string{
 	"pull_request": {
 		"jexl":            "<+trigger.event>",
@@ -203,7 +205,7 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		// the group directly to the stage to emulate
 		// this behavior.
 		if _, ok := v.Spec.(*v1.StepGroup); ok {
-			steps = append(steps, d.convertStepGroup(v, stageEnv)...)
+			steps = append(steps, d.convertStepGroup(v, stageEnv, 10)...)
 
 		} else {
 			// else convert the step and append to
@@ -379,13 +381,22 @@ func (d *Downgrader) convertStep(src *v1.Step, stageEnv map[string]string) *v0.S
 // helper function to convert a Group step from the v1
 // structure to a list of steps. The v0 yaml does not have
 // an equivalent to the group step.
-func (d *Downgrader) convertStepGroup(src *v1.Step, stageEnv map[string]string) []*v0.Steps {
+func (d *Downgrader) convertStepGroup(src *v1.Step, stageEnv map[string]string, depth int) []*v0.Steps {
+	if depth > MaxDepth {
+		return nil // Reached maximum depth. Stop recursion to prevent stack overflow
+	}
 	spec_ := src.Spec.(*v1.StepGroup)
 
 	var steps []*v0.Steps
 	for _, step := range spec_.Steps {
-		dst := d.convertStep(step, stageEnv)
-		steps = append(steps, &v0.Steps{Step: dst.Step})
+		// If this step is a step group, recursively convert it
+		if _, ok := step.Spec.(*v1.StepGroup); ok {
+			steps = append(steps, d.convertStepGroup(step, stageEnv, depth+1)...)
+		} else {
+			// Else, convert the step
+			dst := d.convertStep(step, stageEnv)
+			steps = append(steps, &v0.Steps{Step: dst.Step})
+		}
 	}
 	return steps
 }

@@ -96,10 +96,37 @@ func normalizeMap(m map[string]interface{}) map[string]interface{} {
 				normalizedMap[fmt.Sprintf("%v", k)] = v
 			}
 			normalized[k] = normalizeMap(normalizedMap)
+		case []interface{}:
+			normalized[k] = normalizeSlice(t)
 		default:
 			normalized[k] = v
 		}
 	}
 
 	return normalized
+}
+
+func normalizeSlice(s []interface{}) []interface{} {
+	for i, v := range s {
+		if m, ok := v.(map[string]interface{}); ok {
+			s[i] = normalizeMap(m)
+		}
+	}
+	sort.SliceStable(s, func(i, j int) bool {
+		mi, oki := s[i].(map[string]interface{})
+		mj, okj := s[j].(map[string]interface{})
+		if !oki || !okj {
+			// At least one of the values is not a map, so don't attempt to sort
+			return false
+		}
+		ni, inj := mi["name"].(string)
+		nj, inj := mj["name"].(string)
+		if inj {
+			// Both maps have a string name field, so sort by these
+			return ni < nj
+		}
+		// At least one map doesn't have a string name field, so don't attempt to sort
+		return false
+	})
+	return s
 }

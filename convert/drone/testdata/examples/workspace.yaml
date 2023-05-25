@@ -1,0 +1,9 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: workspace
+  image: busybox
+  commands:
+  - ls /drone/src

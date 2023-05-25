@@ -167,6 +167,9 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	// TODO this will probably require some tweaking.
 	out = bytes.ReplaceAll(out, []byte(`\\\\`), []byte(`\\`))
 
+	// Replace all occurrences of /drone/src with /harness
+	out = bytes.ReplaceAll(out, []byte("/drone/src"), []byte("/harness"))
+
 	return out, nil
 }
 
