@@ -1,0 +1,10 @@
+---
+kind: pipeline
+name: default
+
+workspace:
+  path: /drone/src
+
+steps:
+- name: test
+  image: docker:dind
