@@ -411,10 +411,30 @@ func convertSettings(src map[string]*v1.Parameter, orgSecrets []string) map[stri
 			}
 			dst[k] = fmt.Sprintf("<+ secrets.getValue(%q) >", secretID)
 		case v.Value != nil:
-			dst[k] = v.Value
+			dst[k] = convertInterface(v.Value)
 		}
 	}
 	return dst
+}
+
+func convertInterface(i interface{}) interface{} {
+	switch v := i.(type) {
+	case map[interface{}]interface{}:
+		newMap := make(map[string]interface{})
+		for key, value := range v {
+			keyStr, ok := key.(string)
+			if !ok {
+				continue
+			}
+			newMap[keyStr] = convertInterface(value)
+		}
+		return newMap
+	case []interface{}:
+		for i, value := range v {
+			v[i] = convertInterface(value)
+		}
+	}
+	return i
 }
 
 func convertScript(src []string) string {
