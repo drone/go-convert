@@ -152,7 +152,18 @@ func convertMatrix(job *circle.Job, matrix *circle.Matrix) *harness.Strategy {
 	for _, exclude := range matrix.Exclude {
 		m := map[string]string{}
 		for name, param := range exclude {
-			m[name] = fmt.Sprint(param)
+			// Convert parameters to a string
+			// and concatenate if they form a list
+			switch v := param.(type) {
+			case []interface{}:
+				var items []string
+				for _, item := range v {
+					items = append(items, fmt.Sprint(item))
+				}
+				m[name] = strings.Join(items, ",")
+			default:
+				m[name] = fmt.Sprint(param)
+			}
 		}
 		spec.Exclude = append(spec.Exclude, m)
 	}
