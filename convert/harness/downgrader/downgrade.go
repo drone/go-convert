@@ -311,9 +311,11 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 }
 
 // convertStrategy converts the v1.Strategy to the v0.Strategy
-func convertStrategy(v1Strategy *v1.Strategy) v0.Strategy {
+func convertStrategy(v1Strategy *v1.Strategy) *v0.Strategy {
+	if v1Strategy == nil {
+		return nil
+	}
 	v0Strategy := v0.Strategy{}
-
 	switch v1Strategy.Type {
 	case "matrix":
 		v0Matrix := convertMatrix(v1Strategy.Spec.(*v1.Matrix))
@@ -321,7 +323,7 @@ func convertStrategy(v1Strategy *v1.Strategy) v0.Strategy {
 	default:
 	}
 
-	return v0Strategy
+	return &v0Strategy
 }
 
 // convertMatrix converts the v1.Matrix to the v0.Matrix

@@ -29,7 +29,7 @@ type (
 		Type        string      `json:"type,omitempty"         yaml:"type,omitempty"`
 		Vars        []*Variable `json:"variables,omitempty"    yaml:"variables,omitempty"`
 		When        *StageWhen  `json:"when,omitempty"         yaml:"when,omitempty"`
-		Strategy    Strategy    `json:"strategy,omitempty"        yaml:"strategy,omitempty"`
+		Strategy    *Strategy   `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
 	}
 
 	// StageApproval defines an approval stage.
