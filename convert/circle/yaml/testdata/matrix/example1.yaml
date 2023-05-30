@@ -41,6 +41,3 @@ workflows:
             parameters:
               os: [docker, linux, macos]
               node-version: ["14.17.6", "16.9.0"]
-            exclude:
-              - os: [macos, linux]
-              - node-version: ["14.17.6"]
