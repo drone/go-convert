@@ -305,8 +305,53 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 				Steps: steps,
 			},
 		},
-		When: convertStageWhen(stage.When, ""),
+		When:     convertStageWhen(stage.When, ""),
+		Strategy: convertStrategy(stage.Strategy),
 	}
+}
+
+// convertStrategy converts the v1.Strategy to the v0.Strategy
+func convertStrategy(v1Strategy *v1.Strategy) *v0.Strategy {
+	if v1Strategy == nil {
+		return nil
+	}
+	v0Strategy := v0.Strategy{}
+	switch v1Strategy.Type {
+	case "matrix":
+		v0Matrix := convertMatrix(v1Strategy.Spec.(*v1.Matrix))
+		v0Strategy.Matrix = v0Matrix
+	default:
+	}
+
+	return &v0Strategy
+}
+
+// convertMatrix converts the v1.Matrix to the v0.Matrix
+func convertMatrix(v1Matrix *v1.Matrix) map[string]interface{} {
+	matrix := make(map[string]interface{})
+
+	// Convert axis
+	for key, values := range v1Matrix.Axis {
+		matrix[key] = values
+	}
+
+	// Convert exclusions
+	var exclusions []v0.Exclusion
+	for _, v1Exclusion := range v1Matrix.Exclude {
+		exclusion := make(v0.Exclusion)
+		for key, values := range v1Exclusion {
+			exclusion[key] = values
+		}
+		exclusions = append(exclusions, exclusion)
+	}
+	matrix["exclude"] = exclusions
+
+	// Convert maxConcurrency
+	if v1Matrix.Concurrency != 0 {
+		matrix["maxConcurrency"] = v1Matrix.Concurrency
+	}
+
+	return matrix
 }
 
 // helper function converts a drone pipeline step to a

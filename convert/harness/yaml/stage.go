@@ -29,6 +29,7 @@ type (
 		Type        string      `json:"type,omitempty"         yaml:"type,omitempty"`
 		Vars        []*Variable `json:"variables,omitempty"    yaml:"variables,omitempty"`
 		When        *StageWhen  `json:"when,omitempty"         yaml:"when,omitempty"`
+		Strategy    *Strategy   `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
 	}
 
 	// StageApproval defines an approval stage.
@@ -61,6 +62,25 @@ type (
 	StageWhen struct {
 		PipelineStatus string `json:"pipelineStatus,omitempty" yaml:"pipelineStatus,omitempty"`
 		Condition      string `json:"condition,omitempty" yaml:"condition,omitempty"`
+	}
+
+	Strategy struct {
+		Matrix      map[string]interface{} `json:"matrix,omitempty" yaml:"matrix,omitempty"`
+		Parallelism *Parallelism           `json:"parallelism,omitempty" yaml:"parallelism,omitempty"`
+		Repeat      *Repeat                `json:"repeat,omitempty" yaml:"repeat,omitempty"`
+	}
+
+	Exclusion map[string]string
+
+	Parallelism struct {
+		Number         int `yaml:"parallelism"`
+		MaxConcurrency int `yaml:"maxConcurrency"`
+	}
+
+	Repeat struct {
+		Times          int      `yaml:"times,omitempty"`
+		Items          []string `yaml:"items,omitempty"`
+		MaxConcurrency int      `yaml:"maxConcurrency,omitempty"`
 	}
 )
 
