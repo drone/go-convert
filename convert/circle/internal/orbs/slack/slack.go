@@ -34,13 +34,39 @@ func Convert(command string, step *circle.Custom) *harness.Step {
 // helper function converts a slack/notify
 // orb to a run step.
 func convertNotify(step *circle.Custom) *harness.Step {
+	customMessage, _ := step.Params["custom"].(string)
+	channel, _ := step.Params["channel"].(string)
+	if channel == "" {
+		channel = "$SLACK_DEFAULT_CHANNEL"
+	}
+	accessToken, _ := step.Params["access_token"].(string)
+	if accessToken == "" {
+		accessToken = "$SLACK_ACCESS_TOKEN"
+	}
+	mentions, _ := step.Params["mentions"].(string)
+	template, _ := step.Params["template"].(string)
+
+	withMap := map[string]interface{}{
+		"channel":      channel,
+		"access_token": accessToken,
+	}
+
+	if customMessage != "" {
+		withMap["custom_block"] = customMessage
+	}
+	if mentions != "" {
+		withMap["recipient"] = mentions
+	}
+
+	if template != "" {
+		withMap["template"] = template
+	}
+
 	return &harness.Step{
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
 			Image: "plugins/slack",
-			With:  map[string]interface{}{
-				// convert step.Params here
-			},
+			With:  withMap,
 		},
 	}
 }

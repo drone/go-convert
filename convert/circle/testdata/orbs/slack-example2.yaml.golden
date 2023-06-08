@@ -1,0 +1,61 @@
+stages:
+- name: test
+  spec:
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - spec:
+        image: cimg/base:stable
+        run: echo "test my app"
+      type: script
+  type: ci
+- name: slack/on-hold
+  spec:
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - spec:
+        image: plugins/slack
+        with:
+          access_token: $SLACK_ACCESS_TOKEN
+          channel: $SLACK_DEFAULT_CHANNEL
+      type: plugin
+  type: ci
+- name: deploy
+  spec:
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - spec:
+        image: cimg/base:stable
+        run: echo "deploy my app"
+      type: script
+    - spec:
+        image: plugins/slack
+        with:
+          access_token: $SLACK_ACCESS_TOKEN
+          channel: $SLACK_DEFAULT_CHANNEL
+          recipient: '@EngineeringTeam'
+          template: basic_fail_1
+      type: plugin
+    - spec:
+        image: plugins/slack
+        with:
+          access_token: $SLACK_ACCESS_TOKEN
+          channel: $SLACK_DEFAULT_CHANNEL
+          template: success_tagged_deploy_1
+      type: plugin
+  type: ci
+version: 1
