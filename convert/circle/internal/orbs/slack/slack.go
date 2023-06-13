@@ -36,9 +36,6 @@ func Convert(command string, step *circle.Custom) *harness.Step {
 func convertNotify(step *circle.Custom) *harness.Step {
 	customMessage, _ := step.Params["custom"].(string)
 	channel, _ := step.Params["channel"].(string)
-	if channel == "" {
-		channel = "$SLACK_DEFAULT_CHANNEL"
-	}
 	accessToken, _ := step.Params["access_token"].(string)
 	mentions, _ := step.Params["mentions"].(string)
 	template, _ := step.Params["template"].(string)
@@ -58,13 +55,13 @@ func convertNotify(step *circle.Custom) *harness.Step {
 		withMap["message"] = message
 	}
 	if accessToken != "" {
-		withMap["access_token"] = accessToken
+		withMap["access.token"] = accessToken
 	}
 	if webhook != "" {
 		withMap["webhook"] = webhook
 	}
 	if customMessage != "" {
-		withMap["custom_block"] = customMessage
+		withMap["custom.block"] = customMessage
 	}
 	if mentions != "" {
 		withMap["recipient"] = mentions
