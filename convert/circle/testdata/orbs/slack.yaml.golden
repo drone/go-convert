@@ -11,8 +11,7 @@ stages:
     - spec:
         image: plugins/slack
         with:
-          channel: $SLACK_DEFAULT_CHANNEL
-          custom_block: |
+          custom.block: |
             {
               "blocks": [
                 {
@@ -30,3 +29,4 @@ stages:
       type: plugin
   type: ci
 version: 1
+

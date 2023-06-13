@@ -24,6 +24,8 @@ func Convert(command string, step *circle.Custom) *harness.Step {
 	switch command {
 	case "":
 		return nil // not supported
+	case "on-hold":
+		return nil // not supported
 	case "notify":
 		return convertNotify(step)
 	default:

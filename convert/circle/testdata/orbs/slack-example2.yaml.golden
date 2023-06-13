@@ -22,11 +22,10 @@ stages:
       spec: {}
       type: cloud
     steps:
-    - spec:
-        image: plugins/slack
-        with:
-          channel: $SLACK_DEFAULT_CHANNEL
-      type: plugin
+    - name: circleci/slack
+      spec:
+        run: echo unable to convert orb circleci/slack/on-hold
+      type: script
   type: ci
 - name: deploy
   spec:
@@ -44,14 +43,12 @@ stages:
     - spec:
         image: plugins/slack
         with:
-          channel: $SLACK_DEFAULT_CHANNEL
           recipient: '@EngineeringTeam'
           template: basic_fail_1
       type: plugin
     - spec:
         image: plugins/slack
         with:
-          channel: $SLACK_DEFAULT_CHANNEL
           template: success_tagged_deploy_1
       type: plugin
   type: ci
