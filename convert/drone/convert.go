@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"strings"
 
 	v1 "github.com/drone/go-convert/convert/drone/yaml"
@@ -334,16 +335,24 @@ func convertVariables(src map[string]*v1.Variable, orgSecrets []string) map[stri
 	for k, v := range src {
 		switch {
 		case v.Value != "":
-			dst[k] = v.Value
+			dst[sanitizeString(k)] = v.Value
 		case v.Secret != "":
-			secretID := v.Secret
+			secretID := sanitizeString(v.Secret)
 			if _, exists := orgSecretsMap[secretID]; exists {
 				secretID = "org." + secretID
 			}
-			dst[k] = fmt.Sprintf("<+ secrets.getValue(%q) >", secretID) // TODO figure out secret syntax
+			dst[k] = fmt.Sprintf("<+secrets.getValue(%q)>", secretID) // TODO figure out secret syntax
 		}
 	}
 	return dst
+}
+
+func sanitizeString(input string) string {
+	// Regular expression to match all characters that are not a letter, number, or underscore
+	reg, _ := regexp.Compile("[^a-zA-Z0-9_]+")
+
+	sanitized := reg.ReplaceAllString(input, "_")
+	return sanitized
 }
 
 func convertVolumes(src []*v1.Volume) []*v2.Volume {
@@ -405,11 +414,11 @@ func convertSettings(src map[string]*v1.Parameter, orgSecrets []string) map[stri
 	for k, v := range src {
 		switch {
 		case v.Secret != "":
-			secretID := v.Secret
+			secretID := sanitizeString(v.Secret)
 			if _, exists := orgSecretsMap[secretID]; exists {
 				secretID = "org." + secretID
 			}
-			dst[k] = fmt.Sprintf("<+ secrets.getValue(%q) >", secretID)
+			dst[k] = fmt.Sprintf("<+secrets.getValue(%q)>", secretID)
 		case v.Value != nil:
 			dst[k] = convertInterface(v.Value)
 		}

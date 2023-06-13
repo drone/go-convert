@@ -1,0 +1,16 @@
+options: {}
+stages:
+- name: default
+  spec:
+    clone: {}
+    runtime:
+      spec: {}
+      type: machine
+    steps:
+    - name: slack
+      spec:
+        image: plugins/slack
+        with:
+          webhook: <+secrets.getValue("MY_SLACK_WEBHOOK")>
+      type: plugin
+  type: ci

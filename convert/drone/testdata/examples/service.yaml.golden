@@ -15,7 +15,7 @@ stages:
     - name: test-step-1
       spec:
         envs:
-          MY_PASSWORD: <+ secrets.getValue("org.SECOND_ORG_SECRET") >
+          MY_PASSWORD: <+secrets.getValue("org.SECOND_ORG_SECRET")>
         image: golang
         run: |-
           go build
@@ -31,7 +31,7 @@ stages:
         image: plugins/slack
         with:
           channel: test-channel
-          token: <+ secrets.getValue("test-slack-token") >
+          token: <+secrets.getValue("test_slack_token")>
       type: plugin
   type: ci
   when:
