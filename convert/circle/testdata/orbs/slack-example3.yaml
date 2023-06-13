@@ -1,0 +1,21 @@
+version: 2.1
+
+orbs:
+  slack: circleci/slack@4.1
+
+jobs:
+  notify:
+    docker:
+      - image: cimg/base:stable
+    steps:
+    - slack/notify:
+        channel: channel
+        color: '#C02B2B'
+        message: some message
+        webhook: webhook
+workflows:
+  send-notification:
+    jobs:
+      - notify:
+          context: slack-secrets
+

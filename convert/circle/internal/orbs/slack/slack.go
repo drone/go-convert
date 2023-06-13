@@ -24,6 +24,8 @@ func Convert(command string, step *circle.Custom) *harness.Step {
 	switch command {
 	case "":
 		return nil // not supported
+	case "on-hold":
+		return nil // not supported
 	case "notify":
 		return convertNotify(step)
 	default:
@@ -34,13 +36,47 @@ func Convert(command string, step *circle.Custom) *harness.Step {
 // helper function converts a slack/notify
 // orb to a run step.
 func convertNotify(step *circle.Custom) *harness.Step {
+	customMessage, _ := step.Params["custom"].(string)
+	channel, _ := step.Params["channel"].(string)
+	accessToken, _ := step.Params["access_token"].(string)
+	mentions, _ := step.Params["mentions"].(string)
+	template, _ := step.Params["template"].(string)
+	webhook, _ := step.Params["webhook"].(string)
+	message, _ := step.Params["message"].(string)
+	color, _ := step.Params["color"].(string)
+
+	withMap := map[string]interface{}{}
+
+	if channel != "" {
+		withMap["channel"] = channel
+	}
+	if color != "" {
+		withMap["color"] = color
+	}
+	if message != "" {
+		withMap["message"] = message
+	}
+	if accessToken != "" {
+		withMap["access.token"] = accessToken
+	}
+	if webhook != "" {
+		withMap["webhook"] = webhook
+	}
+	if customMessage != "" {
+		withMap["custom.block"] = customMessage
+	}
+	if mentions != "" {
+		withMap["recipient"] = mentions
+	}
+	if template != "" {
+		withMap["template"] = template
+	}
+
 	return &harness.Step{
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
 			Image: "plugins/slack",
-			With:  map[string]interface{}{
-				// convert step.Params here
-			},
+			With:  withMap,
 		},
 	}
 }

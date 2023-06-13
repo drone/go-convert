@@ -1,0 +1,32 @@
+stages:
+- name: notify
+  spec:
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - spec:
+        image: plugins/slack
+        with:
+          custom.block: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "plain_text",
+                      "text": "*This is a text notification*",
+                      "emoji": true
+                    }
+                  ]
+                }
+              ]
+            }
+      type: plugin
+  type: ci
+version: 1
+
