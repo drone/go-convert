@@ -11,7 +11,6 @@ stages:
     - spec:
         image: plugins/slack
         with:
-          access_token: $SLACK_ACCESS_TOKEN
           channel: $SLACK_DEFAULT_CHANNEL
           custom_block: |
             {

@@ -25,7 +25,6 @@ stages:
     - spec:
         image: plugins/slack
         with:
-          access_token: $SLACK_ACCESS_TOKEN
           channel: $SLACK_DEFAULT_CHANNEL
       type: plugin
   type: ci
@@ -45,7 +44,6 @@ stages:
     - spec:
         image: plugins/slack
         with:
-          access_token: $SLACK_ACCESS_TOKEN
           channel: $SLACK_DEFAULT_CHANNEL
           recipient: '@EngineeringTeam'
           template: basic_fail_1
@@ -53,7 +51,6 @@ stages:
     - spec:
         image: plugins/slack
         with:
-          access_token: $SLACK_ACCESS_TOKEN
           channel: $SLACK_DEFAULT_CHANNEL
           template: success_tagged_deploy_1
       type: plugin
