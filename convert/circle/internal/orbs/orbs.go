@@ -15,6 +15,7 @@
 package orbs
 
 import (
+	"github.com/drone/go-convert/convert/circle/internal/orbs/datadog"
 	circle "github.com/drone/go-convert/convert/circle/yaml"
 	harness "github.com/drone/spec/dist/go"
 
@@ -47,6 +48,8 @@ func Convert(name, command string, step *circle.Custom) *harness.Step {
 		return localstack.Convert(command, step)
 	case "saucelabs/saucectl-run":
 		return saucelabs.Convert(command, step)
+	case "datadog/agent":
+		return datadog.Convert(command, step)
 	default:
 		return nil
 	}

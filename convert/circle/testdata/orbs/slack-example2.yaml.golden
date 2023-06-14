@@ -40,13 +40,15 @@ stages:
         image: cimg/base:stable
         run: echo "deploy my app"
       type: script
-    - spec:
+    - name: notify_slack
+      spec:
         image: plugins/slack
         with:
           recipient: '@EngineeringTeam'
           template: basic_fail_1
       type: plugin
-    - spec:
+    - name: notify_slack
+      spec:
         image: plugins/slack
         with:
           template: success_tagged_deploy_1
