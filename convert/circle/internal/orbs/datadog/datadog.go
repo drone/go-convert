@@ -43,13 +43,12 @@ func convertSetup(step *circle.Custom) *harness.Step {
 		"DD_HOSTNAME=\"none\" DD_INSTALL_ONLY=\"true\" DD_APM_ENABLED=\"true\" \\",
 		fmt.Sprintf("bash -c \"$(curl -L %s)\"", scriptURL),
 		// Delete Default YAML Files
-		"if [ \"$UID\" = \"0\" ]; then export SUDO=''; else export SUDO='sudo'; fi",
-		"$SUDO find /etc/datadog-agent/conf.d/ -iname \"*.yaml.default\" -delete",
+		"find /etc/datadog-agent/conf.d/ -iname \"*.yaml.default\" -delete",
 		// Start Datadog and Check Health
-		"$SUDO service datadog-agent start",
+		"service datadog-agent start",
 		"set +e",
 		"attempts=0",
-		"until [ $attempts -eq 10 ] || $SUDO datadog-agent health; do",
+		"until [ $attempts -eq 10 ] || datadog-agent health; do",
 		"attempts=$((attempts+1))",
 		"sleep_time=$(( attempts*5 < 30 ? attempts*5 : 30 ))",
 		"echo \"Waiting for agent to start up sleeping for ${sleep_time} seconds\"",
@@ -86,8 +85,7 @@ func convertSetup(step *circle.Custom) *harness.Step {
 
 func convertStop(step *circle.Custom) *harness.Step {
 	commands := []string{
-		"if [ \"$UID\" = \"0\" ]; then export SUDO=''; else export SUDO='sudo'; fi",
-		"$SUDO service datadog-agent stop",
+		"service datadog-agent stop",
 	}
 
 	return &harness.Step{
