@@ -199,7 +199,7 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 	stageEnv := spec.Envs // Convert stage environment variables
 
 	// convert each drone step to a harness step.
-	for _, v := range spec.Steps {
+	for index, v := range spec.Steps {
 		// the v0 yaml does not have the concept of
 		// a group step, so we append all steps in
 		// the group directly to the stage to emulate
@@ -210,7 +210,7 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		} else {
 			// else convert the step and append to
 			// the stage.
-			steps = append(steps, d.convertStep(v, stageEnv))
+			steps = append(steps, d.convertStep(v, stageEnv, index))
 		}
 	}
 
@@ -361,12 +361,12 @@ func convertMatrix(v1Matrix *v1.Matrix) map[string]interface{} {
 // TODO failure strategy
 // TODO matrix strategy
 // TODO when
-func (d *Downgrader) convertStep(src *v1.Step, stageEnv map[string]string) *v0.Steps {
+func (d *Downgrader) convertStep(src *v1.Step, stageEnv map[string]string, index int) *v0.Steps {
 	switch src.Spec.(type) {
 	case *v1.StepExec:
 		return &v0.Steps{Step: d.convertStepRun(src, stageEnv)}
 	case *v1.StepPlugin:
-		return &v0.Steps{Step: d.convertStepPlugin(src, stageEnv)}
+		return &v0.Steps{Step: d.convertStepPlugin(src, stageEnv, index)}
 	case *v1.StepAction:
 		return &v0.Steps{Step: d.convertStepAction(src, stageEnv)}
 	case *v1.StepBitrise:
@@ -390,13 +390,13 @@ func (d *Downgrader) convertStepGroup(src *v1.Step, stageEnv map[string]string, 
 	spec_ := src.Spec.(*v1.StepGroup)
 
 	var steps []*v0.Steps
-	for _, step := range spec_.Steps {
+	for index, step := range spec_.Steps {
 		// If this step is a step group, recursively convert it
 		if _, ok := step.Spec.(*v1.StepGroup); ok {
 			steps = append(steps, d.convertStepGroup(step, stageEnv, depth+1)...)
 		} else {
 			// Else, convert the step
-			dst := d.convertStep(step, stageEnv)
+			dst := d.convertStep(step, stageEnv, index)
 			steps = append(steps, &v0.Steps{Step: dst.Step})
 		}
 	}
@@ -409,8 +409,8 @@ func (d *Downgrader) convertStepParallel(src *v1.Step, stageEnv map[string]strin
 	spec_ := src.Spec.(*v1.StepParallel)
 
 	var steps []*v0.Step
-	for _, step := range spec_.Steps {
-		dst := d.convertStep(step, stageEnv)
+	for index, step := range spec_.Steps {
+		dst := d.convertStep(step, stageEnv, index)
 		steps = append(steps, dst.Step)
 	}
 	return steps
@@ -484,13 +484,21 @@ func (d *Downgrader) convertStepBackground(src *v1.Step, stageEnv map[string]str
 //
 // TODO convert resources
 // TODO convert reports
-func (d *Downgrader) convertStepPlugin(src *v1.Step, stageEnv map[string]string) *v0.Step {
+func (d *Downgrader) convertStepPlugin(src *v1.Step, stageEnv map[string]string, index int) *v0.Step {
 	spec_ := src.Spec.(*v1.StepPlugin)
-	var id = d.identifiers.Generate(
-		slug.Create(src.Name))
+	var id string
+	var name string
+
+	if src.Name != "" {
+		id = d.identifiers.Generate(slug.Create(src.Name))
+		name = convertName(src.Name)
+	} else {
+		id = d.identifiers.Generate(fmt.Sprintf("step%d", index))
+		name = fmt.Sprintf("step%d", index)
+	}
 	return &v0.Step{
 		ID:      id,
-		Name:    convertName(src.Name),
+		Name:    name,
 		Type:    v0.StepTypePlugin,
 		Timeout: convertTimeout(src.Timeout),
 		Spec: &v0.StepPlugin{

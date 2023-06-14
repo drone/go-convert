@@ -1,0 +1,25 @@
+# this pipeline does not set a name for the plugin step
+
+stages:
+- name: say-hello
+  spec:
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - name: Say hello
+      spec:
+        image: cimg/base:stable
+        run: echo Hello, World!
+      type: script
+    - spec:
+        image: plugins/slack
+        with:
+          channel: C05C45H2ATS
+          template: basic_success_1
+      type: plugin
+  type: ci
+version: 1

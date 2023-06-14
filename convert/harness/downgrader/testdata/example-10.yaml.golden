@@ -1,0 +1,42 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: sayhello1
+      name: say-hello
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - step:
+              identifier: sayhello
+              name: Say hello
+              spec:
+                command: echo Hello, World!
+                image: cimg/base:stable
+              timeout: ""
+              type: Run
+          - step:
+              identifier: step1
+              name: step1
+              spec:
+                image: plugins/slack
+                settings:
+                  channel: C05C45H2ATS
+                  template: basic_success_1
+              timeout: ""
+              type: Plugin
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI
