@@ -1,0 +1,16 @@
+orbs:
+  datadog-agent: datadog/agent@x.y.z
+jobs:
+  build:
+    steps:
+      - checkout
+      - datadog-agent/setup:
+          agent_major_version: '7'
+          api_key: DATADOG_API_KEY
+          site: datadoghq.com
+      - run: make test
+      - datadog-agent/stop
+workflows:
+  your-workflow:
+    jobs:
+      - build

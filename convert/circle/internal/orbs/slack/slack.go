@@ -74,6 +74,7 @@ func convertNotify(step *circle.Custom) *harness.Step {
 
 	return &harness.Step{
 		Type: "plugin",
+		Name: "notify_slack",
 		Spec: &harness.StepPlugin{
 			Image: "plugins/slack",
 			With:  withMap,
