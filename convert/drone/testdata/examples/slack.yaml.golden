@@ -1,3 +1,4 @@
+name: default
 options: {}
 stages:
 - name: default
@@ -14,3 +15,4 @@ stages:
           webhook: <+secrets.getValue("MY_SLACK_WEBHOOK")>
       type: plugin
   type: ci
+version: 1

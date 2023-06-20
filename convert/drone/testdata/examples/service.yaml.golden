@@ -1,3 +1,4 @@
+name: test-name
 options: {}
 stages:
 - name: test-name
@@ -39,3 +40,4 @@ stages:
       in:
       - push
       - pull_request
+version: 1
