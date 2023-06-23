@@ -1,3 +1,4 @@
+name: default
 options: {}
 stages:
 - name: default
@@ -15,3 +16,4 @@ stages:
           gradle check
       type: script
   type: ci
+version: 1
