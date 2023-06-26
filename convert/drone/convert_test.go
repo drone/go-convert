@@ -161,7 +161,7 @@ func TestReplaceVars(t *testing.T) {
 		{
 			name:     "DRONE_REPO_NAME",
 			input:    "${DRONE_REPO_NAME}",
-			expected: "<+codebase.repoUrl.split('/')[4]>",
+			expected: "<+<+codebase.repoUrl>.substring(<+codebase.repoUrl>.lastIndexOf('/') + 1)>",
 		},
 		// Unknown Mappings
 		{

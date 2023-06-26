@@ -16,7 +16,7 @@ stages:
           echo commit author is <+codebase.gitUserId>
           echo branch is <+codebase.branch>
           echo this is pull request number <+trigger.prNumber>
-          echo repo name is <+codebase.repoUrl.split('/')[4]>
+          echo repo name is <+<+codebase.repoUrl>.substring(<+codebase.repoUrl>.lastIndexOf('/') + 1)>
       type: script
     - name: publish
       spec:
@@ -25,7 +25,7 @@ stages:
           repo: gcr.io/example/repo
           tags:
           - 1.0.<+pipeline.sequenceId>
-          - <+codebase.branch>-<+codebase.commitSha>:0:8}
+          - <+codebase.branch>-<+codebase.commitSha>
       type: plugin
     - name: notify
       spec:

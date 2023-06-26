@@ -18,7 +18,7 @@ steps:
       repo: gcr.io/example/repo
       tags:
         - 1.0.${DRONE_BUILD_NUMBER}
-        - ${DRONE_BRANCH}-${DRONE_COMMIT_SHA:0:8}
+        - ${DRONE_BRANCH}-${DRONE_COMMIT_SHA}
 
   - name: notify
     image: plugins/slack
