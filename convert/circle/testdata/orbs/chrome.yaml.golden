@@ -1,0 +1,38 @@
+stages:
+- name: test
+  spec:
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - name: install_chrome
+      spec:
+        envs:
+          ORB_PARAM_CHANNEL: stable
+          ORB_PARAM_CHROME_VERSION: latest
+          ORB_PARAM_REPLACE_EXISTING: "0"
+        run: curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-chrome.sh
+          | bash
+      type: script
+    - name: firefox_setup
+      spec:
+        envs:
+          HOME: /root
+          ORB_PARAM_FIREFOX_INSTALL_DIR: /usr/local/bin
+          ORB_PARAM_FIREFOX_VERSION: latest
+        run: curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-firefox.sh
+          | bash
+      type: script
+    - name: Check install
+      spec:
+        run: |
+          google-chrome --version
+          chromedriver --version
+          firefox --version
+      type: script
+  type: ci
+version: 1
+

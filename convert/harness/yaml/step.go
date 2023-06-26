@@ -123,6 +123,7 @@ type (
 	}
 
 	StepPlugin struct {
+		Env             map[string]string `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
 		ConnRef         string            `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
 		Image           string            `json:"image,omitempty"           yaml:"image,omitempty"`
 		ImagePullPolicy string            `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
