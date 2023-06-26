@@ -1,0 +1,38 @@
+name: default
+options: {}
+stages:
+- name: default
+  spec:
+    clone: {}
+    runtime:
+      spec: {}
+      type: machine
+    steps:
+    - name: example
+      spec:
+        image: busybox
+        run: |-
+          echo this is build number <+pipeline.sequenceId>
+          echo commit author is <+codebase.gitUserId>
+          echo branch is <+codebase.branch>
+          echo this is pull request number <+codebase.prNumber>
+          echo repo name is <+<+codebase.repoUrl>.substring(<+codebase.repoUrl>.lastIndexOf('/') + 1)>
+      type: script
+    - name: publish
+      spec:
+        image: plugins/docker
+        with:
+          repo: gcr.io/example/repo
+          tags:
+          - 1.0.<+pipeline.sequenceId>
+          - <+codebase.branch>-<+codebase.commitSha>
+      type: plugin
+    - name: notify
+      spec:
+        image: plugins/slack
+        with:
+          channel: builds
+          message: Build <+pipeline.sequenceId> completed
+      type: plugin
+  type: ci
+version: 1

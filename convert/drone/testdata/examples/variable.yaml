@@ -1,0 +1,27 @@
+name: default
+type: docker
+kind: pipeline
+
+steps:
+  - name: example
+    image: busybox
+    commands:
+      - echo this is build number $DRONE_BUILD_NUMBER
+      - echo commit author is $DRONE_COMMIT_AUTHOR
+      - echo branch is $DRONE_BRANCH
+      - echo this is pull request number $DRONE_PULL_REQUEST
+      - echo repo name is $DRONE_REPO_NAME
+
+  - name: publish
+    image: plugins/docker
+    settings:
+      repo: gcr.io/example/repo
+      tags:
+        - 1.0.${DRONE_BUILD_NUMBER}
+        - ${DRONE_BRANCH}-${DRONE_COMMIT_SHA}
+
+  - name: notify
+    image: plugins/slack
+    settings:
+      channel: builds
+      message: Build $DRONE_BUILD_NUMBER completed

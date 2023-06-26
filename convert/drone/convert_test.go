@@ -75,3 +75,108 @@ func TestConvert(t *testing.T) {
 		})
 	}
 }
+
+func TestReplaceVars(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "DRONE_COMMIT_SHA",
+			input:    "${DRONE_COMMIT_SHA}",
+			expected: "<+codebase.commitSha>",
+		},
+		{
+			name:     "DRONE_COMMIT_SHA without braces",
+			input:    "$DRONE_COMMIT_SHA",
+			expected: "<+codebase.commitSha>",
+		},
+		{
+			name:     "CI_COMMIT_SHA",
+			input:    "${CI_COMMIT_SHA}",
+			expected: "<+codebase.commitSha>",
+		},
+		{
+			name:     "CI_COMMIT_SHA without braces",
+			input:    "$CI_COMMIT_SHA",
+			expected: "<+codebase.commitSha>",
+		},
+		{
+			name:     "Escaped DRONE_COMMIT_SHA",
+			input:    "$${DRONE_COMMIT_SHA}",
+			expected: "<+codebase.commitSha>",
+		},
+		{
+			name:     "Escaped DRONE_COMMIT_SHA without braces",
+			input:    "$$DRONE_COMMIT_SHA",
+			expected: "<+codebase.commitSha>",
+		},
+		{
+			name:     "Non-mapped variable",
+			input:    "${DRONE_BUILD_ACTION}",
+			expected: "${DRONE_BUILD_ACTION}",
+		},
+		// Known Mappings
+		{
+			name:     "DRONE_BRANCH",
+			input:    "${DRONE_BRANCH}",
+			expected: "<+codebase.branch>",
+		},
+		{
+			name:     "DRONE_BUILD_NUMBER",
+			input:    "${DRONE_BUILD_NUMBER}",
+			expected: "<+pipeline.sequenceId>",
+		},
+		{
+			name:     "DRONE_COMMIT_AUTHOR",
+			input:    "${DRONE_COMMIT_AUTHOR}",
+			expected: "<+codebase.gitUserId>",
+		},
+		{
+			name:     "DRONE_COMMIT_BRANCH",
+			input:    "${DRONE_COMMIT_BRANCH}",
+			expected: "<+codebase.branch>",
+		},
+		{
+			name:     "DRONE_COMMIT_SHA",
+			input:    "${DRONE_COMMIT_SHA}",
+			expected: "<+codebase.commitSha>",
+		},
+		{
+			name:     "DRONE_PULL_REQUEST",
+			input:    "${DRONE_PULL_REQUEST}",
+			expected: "<+codebase.prNumber>",
+		},
+		{
+			name:     "DRONE_PULL_REQUEST_TITLE",
+			input:    "${DRONE_PULL_REQUEST_TITLE}",
+			expected: "<+codebase.prTitle>",
+		},
+		{
+			name:     "DRONE_REMOTE_URL",
+			input:    "${DRONE_REMOTE_URL}",
+			expected: "<+codebase.repoUrl>",
+		},
+		{
+			name:     "DRONE_REPO_NAME",
+			input:    "${DRONE_REPO_NAME}",
+			expected: "<+<+codebase.repoUrl>.substring(<+codebase.repoUrl>.lastIndexOf('/') + 1)>",
+		},
+		// Unknown Mappings
+		{
+			name:     "DRONE_BUILD_ACTION",
+			input:    "${DRONE_BUILD_ACTION}",
+			expected: "${DRONE_BUILD_ACTION}", // Expect same input string for unknown mappings
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			output := replaceVars(tt.input)
+			if output != tt.expected {
+				t.Errorf("Expected %q, got %q", tt.expected, output)
+			}
+		})
+	}
+}

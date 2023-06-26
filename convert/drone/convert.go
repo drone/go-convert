@@ -47,6 +47,24 @@ type Converter struct {
 	orgSecrets    []string
 }
 
+var variableMap = map[string]string{
+	"DRONE_BRANCH":             "<+codebase.branch>",
+	"DRONE_BUILD_NUMBER":       "<+pipeline.sequenceId>",
+	"DRONE_COMMIT_AUTHOR":      "<+codebase.gitUserId>",
+	"DRONE_COMMIT_BRANCH":      "<+codebase.branch>",
+	"DRONE_COMMIT_SHA":         "<+codebase.commitSha>",
+	"DRONE_PULL_REQUEST":       "<+codebase.prNumber>",
+	"DRONE_PULL_REQUEST_TITLE": "<+codebase.prTitle>",
+	"DRONE_REMOTE_URL":         "<+codebase.repoUrl>",
+	"DRONE_REPO_NAME":          "<+<+codebase.repoUrl>.substring(<+codebase.repoUrl>.lastIndexOf('/') + 1)>",
+	"CI_BUILD_NUMBER":          "<+pipeline.sequenceId>",
+	"CI_COMMIT_AUTHOR":         "<+codebase.gitUserId>",
+	"CI_COMMIT_BRANCH":         "<+codebase.branch>",
+	"CI_COMMIT_SHA":            "<+codebase.commitSha>",
+	"CI_REMOTE_URL":            "<+codebase.repoUrl>",
+	"CI_REPO_NAME":             "<+<+codebase.repoUrl>.substring(<+codebase.repoUrl>.lastIndexOf('/') + 1)>",
+}
+
 // New creates a new Converter that converts a Drone
 // pipeline to a Harness v1 pipeline.
 func New(options ...Option) *Converter {
@@ -430,6 +448,8 @@ func convertSettings(src map[string]*v1.Parameter, orgSecrets []string) map[stri
 
 func convertInterface(i interface{}) interface{} {
 	switch v := i.(type) {
+	case string:
+		return replaceVars(v)
 	case map[interface{}]interface{}:
 		newMap := make(map[string]interface{})
 		for key, value := range v {
@@ -448,12 +468,27 @@ func convertInterface(i interface{}) interface{} {
 	return i
 }
 
+func replaceVars(val string) string {
+	var re = regexp.MustCompile(`\$\$?({)?(\w+)(})?`)
+	return re.ReplaceAllStringFunc(val, func(match string) string {
+		varName := strings.Trim(match, "${}$")
+		if harnessVar, ok := variableMap[varName]; ok {
+			return harnessVar
+		}
+		return match
+	})
+}
+
 func convertScript(src []string) string {
 	if len(src) == 0 {
 		return ""
-	} else {
-		return strings.Join(src, "\n")
 	}
+
+	for i, cmd := range src {
+		src[i] = replaceVars(cmd)
+	}
+
+	return strings.Join(src, "\n")
 }
 
 func convertArgs(src1, src2 []string) []string {
