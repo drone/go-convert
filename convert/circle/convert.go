@@ -619,12 +619,10 @@ func (d *Converter) convertOrb(step *circle.Step, job *circle.Job, config *circl
 		}
 	}
 
-	// strip the version number from the name since
-	// it is not material to the conversion
-	name, _ := splitOrbVersion(orb.Name)
+	name, version := splitOrbVersion(orb.Name)
 
 	// convert the orb
-	out := orbs.Convert(name, command, step.Custom)
+	out := orbs.Convert(name, command, version, step.Custom)
 	if out != nil {
 		return out
 	}

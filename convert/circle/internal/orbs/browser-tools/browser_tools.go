@@ -8,26 +8,26 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
-func Convert(command string, step *circle.Custom) *harness.Step {
+func Convert(command, version string, step *circle.Custom) *harness.Step {
 	switch command {
 	case "":
 		return nil // not supported
 	case "install-browser-tools":
-		return convertInstallBrowserTools(step)
+		return convertInstallBrowserTools(step, version)
 	case "install-chrome":
-		return convertInstallChrome(step)
+		return convertInstallChrome(step, version)
 	case "install-chromedriver":
-		return convertInstallChromeDriver(step)
+		return convertInstallChromeDriver(step, version)
 	case "install-firefox":
-		return convertInstallFirefox(step)
+		return convertInstallFirefox(step, version)
 	case "install-geckodriver":
-		return convertInstallGeckoDriver(step)
+		return convertInstallGeckoDriver(step, version)
 	default:
 		return nil // not supported
 	}
 }
 
-func convertInstallBrowserTools(step *circle.Custom) *harness.Step {
+func convertInstallBrowserTools(step *circle.Custom, version string) *harness.Step {
 	// default directories
 	firefoxInstallDir := "/usr/local/bin"
 	geckodriverInstallDir := "/usr/local/bin"
@@ -78,16 +78,16 @@ func convertInstallBrowserTools(step *circle.Custom) *harness.Step {
 
 	var runCommands []string
 	if installFirefox {
-		runCommands = append(runCommands, "curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/main/src/scripts/install-firefox.sh | bash")
+		runCommands = append(runCommands, fmt.Sprintf("curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/v%s/src/scripts/install-firefox.sh | bash", version))
 	}
 	if installGeckodriver {
-		runCommands = append(runCommands, "curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/main/src/scripts/install-geckodriver.sh | bash")
+		runCommands = append(runCommands, fmt.Sprintf("curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/v%s/src/scripts/install-geckodriver.sh | bash", version))
 	}
 	if installChrome {
-		runCommands = append(runCommands, "curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/main/src/scripts/install-chrome.sh | bash")
+		runCommands = append(runCommands, fmt.Sprintf("curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/v%s/src/scripts/install-chrome.sh | bash", version))
 	}
 	if installChromedriver {
-		runCommands = append(runCommands, "curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/main/src/scripts/install-chromedriver.sh | bash")
+		runCommands = append(runCommands, fmt.Sprintf("curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/v%s/src/scripts/install-chromedriver.sh | bash", version))
 	}
 	runCommand := strings.Join(runCommands, " && ")
 
@@ -109,7 +109,7 @@ func convertInstallBrowserTools(step *circle.Custom) *harness.Step {
 	}
 }
 
-func convertInstallChrome(step *circle.Custom) *harness.Step {
+func convertInstallChrome(step *circle.Custom, version string) *harness.Step {
 	channel := "stable" // default value
 	if c, ok := step.Params["channel"].(string); ok && c != "" {
 		channel = c
@@ -125,7 +125,7 @@ func convertInstallChrome(step *circle.Custom) *harness.Step {
 		replaceExisting = "1"
 	}
 
-	runCommand := "curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/main/src/scripts/install-chrome.sh | bash"
+	runCommand := fmt.Sprintf("curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/v%s/src/scripts/install-chrome.sh | bash", version)
 
 	return &harness.Step{
 		Name: "install_chrome",
@@ -141,13 +141,13 @@ func convertInstallChrome(step *circle.Custom) *harness.Step {
 	}
 }
 
-func convertInstallChromeDriver(step *circle.Custom) *harness.Step {
+func convertInstallChromeDriver(step *circle.Custom, version string) *harness.Step {
 	installDir := "/usr/local/bin" // default value
 	if id, ok := step.Params["install-dir"].(string); ok && id != "" {
 		installDir = id
 	}
 
-	runCommand := "curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/main/src/scripts/install-chromedriver.sh | bash"
+	runCommand := fmt.Sprintf("curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/v%s/src/scripts/install-chromedriver.sh | bash", version)
 
 	return &harness.Step{
 		Name: "install_chromedriver",
@@ -161,19 +161,19 @@ func convertInstallChromeDriver(step *circle.Custom) *harness.Step {
 	}
 }
 
-func convertInstallFirefox(step *circle.Custom) *harness.Step {
+func convertInstallFirefox(step *circle.Custom, version string) *harness.Step {
 	installDir, _ := step.Params["install-dir"].(string)
-	version, _ := step.Params["version"].(string)
+	firefoxVersion, _ := step.Params["version"].(string)
 
 	// Set the default values if they are not provided
 	if installDir == "" {
 		installDir = "/usr/local/bin"
 	}
-	if version == "" {
-		version = "latest"
+	if firefoxVersion == "" {
+		firefoxVersion = "latest"
 	}
 
-	runCommand := fmt.Sprintf(`curl -s 'https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/main/src/scripts/install-firefox.sh' | bash`)
+	runCommand := fmt.Sprintf("curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/v%s/src/scripts/install-firefox.sh | bash", version)
 
 	return &harness.Step{
 		Name: "firefox_setup",
@@ -182,25 +182,25 @@ func convertInstallFirefox(step *circle.Custom) *harness.Step {
 			Run: runCommand,
 			Envs: map[string]string{
 				"ORB_PARAM_FIREFOX_INSTALL_DIR": installDir,
-				"ORB_PARAM_FIREFOX_VERSION":     version,
+				"ORB_PARAM_FIREFOX_VERSION":     firefoxVersion,
 				"HOME":                          "/root", //required for firefox to install
 			},
 		},
 	}
 }
 
-func convertInstallGeckoDriver(step *circle.Custom) *harness.Step {
+func convertInstallGeckoDriver(step *circle.Custom, version string) *harness.Step {
 	installDir := "/usr/local/bin" // default value
 	if id, ok := step.Params["install-dir"].(string); ok && id != "" {
 		installDir = id
 	}
 
-	version := "latest" // default value
+	geckoVersion := "latest" // default value
 	if v, ok := step.Params["version"].(string); ok && v != "" {
-		version = v
+		geckoVersion = v
 	}
 
-	runCommand := "curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/main/src/scripts/install-geckodriver.sh | bash"
+	runCommand := fmt.Sprintf("curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/v%s/src/scripts/install-geckodriver.sh | bash", version)
 
 	return &harness.Step{
 		Name: "install_geckodriver",
@@ -209,7 +209,7 @@ func convertInstallGeckoDriver(step *circle.Custom) *harness.Step {
 			Run: runCommand,
 			Envs: map[string]string{
 				"ORB_PARAM_GECKO_INSTALL_DIR": installDir,
-				"ORB_PARAM_GECKO_VERSION":     version,
+				"ORB_PARAM_GECKO_VERSION":     geckoVersion,
 			},
 		},
 	}

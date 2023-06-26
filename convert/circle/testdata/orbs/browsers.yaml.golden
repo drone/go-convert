@@ -18,10 +18,10 @@ stages:
           ORB_PARAM_FIREFOX_VERSION: latest
           ORB_PARAM_GECKO_INSTALL_DIR: /usr/local/bin
           ORB_PARAM_GECKO_VERSION: latest
-        run: curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/main/src/scripts/install-firefox.sh
-          | bash && curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/main/src/scripts/install-geckodriver.sh
-          | bash && curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/main/src/scripts/install-chrome.sh
-          | bash && curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/main/src/scripts/install-chromedriver.sh
+        run: curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-firefox.sh
+          | bash && curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-geckodriver.sh
+          | bash && curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-chrome.sh
+          | bash && curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-chromedriver.sh
           | bash
       type: script
     - name: Check install

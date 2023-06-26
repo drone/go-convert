@@ -14,7 +14,7 @@ stages:
           ORB_PARAM_CHANNEL: stable
           ORB_PARAM_CHROME_VERSION: latest
           ORB_PARAM_REPLACE_EXISTING: "0"
-        run: curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/main/src/scripts/install-chrome.sh
+        run: curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-chrome.sh
           | bash
       type: script
     - name: firefox_setup
@@ -23,7 +23,7 @@ stages:
           HOME: /root
           ORB_PARAM_FIREFOX_INSTALL_DIR: /usr/local/bin
           ORB_PARAM_FIREFOX_VERSION: latest
-        run: curl -s 'https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/main/src/scripts/install-firefox.sh'
+        run: curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-firefox.sh
           | bash
       type: script
     - name: Check install
@@ -35,3 +35,4 @@ stages:
       type: script
   type: ci
 version: 1
+

@@ -31,14 +31,14 @@ import (
 )
 
 // Convert converts an Orb step to a Harness step.
-func Convert(name, command string, step *circle.Custom) *harness.Step {
+func Convert(name, command, version string, step *circle.Custom) *harness.Step {
 	switch name {
 	case "codecov/codecov":
 		return codecov.Convert(command, step)
 	case "coveralls/coveralls":
 		return coveralls.Convert(command, step)
 	case "circleci/browser-tools":
-		return browser_tools.Convert(command, step)
+		return browser_tools.Convert(command, version, step)
 	case "circleci/go":
 		return golang.Convert(command, step)
 	case "circleci/node":
