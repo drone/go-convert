@@ -502,6 +502,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step, stageEnv map[string]string,
 		Type:    v0.StepTypePlugin,
 		Timeout: convertTimeout(src.Timeout),
 		Spec: &v0.StepPlugin{
+			Env:             spec_.Envs,
 			ConnRef:         d.dockerhubConn,
 			Image:           spec_.Image,
 			ImagePullPolicy: convertImagePull(spec_.Pull),

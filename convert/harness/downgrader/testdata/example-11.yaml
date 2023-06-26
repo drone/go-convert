@@ -1,0 +1,25 @@
+stages:
+  - name: test
+    spec:
+      clone: {}
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+       - name: publish
+         spec:
+           envs:
+             SOME_VAR: value
+             PASSWORD: <+secrets.getValue("PASSWORD")>
+             USERNAME: <+secrets.getValue("USERNAME")>
+           image: plugins/example
+           pull: always
+           with:
+             tag: 1.0
+         type: plugin
+    type: ci
+version: 1
+
