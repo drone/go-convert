@@ -1,0 +1,17 @@
+version: '2.1'
+orbs:
+  browser-tools: circleci/browser-tools@x.y
+jobs:
+  test:
+    steps:
+      - browser-tools/install-browser-tools
+      - run:
+          command: |
+            google-chrome --version
+            chromedriver --version
+            firefox --version
+          name: Check install
+workflows:
+  test:
+    jobs:
+      - test
