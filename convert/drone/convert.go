@@ -137,6 +137,8 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		case v1.KindSecret: // TODO
 		case v1.KindSignature: // TODO
 		case v1.KindPipeline:
+			pipeline.Name = from.Name
+			pipeline.Version = 1
 			pipeline.Stages = append(pipeline.Stages, &v2.Stage{
 				Name:     from.Name,
 				Type:     "ci",

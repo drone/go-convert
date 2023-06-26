@@ -1,3 +1,4 @@
+name: default
 options: {}
 stages:
 - name: default
@@ -30,3 +31,4 @@ stages:
       spec: {}
       type: temp
   type: ci
+version: 1

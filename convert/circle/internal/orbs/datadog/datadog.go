@@ -22,55 +22,31 @@ func Convert(command string, step *circle.Custom) *harness.Step {
 }
 
 func convertSetup(step *circle.Custom) *harness.Step {
-	agentMajorVersion, _ := step.Params["agent_major_version"].(string)
-	var scriptURL string
+	version := "7" // default agent version
 
-	switch agentMajorVersion {
-	case "6":
-		scriptURL = "https://s3.amazonaws.com/dd-agent/scripts/install_script_agent6.sh"
-	case "7":
-		scriptURL = "https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh"
-	default:
-		scriptURL = "https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh" // default to agent 7
-	}
-	commands := []string{
-		// Install Datadog
-		"PARAM_DD_API_KEY=$(eval echo \"\\$PARAM_DD_API_KEY\")",
-		"if [ -n \"${DD_SITE}\" ]; then",
-		"  PARAM_DD_SITE=${DD_SITE}",
-		"fi",
-		"DD_API_KEY=${PARAM_DD_API_KEY} DD_AGENT_MAJOR_VERSION=${PARAM_DD_AGENT_MAJOR_VERSION} DD_SITE=${PARAM_DD_SITE} \\",
-		"DD_HOSTNAME=\"none\" DD_INSTALL_ONLY=\"true\" DD_APM_ENABLED=\"true\" \\",
-		fmt.Sprintf("bash -c \"$(curl -L %s)\"", scriptURL),
-		// Delete Default YAML Files
-		"find /etc/datadog-agent/conf.d/ -iname \"*.yaml.default\" -delete",
-		// Start Datadog and Check Health
-		"service datadog-agent start",
-		"set +e",
-		"attempts=0",
-		"until [ $attempts -eq 10 ] || datadog-agent health; do",
-		"attempts=$((attempts+1))",
-		"sleep_time=$(( attempts*5 < 30 ? attempts*5 : 30 ))",
-		"echo \"Waiting for agent to start up sleeping for ${sleep_time} seconds\"",
-		"sleep $sleep_time",
-		"done",
-		"if [ $attempts -eq 10 ]; then",
-		"echo \"Could not start the agent\"",
-		"exit 1",
-		"else",
-		"echo \"Agent is ready\"",
-		"fi",
+	envs := map[string]string{
+		"DD_HOSTNAME":     "none",
+		"DD_INSTALL_ONLY": "true",
+		"DD_APM_ENABLED":  "true",
 	}
 
-	envs := map[string]string{}
+	if s, _ := step.Params["site"].(string); s != "" {
+		envs["DD_SITE"] = s
+	}
 	if s, _ := step.Params["agent_major_version"].(string); s != "" {
-		envs["PARAM_DD_AGENT_MAJOR_VERSION"] = s
+		envs["DD_AGENT_MAJOR_VERSION"] = s
+		version = s
 	}
 	if s, _ := step.Params["api_key"].(string); s != "" {
-		envs["PARAM_DD_API_KEY"] = s
+		envs["DD_API_KEY"] = s
 	}
-	if s, _ := step.Params["site"].(string); s != "" {
-		envs["PARAM_DD_SITE"] = s
+
+	commands := []string{
+		fmt.Sprintf(`bash -c "$(curl -L "https://s3.amazonaws.com/dd-agent/scripts/install_script_agent%s.sh")"`, version),
+		`find /etc/datadog-agent/conf.d/ -iname "*.yaml.default" -delete`,
+		`service datadog-agent start`,
+		`echo "waiting for data-dog agent to start"`,
+		`sleep 30`,
 	}
 
 	return &harness.Step{
@@ -85,6 +61,7 @@ func convertSetup(step *circle.Custom) *harness.Step {
 
 func convertStop(step *circle.Custom) *harness.Step {
 	commands := []string{
+		// Stop Datadog Agent
 		"service datadog-agent stop",
 	}
 

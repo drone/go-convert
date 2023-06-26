@@ -1,3 +1,4 @@
+name: default
 options: {}
 stages:
 - name: default
@@ -13,3 +14,4 @@ stages:
         run: ls /harness
       type: script
   type: ci
+version: 1
