@@ -53,7 +53,7 @@ var variableMap = map[string]string{
 	"DRONE_COMMIT_AUTHOR":      "<+codebase.gitUserId>",
 	"DRONE_COMMIT_BRANCH":      "<+codebase.branch>",
 	"DRONE_COMMIT_SHA":         "<+codebase.commitSha>",
-	"DRONE_PULL_REQUEST":       "<+trigger.prNumber>",
+	"DRONE_PULL_REQUEST":       "<+codebase.prNumber>",
 	"DRONE_PULL_REQUEST_TITLE": "<+codebase.prTitle>",
 	"DRONE_REMOTE_URL":         "<+codebase.repoUrl>",
 	"DRONE_REPO_NAME":          "<+<+codebase.repoUrl>.substring(<+codebase.repoUrl>.lastIndexOf('/') + 1)>",

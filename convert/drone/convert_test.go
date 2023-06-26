@@ -146,7 +146,7 @@ func TestReplaceVars(t *testing.T) {
 		{
 			name:     "DRONE_PULL_REQUEST",
 			input:    "${DRONE_PULL_REQUEST}",
-			expected: "<+trigger.prNumber>",
+			expected: "<+codebase.prNumber>",
 		},
 		{
 			name:     "DRONE_PULL_REQUEST_TITLE",
