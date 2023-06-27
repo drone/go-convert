@@ -57,7 +57,6 @@ var variableMap = map[string]string{
 	"DRONE_PULL_REQUEST_TITLE": "<+codebase.prTitle>",
 	"DRONE_REMOTE_URL":         "<+codebase.repoUrl>",
 	"DRONE_REPO_NAME":          "<+<+codebase.repoUrl>.substring(<+codebase.repoUrl>.lastIndexOf('/') + 1)>",
-	"DRONE_TAG":                "<+trigger.payload.ref.split('/')[2]>",
 	"CI_BUILD_NUMBER":          "<+pipeline.sequenceId>",
 	"CI_COMMIT_AUTHOR":         "<+codebase.gitUserId>",
 	"CI_COMMIT_BRANCH":         "<+codebase.branch>",
