@@ -355,7 +355,7 @@ func convertVariables(src map[string]*v1.Variable, orgSecrets []string) map[stri
 	for k, v := range src {
 		switch {
 		case v.Value != "":
-			dst[sanitizeString(k)] = v.Value
+			dst[sanitizeString(k)] = replaceVars(v.Value)
 		case v.Secret != "":
 			secretID := sanitizeString(v.Secret)
 			if _, exists := orgSecretsMap[secretID]; exists {
@@ -370,7 +370,6 @@ func convertVariables(src map[string]*v1.Variable, orgSecrets []string) map[stri
 func sanitizeString(input string) string {
 	// Regular expression to match all characters that are not a letter, number, or underscore
 	reg, _ := regexp.Compile("[^a-zA-Z0-9_]+")
-
 	sanitized := reg.ReplaceAllString(input, "_")
 	return sanitized
 }
@@ -470,13 +469,20 @@ func convertInterface(i interface{}) interface{} {
 
 func replaceVars(val string) string {
 	var re = regexp.MustCompile(`\$\$?({)?(\w+)(})?`)
-	return re.ReplaceAllStringFunc(val, func(match string) string {
-		varName := strings.Trim(match, "${}$")
-		if harnessVar, ok := variableMap[varName]; ok {
-			return harnessVar
-		}
-		return match
-	})
+
+	vars := strings.Split(val, " ") // required for combine vars
+
+	for i, v := range vars {
+		vars[i] = re.ReplaceAllStringFunc(v, func(match string) string {
+			varName := strings.Trim(match, "${}$")
+			if harnessVar, ok := variableMap[varName]; ok {
+				return harnessVar
+			}
+			return match
+		})
+	}
+
+	return strings.Join(vars, " ")
 }
 
 func convertScript(src []string) string {

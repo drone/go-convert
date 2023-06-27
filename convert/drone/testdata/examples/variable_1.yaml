@@ -1,0 +1,45 @@
+name: default
+type: docker
+kind: pipeline
+
+steps:
+  - name: example
+    image: busybox
+    commands:
+      - echo this is build number $DRONE_BUILD_NUMBER
+      - echo commit author is $DRONE_COMMIT_AUTHOR
+      - echo branch is $DRONE_BRANCH
+      - echo this is pull request number $DRONE_PULL_REQUEST
+      - echo repo name is $DRONE_REPO_NAME
+
+  - name: publish
+    image: plugins/docker
+    settings:
+      repo: gcr.io/example/repo
+      tags:
+        - 1.0.${DRONE_BUILD_NUMBER}
+        - ${DRONE_BRANCH}-${DRONE_COMMIT_SHA}
+
+  - name: notify
+    image: plugins/slack
+    settings:
+      channel: builds
+      message: Build $DRONE_BUILD_NUMBER completed
+
+  - name: envinfo
+    image: alpine:3
+    pull: if-not-exists
+    environment:
+      SENSITIVE:
+        from_secret: THE_ORG_SECRET
+      COMBINED_VAR: ${DRONE_COMMIT_AUTHOR} ${DRONE_COMMIT_BRANCH}
+    commands:
+      - echo DRONE_BRANCH is $DRONE_BRANCH
+      - echo DRONE_BUILD_NUMBER is $DRONE_BUILD_NUMBER
+      - echo DRONE_COMMIT_SHA is $DRONE_COMMIT_SHA
+      - echo DRONE_PULL_REQUEST is $DRONE_PULL_REQUEST
+      - echo DRONE_PULL_REQUEST_TITLE is $DRONE_PULL_REQUEST_TITLE
+      - echo DRONE_REMOTE_URL is $DRONE_REMOTE_URL
+      - echo DRONE_REPO_NAME is $DRONE_REPO_NAME
+      - echo COMBINED_VAR is $COMBINED_VAR
+      - echo this is sensitive $SENSITIVE
