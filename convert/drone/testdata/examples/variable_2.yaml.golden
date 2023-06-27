@@ -1,0 +1,20 @@
+name: default
+options: {}
+stages:
+- name: default
+  spec:
+    clone: {}
+    runtime:
+      spec: {}
+      type: machine
+    steps:
+    - name: example
+      spec:
+        image: busybox
+        run: |-
+          echo this is the commit sha <+codebase.commitSha.substring(0,8)>
+          echo this is the removing 2 character off branch <+codebase.branch.substring(0,2)>
+      type: script
+  type: ci
+version: 1
+

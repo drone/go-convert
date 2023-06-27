@@ -1,0 +1,10 @@
+name: default
+type: docker
+kind: pipeline
+
+steps:
+  - name: example
+    image: busybox
+    commands:
+      - echo this is the commit sha ${DRONE_COMMIT_SHA:0:8}
+      - echo this is the removing 2 character off branch ${DRONE_BRANCH:0:2}
