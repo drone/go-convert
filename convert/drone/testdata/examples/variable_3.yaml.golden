@@ -12,8 +12,8 @@ stages:
       spec:
         image: busybox
         run: |-
-          <+codebase.branch.replace('\', '-')>
-          <+codebase.branch.replace('^', '+')>
+          <+codebase.branch.replace('\', '/-')>
+          <+codebase.branch.replace('\^', '+/')>
       type: script
   type: ci
 version: 1
