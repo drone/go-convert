@@ -1,0 +1,10 @@
+name: default
+type: docker
+kind: pipeline
+
+steps:
+  - name: example
+    image: busybox
+    commands:
+      - ${DRONE_BRANCH/\//-}
+      - ${DRONE_BRANCH/\^/+/}

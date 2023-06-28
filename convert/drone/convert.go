@@ -468,34 +468,112 @@ func convertInterface(i interface{}) interface{} {
 }
 
 func replaceVars(val string) string {
-	var re = regexp.MustCompile(`\$\$?({)?(\w+)((:\d+)?(:\d+)?)?(})?`)
-
 	vars := strings.Split(val, " ") // required for combine vars
 
 	for i, v := range vars {
-		vars[i] = re.ReplaceAllStringFunc(v, func(match string) string {
-			// Remove special characters from match and split on ":"
-			parts := strings.Split(strings.Trim(match, "${}$"), ":")
-
-			varName := parts[0]
-			if harnessVar, ok := variableMap[varName]; ok {
-				// If there are substring operations
-				if len(parts) > 1 {
-					offset := parts[1]
-					length := ""
-					if len(parts) > 2 {
-						length = parts[2]
-					}
-					// Modify the harnessVar to add the substring operation
-					harnessVar = "<+" + strings.Trim(harnessVar, "<+>") + ".substring(" + offset + "," + length + ")>"
-				}
-				return harnessVar
-			}
-			return match
-		})
+		if containsReplacement(v) {
+			vars[i] = replaceCharacters(v)
+		} else if containsSubstring(v) {
+			vars[i] = processSubstring(v)
+		} else {
+			// simple variable substitution
+			vars[i] = replaceSimpleVar(v)
+		}
 	}
 
 	return strings.Join(vars, " ")
+}
+
+// Function to handle simple variable substitution
+func replaceSimpleVar(val string) string {
+	var re = regexp.MustCompile(`\$\$?({)?(\w+)(})?`)
+
+	return re.ReplaceAllStringFunc(val, func(match string) string {
+		varName := strings.Trim(match, "${}$")
+		if harnessVar, ok := variableMap[varName]; ok {
+			return harnessVar
+		}
+		return match
+	})
+}
+
+// Check if variable contains a replacement operation
+func containsReplacement(v string) bool {
+	var re = regexp.MustCompile(`\$\{(\w+)/(/)?(.+)/(.+)\}`)
+	return re.MatchString(v)
+}
+
+// Perform the replacement operation
+func replaceCharacters(match string) string {
+	// Initialize the regular expression to match "${...}"
+	var re = regexp.MustCompile(`\$\{([^}/]+)(/[^}/]+)?(/[^}]+)?\}`)
+
+	return re.ReplaceAllStringFunc(match, func(m string) string {
+		groups := re.FindStringSubmatch(m)
+
+		if len(groups) < 2 {
+			// If the match doesn't contain a replacement operation, return the original match
+			return m
+		}
+
+		varName := groups[1]
+		oldChar := ""
+		newChar := ""
+
+		if len(groups) >= 3 && groups[2] != "" {
+			oldChar = strings.TrimPrefix(groups[2], "/")
+		}
+
+		if len(groups) >= 4 && groups[3] != "" {
+			newChar = strings.TrimPrefix(groups[3], "/")
+		}
+
+		if harnessVar, ok := variableMap[varName]; ok {
+			if oldChar != "" {
+				// Escape single quotes in oldChar and newChar for safe usage in replace function
+				oldChar = strings.ReplaceAll(oldChar, "'", "\\'")
+				newChar = strings.ReplaceAll(newChar, "'", "\\'")
+
+				return "<+" + strings.Trim(harnessVar, "<+>") + ".replace('" + oldChar + "', '" + newChar + "')>"
+			} else {
+				return "<+" + strings.Trim(harnessVar, "<+>") + ">"
+			}
+		}
+
+		return m
+	})
+}
+
+// Check if variable contains a substring operation
+func containsSubstring(v string) bool {
+	var re = regexp.MustCompile(`\$\$?({)?(\w+)((:\d+)?(:\d+)?)?(})?`)
+	return re.MatchString(v)
+}
+
+// Perform the substring operation
+func processSubstring(val string) string {
+	var re = regexp.MustCompile(`\$\$?({)?(\w+)((:\d+)?(:\d+)?)?(})?`)
+
+	return re.ReplaceAllStringFunc(val, func(match string) string {
+		// Remove special characters from match and split on ":"
+		parts := strings.Split(strings.Trim(match, "${}$"), ":")
+
+		varName := parts[0]
+		if harnessVar, ok := variableMap[varName]; ok {
+			// If there are substring operations
+			if len(parts) > 1 {
+				offset := parts[1]
+				length := ""
+				if len(parts) > 2 {
+					length = parts[2]
+				}
+				// Modify the harnessVar to add the substring operation
+				return "<+" + strings.Trim(harnessVar, "<+>") + ".substring(" + offset + "," + length + ")>"
+			}
+			return harnessVar
+		}
+		return match
+	})
 }
 
 func convertScript(src []string) string {
