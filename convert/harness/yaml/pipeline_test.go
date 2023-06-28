@@ -23,7 +23,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestPipeline(t *testing.T) {
+func TestParse(t *testing.T) {
 	// unmarshal the test pipeline.
 	got, err := ParseFile("testdata/pipeline.yaml")
 	if err != nil {
@@ -45,11 +45,6 @@ func TestPipeline(t *testing.T) {
 	if diff := cmp.Diff(got, want); len(diff) != 0 {
 		t.Errorf(diff)
 	}
-
-	// debug(t, got)
-	// println("---")
-	// debug(t, want)
-	// t.Fail()
 }
 
 // dump json data to the test logs.

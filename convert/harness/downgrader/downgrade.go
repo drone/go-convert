@@ -124,7 +124,7 @@ func (d *Downgrader) Downgrade(b []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return d.downgrade(src)
+	return d.DowngradeFrom(src)
 }
 
 // DowngradeString downgrades a v1 pipeline.
@@ -139,6 +139,11 @@ func (d *Downgrader) DowngradeFile(path string) ([]byte, error) {
 		return nil, err
 	}
 	return d.Downgrade(out)
+}
+
+// DowngradeFrom downgrades a v1 pipeline object.
+func (d *Downgrader) DowngradeFrom(src *v1.Pipeline) ([]byte, error) {
+	return d.downgrade(src)
 }
 
 // downgrade downgrades a v1 pipeline.

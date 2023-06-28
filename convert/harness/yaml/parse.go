@@ -21,16 +21,11 @@ import (
 	"io/ioutil"
 	"os"
 
-	// "gopkg.in/yaml.v3"
 	"github.com/ghodss/yaml"
 )
 
 // Parse parses the configuration from io.Reader r.
 func Parse(r io.Reader) (*Config, error) {
-	// out := new(Config)
-	// enc := yaml.NewDecoder(r)
-	// err := enc.Decode(out)
-
 	b, err := ioutil.ReadAll(r)
 	if err != nil {
 		return nil, err
