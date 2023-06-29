@@ -10,8 +10,13 @@ stages:
     steps:
     - name: example
       spec:
+        envs:
+          BRANCH_WITH_FORWARDSLASH: <+codebase.branch.replaceFirst('-', '/')>
+          BRANCH_WITH_HYPHEN: <+codebase.branch.replaceFirst('/', '-')>
+          BRANCH_WITH_UNDERSCORE: <+codebase.branch.replaceFirst('.', '_')>
         image: busybox
-        run: <+codebase.branch.replace('\', '/-')>
+        run: |-
+          echo 
       type: script
   type: ci
 version: 1
