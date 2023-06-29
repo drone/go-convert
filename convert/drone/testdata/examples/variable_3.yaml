@@ -7,4 +7,3 @@ steps:
     image: busybox
     commands:
       - ${DRONE_BRANCH/\//-}
-      - ${DRONE_BRANCH/\^/+/}

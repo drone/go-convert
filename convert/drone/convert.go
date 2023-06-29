@@ -499,45 +499,33 @@ func replaceSimpleVar(val string) string {
 
 // Check if variable contains a replacement operation
 func containsReplacement(v string) bool {
-	var re = regexp.MustCompile(`\$\{(\w+)/(/)?(.+)/(.+)\}`)
+	var re = regexp.MustCompile(`\$\{(\w+)(/|//)([^/]+)/([^}]+)\}`)
 	return re.MatchString(v)
 }
 
 // Perform the replacement operation
 func replaceCharacters(match string) string {
 	// Initialize the regular expression to match "${...}"
-	var re = regexp.MustCompile(`\$\{([^}/]+)(/[^}/]+)?(/[^}]+)?\}`)
+	var re = regexp.MustCompile(`\$\{([^}/]+)(/|//)([^/]+)/([^}]+)\}`)
 
 	return re.ReplaceAllStringFunc(match, func(m string) string {
 		groups := re.FindStringSubmatch(m)
 
-		if len(groups) < 2 {
+		if len(groups) < 5 {
 			// If the match doesn't contain a replacement operation, return the original match
 			return m
 		}
 
 		varName := groups[1]
-		oldChar := ""
-		newChar := ""
-
-		if len(groups) >= 3 && groups[2] != "" {
-			oldChar = strings.TrimPrefix(groups[2], "/")
-		}
-
-		if len(groups) >= 4 && groups[3] != "" {
-			newChar = strings.TrimPrefix(groups[3], "/")
-		}
+		oldChar := groups[3]
+		newChar := groups[4]
 
 		if harnessVar, ok := variableMap[varName]; ok {
-			if oldChar != "" {
-				// Escape single quotes in oldChar and newChar for safe usage in replace function
-				oldChar = strings.ReplaceAll(oldChar, "'", "\\'")
-				newChar = strings.ReplaceAll(newChar, "'", "\\'")
+			// No need to escape oldChar here
+			// But continue to escape single quotes in newChar for safe usage in replace function
+			newChar = strings.ReplaceAll(newChar, "'", "\\'")
 
-				return "<+" + strings.Trim(harnessVar, "<+>") + ".replace('" + oldChar + "', '" + newChar + "')>"
-			} else {
-				return "<+" + strings.Trim(harnessVar, "<+>") + ">"
-			}
+			return "<+" + strings.Trim(harnessVar, "<+>") + ".replace('" + oldChar + "', '" + newChar + "')>"
 		}
 
 		return m
