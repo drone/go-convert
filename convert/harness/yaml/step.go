@@ -123,27 +123,27 @@ type (
 	}
 
 	StepPlugin struct {
-		Env             map[string]string `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
-		ConnRef         string            `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
-		Image           string            `json:"image,omitempty"           yaml:"image,omitempty"`
-		ImagePullPolicy string            `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
-		Privileged      bool              `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
-		Reports         []*Report         `json:"reports,omitempty"         yaml:"reports,omitempty"`
-		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"`
-		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
-		Settings        map[string]string `json:"settings,omitempty"        yaml:"settings,omitempty"`
+		Env             map[string]string      `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
+		ConnRef         string                 `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
+		Image           string                 `json:"image,omitempty"           yaml:"image,omitempty"`
+		ImagePullPolicy string                 `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
+		Privileged      bool                   `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
+		Reports         []*Report              `json:"reports,omitempty"         yaml:"reports,omitempty"`
+		Resources       *Resources             `json:"resources,omitempty"       yaml:"resources,omitempty"`
+		RunAsUser       string                 `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
+		Settings        map[string]interface{} `json:"settings,omitempty"        yaml:"settings,omitempty"`
 	}
 
 	StepAction struct {
-		Uses string            `json:"uses,omitempty"            yaml:"uses,omitempty"`
-		With map[string]string `json:"with,omitempty"            yaml:"with,omitempty"`
-		Envs map[string]string `json:"env,omitempty"             yaml:"env,omitempty"`
+		Uses string                 `json:"uses,omitempty"            yaml:"uses,omitempty"`
+		With map[string]interface{} `json:"with,omitempty"            yaml:"with,omitempty"`
+		Envs map[string]string      `json:"env,omitempty"             yaml:"env,omitempty"`
 	}
 
 	StepBitrise struct {
-		Uses string            `json:"uses,omitempty"            yaml:"uses,omitempty"`
-		With map[string]string `json:"with,omitempty"            yaml:"with,omitempty"`
-		Envs map[string]string `json:"env,omitempty"             yaml:"env,omitempty"`
+		Uses string                 `json:"uses,omitempty"            yaml:"uses,omitempty"`
+		With map[string]interface{} `json:"with,omitempty"            yaml:"with,omitempty"`
+		Envs map[string]string      `json:"env,omitempty"             yaml:"env,omitempty"`
 	}
 
 	StepRun struct {
