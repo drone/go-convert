@@ -604,10 +604,19 @@ func convertVariables(src map[string]string) []*v0.Variable {
 	return vars
 }
 
-func convertSettings(src map[string]interface{}) map[string]string {
-	dst := map[string]string{}
+func convertSettings(src map[string]interface{}) map[string]interface{} {
+	dst := map[string]interface{}{}
 	for k, v := range src {
-		dst[k] = fmt.Sprint(v)
+		switch v := v.(type) {
+		case []interface{}:
+			var strList []string
+			for _, item := range v {
+				strList = append(strList, fmt.Sprint(item))
+			}
+			dst[k] = strList
+		default:
+			dst[k] = fmt.Sprint(v)
+		}
 	}
 	return dst
 }

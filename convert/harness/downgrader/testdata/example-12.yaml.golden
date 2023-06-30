@@ -1,0 +1,37 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: default
+      name: default
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - step:
+              identifier: publish
+              name: publish
+              spec:
+                image: plugins/docker
+                settings:
+                  list:
+                  - first
+                  - second
+                  - third
+                  repo: gcr.io/example/repo
+              timeout: ""
+              type: Plugin
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI

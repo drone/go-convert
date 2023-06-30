@@ -33,7 +33,11 @@ pipeline:
                 settings:
                   password: <+ secrets.getValue("docker_password") >
                   repo: octocat/hello-world
-                  tags: '[latest 1 1.1 1.1.1]'
+                  tags:
+                  - latest
+                  - "1"
+                  - "1.1"
+                  - 1.1.1
                   username: <+ secrets.getValue("docker_username") >
               timeout: ""
               type: Plugin
