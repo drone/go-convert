@@ -15,6 +15,7 @@
 package downgrader
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -23,9 +24,9 @@ import (
 	"github.com/drone/go-convert/internal/slug"
 	"github.com/drone/go-convert/internal/store"
 
+	harness "github.com/drone/go-convert/convert/harness/downgrader/yaml"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/spec/dist/go"
-
 	"github.com/ghodss/yaml"
 )
 
@@ -120,7 +121,7 @@ func New(options ...Option) *Downgrader {
 
 // Downgrade downgrades a v1 pipeline.
 func (d *Downgrader) Downgrade(b []byte) ([]byte, error) {
-	src, err := v1.ParseBytes(b)
+	src, err := harness.ParseBytes(b)
 	if err != nil {
 		return nil, err
 	}
@@ -142,46 +143,56 @@ func (d *Downgrader) DowngradeFile(path string) ([]byte, error) {
 }
 
 // DowngradeFrom downgrades a v1 pipeline object.
-func (d *Downgrader) DowngradeFrom(src *v1.Pipeline) ([]byte, error) {
+func (d *Downgrader) DowngradeFrom(src []*v1.Pipeline) ([]byte, error) {
 	return d.downgrade(src)
 }
 
 // downgrade downgrades a v1 pipeline.
-func (d *Downgrader) downgrade(src *v1.Pipeline) ([]byte, error) {
-	config := new(v0.Config)
-	config.Pipeline.ID = d.pipelineId
-	config.Pipeline.Name = d.pipelineName
-	config.Pipeline.Org = d.pipelineOrg
-	config.Pipeline.Project = d.pipelineProj
-	config.Pipeline.Props.CI.Codebase = v0.Codebase{
-		Name:  d.codebaseName,
-		Conn:  d.codebaseConn,
-		Build: "<+input>",
-	}
-	if src.Options != nil {
-		config.Pipeline.Variables = convertVariables(src.Options.Envs)
-	}
-
-	// convert stages
-	for _, stage := range src.Stages {
-		// skip nil stages. this is un-necessary, we have
-		// this logic in place just to be safe.
-		if stage == nil {
-			continue
+func (d *Downgrader) downgrade(src []*v1.Pipeline) ([]byte, error) {
+	var buf bytes.Buffer
+	for i, p := range src {
+		config := new(v0.Config)
+		config.Pipeline.ID = d.pipelineId
+		config.Pipeline.Name = d.pipelineName
+		config.Pipeline.Org = d.pipelineOrg
+		config.Pipeline.Project = d.pipelineProj
+		config.Pipeline.Props.CI.Codebase = v0.Codebase{
+			Name:  d.codebaseName,
+			Conn:  d.codebaseConn,
+			Build: "<+input>",
+		}
+		if p.Options != nil {
+			config.Pipeline.Variables = convertVariables(p.Options.Envs)
 		}
 
-		// skip stages that are not CI stages, for now
-		if _, ok := stage.Spec.(*v1.StageCI); !ok {
-			continue
+		// convert stages
+		for _, stage := range p.Stages {
+			// skip nil stages. this is un-necessary, we have
+			// this logic in place just to be safe.
+			if stage == nil {
+				continue
+			}
+
+			// skip stages that are not CI stages, for now
+			if _, ok := stage.Spec.(*v1.StageCI); !ok {
+				continue
+			}
+
+			// convert the stage and add to the list
+			config.Pipeline.Stages = append(config.Pipeline.Stages, &v0.Stages{
+				Stage: d.convertStage(stage),
+			})
 		}
-
-		// convert the stage and add to the list
-		config.Pipeline.Stages = append(config.Pipeline.Stages, &v0.Stages{
-			Stage: d.convertStage(stage),
-		})
+		out, err := yaml.Marshal(config)
+		if err != nil {
+			return nil, err
+		}
+		if i > 0 {
+			buf.WriteString("\n---\n")
+		}
+		buf.Write(out)
 	}
-
-	return yaml.Marshal(config)
+	return buf.Bytes(), nil
 }
 
 // helper function converts a drone pipeline stage to a
