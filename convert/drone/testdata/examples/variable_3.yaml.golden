@@ -16,7 +16,10 @@ stages:
           BRANCH_WITH_UNDERSCORE: <+codebase.branch.replaceFirst('.', '_')>
         image: busybox
         run: |-
-          echo 
+          echo $BRANCH_WITH_FORWARDSLASH
+          echo $BRANCH_WITH_HYPHEN
+          echo $BRANCH_WITH_UNDERSCORE
       type: script
   type: ci
 version: 1
+

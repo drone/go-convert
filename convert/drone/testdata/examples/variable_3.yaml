@@ -13,7 +13,8 @@ steps:
       # branch name with the first - character converted to a / character
       BRANCH_WITH_FORWARDSLASH: ${DRONE_BRANCH/-/\/}
     commands:
+      - echo $BRANCH_WITH_FORWARDSLASH
       - echo $BRANCH_WITH_HYPHEN
       - echo $BRANCH_WITH_UNDERSCORE
-      - echo $BRANCH_WITH_FORWARDSLASH
+
 

@@ -484,7 +484,6 @@ func replaceVars(val string) string {
 	return strings.Join(vars, " ")
 }
 
-// Function to handle simple variable substitution
 func replaceSimpleVar(val string) string {
 	var re = regexp.MustCompile(`\$\$?({)?(\w+)(})?`)
 
@@ -512,20 +511,28 @@ func replaceCharacters(match string) string {
 		groups := re.FindStringSubmatch(m)
 
 		if len(groups) < 5 {
-			// If the match doesn't contain a replacement operation, return the original match
 			return m
 		}
 
 		varName := groups[1]
-		oldChar := groups[3]
-		newChar := groups[4]
+		separator := groups[2]
+		oldChar := strings.ReplaceAll(groups[3], `\\`, `\`) // Replace escaped backslash
+		newChar := strings.ReplaceAll(groups[4], `\/`, `/`) // Replace escaped forward slash
+
+		if strings.HasPrefix(newChar, "/") && len(newChar) > 1 {
+			newChar = strings.TrimPrefix(newChar, "/")
+		}
+
+		if oldChar == "\\" {
+			oldChar = "/"
+		}
 
 		if harnessVar, ok := variableMap[varName]; ok {
-			// No need to escape oldChar here
-			// But continue to escape single quotes in newChar for safe usage in replace function
-			newChar = strings.ReplaceAll(newChar, "'", "\\'")
-
-			return "<+" + strings.Trim(harnessVar, "<+>") + ".replace('" + oldChar + "', '" + newChar + "')>"
+			if separator == "//" {
+				return "<+" + strings.Trim(harnessVar, "<+>") + ".replace('" + oldChar + "', '" + newChar + "')>"
+			} else {
+				return "<+" + strings.Trim(harnessVar, "<+>") + ".replaceFirst('" + oldChar + "', '" + newChar + "')>"
+			}
 		}
 
 		return m
