@@ -1,0 +1,20 @@
+name: default
+type: docker
+kind: pipeline
+
+steps:
+  - name: example
+    image: busybox
+    environment:
+      # branch name with the first / character converted to a - character
+      BRANCH_WITH_HYPHEN: ${DRONE_BRANCH/\//-}
+      # branch name with the first . character converted to a _ character
+      BRANCH_WITH_UNDERSCORE: ${DRONE_BRANCH/./_}
+      # branch name with the first - character converted to a / character
+      BRANCH_WITH_FORWARDSLASH: ${DRONE_BRANCH/-/\/}
+    commands:
+      - echo $BRANCH_WITH_FORWARDSLASH
+      - echo $BRANCH_WITH_HYPHEN
+      - echo $BRANCH_WITH_UNDERSCORE
+
+
