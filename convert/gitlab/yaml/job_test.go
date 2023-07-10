@@ -13,3 +13,58 @@
 // limitations under the License.
 
 package yaml
+
+import (
+	"testing"
+
+	"github.com/google/go-cmp/cmp"
+	"gopkg.in/yaml.v3"
+)
+
+func TestJob(t *testing.T) {
+	tests := []struct {
+		yaml string
+		want Job
+	}{
+		{
+			yaml: `[ echo hello, echo world ]`,
+			want: Job{
+				Script: Stringorslice{
+					"echo hello",
+					"echo world",
+				},
+			},
+		},
+		{
+			yaml: `{ stage: deploy, script: "echo hello world", environment: production }`,
+			want: Job{
+				Stage: "deploy",
+				Environment: &Environment{
+					Name: "production",
+				},
+				Script: Stringorslice{
+					"echo hello world",
+				},
+			},
+		},
+	}
+
+	for i, test := range tests {
+		got := new(Job)
+		if err := yaml.Unmarshal([]byte(test.yaml), got); err != nil {
+			t.Error(err)
+			return
+		}
+		if diff := cmp.Diff(got, &test.want); diff != "" {
+			t.Errorf("Unexpected parsing results for test %v", i)
+			t.Log(diff)
+		}
+	}
+}
+
+func TestJob_Error(t *testing.T) {
+	err := yaml.Unmarshal([]byte("123"), new(Job))
+	if err == nil || err.Error() != "failed to unmarshal job" {
+		t.Errorf("Expect error, got %s", err)
+	}
+}
