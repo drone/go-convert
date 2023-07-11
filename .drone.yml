@@ -9,10 +9,17 @@ steps:
   - go test -coverprofile=cover.out ./...
   - go tool cover -func=cover.out
 
-- name: build linux/amd64
+- name: modules
   image: golang:1.19
   depends_on:
   - test
+  commands:
+  - go mod download
+
+- name: build linux/amd64
+  image: golang:1.19
+  depends_on:
+  - modules
   environment:
     GOOS: linux
     GOARCH: amd64
@@ -22,7 +29,7 @@ steps:
 - name: build linux/arm64
   image: golang:1.19
   depends_on:
-  - test
+  - modules
   environment:
     GOOS: linux
     GOARCH: arm64
@@ -32,7 +39,7 @@ steps:
 - name: build darwin/amd64
   image: golang:1.19
   depends_on:
-  - test
+  - modules
   environment:
     GOOS: darwin
     GOARCH: amd64
@@ -42,7 +49,7 @@ steps:
 - name: build darwin/arm64
   image: golang:1.19
   depends_on:
-  - test
+  - modules
   environment:
     GOOS: darwin
     GOARCH: arm64
@@ -52,7 +59,7 @@ steps:
 - name: build windows/amd64
   image: golang:1.19
   depends_on:
-  - test
+  - modules
   environment:
     GOOS: windows
     GOARCH: amd64
