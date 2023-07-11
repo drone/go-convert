@@ -1,0 +1,23 @@
+stages:
+  - name: example
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+        - spec:
+            run: echo "Run my tests"
+          type: script
+        - name: store_test_results
+          spec:
+            reports:
+              - path:
+                  - test-results/*.xml
+                type: junit
+            run: echo upload unit test results
+          type: script
+    type: ci
+version: 1

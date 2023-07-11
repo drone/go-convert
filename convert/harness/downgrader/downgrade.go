@@ -455,11 +455,30 @@ func (d *Downgrader) convertStepRun(src *v1.Step, stageEnv map[string]string) *v
 			ImagePullPolicy: convertImagePull(spec_.Pull),
 			Privileged:      spec_.Privileged,
 			RunAsUser:       spec_.User,
+			Reports:         convertReports(spec_.Reports),
 			Shell:           strings.Title(spec_.Shell),
 		},
 		When: convertStepWhen(src.When, id),
 		Env:  stageEnv,
 	}
+}
+
+// helper function to convert reports from the v1 to v0
+func convertReports(reports []*v1.Report) []v0.Report {
+	v0Reports := make([]v0.Report, len(reports))
+
+	for i, report := range reports {
+		reportJunit := v0.ReportJunit{
+			Paths: report.Path,
+		}
+
+		v0Reports[i] = v0.Report{
+			Type: report.Type,
+			Spec: &reportJunit,
+		}
+	}
+
+	return v0Reports
 }
 
 // helper function to convert a Bitrise step from the v1
