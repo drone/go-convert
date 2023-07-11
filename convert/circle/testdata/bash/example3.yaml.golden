@@ -1,5 +1,5 @@
 stages:
-- name: hello-job
+- name: build-push
   spec:
     platform:
       arch: amd64
@@ -8,13 +8,11 @@ stages:
       spec: {}
       type: cloud
     steps:
-    - spec:
-        image: cimg/node:17.2.0
-        run: |-
-          set -eo pipefail
-          echo "hello world"
-        shell: bash
+    - name: env
+      spec:
+        image: alpine:3.11
+        run: env
+        shell: sh
       type: script
   type: ci
 version: 1
-

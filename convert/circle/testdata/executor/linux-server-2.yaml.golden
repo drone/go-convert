@@ -1,16 +1,18 @@
-version: 1
-
 stages:
 - name: build
-  type: ci
   spec:
     platform:
-      os: linux
       arch: amd64
+      os: linux
     runtime:
-      type: cloud
       spec: {}
+      type: cloud
     steps:
-    - type: script
-      spec:
-        run: echo "Hello World"
+    - spec:
+        run: |-
+          set -eo pipefail
+          echo "Hello World"
+        shell: bash
+      type: script
+  type: ci
+version: 1

@@ -1,0 +1,14 @@
+jobs:
+  build-push:
+    docker:
+      - image: alpine:3.11
+    shell: /bin/sh
+    steps:
+      - checkout
+      - run:
+          name: env
+          command: env
+workflows:
+  build-push:
+    jobs:
+      - build-push

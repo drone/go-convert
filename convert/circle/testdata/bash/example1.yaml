@@ -1,0 +1,15 @@
+jobs:
+  build-push:
+    docker:
+      - image: alpine:3.11
+    shell: /bin/sh -leo pipefail
+    steps:
+      - checkout
+      - run:
+          name: env
+          command: |-
+            env
+workflows:
+  build-push:
+    jobs:
+      - build-push
