@@ -1,16 +1,19 @@
-version: 1
 stages:
 - name: my-job
-  type: ci
   spec:
     platform:
-      os: linux
       arch: amd64
+      os: linux
     runtime:
-      type: cloud
       spec: {}
+      type: cloud
     steps:
-    - type: script
-      spec:
+    - spec:
         image: cimg/base:stable
-        run: echo "Hello My-Name"
+        run: |-
+          set -eo pipefail
+          echo "Hello My-Name"
+        shell: bash
+      type: script
+  type: ci
+version: 1

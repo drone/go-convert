@@ -1,25 +1,26 @@
 stages:
-  - name: my-orb/my_job
-    spec:
-      platform:
-        arch: amd64
-        os: linux
-      runtime:
-        spec: {}
-        type: cloud
-      steps:
-        - spec:
-            run: echo "Run my tests"
-          type: script
-        - name: store_test_results
-          spec:
-            reports:
-              - path:
-                  - test-results
-                type: junit
-            run: echo upload unit test results
-          type: script
-    type: ci
+- name: my-orb/my_job
+  spec:
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+    - spec:
+        run: |-
+          set -eo pipefail
+          echo "Run my tests"
+        shell: bash
+      type: script
+    - name: store_test_results
+      spec:
+        reports:
+        - path:
+          - test-results
+          type: junit
+        run: echo upload unit test results
+      type: script
+  type: ci
 version: 1
-
-

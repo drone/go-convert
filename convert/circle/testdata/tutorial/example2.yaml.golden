@@ -1,27 +1,30 @@
-version: 1
-
 stages:
 - name: build
-  type: ci
   spec:
     platform:
-      os: linux
       arch: amd64
+      os: linux
     runtime:
-      type: cloud
       spec: {}
+      type: cloud
     steps:
     - name: The First Step
-      type: script
       spec:
         image: cimg/base:2021.04
         run: |
+          set -eo pipefail
           echo 'Hello World!'
           echo 'This is the delivery pipeline'
-    - name: The Second Step
+        shell: bash
       type: script
+    - name: The Second Step
       spec:
         image: cimg/base:2021.04
         run: |
+          set -eo pipefail
           ls -al
           echo '^^^The files in your repo^^^'
+        shell: bash
+      type: script
+  type: ci
+version: 1

@@ -29,10 +29,11 @@ stages:
     - name: Check install
       spec:
         run: |
+          set -eo pipefail
           google-chrome --version
           chromedriver --version
           firefox --version
+        shell: bash
       type: script
   type: ci
 version: 1
-

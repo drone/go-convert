@@ -456,6 +456,7 @@ func (d *Downgrader) convertStepRun(src *v1.Step, stageEnv map[string]string) *v
 			Privileged:      spec_.Privileged,
 			RunAsUser:       spec_.User,
 			Reports:         convertReports(spec_.Reports),
+			Shell:           strings.Title(spec_.Shell),
 		},
 		When: convertStepWhen(src.When, id),
 		Env:  stageEnv,
