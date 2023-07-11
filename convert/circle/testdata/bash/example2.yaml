@@ -1,0 +1,13 @@
+jobs:
+  build-push:
+    docker:
+      - image: ubuntu
+    steps:
+      - checkout
+      - run:
+          name: env
+          command: env
+workflows:
+  build-push:
+    jobs:
+      - build-push

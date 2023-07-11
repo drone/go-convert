@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/drone/go-convert/convert/circle/internal/orbs"
 	circle "github.com/drone/go-convert/convert/circle/yaml"
@@ -370,6 +371,8 @@ func (d *Converter) convertRun(step *circle.Step, job *circle.Job, config *circl
 	var args []string
 	var user string
 	var envs map[string]string
+	var shell string
+
 	if docker := extractDocker(job, config); docker != nil {
 		image = docker.Image
 		entrypoint = "" // TODO needs a Harness v1 spec change
@@ -378,17 +381,32 @@ func (d *Converter) convertRun(step *circle.Step, job *circle.Job, config *circl
 		envs = docker.Environment
 	}
 
+	runCommand := step.Run.Command
+	if job.Shell != "" {
+		shellOptions := strings.Split(job.Shell, " ")[1:] // split the shell options from the shell binary
+		if len(shellOptions) > 0 {
+			shellOptionStr := strings.Join(shellOptions, " ")                  // join the shell options back into a single string
+			runCommand = fmt.Sprintf("set %s\n%s", shellOptionStr, runCommand) // prepend the shell options to the run command
+		}
+		shell = strings.Split(job.Shell, " ")[0]
+		shell = strings.Split(shell, "/")[len(strings.Split(shell, "/"))-1]
+	} else { // default shell
+		shell = "bash"
+		runCommand = "set -eo pipefail\n" + runCommand
+	}
+
 	if step.Run.Background {
 		return &harness.Step{
 			Name: step.Run.Name,
 			Type: "background",
 			Spec: &harness.StepBackground{
-				Run:        step.Run.Command,
+				Run:        runCommand,
 				Envs:       combineEnvs(step.Run.Environment, envs),
 				Image:      image,
 				Entrypoint: entrypoint,
 				Args:       args,
 				User:       user,
+				Shell:      shell,
 			},
 		}
 	} else {
@@ -396,12 +414,13 @@ func (d *Converter) convertRun(step *circle.Step, job *circle.Job, config *circl
 			Name: step.Run.Name,
 			Type: "script",
 			Spec: &harness.StepExec{
-				Run:        step.Run.Command,
+				Run:        runCommand,
 				Envs:       combineEnvs(step.Run.Environment, envs),
 				Image:      image,
 				Entrypoint: entrypoint,
 				Args:       args,
 				User:       user,
+				Shell:      shell,
 			},
 		}
 	}

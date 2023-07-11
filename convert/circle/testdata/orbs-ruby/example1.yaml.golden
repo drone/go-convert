@@ -1,62 +1,52 @@
-version: 1
 stages:
 - name: build
-  type: ci
   spec:
     platform:
-      os: linux
       arch: amd64
+      os: linux
     runtime:
-      type: cloud
       spec: {}
+      type: cloud
     steps:
     - name: install_deps
-      type: script
       spec:
         run: |-
           bundle config deployment 'true'
           bundle config gemfile "Gemfile"
           bundle config path "./vendor/bundle"
           bundle check || bundle install
-    - name: install_packages
       type: script
+    - name: install_packages
       spec:
         run: yarn install
-
-- name: checking
+      type: script
   type: ci
+- name: checking
   spec:
     platform:
-      os: linux
       arch: amd64
+      os: linux
     runtime:
-      type: cloud
       spec: {}
+      type: cloud
     steps:
     - name: install_deps
-      type: script
       spec:
         run: |-
           bundle config deployment 'true'
           bundle config gemfile "Gemfile"
           bundle config path "./vendor/bundle"
           bundle check || bundle install
-    - name: rubocop_check
       type: script
+    - name: rubocop_check
       spec:
         run: |-
           mkdir -p "/tmp/rubocop-results"
           bundle exec rubocop . --out /tmp/rubocop-results/check-results.xml --format progress
-
-- name: test
+      type: script
   type: ci
+- name: test
   spec:
-    platform:
-      os: linux
-      arch: amd64
-    runtime:
-      type: cloud
-      spec: {}
     envs:
       BUNDLE_JOBS: "3"
       BUNDLE_RETRY: "3"
@@ -64,39 +54,53 @@ stages:
       PGPASSWORD: ""
       PGUSER: circleci-demo-ruby
       RAILS_ENV: test
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
     steps:
-    - type: background
-      spec:
-        image: circleci/postgres:9.5-alpine
+    - spec:
         envs:
           POSTGRES_DB: rails_blog_test
           POSTGRES_PASSWORD: ""
           POSTGRES_USER: circleci-demo-ruby
+        image: circleci/postgres:9.5-alpine
+      type: background
     - name: install_deps
-      type: script
       spec:
         run: |-
           bundle config deployment 'true'
           bundle config gemfile "Gemfile"
           bundle config path "./vendor/bundle"
           bundle check || bundle install
-    - name: install_packages
       type: script
+    - name: install_packages
       spec:
         run: yarn install
+      type: script
     - name: Wait for DB
-      type: script
       spec:
         image: cimg/ruby:2.7-node
-        run: dockerize -wait tcp://localhost:5432 -timeout 1m
+        run: |-
+          set -eo pipefail
+          dockerize -wait tcp://localhost:5432 -timeout 1m
+        shell: bash
+      type: script
     - name: Database setup
-      type: script
       spec:
         image: cimg/ruby:2.7-node
-        run: bundle exec rails db:schema:load --trace
-    - name: rspec_test
+        run: |-
+          set -eo pipefail
+          bundle exec rails db:schema:load --trace
+        shell: bash
       type: script
+    - name: rspec_test
       spec:
         run: |-
           mkdir -p "/tmp/test-results/rspec"
           bundle exec rspec --profile 10 --format RspecJunitFormatter --out /tmp/test-results/rspec/results.xml --format progress
+      type: script
+  type: ci
+version: 1
