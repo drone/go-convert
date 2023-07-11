@@ -47,6 +47,7 @@ type Job struct {
 	When          string               `yaml:"when,omitempty"` // on_success, manual, always, on_failure, delayed, never
 }
 
+// UnmarshalYAML implements the unmarshal interface.
 func (v *Job) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var out1 []string
 	var out2 = struct {
