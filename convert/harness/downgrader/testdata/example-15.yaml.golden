@@ -16,6 +16,8 @@ pipeline:
         execution:
           steps:
           - step:
+              identifier: script
+              name: script
               spec:
                 command: echo "Run my tests"
               timeout: ""
