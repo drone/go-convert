@@ -9,14 +9,55 @@ steps:
   - go test -coverprofile=cover.out ./...
   - go tool cover -func=cover.out
 
-- name: build
+- name: build linux/amd64
   image: golang:1.19
+  depends_on:
+  - test
+  environment:
+    GOOS: linux
+    GOARCH: amd64
   commands:
-  - GOOS=linux   GOARCH=amd64   go build -o release/plugin-linux-amd64
-  - GOOS=linux   GOARCH=arm64   go build -o release/plugin-linux-arm64
-  - GOOS=darwin  GOARCH=amd64   go build -o release/plugin-darwin-amd64
-  - GOOS=darwin  GOARCH=arm64   go build -o release/plugin-darwin-arm64
-  - GOOS=windows GOARCH=amd64   go build -o release/plugin-windows-amd64.exe
+  - go build -o release/plugin-${GOOS}-${GOARCH}
+
+- name: build linux/arm64
+  image: golang:1.19
+  depends_on:
+  - test
+  environment:
+    GOOS: linux
+    GOARCH: arm64
+  commands:
+  - go build -o release/plugin-${GOOS}-${GOARCH}
+
+- name: build darwin/amd64
+  image: golang:1.19
+  depends_on:
+  - test
+  environment:
+    GOOS: darwin
+    GOARCH: amd64
+  commands:
+  - go build -o release/plugin-${GOOS}-${GOARCH}
+
+- name: build darwin/arm64
+  image: golang:1.19
+  depends_on:
+  - test
+  environment:
+    GOOS: darwin
+    GOARCH: arm64
+  commands:
+  - go build -o release/plugin-${GOOS}-${GOARCH}
+
+- name: build windows/amd64
+  image: golang:1.19
+  depends_on:
+  - test
+  environment:
+    GOOS: windows
+    GOARCH: amd64
+  commands:
+  - go build -o release/plugin-${GOOS}-${GOARCH}.exe
 
 # uncomment when the `github_token` secret has been added
 #
