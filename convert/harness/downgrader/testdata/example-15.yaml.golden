@@ -1,0 +1,41 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: example
+      name: example
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - step:
+              spec:
+                command: echo "Run my tests"
+              timeout: ""
+              type: Run
+          - step:
+              identifier: storetestresults
+              name: store_test_results
+              spec:
+                command: echo upload unit test results
+                reports:
+                - spec:
+                    paths:
+                    - test-results/*.xml
+                  type: junit
+              timeout: ""
+              type: Run
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI
