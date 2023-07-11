@@ -23,7 +23,7 @@ steps:
     GOOS: linux
     GOARCH: amd64
   commands:
-  - go build -o release/plugin-${GOOS}-${GOARCH}
+  - go build -o release/plugin-$GOOS-$GOARCH
 
 - name: build linux/arm64
   image: golang:1.19
@@ -36,7 +36,7 @@ steps:
     GOOS: linux
     GOARCH: arm64
   commands:
-  - go build -o release/plugin-${GOOS}-${GOARCH}
+  - go build -o release/plugin-$GOOS-$GOARCH
 
 - name: build darwin/amd64
   image: golang:1.19
@@ -49,7 +49,7 @@ steps:
     GOOS: darwin
     GOARCH: amd64
   commands:
-  - go build -o release/plugin-${GOOS}-${GOARCH}
+  - go build -o release/plugin-$GOOS-$GOARCH
 
 - name: build darwin/arm64
   image: golang:1.19
@@ -62,7 +62,7 @@ steps:
     GOOS: darwin
     GOARCH: arm64
   commands:
-  - go build -o release/plugin-${GOOS}-${GOARCH}
+  - go build -o release/plugin-$GOOS-$GOARCH
 
 - name: build windows/amd64
   image: golang:1.19
@@ -75,7 +75,7 @@ steps:
     GOOS: windows
     GOARCH: amd64
   commands:
-  - go build -o release/plugin-${GOOS}-${GOARCH}.exe
+  - go build -o release/plugin-$GOOS-$GOARCH.exe
 
 # uncomment when the `github_token` secret has been added
 #
