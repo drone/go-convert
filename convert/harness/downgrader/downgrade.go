@@ -441,7 +441,12 @@ func (d *Downgrader) convertStepParallel(src *v1.Step, stageEnv map[string]strin
 func (d *Downgrader) convertStepRun(src *v1.Step, stageEnv map[string]string) *v0.Step {
 	spec_ := src.Spec.(*v1.StepExec)
 	var id = d.identifiers.Generate(
-		slug.Create(src.Name))
+		slug.Create(src.Id),
+		slug.Create(src.Name),
+		slug.Create(src.Type))
+	if src.Name == "" {
+		src.Name = id
+	}
 	return &v0.Step{
 		ID:      id,
 		Name:    convertName(src.Name),
@@ -487,14 +492,18 @@ func convertReports(reports []*v1.Report) []v0.Report {
 // TODO convert resources
 func (d *Downgrader) convertStepBackground(src *v1.Step, stageEnv map[string]string) *v0.Step {
 	spec_ := src.Spec.(*v1.StepBackground)
-
+	var id = d.identifiers.Generate(
+		slug.Create(src.Id),
+		slug.Create(src.Name),
+		slug.Create(src.Type))
+	if src.Name == "" {
+		src.Name = id
+	}
 	// convert the entrypoint string to a slice.
 	var entypoint []string
 	if spec_.Entrypoint != "" {
 		entypoint = []string{spec_.Entrypoint}
 	}
-	var id = d.identifiers.Generate(
-		slug.Create(src.Name))
 	return &v0.Step{
 		ID:   id,
 		Name: convertName(src.Name),
@@ -522,19 +531,16 @@ func (d *Downgrader) convertStepBackground(src *v1.Step, stageEnv map[string]str
 // TODO convert reports
 func (d *Downgrader) convertStepPlugin(src *v1.Step, stageEnv map[string]string, index int) *v0.Step {
 	spec_ := src.Spec.(*v1.StepPlugin)
-	var id string
-	var name string
-
-	if src.Name != "" {
-		id = d.identifiers.Generate(slug.Create(src.Name))
-		name = convertName(src.Name)
-	} else {
-		id = d.identifiers.Generate(fmt.Sprintf("step%d", index))
-		name = fmt.Sprintf("step%d", index)
+	var id = d.identifiers.Generate(
+		slug.Create(src.Id),
+		slug.Create(src.Name),
+		slug.Create(src.Type))
+	if src.Name == "" {
+		src.Name = id
 	}
 	return &v0.Step{
 		ID:      id,
-		Name:    name,
+		Name:    src.Name,
 		Type:    v0.StepTypePlugin,
 		Timeout: convertTimeout(src.Timeout),
 		Spec: &v0.StepPlugin{
@@ -556,7 +562,12 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step, stageEnv map[string]string,
 func (d *Downgrader) convertStepAction(src *v1.Step, stageEnv map[string]string) *v0.Step {
 	spec_ := src.Spec.(*v1.StepAction)
 	var id = d.identifiers.Generate(
-		slug.Create(src.Name))
+		slug.Create(src.Id),
+		slug.Create(src.Name),
+		slug.Create(src.Type))
+	if src.Name == "" {
+		src.Name = id
+	}
 	return &v0.Step{
 		ID:      id,
 		Name:    convertName(src.Name),
@@ -577,7 +588,12 @@ func (d *Downgrader) convertStepAction(src *v1.Step, stageEnv map[string]string)
 func (d *Downgrader) convertStepBitrise(src *v1.Step, stageEnv map[string]string) *v0.Step {
 	spec_ := src.Spec.(*v1.StepBitrise)
 	var id = d.identifiers.Generate(
-		slug.Create(src.Name))
+		slug.Create(src.Id),
+		slug.Create(src.Name),
+		slug.Create(src.Type))
+	if src.Name == "" {
+		src.Name = id
+	}
 	return &v0.Step{
 		ID:      id,
 		Name:    convertName(src.Name),
