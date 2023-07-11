@@ -5,12 +5,18 @@ name: default
 steps:
 - name: test
   image: golang:1.19
+  volumes:
+  - name: cache
+    path: /go
   commands:
   - go test -coverprofile=cover.out ./...
   - go tool cover -func=cover.out
 
 - name: build
   image: golang:1.19
+  volumes:
+  - name: cache
+    path: /go
   commands:
   - GOOS=linux   GOARCH=amd64   go build -o release/plugin-linux-amd64
   - GOOS=linux   GOARCH=arm64   go build -o release/plugin-linux-arm64
@@ -34,6 +40,10 @@ steps:
 #  when:
 #    ref:
 #      - refs/tags/*
+
+volumes:
+- name: cache
+  temp: {}
 
 trigger:
   branch:
