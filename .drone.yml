@@ -5,21 +5,20 @@ name: default
 steps:
 - name: test
   image: golang:1.19
+  volumes:
+  - name: cache
+    path: /go
   commands:
   - go test -coverprofile=cover.out ./...
   - go tool cover -func=cover.out
 
-- name: modules
-  image: golang:1.19
-  depends_on:
-  - test
-  commands:
-  - go mod download
-
 - name: build linux/amd64
   image: golang:1.19
+  volumes:
+  - name: cache
+    path: /go
   depends_on:
-  - modules
+  - test
   environment:
     GOOS: linux
     GOARCH: amd64
@@ -28,8 +27,11 @@ steps:
 
 - name: build linux/arm64
   image: golang:1.19
+  volumes:
+  - name: cache
+    path: /go
   depends_on:
-  - modules
+  - test
   environment:
     GOOS: linux
     GOARCH: arm64
@@ -38,8 +40,11 @@ steps:
 
 - name: build darwin/amd64
   image: golang:1.19
+  volumes:
+  - name: cache
+    path: /go
   depends_on:
-  - modules
+  - test
   environment:
     GOOS: darwin
     GOARCH: amd64
@@ -48,8 +53,11 @@ steps:
 
 - name: build darwin/arm64
   image: golang:1.19
+  volumes:
+  - name: cache
+    path: /go
   depends_on:
-  - modules
+  - test
   environment:
     GOOS: darwin
     GOARCH: arm64
@@ -58,8 +66,11 @@ steps:
 
 - name: build windows/amd64
   image: golang:1.19
+  volumes:
+  - name: cache
+    path: /go
   depends_on:
-  - modules
+  - test
   environment:
     GOOS: windows
     GOARCH: amd64
@@ -82,6 +93,10 @@ steps:
 #  when:
 #    ref:
 #      - refs/tags/*
+
+volumes:
+- name: cache
+  temp: {}
 
 trigger:
   branch:
