@@ -28,10 +28,10 @@ pipeline:
               spec:
                 command: echo upload unit test results
                 reports:
-                - spec:
+                  spec:
                     paths:
                     - test-results/*.xml
-                  type: junit
+                  type: Junit
               timeout: ""
               type: Run
         platform:
