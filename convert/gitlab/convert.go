@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"sort"
 	"strings"
 
 	gitlab "github.com/drone/go-convert/convert/gitlab/yaml"
@@ -139,87 +140,74 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		// When: convertCond(from.Trigger),
 		Spec: &harness.StageCI{
 			// Delegate: convertNode(from.Node),
-			// Envs:     copyenv(from.Environment),
+			Envs: convertVariables(ctx.config.Variables),
 			// Platform: convertPlatform(from.Platform),
 			// Runtime:  convertRuntime(from),
 			// Steps:    convertSteps(from),
 		},
 	}
 	dst.Stages = append(dst.Stages, dstStage)
+	var jobKeys []string
+	for jobKey := range ctx.config.Jobs {
+		jobKeys = append(jobKeys, jobKey)
+	}
+	sort.Strings(jobKeys)
 
-	// iterage through named stages
-	for _, stagename := range ctx.config.Stages {
+	stages := ctx.config.Stages
+	if len(stages) == 0 {
+		stages = []string{".pre", "build", "test", "deploy", ".post"} // stages don't have to be declared for valid yaml. Default to test
+	}
 
-		// children steps converted from gitlab to harness.
-		var steps []*harness.Step
+	for name, job := range ctx.config.Jobs { // required for ordering
+		switch name {
+		case "before_script":
+			job.Stage = ".pre"
+		case "after_script":
+			job.Stage = ".post"
+		case "":
+			job.Stage = "build"
+		}
+	}
+
+	for _, stageName := range stages {
+		stepGroup := &harness.StepGroup{
+			Steps: []*harness.Step{},
+		}
 
 		// iterate through jobs and find jobs assigned to
 		// the stage. skip other stages.
-		for jobname, job := range ctx.config.Jobs {
-			if job == nil {
+		for _, jobName := range jobKeys {
+			job := ctx.config.Jobs[jobName] // maintaining order here
+			if job == nil || job.Stage != stageName {
 				continue
 			}
-			if job.Stage != stagename {
-				continue
-			}
 
-			// gitlab only supports run steps.
-			spec := new(harness.StepExec)
-
-			if job.Image != nil {
-				spec.Image = job.Image.Name
-				spec.Pull = job.Image.PullPolicy
-			} else if ctx.config.Default != nil && ctx.config.Default.Image != nil {
-				spec.Image = ctx.config.Default.Image.Name
-				spec.Pull = ctx.config.Default.Image.PullPolicy
-			} else if ctx.config.Image != nil {
-				spec.Image = ctx.config.Image.Name
-				spec.Pull = ctx.config.Image.PullPolicy
-			}
-
-			// aggregate all scripts
-			script := append(job.Before)
-			script = append(script, job.Script...)
-			script = append(script, job.After...)
-
-			// and then combine as a single string
-			spec.Run = strings.Join(script, "\n")
-
-			// job.Cache
-			// job.Retry
-			// job.Services
-			// job.Timeout
-			// job.Tags
-			// job.Secrets
-
-			steps = append(steps, &harness.Step{
-				Name: jobname,
-				Type: "script",
-				Spec: spec,
-			})
+			// Convert each job to a step
+			step := convertJobToStep(ctx, jobName, job)
+			stepGroup.Steps = append(stepGroup.Steps, step...)
 		}
 
 		// if not steps converted, move to next stage
-		if len(steps) == 0 {
+		if len(stepGroup.Steps) == 0 {
 			continue
 		}
 
 		// if there is a single step, append to the stage.
-		if len(steps) == 1 {
-			dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, steps[0]) // HACK
+		if len(stepGroup.Steps) == 1 {
+			dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, stepGroup.Steps[0])
 			continue
 		}
 
 		// else if there are multiple steps, wrap with a parallel
 		// step to mirror gitlab behavior.
 		group := &harness.Step{
-			Name: stagename,
+			Name: stageName,
 			Type: "parallel",
 			Spec: &harness.StepParallel{
-				Steps: steps,
+				Steps: stepGroup.Steps,
 			},
 		}
-		dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, group) // HACK
+		dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, group)
 	}
 
 	// marshal the harness yaml
@@ -229,4 +217,59 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	}
 
 	return out, nil
+}
+
+func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.Step {
+	var steps []*harness.Step
+	spec := new(harness.StepExec)
+
+	if job.Image != nil {
+		spec.Image = job.Image.Name
+		spec.Pull = job.Image.PullPolicy
+	} else if ctx.config.Default != nil && ctx.config.Default.Image != nil {
+		spec.Image = ctx.config.Default.Image.Name
+		spec.Pull = ctx.config.Default.Image.PullPolicy
+	} else if ctx.config.Image != nil {
+		spec.Image = ctx.config.Image.Name
+		spec.Pull = ctx.config.Image.PullPolicy
+	}
+
+	// Convert all scripts into a single step
+	script := append(job.Before)
+	script = append(script, job.Script...)
+	script = append(script, job.After...)
+	spec.Run = strings.Join(script, "\n")
+
+	steps = append(steps, &harness.Step{
+		Name: jobName,
+		Type: "script",
+		Spec: spec,
+	})
+
+	// job.Cache
+	// job.Retry
+	// job.Services
+	// job.Timeout
+	// job.Tags
+	// job.Secrets
+
+	return steps
+}
+
+func convertVariables(variables map[string]*gitlab.Variable) map[string]string {
+	result := make(map[string]string)
+	var keys []string
+	for key := range variables {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		variable := variables[key]
+		if variable != nil {
+			result[key] = variable.Value
+		}
+	}
+
+	return result
 }

@@ -1,0 +1,26 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: format
+      spec:
+        image: golang:latest
+        run: |-
+          go fmt $(go list ./... | grep -v /vendor/)
+          go vet $(go list ./... | grep -v /vendor/)
+          go test -race $(go list ./... | grep -v /vendor/)
+      type: script
+    - name: compile
+      spec:
+        image: golang:latest
+        run: |-
+          mkdir -p mybinaries
+          go build -o mybinaries ./...
+      type: script
+    - name: deploy
+      spec:
+        image: golang:latest
+        run: echo "Define your deployment script!"
+      type: script
+  type: ci
+version: 1
