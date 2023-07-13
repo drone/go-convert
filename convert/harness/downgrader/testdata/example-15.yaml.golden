@@ -31,7 +31,7 @@ pipeline:
                   spec:
                     paths:
                     - test-results/*.xml
-                  type: Junit
+                  type: JUnit
               timeout: ""
               type: Run
         platform:

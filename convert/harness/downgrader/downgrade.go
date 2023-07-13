@@ -488,7 +488,7 @@ func convertReports(reports []*v1.Report) *v0.Report {
 
 	v0Report := v0.Report{
 		// Assuming all reports have the same type
-		Type: strings.Title(reports[0].Type),
+		Type: "JUnit",
 		Spec: &reportJunit,
 	}
 
