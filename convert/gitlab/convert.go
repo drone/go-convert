@@ -147,6 +147,11 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		},
 	}
 	dst.Stages = append(dst.Stages, dstStage)
+	var jobKeys []string
+	for jobKey := range ctx.config.Jobs {
+		jobKeys = append(jobKeys, jobKey)
+	}
+	sort.Strings(jobKeys)
 
 	stages := ctx.config.Stages
 	if len(stages) == 0 {
@@ -171,7 +176,8 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 
 		// iterate through jobs and find jobs assigned to
 		// the stage. skip other stages.
-		for jobName, job := range ctx.config.Jobs { // maintaining order here
+		for _, jobName := range jobKeys {
+			job := ctx.config.Jobs[jobName] // maintaining order here
 			if job == nil || job.Stage != stageName {
 				continue
 			}

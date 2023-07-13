@@ -28,15 +28,15 @@ stages:
     - name: build
       spec:
         steps:
-        - name: lintDebug
-          spec:
-            image: eclipse-temurin:17-jdk-jammy
-            run: ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
-          type: script
         - name: assembleDebug
           spec:
             image: eclipse-temurin:17-jdk-jammy
             run: ./gradlew assembleDebug
+          type: script
+        - name: lintDebug
+          spec:
+            image: eclipse-temurin:17-jdk-jammy
+            run: ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
           type: script
       type: parallel
     - name: debugTests
