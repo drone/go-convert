@@ -1,36 +1,46 @@
-version: 1
-
 stages:
 - name: build-medium
-  type: ci
   spec:
     platform:
-      os: linux
       arch: arm64
+      os: linux
     runtime:
-      type: cloud
       spec: {}
+      type: cloud
     steps:
-    - type: script
-      spec:
-        run: uname -a
-    - type: script
-      spec:
-        run: echo "Hello, Arm!"
-      
+    - spec:
+        run: |-
+          set -eo pipefail
+          uname -a
+        shell: bash
+      type: script
+    - spec:
+        run: |-
+          set -eo pipefail
+          echo "Hello, Arm!"
+        shell: bash
+      type: script
+  type: ci
 - name: build-large
-  type: ci
   spec:
     platform:
-      os: linux
       arch: arm64
+      os: linux
     runtime:
-      type: cloud
       spec: {}
+      type: cloud
     steps:
-    - type: script
-      spec:
-        run: uname -a
-    - type: script
-      spec:
-        run: echo "Hello, Arm!"
+    - spec:
+        run: |-
+          set -eo pipefail
+          uname -a
+        shell: bash
+      type: script
+    - spec:
+        run: |-
+          set -eo pipefail
+          echo "Hello, Arm!"
+        shell: bash
+      type: script
+  type: ci
+version: 1

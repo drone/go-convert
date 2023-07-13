@@ -1,16 +1,19 @@
-version: 1
-
 stages:
 - name: hello-job
-  type: ci
   spec:
     platform:
       arch: arm64
       os: macos
     runtime:
-      type: cloud
       spec: {}
+      type: cloud
     steps:
-    - type: script
-      spec:
-        run: echo "hello world"
+    - spec:
+        run: |-
+          set -eo pipefail
+          echo "hello world"
+        shell: bash
+      type: script
+  type: ci
+version: 1
+

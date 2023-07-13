@@ -9,30 +9,26 @@ pipeline:
         build: <+input>
   stages:
   - stage:
-      identifier: sayhello1
-      name: say-hello
+      identifier: test
+      name: test
       spec:
         cloneCodebase: true
         execution:
           steps:
           - step:
-              identifier: sayhello
-              name: Say hello
+              identifier: script
+              name: script
               spec:
-                command: echo Hello, World!
-                image: cimg/base:stable
+                command: pip3 install
               timeout: ""
               type: Run
           - step:
-              identifier: plugin
-              name: plugin
+              identifier: script1
+              name: script1
               spec:
-                image: plugins/slack
-                settings:
-                  channel: C05C45H2ATS
-                  template: basic_success_1
+                command: echo hello
               timeout: ""
-              type: Plugin
+              type: Run
         platform:
           arch: Amd64
           os: Linux

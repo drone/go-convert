@@ -10,7 +10,10 @@ stages:
     steps:
     - spec:
         image: cimg/base:stable
-        run: echo "test my app"
+        run: |-
+          set -eo pipefail
+          echo "test my app"
+        shell: bash
       type: script
   type: ci
 - name: slack/on-hold
@@ -38,7 +41,10 @@ stages:
     steps:
     - spec:
         image: cimg/base:stable
-        run: echo "deploy my app"
+        run: |-
+          set -eo pipefail
+          echo "deploy my app"
+        shell: bash
       type: script
     - name: notify_slack
       spec:

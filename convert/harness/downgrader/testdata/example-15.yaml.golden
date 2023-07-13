@@ -9,30 +9,31 @@ pipeline:
         build: <+input>
   stages:
   - stage:
-      identifier: sayhello1
-      name: say-hello
+      identifier: example
+      name: example
       spec:
         cloneCodebase: true
         execution:
           steps:
           - step:
-              identifier: sayhello
-              name: Say hello
+              identifier: script
+              name: script
               spec:
-                command: echo Hello, World!
-                image: cimg/base:stable
+                command: echo "Run my tests"
               timeout: ""
               type: Run
           - step:
-              identifier: plugin
-              name: plugin
+              identifier: storetestresults
+              name: store_test_results
               spec:
-                image: plugins/slack
-                settings:
-                  channel: C05C45H2ATS
-                  template: basic_success_1
+                command: echo upload unit test results
+                reports:
+                - spec:
+                    paths:
+                    - test-results/*.xml
+                  type: junit
               timeout: ""
-              type: Plugin
+              type: Run
         platform:
           arch: Amd64
           os: Linux
