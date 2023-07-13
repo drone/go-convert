@@ -17,9 +17,9 @@ package gitlab
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strings"
 
 	gitlab "github.com/drone/go-convert/convert/gitlab/yaml"
@@ -150,15 +150,15 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 
 	stages := ctx.config.Stages
 	if len(stages) == 0 {
-		stages = []string{"pre", "build", "test", "deploy", "post"} // stages don't have to be declared for valid yaml. Default to test
+		stages = []string{".pre", "build", "test", "deploy", ".post"} // stages don't have to be declared for valid yaml. Default to test
 	}
 
 	for name, job := range ctx.config.Jobs { // required for ordering
 		switch name {
 		case "before_script":
-			job.Stage = "pre"
+			job.Stage = ".pre"
 		case "after_script":
-			job.Stage = "post"
+			job.Stage = ".post"
 		case "":
 			job.Stage = "build"
 		}
@@ -171,13 +171,13 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 
 		// iterate through jobs and find jobs assigned to
 		// the stage. skip other stages.
-		for jobname, job := range ctx.config.Jobs {
+		for jobName, job := range ctx.config.Jobs { // maintaining order here
 			if job == nil || job.Stage != stageName {
 				continue
 			}
 
 			// Convert each job to a step
-			step := convertJobToStep(ctx, stageName, jobname, job)
+			step := convertJobToStep(ctx, jobName, job)
 			stepGroup.Steps = append(stepGroup.Steps, step...)
 		}
 
@@ -213,7 +213,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	return out, nil
 }
 
-func convertJobToStep(ctx *context, stageName string, jobname string, job *gitlab.Job) []*harness.Step {
+func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.Step {
 	var steps []*harness.Step
 	spec := new(harness.StepExec)
 
@@ -235,7 +235,7 @@ func convertJobToStep(ctx *context, stageName string, jobname string, job *gitla
 	spec.Run = strings.Join(script, "\n")
 
 	steps = append(steps, &harness.Step{
-		Name: fmt.Sprintf("%s", jobname),
+		Name: jobName,
 		Type: "script",
 		Spec: spec,
 	})
@@ -252,10 +252,18 @@ func convertJobToStep(ctx *context, stageName string, jobname string, job *gitla
 
 func convertVariables(variables map[string]*gitlab.Variable) map[string]string {
 	result := make(map[string]string)
-	for key, variable := range variables {
+	var keys []string
+	for key := range variables {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		variable := variables[key]
 		if variable != nil {
 			result[key] = variable.Value
 		}
 	}
+
 	return result
 }

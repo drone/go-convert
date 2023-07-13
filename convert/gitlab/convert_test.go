@@ -15,10 +15,8 @@
 package gitlab
 
 import (
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
-	"sort"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -26,7 +24,7 @@ import (
 )
 
 func TestConvert(t *testing.T) {
-	tests, err := filepath.Glob("yaml/testdata/*.yaml")
+	tests, err := filepath.Glob("testdata/*/*.yaml")
 	if err != nil {
 		t.Error(err)
 		return
@@ -34,7 +32,7 @@ func TestConvert(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test, func(t *testing.T) {
-			// convert the yaml file from github to harness
+			// convert the yaml file from gitlab to harness
 			converter := New()
 			tmp1, err := converter.ConvertFile(test)
 			if err != nil {
@@ -48,8 +46,6 @@ func TestConvert(t *testing.T) {
 				t.Error(err)
 				return
 			}
-
-			got = normalizeMap(got)
 
 			// parse the golden yaml file
 			data, err := ioutil.ReadFile(test + ".golden")
@@ -65,8 +61,6 @@ func TestConvert(t *testing.T) {
 				return
 			}
 
-			want = normalizeMap(want)
-
 			// compare the converted yaml to the golden file
 			if diff := cmp.Diff(got, want); diff != "" {
 				t.Errorf("Unexpected conversion result")
@@ -74,59 +68,4 @@ func TestConvert(t *testing.T) {
 			}
 		})
 	}
-}
-
-func normalizeMap(m map[string]interface{}) map[string]interface{} {
-	normalized := make(map[string]interface{}, len(m))
-	keys := make([]string, 0, len(m))
-
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	for _, k := range keys {
-		v := m[k]
-		switch t := v.(type) {
-		case map[string]interface{}:
-			normalized[k] = normalizeMap(t)
-		case map[interface{}]interface{}:
-			normalizedMap := make(map[string]interface{}, len(t))
-			for k, v := range t {
-				normalizedMap[fmt.Sprintf("%v", k)] = v
-			}
-			normalized[k] = normalizeMap(normalizedMap)
-		case []interface{}:
-			normalized[k] = normalizeSlice(t)
-		default:
-			normalized[k] = v
-		}
-	}
-
-	return normalized
-}
-
-func normalizeSlice(s []interface{}) []interface{} {
-	for i, v := range s {
-		if m, ok := v.(map[string]interface{}); ok {
-			s[i] = normalizeMap(m)
-		}
-	}
-	sort.SliceStable(s, func(i, j int) bool {
-		mi, oki := s[i].(map[string]interface{})
-		mj, okj := s[j].(map[string]interface{})
-		if !oki || !okj {
-			// At least one of the values is not a map, so don't attempt to sort
-			return false
-		}
-		ni, inj := mi["name"].(string)
-		nj, inj := mj["name"].(string)
-		if inj {
-			// Both maps have a string name field, so sort by these
-			return ni < nj
-		}
-		// At least one map doesn't have a string name field, so don't attempt to sort
-		return false
-	})
-	return s
 }
