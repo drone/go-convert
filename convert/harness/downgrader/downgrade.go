@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"sort"
 	"strings"
 	"time"
 
@@ -211,22 +212,19 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 	spec := stage.Spec.(*v1.StageCI)
 
 	var steps []*v0.Steps
-
-	stageEnv := spec.Envs // Convert stage environment variables
-
 	// convert each drone step to a harness step.
-	for index, v := range spec.Steps {
+	for _, v := range spec.Steps {
 		// the v0 yaml does not have the concept of
 		// a group step, so we append all steps in
 		// the group directly to the stage to emulate
 		// this behavior.
 		if _, ok := v.Spec.(*v1.StepGroup); ok {
-			steps = append(steps, d.convertStepGroup(v, stageEnv, 10)...)
+			steps = append(steps, d.convertStepGroup(v, 10)...)
 
 		} else {
 			// else convert the step and append to
 			// the stage.
-			steps = append(steps, d.convertStep(v, stageEnv, index))
+			steps = append(steps, d.convertStep(v))
 		}
 	}
 
@@ -323,6 +321,7 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		},
 		When:     convertStageWhen(stage.When, ""),
 		Strategy: convertStrategy(stage.Strategy),
+		Vars:     convertVariables(spec.Envs),
 	}
 }
 
@@ -377,20 +376,20 @@ func convertMatrix(v1Matrix *v1.Matrix) map[string]interface{} {
 // TODO failure strategy
 // TODO matrix strategy
 // TODO when
-func (d *Downgrader) convertStep(src *v1.Step, stageEnv map[string]string, index int) *v0.Steps {
+func (d *Downgrader) convertStep(src *v1.Step) *v0.Steps {
 	switch src.Spec.(type) {
 	case *v1.StepExec:
-		return &v0.Steps{Step: d.convertStepRun(src, stageEnv)}
+		return &v0.Steps{Step: d.convertStepRun(src)}
 	case *v1.StepPlugin:
-		return &v0.Steps{Step: d.convertStepPlugin(src, stageEnv, index)}
+		return &v0.Steps{Step: d.convertStepPlugin(src)}
 	case *v1.StepAction:
-		return &v0.Steps{Step: d.convertStepAction(src, stageEnv)}
+		return &v0.Steps{Step: d.convertStepAction(src)}
 	case *v1.StepBitrise:
-		return &v0.Steps{Step: d.convertStepBitrise(src, stageEnv)}
+		return &v0.Steps{Step: d.convertStepBitrise(src)}
 	case *v1.StepParallel:
-		return &v0.Steps{Parallel: d.convertStepParallel(src, stageEnv)}
+		return &v0.Steps{Parallel: d.convertStepParallel(src)}
 	case *v1.StepBackground:
-		return &v0.Steps{Step: d.convertStepBackground(src, stageEnv)}
+		return &v0.Steps{Step: d.convertStepBackground(src)}
 	default:
 		return nil // should not happen
 	}
@@ -399,20 +398,20 @@ func (d *Downgrader) convertStep(src *v1.Step, stageEnv map[string]string, index
 // helper function to convert a Group step from the v1
 // structure to a list of steps. The v0 yaml does not have
 // an equivalent to the group step.
-func (d *Downgrader) convertStepGroup(src *v1.Step, stageEnv map[string]string, depth int) []*v0.Steps {
+func (d *Downgrader) convertStepGroup(src *v1.Step, depth int) []*v0.Steps {
 	if depth > MaxDepth {
 		return nil // Reached maximum depth. Stop recursion to prevent stack overflow
 	}
 	spec_ := src.Spec.(*v1.StepGroup)
 
 	var steps []*v0.Steps
-	for index, step := range spec_.Steps {
+	for _, step := range spec_.Steps {
 		// If this step is a step group, recursively convert it
 		if _, ok := step.Spec.(*v1.StepGroup); ok {
-			steps = append(steps, d.convertStepGroup(step, stageEnv, depth+1)...)
+			steps = append(steps, d.convertStepGroup(step, depth+1)...)
 		} else {
 			// Else, convert the step
-			dst := d.convertStep(step, stageEnv, index)
+			dst := d.convertStep(step)
 			steps = append(steps, &v0.Steps{Step: dst.Step})
 		}
 	}
@@ -421,12 +420,12 @@ func (d *Downgrader) convertStepGroup(src *v1.Step, stageEnv map[string]string, 
 
 // helper function to convert a Parallel step from the v1
 // structure to the v0 harness structure.
-func (d *Downgrader) convertStepParallel(src *v1.Step, stageEnv map[string]string) []*v0.Step {
+func (d *Downgrader) convertStepParallel(src *v1.Step) []*v0.Step {
 	spec_ := src.Spec.(*v1.StepParallel)
 
 	var steps []*v0.Step
-	for index, step := range spec_.Steps {
-		dst := d.convertStep(step, stageEnv, index)
+	for _, step := range spec_.Steps {
+		dst := d.convertStep(step)
 		steps = append(steps, dst.Step)
 	}
 	return steps
@@ -438,7 +437,7 @@ func (d *Downgrader) convertStepParallel(src *v1.Step, stageEnv map[string]strin
 // TODO convert outputs
 // TODO convert resources
 // TODO convert reports
-func (d *Downgrader) convertStepRun(src *v1.Step, stageEnv map[string]string) *v0.Step {
+func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepExec)
 	var id = d.identifiers.Generate(
 		slug.Create(src.Id),
@@ -464,7 +463,6 @@ func (d *Downgrader) convertStepRun(src *v1.Step, stageEnv map[string]string) *v
 			Shell:           strings.Title(spec_.Shell),
 		},
 		When: convertStepWhen(src.When, id),
-		Env:  stageEnv,
 	}
 }
 
@@ -499,7 +497,7 @@ func convertReports(reports []*v1.Report) *v0.Report {
 // structure to the v0 harness structure.
 //
 // TODO convert resources
-func (d *Downgrader) convertStepBackground(src *v1.Step, stageEnv map[string]string) *v0.Step {
+func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepBackground)
 	var id = d.identifiers.Generate(
 		slug.Create(src.Id),
@@ -529,7 +527,6 @@ func (d *Downgrader) convertStepBackground(src *v1.Step, stageEnv map[string]str
 			PortBindings:    convertPorts(spec_.Ports),
 		},
 		When: convertStepWhen(src.When, id),
-		Env:  stageEnv,
 	}
 }
 
@@ -538,7 +535,7 @@ func (d *Downgrader) convertStepBackground(src *v1.Step, stageEnv map[string]str
 //
 // TODO convert resources
 // TODO convert reports
-func (d *Downgrader) convertStepPlugin(src *v1.Step, stageEnv map[string]string, index int) *v0.Step {
+func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepPlugin)
 	var id = d.identifiers.Generate(
 		slug.Create(src.Id),
@@ -562,13 +559,12 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step, stageEnv map[string]string,
 			RunAsUser:       spec_.User,
 		},
 		When: convertStepWhen(src.When, id),
-		Env:  stageEnv,
 	}
 }
 
 // helper function to convert an Action step from the v1
 // structure to the v0 harness structure.
-func (d *Downgrader) convertStepAction(src *v1.Step, stageEnv map[string]string) *v0.Step {
+func (d *Downgrader) convertStepAction(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepAction)
 	var id = d.identifiers.Generate(
 		slug.Create(src.Id),
@@ -588,13 +584,12 @@ func (d *Downgrader) convertStepAction(src *v1.Step, stageEnv map[string]string)
 			Envs: spec_.Envs,
 		},
 		When: convertStepWhen(src.When, id),
-		Env:  stageEnv,
 	}
 }
 
 // helper function to convert a Bitrise step from the v1
 // structure to the v0 harness structure.
-func (d *Downgrader) convertStepBitrise(src *v1.Step, stageEnv map[string]string) *v0.Step {
+func (d *Downgrader) convertStepBitrise(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepBitrise)
 	var id = d.identifiers.Generate(
 		slug.Create(src.Id),
@@ -614,7 +609,6 @@ func (d *Downgrader) convertStepBitrise(src *v1.Step, stageEnv map[string]string
 			Envs: spec_.Envs,
 		},
 		When: convertStepWhen(src.When, id),
-		Env:  stageEnv,
 	}
 }
 
@@ -650,7 +644,13 @@ func convertVariables(src map[string]string) []*v0.Variable {
 		return nil
 	}
 	var vars []*v0.Variable
-	for k, v := range src {
+	var keys []string
+	for k := range src {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		v := src[k]
 		vars = append(vars, &v0.Variable{
 			Name:  k,
 			Value: v,

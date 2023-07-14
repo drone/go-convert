@@ -1,0 +1,21 @@
+stages:
+- name: test
+  spec:
+    envs:
+      STAGE_VARIABLE: value
+    platform:
+      arch: amd64
+      os: linux
+    runtime:
+      spec: {}
+      type: cloud
+    steps:
+      - name: hello
+        spec:
+          image: busybox
+          run: |
+            echo hello
+          shell: bash
+        type: script
+  type: ci
+version: 1
