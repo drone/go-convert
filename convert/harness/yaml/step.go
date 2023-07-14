@@ -156,7 +156,7 @@ type (
 		Privileged      bool              `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
 		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
-		Reports         []Report          `json:"reports,omitempty"         yaml:"reports,omitempty"`
+		Reports         *Report           `json:"reports,omitempty"         yaml:"reports,omitempty"`
 		Shell           string            `json:"shell,omitempty"           yaml:"shell,omitempty"`
 	}
 

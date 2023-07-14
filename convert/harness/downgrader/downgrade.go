@@ -469,21 +469,30 @@ func (d *Downgrader) convertStepRun(src *v1.Step, stageEnv map[string]string) *v
 }
 
 // helper function to convert reports from the v1 to v0
-func convertReports(reports []*v1.Report) []v0.Report {
-	v0Reports := make([]v0.Report, len(reports))
-
-	for i, report := range reports {
-		reportJunit := v0.ReportJunit{
-			Paths: report.Path,
-		}
-
-		v0Reports[i] = v0.Report{
-			Type: report.Type,
-			Spec: &reportJunit,
-		}
+func convertReports(reports []*v1.Report) *v0.Report {
+	if reports == nil || len(reports) == 0 {
+		return nil
 	}
 
-	return v0Reports
+	// Initialize an empty slice to store all paths
+	allPaths := []string{}
+
+	// Loop over reports and collect all paths
+	for _, report := range reports {
+		allPaths = append(allPaths, report.Path...)
+	}
+
+	reportJunit := v0.ReportJunit{
+		Paths: allPaths,
+	}
+
+	v0Report := v0.Report{
+		// Assuming all reports have the same type
+		Type: "JUnit",
+		Spec: &reportJunit,
+	}
+
+	return &v0Report
 }
 
 // helper function to convert a Bitrise step from the v1
