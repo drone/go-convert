@@ -68,7 +68,7 @@ pipeline:
                     connectorRef: gcrConnector
                     command: some command or commands
                     reports:
-                      - type: JUnit
+                        type: JUnit
                         spec:  
                           paths:
                             - rspec.xml
