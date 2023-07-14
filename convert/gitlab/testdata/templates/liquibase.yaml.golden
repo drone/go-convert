@@ -1,0 +1,39 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: build-job
+      spec:
+        run: echo "This job tested successfully with liquibase in DEV environment"
+      type: script
+    - name: test-job
+      spec:
+        run: echo "This job testsed successfully with liquibase in TEST environment"
+      type: script
+    - name: deploy-prod
+      spec:
+        run: echo "This job deployed successfully Liquibase in a production environment
+          from the $CI_COMMIT_BRANCH branch."
+      type: script
+    - name: compare
+      spec:
+        steps:
+        - name: DEV->TEST
+          spec:
+            image: liquibase/liquibase:latest
+            run: |-
+              echo "Comparing databases DEV --> TEST"
+              liquibase diff
+              liquibase --outputFile=diff_between_DEV_TEST.json diff --format=json
+          type: script
+        - name: TEST->PROD
+          spec:
+            image: liquibase/liquibase:latest
+            run: |-
+              echo "Comparing databases TEST --> PROD"
+              liquibase diff
+              liquibase --outputFile=diff_between_TEST_PROD.json diff --format=json
+          type: script
+      type: parallel
+  type: ci
+version: 1

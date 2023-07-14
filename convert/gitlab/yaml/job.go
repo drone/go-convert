@@ -26,6 +26,7 @@ type Job struct {
 	Cache         *Cache               `yaml:"cache,omitempty"`
 	Environment   *Environment         `yaml:"environment,omitempty"`
 	Extends       Stringorslice        `yaml:"extends,omitempty"`
+	Functions     string               `yaml:"_,omitempty"`
 	Image         *Image               `yaml:"image,omitempty"`
 	Inherit       *Inherit             `yaml:"inherit,omitempty"`
 	Interruptible bool                 `yaml:"interruptible,omitempty"`
@@ -58,6 +59,7 @@ func (v *Job) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Cache         *Cache               `yaml:"cache,omitempty"`
 		Environment   *Environment         `yaml:"environment,omitempty"`
 		Extends       Stringorslice        `yaml:"extends,omitempty"`
+		Functions     string               `yaml:"_,omitempty"`
 		Image         *Image               `yaml:"image,omitempty"`
 		Inherit       *Inherit             `yaml:"inherit,omitempty"`
 		Interruptible bool                 `yaml:"interruptible,omitempty"`
@@ -78,7 +80,7 @@ func (v *Job) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Variables     map[string]*Variable `yaml:"variables,omitempty"`
 		When          string               `yaml:"when,omitempty"`
 	}{}
-
+	var out3 string
 	if err := unmarshal(&out1); err == nil {
 		v.Script = out1
 		return nil
@@ -88,6 +90,9 @@ func (v *Job) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		*v = out2
 		return nil
 	}
-
+	if err := unmarshal(&out3); err == nil {
+		v.Functions = out3
+		return nil
+	}
 	return errors.New("failed to unmarshal job")
 }

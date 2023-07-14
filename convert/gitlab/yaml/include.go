@@ -18,6 +18,22 @@ import (
 	"errors"
 )
 
+type Includes []*Include
+
+func (i *Includes) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	single := &Include{}
+	multiple := []*Include{}
+	if err := unmarshal(single); err == nil {
+		*i = append(*i, single)
+		return nil
+	}
+	if err := unmarshal(&multiple); err == nil {
+		*i = append(*i, multiple...)
+		return nil
+	}
+	return errors.New("failed to unmarshal include")
+}
+
 // Include includes external yaml files.
 // https://docs.gitlab.com/ee/ci/yaml/#include
 type Include struct {

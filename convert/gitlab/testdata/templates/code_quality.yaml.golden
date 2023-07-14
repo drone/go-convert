@@ -1,0 +1,5 @@
+stages:
+- name: build
+  spec: {}
+  type: ci
+version: 1

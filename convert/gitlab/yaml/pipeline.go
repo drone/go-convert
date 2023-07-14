@@ -18,7 +18,7 @@ type (
 	// Pipeline defines a gitlab pipeline.
 	Pipeline struct {
 		Default   *Default             `yaml:"default,omitempty"`
-		Include   []*Include           `yaml:"include,omitempty"`
+		Include   *Includes            `yaml:"include,omitempty"`
 		Image     *Image               `yaml:"image,omitempty"`
 		Jobs      map[string]*Job      `yaml:",inline"`
 		Stages    []string             `yaml:"stages,omitempty"`
