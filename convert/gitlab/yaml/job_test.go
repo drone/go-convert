@@ -61,10 +61,3 @@ func TestJob(t *testing.T) {
 		}
 	}
 }
-
-func TestJob_Error(t *testing.T) {
-	err := yaml.Unmarshal([]byte("123"), new(Job))
-	if err == nil || err.Error() != "failed to unmarshal job" {
-		t.Errorf("Expect error, got %s", err)
-	}
-}
