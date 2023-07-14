@@ -1,0 +1,38 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: test
+      name: test
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - step:
+              identifier: hello
+              name: hello
+              spec:
+                command: |
+                  echo hello
+                image: busybox
+                shell: Bash
+              timeout: ""
+              type: Run
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI
+      variables:
+      - name: STAGE_VARIABLE
+        type: String
+        value: value
