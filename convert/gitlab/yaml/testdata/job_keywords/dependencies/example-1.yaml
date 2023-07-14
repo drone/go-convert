@@ -1,0 +1,32 @@
+# https://docs.gitlab.com/ee/ci/yaml/#dependencies
+
+build osx:
+  stage: build
+  script: make build:osx
+  artifacts:
+    paths:
+      - binaries/
+
+build linux:
+  stage: build
+  script: make build:linux
+  artifacts:
+    paths:
+      - binaries/
+
+test osx:
+  stage: test
+  script: make test:osx
+  dependencies:
+    - build osx
+
+test linux:
+  stage: test
+  script: make test:linux
+  dependencies:
+    - build linux
+
+deploy:
+  stage: deploy
+  script: make deploy
+  environment: production

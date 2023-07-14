@@ -1,0 +1,5 @@
+# https://docs.gitlab.com/ee/ci/yaml/#coverage
+
+job1:
+  script: rspec
+  coverage: '/Code coverage: \d+\.\d+/'

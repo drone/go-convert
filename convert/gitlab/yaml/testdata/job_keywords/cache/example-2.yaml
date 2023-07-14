@@ -1,0 +1,9 @@
+# https://docs.gitlab.com/ee/ci/yaml/#cachekey
+
+cache-job:
+  script:
+    - echo "This job uses a cache."
+  cache:
+    key: binaries-cache-$CI_COMMIT_REF_SLUG
+    paths:
+      - binaries/

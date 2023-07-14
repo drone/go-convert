@@ -1,0 +1,13 @@
+# https://docs.gitlab.com/ee/ci/yaml/#cachekeyfiles
+
+cache-job:
+  script:
+    - echo "This job uses a cache."
+  cache:
+    key:
+      files:
+        - Gemfile.lock
+        - package.json
+    paths:
+      - vendor/ruby
+      - node_modules

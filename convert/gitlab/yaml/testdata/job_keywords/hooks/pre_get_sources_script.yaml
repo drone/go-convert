@@ -1,0 +1,7 @@
+# https://docs.gitlab.com/ee/ci/yaml/#hookspre_get_sources_script
+
+job1:
+  hooks:
+    pre_get_sources_script:
+      - echo 'hello job1 pre_get_sources_script'
+  script: echo 'hello job1 script'

@@ -1,0 +1,37 @@
+# https://docs.gitlab.com/ee/ci/yaml/#when
+
+stages:
+  - build
+  - cleanup_build
+  - test
+  - deploy
+  - cleanup
+
+build_job:
+  stage: build
+  script:
+    - make build
+
+cleanup_build_job:
+  stage: cleanup_build
+  script:
+    - cleanup build when failed
+  when: on_failure
+
+test_job:
+  stage: test
+  script:
+    - make test
+
+deploy_job:
+  stage: deploy
+  script:
+    - make deploy
+  when: manual
+  environment: production
+
+cleanup_job:
+  stage: cleanup
+  script:
+    - cleanup after jobs
+  when: always

@@ -1,0 +1,7 @@
+# https://docs.gitlab.com/ee/ci/yaml/#artifactspaths
+
+job:
+  artifacts:
+    paths:
+      - binaries/
+      - .config

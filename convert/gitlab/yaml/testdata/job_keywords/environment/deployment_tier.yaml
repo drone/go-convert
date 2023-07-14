@@ -1,0 +1,7 @@
+# https://docs.gitlab.com/ee/ci/yaml/#environmentdeployment_tier
+
+deploy:
+  script: echo
+  environment:
+    name: customer-portal
+    deployment_tier: production

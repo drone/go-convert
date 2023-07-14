@@ -1,0 +1,7 @@
+# https://docs.gitlab.com/ee/ci/yaml/#rulesexists
+
+job:
+  script: docker build -t my-image:$CI_COMMIT_REF_SLUG .
+  rules:
+    - exists:
+        - Dockerfile

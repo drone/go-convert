@@ -1,0 +1,8 @@
+# https://docs.gitlab.com/ee/ci/yaml/#cachewhen
+
+rspec:
+  script: rspec
+  cache:
+    paths:
+      - rspec/
+    when: 'always'

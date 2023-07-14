@@ -1,0 +1,6 @@
+# https://docs.gitlab.com/ee/ci/yaml/#needspipeline
+
+upstream_status:
+  stage: test
+  needs:
+    pipeline: other/project

@@ -1,0 +1,5 @@
+# https://docs.gitlab.com/ee/ci/yaml/#parallel
+
+test:
+  script: rspec
+  parallel: 5

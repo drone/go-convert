@@ -1,0 +1,5 @@
+# https://docs.gitlab.com/ee/ci/yaml/#variablesdescription
+
+variables:
+  DEPLOY_NOTE:
+    description: "The deployment note. Explain the reason for this deployment."

@@ -1,0 +1,18 @@
+# https://docs.gitlab.com/ee/ci/yaml/#allow_failure
+
+job1:
+  stage: test
+  script:
+    - execute_script_1
+
+job2:
+  stage: test
+  script:
+    - execute_script_2
+  allow_failure: true
+
+job3:
+  stage: deploy
+  script:
+    - deploy_to_staging
+  environment: staging

@@ -1,0 +1,15 @@
+# https://docs.gitlab.com/ee/ci/yaml/#onlyrefs--exceptrefs
+
+job1:
+  script: echo
+  only:
+    - main
+    - /^issue-.*$/
+    - merge_requests
+
+job2:
+  script: echo
+  except:
+    - main
+    - /^stable-branch.*$/
+    - schedules

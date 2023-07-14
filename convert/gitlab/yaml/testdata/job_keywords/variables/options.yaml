@@ -1,0 +1,10 @@
+# https://docs.gitlab.com/ee/ci/yaml/#variablesoptions
+
+variables:
+  DEPLOY_ENVIRONMENT:
+    value: "staging"
+    options:
+      - "production"
+      - "staging"
+      - "canary"
+    description: "The deployment target. Set to 'staging' by default."

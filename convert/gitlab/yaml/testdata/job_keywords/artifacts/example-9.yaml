@@ -1,0 +1,5 @@
+# https://docs.gitlab.com/ee/ci/yaml/#artifactswhen
+
+job:
+  artifacts:
+    when: on_failure

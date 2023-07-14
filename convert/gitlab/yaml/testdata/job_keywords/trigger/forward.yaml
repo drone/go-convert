@@ -1,0 +1,29 @@
+# https://docs.gitlab.com/ee/ci/yaml/#triggerforward
+
+variables: # default variables for each job
+  VAR: value
+
+# Default behavior:
+# - VAR is passed to the child
+# - MYVAR is not passed to the child
+child1:
+  trigger:
+    include: .child-pipeline.yml
+
+# Forward pipeline variables:
+# - VAR is passed to the child
+# - MYVAR is passed to the child
+child2:
+  trigger:
+    include: .child-pipeline.yml
+    forward:
+      pipeline_variables: true
+
+# Do not forward YAML variables:
+# - VAR is not passed to the child
+# - MYVAR is not passed to the child
+child3:
+  trigger:
+    include: .child-pipeline.yml
+    forward:
+      yaml_variables: false

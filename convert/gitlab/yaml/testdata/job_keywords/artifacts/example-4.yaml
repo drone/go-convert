@@ -1,0 +1,7 @@
+# https://docs.gitlab.com/ee/ci/yaml/#artifactsexpose_as
+
+test:
+  script: ["echo 'test' > file.txt"]
+  artifacts:
+    expose_as: 'artifact 1'
+    paths: ['file.txt']

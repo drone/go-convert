@@ -1,0 +1,15 @@
+# https://docs.gitlab.com/ee/ci/yaml/#extends
+
+.tests:
+  script: rake test
+  stage: test
+  only:
+    refs:
+      - branches
+
+rspec:
+  extends: .tests
+  script: rake rspec
+  only:
+    variables:
+      - $RSPEC

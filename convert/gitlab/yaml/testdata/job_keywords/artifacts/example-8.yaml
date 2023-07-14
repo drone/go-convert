@@ -1,0 +1,5 @@
+# https://docs.gitlab.com/ee/ci/yaml/#artifactsuntracked
+
+job:
+  artifacts:
+    untracked: true

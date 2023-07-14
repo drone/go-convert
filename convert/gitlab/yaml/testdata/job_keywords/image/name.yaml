@@ -1,0 +1,4 @@
+# https://docs.gitlab.com/ee/ci/yaml/#imagename
+
+image:
+  name: "registry.example.com/my/image:latest"

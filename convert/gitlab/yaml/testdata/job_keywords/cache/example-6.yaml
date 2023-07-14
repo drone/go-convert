@@ -1,0 +1,6 @@
+# https://docs.gitlab.com/ee/ci/yaml/#cacheunprotect
+
+rspec:
+  script: test
+  cache:
+    unprotect: true

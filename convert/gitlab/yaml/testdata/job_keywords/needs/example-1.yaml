@@ -1,0 +1,29 @@
+# https://docs.gitlab.com/ee/ci/yaml/#needs
+
+linux:build:
+  stage: build
+  script: echo "Building linux..."
+
+mac:build:
+  stage: build
+  script: echo "Building mac..."
+
+lint:
+  stage: test
+  needs: []
+  script: echo "Linting..."
+
+linux:rspec:
+  stage: test
+  needs: ["linux:build"]
+  script: echo "Running rspec on linux..."
+
+mac:rspec:
+  stage: test
+  needs: ["mac:build"]
+  script: echo "Running rspec on mac..."
+
+production:
+  stage: deploy
+  script: echo "Running production..."
+  environment: production

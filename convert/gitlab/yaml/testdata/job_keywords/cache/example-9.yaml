@@ -1,0 +1,11 @@
+# https://docs.gitlab.com/ee/ci/yaml/#cachefallback_keys
+
+rspec:
+  script: rspec
+  cache:
+    key: gems-$CI_COMMIT_REF_SLUG
+    paths:
+      - rspec/
+    fallback_keys:
+      - gems
+    when: 'always'

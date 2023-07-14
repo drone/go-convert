@@ -1,0 +1,18 @@
+# https://docs.gitlab.com/ee/ci/yaml/#inheritdefault
+
+default:
+  retry: 2
+  image: ruby:3.0
+  interruptible: true
+
+job1:
+  script: echo "This job does not inherit any default keywords."
+  inherit:
+    default: false
+
+job2:
+  script: echo "This job inherits only the two listed default keywords. It does not inherit 'interruptible'."
+  inherit:
+    default:
+      - retry
+      - image

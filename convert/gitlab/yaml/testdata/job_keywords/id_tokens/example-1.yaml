@@ -1,0 +1,15 @@
+# https://docs.gitlab.com/ee/ci/yaml/#id_tokens
+
+job_with_id_tokens:
+  id_tokens:
+    ID_TOKEN_1:
+      aud: https://gitlab.com
+    ID_TOKEN_2:
+      aud:
+        - https://gcp.com
+        - https://aws.com
+    SIGSTORE_ID_TOKEN:
+      aud: sigstore
+  script:
+    - command_to_authenticate_with_gitlab $ID_TOKEN_1
+    - command_to_authenticate_with_aws $ID_TOKEN_2

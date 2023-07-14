@@ -1,0 +1,12 @@
+# https://docs.gitlab.com/ee/ci/yaml/#cachekeyprefix
+
+rspec:
+  script:
+    - echo "This rspec job uses a cache."
+  cache:
+    key:
+      files:
+        - Gemfile.lock
+      prefix: $CI_JOB_NAME
+    paths:
+      - vendor/ruby

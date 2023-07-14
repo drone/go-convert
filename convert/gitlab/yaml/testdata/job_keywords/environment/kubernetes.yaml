@@ -1,0 +1,9 @@
+# https://docs.gitlab.com/ee/ci/yaml/#environmentkubernetes
+
+deploy:
+  stage: deploy
+  script: make deploy-app
+  environment:
+    name: production
+    kubernetes:
+      namespace: production

@@ -1,0 +1,8 @@
+# https://docs.gitlab.com/ee/ci/yaml/#cacheuntracked
+
+rspec:
+  script: test
+  cache:
+    untracked: true
+    paths:
+      - binaries/

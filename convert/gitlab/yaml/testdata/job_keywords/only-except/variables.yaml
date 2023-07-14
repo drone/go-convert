@@ -1,0 +1,8 @@
+# https://docs.gitlab.com/ee/ci/yaml/#onlyvariables--exceptvariables
+
+deploy:
+  script: cap staging deploy
+  only:
+    variables:
+      - $RELEASE == "staging"
+      - $STAGING

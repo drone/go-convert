@@ -1,0 +1,27 @@
+# https://docs.gitlab.com/ee/ci/yaml/#needsoptional
+
+build-job:
+  stage: build
+
+test-job1:
+  stage: test
+
+test-job2:
+  stage: test
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+deploy-job:
+  stage: deploy
+  needs:
+    - job: test-job2
+      optional: true
+    - job: test-job1
+  environment: production
+
+review-job:
+  stage: deploy
+  needs:
+    - job: test-job2
+      optional: true
+  environment: review
