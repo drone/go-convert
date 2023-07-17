@@ -15,13 +15,13 @@
 package yaml
 
 type Artifacts struct {
-	Paths     Stringorslice `yaml:"paths,omitempty"`
-	Exclude   Stringorslice `yaml:"exclude,omitempty"`
-	ExpireIn  string        `yaml:"expire_in,omitempty"`
-	ExposeAs  string        `yaml:"expose_as,omitempty"`
-	Name      string        `yaml:"name,omitempty"`
-	Public    bool          `yaml:"public,omitempty"`
-	Reports   interface{}   `yaml:"reports,omitempty"`
-	Untracked bool          `yaml:"untracked,omitempty"`
-	When      string        `yaml:"when,omitempty"` // on_success, on_failure, always
+	Paths     Stringorslice          `yaml:"paths,omitempty"`
+	Exclude   Stringorslice          `yaml:"exclude,omitempty"`
+	ExpireIn  string                 `yaml:"expire_in,omitempty"`
+	ExposeAs  string                 `yaml:"expose_as,omitempty"`
+	Name      string                 `yaml:"name,omitempty"`
+	Public    bool                   `yaml:"public,omitempty"`
+	Reports   map[string]interface{} `yaml:"reports,omitempty"`
+	Untracked bool                   `yaml:"untracked,omitempty"`
+	When      string                 `yaml:"when,omitempty"` // on_success, on_failure, always
 }

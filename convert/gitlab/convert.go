@@ -158,7 +158,10 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		stages = []string{".pre", "build", "test", "deploy", ".post"} // stages don't have to be declared for valid yaml. Default to test
 	}
 
-	for name, job := range ctx.config.Jobs { // required for ordering
+	for name, job := range ctx.config.Jobs {
+		if job.Stage == "" {
+			job.Stage = "test" // default stage
+		} // required for ordering
 		switch name {
 		case "before_script":
 			job.Stage = ".pre"
@@ -234,17 +237,42 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 		spec.Pull = ctx.config.Image.PullPolicy
 	}
 
+	beforeScripts := job.Before
+	if len(beforeScripts) == 0 && ctx.config.Default != nil {
+		beforeScripts = ctx.config.Default.Before
+	}
+
+	afterScripts := job.After
+	if len(afterScripts) == 0 && ctx.config.Default != nil {
+		afterScripts = ctx.config.Default.After
+	}
+
 	// Convert all scripts into a single step
-	script := append(job.Before)
+	script := append(beforeScripts)
 	script = append(script, job.Script...)
 	script = append(script, job.After...)
+	script = append(script, afterScripts...)
+
 	spec.Run = strings.Join(script, "\n")
 
-	steps = append(steps, &harness.Step{
+	step := &harness.Step{
 		Name: jobName,
 		Type: "script",
 		Spec: spec,
-	})
+	}
+
+	if job.AllowFailure != nil {
+		if job.AllowFailure.Value {
+			step.On = &harness.On{
+				Failure: &harness.Failure{
+					Type: "ignore",
+					//ExitCodes: job.AllowFailure.ExitCodes,
+				},
+			}
+		}
+	}
+
+	steps = append(steps, step)
 
 	// job.Cache
 	// job.Retry

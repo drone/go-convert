@@ -1,0 +1,13 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: job
+      spec:
+        run: |-
+          echo "An example script section."
+          echo "Execute this command after the `script` section completes."
+          echo "Execute this command after the `script` section completes."
+      type: script
+  type: ci
+version: 1
