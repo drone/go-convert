@@ -1,22 +1,17 @@
-stages:
-- name: build
-  spec:
-    steps:
-    - name: test
-      spec:
-        steps:
-        - name: job1
-          spec:
-            run: execute_script_1
-          type: script
-        - name: job2
-          spec:
-            run: execute_script_2
-          type: script
-      type: parallel
-    - name: job3
-      spec:
-        run: deploy_to_staging
-      type: script
-  type: ci
-version: 1
+job1:
+    script:
+        - execute_script_1
+    stage: test
+job2:
+    allow_failure:
+        exit_codes: []
+    script:
+        - execute_script_2
+    stage: test
+job3:
+    environment:
+        name: staging
+        deployment_tier: ""
+    script:
+        - deploy_to_staging
+    stage: deploy

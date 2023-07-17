@@ -20,6 +20,7 @@ import (
 	"io"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 
 	gitlab "github.com/drone/go-convert/convert/gitlab/yaml"
@@ -259,17 +260,7 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 		Name: jobName,
 		Type: "script",
 		Spec: spec,
-	}
-
-	if job.AllowFailure != nil {
-		if job.AllowFailure.Value {
-			step.On = &harness.On{
-				Failure: &harness.Failure{
-					Type: "ignore",
-					//ExitCodes: job.AllowFailure.ExitCodes,
-				},
-			}
-		}
+		On:   convertAllowFailure(job),
 	}
 
 	steps = append(steps, step)
@@ -282,6 +273,25 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 	// job.Secrets
 
 	return steps
+}
+
+func convertAllowFailure(job *gitlab.Job) *harness.On {
+	if job.AllowFailure != nil && job.AllowFailure.Value {
+		var exitCodesStr []string
+		for _, code := range job.AllowFailure.ExitCodes {
+			exitCodesStr = append(exitCodesStr, strconv.Itoa(code))
+		}
+		// Sort the slice to maintain order
+		sort.Strings(exitCodesStr)
+
+		return &harness.On{
+			Failure: &harness.Failure{
+				Type:      "ignore",
+				ExitCodes: exitCodesStr,
+			},
+		}
+	}
+	return nil
 }
 
 func convertVariables(variables map[string]*gitlab.Variable) map[string]string {
