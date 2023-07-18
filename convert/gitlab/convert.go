@@ -89,7 +89,7 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	})
 }
 
-// ConvertString downgrades a v1 pipeline.
+// ConvertBytes downgrades a v1 pipeline.
 func (d *Converter) ConvertBytes(b []byte) ([]byte, error) {
 	return d.Convert(
 		bytes.NewBuffer(b),
@@ -119,17 +119,11 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	// create the harness pipeline
 	dst := &harness.Pipeline{
 		Version: 1,
-		// Default: convertDefault(d.config),
 	}
+	cacheFound := false
 
 	// TODO handle includes
 	// src.Include
-
-	// TODO handle stages
-	// src.Stages
-
-	// TODO handle variables
-	// src.Variables
 
 	// TODO handle workflow
 	// src.Workflow
@@ -169,6 +163,10 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 			if job.After != nil {
 				job.Stage = ".post"
 			}
+			if !cacheFound && job.Cache != nil {
+				dstStage.Spec.(*harness.StageCI).Cache = convertCache(job.Cache) // Update cache if it's defined in the job
+				cacheFound = true
+			}
 			if job == nil || job.Stage != stageName {
 				continue
 			}
@@ -205,7 +203,6 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 			}
 		}
 	}
-
 	// marshal the harness yaml
 	out, err := yaml.Marshal(dst)
 	if err != nil {
@@ -215,6 +212,21 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	return out, nil
 }
 
+// convertCache converts a GitLab cache to a Harness cache.
+func convertCache(cache *gitlab.Cache) *harness.Cache {
+	if cache == nil {
+		return nil
+	}
+
+	return &harness.Cache{
+		Enabled: true,
+		Key:     cache.Key.Value,
+		Paths:   cache.Paths,
+		Policy:  cache.Policy,
+	}
+}
+
+// convertScriptToStep converts a GitLab script to a Harness step.
 func convertScriptToStep(script []string, name, timeout string, onFailureIgnore bool) *harness.Step {
 	spec := new(harness.StepExec)
 	spec.Run = strings.Join(script, "\n")
@@ -238,6 +250,7 @@ func convertScriptToStep(script []string, name, timeout string, onFailureIgnore 
 	return step
 }
 
+// convertJobToStep converts a GitLab job to a Harness step.
 func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.Step {
 	var steps []*harness.Step
 	spec := new(harness.StepExec)
@@ -277,6 +290,7 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 	return steps
 }
 
+// convertAllowFailure converts a GitLab job's allow_failure to a Harness step's on.failure.
 func convertAllowFailure(job *gitlab.Job) *harness.On {
 	if job.AllowFailure != nil && job.AllowFailure.Value {
 		var exitCodesStr []string
@@ -298,6 +312,7 @@ func convertAllowFailure(job *gitlab.Job) *harness.On {
 	return nil
 }
 
+// convertVariables converts a GitLab variables map to a Harness variables map.
 func convertVariables(variables map[string]*gitlab.Variable) map[string]string {
 	result := make(map[string]string)
 	var keys []string

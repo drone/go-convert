@@ -1,0 +1,10 @@
+# https://docs.gitlab.com/ee/ci/yaml/#cachepaths
+
+rspec:
+  script:
+    - echo "This job uses a cache."
+  cache:
+    key: binaries-cache
+    paths:
+      - binaries/*.apk
+      - .config
