@@ -144,7 +144,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 			Envs: convertVariables(ctx.config.Variables),
 			// Platform: convertPlatform(from.Platform),
 			// Runtime:  convertRuntime(from),
-			// Steps:    convertSteps(from),
+			Steps: make([]*harness.Step, 0), // Initialize the Steps slice
 		},
 	}
 	dst.Stages = append(dst.Stages, dstStage)
@@ -159,59 +159,51 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		stages = []string{".pre", "build", "test", "deploy", ".post"} // stages don't have to be declared for valid yaml. Default to test
 	}
 
-	for name, job := range ctx.config.Jobs {
-		if job.Stage == "" {
-			job.Stage = "test" // default stage
-		} // required for ordering
-		switch name {
-		case "before_script":
-			job.Stage = ".pre"
-		case "after_script":
-			job.Stage = ".post"
-		case "":
-			job.Stage = "build"
-		}
-	}
-
 	for _, stageName := range stages {
-		stepGroup := &harness.StepGroup{
-			Steps: []*harness.Step{},
-		}
-
-		// iterate through jobs and find jobs assigned to
-		// the stage. skip other stages.
-		for _, jobName := range jobKeys {
+		// iterate through jobs and find jobs assigned to the stage. Skip other stages.
+		for i, jobName := range jobKeys {
 			job := ctx.config.Jobs[jobName] // maintaining order here
+			if job.Before != nil {
+				job.Stage = ".pre"
+			}
+			if job.After != nil {
+				job.Stage = ".post"
+			}
 			if job == nil || job.Stage != stageName {
 				continue
 			}
 
+			if job.Before != nil {
+				beforeScriptStep := convertScriptToStep(job.Before, "before_script", "", false)
+				dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, beforeScriptStep)
+			}
+
 			// Convert each job to a step
-			step := convertJobToStep(ctx, jobName, job)
-			stepGroup.Steps = append(stepGroup.Steps, step...)
-		}
+			steps := convertJobToStep(ctx, jobName, job)
 
-		// if not steps converted, move to next stage
-		if len(stepGroup.Steps) == 0 {
-			continue
-		}
+			// Add all steps from the job to the stage
+			for _, step := range steps {
+				dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, step)
+			}
 
-		// if there is a single step, append to the stage.
-		if len(stepGroup.Steps) == 1 {
-			dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, stepGroup.Steps[0])
-			continue
-		}
+			// If job has an after_script, append it to the steps
+			if job.After != nil {
+				afterScriptStep := convertScriptToStep(job.After, "after_script", "5m", true)
+				dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, afterScriptStep)
+			}
 
-		// else if there are multiple steps, wrap with a parallel
-		// step to mirror gitlab behavior.
-		group := &harness.Step{
-			Name: stageName,
-			Type: "parallel",
-			Spec: &harness.StepParallel{
-				Steps: stepGroup.Steps,
-			},
+			// If first job in the stage, prepend the before_script
+			if ctx.config.Default != nil && ctx.config.Default.Before != nil && i == 0 {
+				beforeScriptStep := convertScriptToStep(ctx.config.Default.Before, "before_script", "", false)
+				dstStage.Spec.(*harness.StageCI).Steps = append([]*harness.Step{beforeScriptStep}, dstStage.Spec.(*harness.StageCI).Steps...)
+			}
+
+			// If last job in the stage, append the after_script
+			if ctx.config.Default != nil && ctx.config.Default.After != nil && i == len(jobKeys)-1 {
+				afterScriptStep := convertScriptToStep(ctx.config.Default.After, "after_script", "5m", true)
+				dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, afterScriptStep)
+			}
 		}
-		dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, group)
 	}
 
 	// marshal the harness yaml
@@ -221,6 +213,29 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	}
 
 	return out, nil
+}
+
+func convertScriptToStep(script []string, name, timeout string, onFailureIgnore bool) *harness.Step {
+	spec := new(harness.StepExec)
+	spec.Run = strings.Join(script, "\n")
+
+	step := &harness.Step{
+		Name: name,
+		Type: "script",
+		Spec: spec,
+	}
+	if timeout != "" {
+		step.Timeout = timeout
+	}
+	if onFailureIgnore {
+		step.On = &harness.On{
+			Failure: &harness.Failure{
+				Type: "ignore",
+			},
+		}
+	}
+
+	return step
 }
 
 func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.Step {
@@ -238,21 +253,8 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 		spec.Pull = ctx.config.Image.PullPolicy
 	}
 
-	beforeScripts := job.Before
-	if len(beforeScripts) == 0 && ctx.config.Default != nil {
-		beforeScripts = ctx.config.Default.Before
-	}
-
-	afterScripts := job.After
-	if len(afterScripts) == 0 && ctx.config.Default != nil {
-		afterScripts = ctx.config.Default.After
-	}
-
 	// Convert all scripts into a single step
-	script := append(beforeScripts)
-	script = append(script, job.Script...)
-	script = append(script, job.After...)
-	script = append(script, afterScripts...)
+	script := append(job.Script)
 
 	spec.Run = strings.Join(script, "\n")
 
@@ -284,11 +286,13 @@ func convertAllowFailure(job *gitlab.Job) *harness.On {
 		// Sort the slice to maintain order
 		sort.Strings(exitCodesStr)
 
-		return &harness.On{
+		on := &harness.On{
 			Failure: &harness.Failure{
-				Type:      "ignore",
-				ExitCodes: exitCodesStr,
+				Type: "ignore",
 			},
+		}
+		if len(exitCodesStr) > 0 {
+			on.Failure.ExitCodes = exitCodesStr
 		}
 	}
 	return nil

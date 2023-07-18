@@ -1,17 +1,18 @@
-job1:
+jobs:
+  job1:
     script:
-        - execute_script_1
+      - execute_script_1
     stage: test
-job2:
+  job2:
     allow_failure:
-        exit_codes: []
+      exit_codes: []
     script:
-        - execute_script_2
+      - execute_script_2
     stage: test
-job3:
+  job3:
     environment:
-        name: staging
-        deployment_tier: ""
+      name: staging
+      deployment_tier: ""
     script:
-        - deploy_to_staging
+      - deploy_to_staging
     stage: deploy

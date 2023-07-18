@@ -1,0 +1,4 @@
+jobs:
+    job:
+        artifacts:
+            untracked: true

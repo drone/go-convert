@@ -1,0 +1,11 @@
+jobs:
+    rspec:
+        cache:
+            paths:
+                - rspec/
+            key: gems-$CI_COMMIT_REF_SLUG
+            when: always
+            fallback_keys:
+                - gems
+        script:
+            - rspec

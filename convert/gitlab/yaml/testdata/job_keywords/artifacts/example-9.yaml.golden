@@ -1,0 +1,4 @@
+jobs:
+    job:
+        artifacts:
+            when: on_failure

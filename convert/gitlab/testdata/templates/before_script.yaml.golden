@@ -1,0 +1,14 @@
+stages:
+- name: build
+  spec:
+    steps:
+    - name: before_script
+      spec:
+        run: echo "Execute this command before any 'script:' commands."
+      type: script
+    - name: job
+      spec:
+        run: echo "This command executes after the job's 'before_script' commands."
+      type: script
+  type: ci
+version: 1
