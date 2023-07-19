@@ -1,0 +1,10 @@
+# https://docs.gitlab.com/ee/ci/yaml/#artifactsreports
+
+rspec:
+  stage: test
+  script:
+    - bundle install
+    - rspec --format RspecJunitFormatter --out rspec.xml
+  artifacts:
+    reports:
+      junit: rspec.xml

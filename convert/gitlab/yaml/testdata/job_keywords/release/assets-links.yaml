@@ -1,0 +1,15 @@
+# https://docs.gitlab.com/ee/ci/yaml/#releaseassetslinks
+
+  release_job:
+    stage: release
+    release:
+      tag_name: $CI_COMMIT_TAG
+      ref: release-branch
+      assets:
+        links:
+          - name: 'asset1'
+            url: 'https://example.com/assets/1'
+          - name: 'asset2'
+            url: 'https://example.com/assets/2'
+            filepath: '/pretty/url/1' # optional
+            link_type: 'other' # optional

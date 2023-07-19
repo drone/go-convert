@@ -1,0 +1,13 @@
+# https://docs.gitlab.com/ee/ci/yaml/#dast_configuration
+
+stages:
+  - build
+  - dast
+
+include:
+  - template: DAST.gitlab-ci.yml
+
+dast:
+  dast_configuration:
+    site_profile: "Example Co"
+    scanner_profile: "Quick Passive Test"

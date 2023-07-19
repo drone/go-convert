@@ -1,0 +1,18 @@
+# https://docs.gitlab.com/ee/ci/yaml/#inheritvariables
+
+variables:
+  VARIABLE1: "This is variable 1"
+  VARIABLE2: "This is variable 2"
+  VARIABLE3: "This is variable 3"
+
+job1:
+  script: echo "This job does not inherit any global variables."
+  inherit:
+    variables: false
+
+job2:
+  script: echo "This job inherits only the two listed global variables. It does not inherit 'VARIABLE3'."
+  inherit:
+    variables:
+      - VARIABLE1
+      - VARIABLE2

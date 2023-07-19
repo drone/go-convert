@@ -1,0 +1,7 @@
+# https://docs.gitlab.com/ee/ci/yaml/#after_script
+
+job:
+  script:
+    - echo "An example script section."
+  after_script:
+    - echo "Execute this command after the `script` section completes."

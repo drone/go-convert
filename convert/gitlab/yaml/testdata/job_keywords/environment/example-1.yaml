@@ -1,0 +1,6 @@
+# https://docs.gitlab.com/ee/ci/yaml/#environment
+
+deploy to production:
+  stage: deploy
+  script: git push production HEAD:main
+  environment: production

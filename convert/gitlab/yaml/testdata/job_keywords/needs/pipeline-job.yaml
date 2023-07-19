@@ -1,0 +1,7 @@
+# https://docs.gitlab.com/ee/ci/yaml/#needspipelinejob
+
+use-artifact:
+  script: cat artifact.txt
+  needs:
+    - pipeline: $PARENT_PIPELINE_ID
+      job: create-artifact

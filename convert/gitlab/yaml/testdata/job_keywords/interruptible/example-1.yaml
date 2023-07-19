@@ -1,0 +1,23 @@
+# https://docs.gitlab.com/ee/ci/yaml/#interruptible
+
+stages:
+  - stage1
+  - stage2
+  - stage3
+
+step-1:
+  stage: stage1
+  script:
+    - echo "Can be canceled."
+  interruptible: true
+
+step-2:
+  stage: stage2
+  script:
+    - echo "Can not be canceled."
+
+step-3:
+  stage: stage3
+  script:
+    - echo "Because step-2 can not be canceled, this step can never be canceled, even though it's set as interruptible."
+  interruptible: true

@@ -1,0 +1,6 @@
+# https://docs.gitlab.com/ee/ci/yaml/#triggerstrategy
+
+trigger_job:
+  trigger:
+    include: path/to/child-pipeline.yml
+    strategy: depend

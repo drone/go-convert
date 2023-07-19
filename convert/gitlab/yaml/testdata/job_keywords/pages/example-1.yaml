@@ -1,0 +1,12 @@
+# https://docs.gitlab.com/ee/ci/yaml/#pages
+
+pages:
+  stage: deploy
+  script:
+    - mv my-html-content public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  environment: production

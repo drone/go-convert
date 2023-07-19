@@ -1,0 +1,7 @@
+# https://docs.gitlab.com/ee/ci/yaml/#environmentauto_stop_in
+
+review_app:
+  script: deploy-review-app
+  environment:
+    name: review/$CI_COMMIT_REF_SLUG
+    auto_stop_in: 1 day

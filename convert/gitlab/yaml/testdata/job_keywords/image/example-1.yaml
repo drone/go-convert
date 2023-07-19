@@ -1,0 +1,11 @@
+# https://docs.gitlab.com/ee/ci/yaml/#image
+
+default:
+  image: ruby:3.0
+
+rspec:
+  script: bundle exec rspec
+
+rspec 2.7:
+  image: registry.example.com/my-group/my-project/ruby:2.7
+  script: bundle exec rspec

@@ -1,0 +1,7 @@
+# https://docs.gitlab.com/ee/ci/yaml/#retrywhen
+
+test:
+  script: rspec
+  retry:
+    max: 2
+    when: runner_system_failure

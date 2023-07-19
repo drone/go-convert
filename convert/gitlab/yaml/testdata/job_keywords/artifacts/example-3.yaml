@@ -1,0 +1,5 @@
+# https://docs.gitlab.com/ee/ci/yaml/#artifactsexpire_in
+
+job:
+  artifacts:
+    expire_in: 1 week

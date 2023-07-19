@@ -1,0 +1,11 @@
+# https://docs.gitlab.com/ee/ci/yaml/#environmentaction
+
+stop_review_app:
+  stage: deploy
+  variables:
+    GIT_STRATEGY: none
+  script: make delete-app
+  when: manual
+  environment:
+    name: review/$CI_COMMIT_REF_SLUG
+    action: stop

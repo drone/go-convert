@@ -1,0 +1,7 @@
+# https://docs.gitlab.com/ee/ci/yaml/#artifactsexclude
+
+artifacts:
+  paths:
+    - binaries/
+  exclude:
+    - binaries/**/*.o

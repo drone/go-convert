@@ -1,0 +1,5 @@
+# https://docs.gitlab.com/ee/ci/yaml/#resource_group
+
+deploy-to-production:
+  script: deploy
+  resource_group: production

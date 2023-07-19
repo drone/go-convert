@@ -1,0 +1,7 @@
+# https://docs.gitlab.com/ee/ci/yaml/#artifactsname
+
+job:
+  artifacts:
+    name: "job1-artifacts-file"
+    paths:
+      - binaries/

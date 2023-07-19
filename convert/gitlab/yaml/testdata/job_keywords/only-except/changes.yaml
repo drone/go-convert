@@ -1,0 +1,13 @@
+# https://docs.gitlab.com/ee/ci/yaml/#onlychanges--exceptchanges
+
+docker build:
+  script: docker build -t my-image:$CI_COMMIT_REF_SLUG .
+  only:
+    refs:
+      - branches
+    changes:
+      - Dockerfile
+      - docker/scripts/*
+      - dockerfiles/**/*
+      - more_scripts/*.{rb,py,sh}
+      - "**/*.json"

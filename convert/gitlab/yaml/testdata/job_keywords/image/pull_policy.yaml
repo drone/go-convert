@@ -1,0 +1,13 @@
+# https://docs.gitlab.com/ee/ci/yaml/#imagepull_policy
+
+job1:
+  script: echo "A single pull policy."
+  image:
+    name: ruby:3.0
+    pull_policy: if-not-present
+
+job2:
+  script: echo "Multiple pull policies."
+  image:
+    name: ruby:3.0
+    pull_policy: [always, if-not-present]

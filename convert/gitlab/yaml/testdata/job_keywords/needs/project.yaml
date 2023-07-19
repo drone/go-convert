@@ -1,0 +1,15 @@
+# https://docs.gitlab.com/ee/ci/yaml/#needsproject
+
+build_job:
+  stage: build
+  script:
+    - ls -lhR
+  needs:
+    - project: namespace/group/project-name
+      job: build-1
+      ref: main
+      artifacts: true
+    - project: namespace/group/project-name-2
+      job: build-2
+      ref: main
+      artifacts: true

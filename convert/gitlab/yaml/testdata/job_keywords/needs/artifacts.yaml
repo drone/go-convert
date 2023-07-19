@@ -1,0 +1,20 @@
+# https://docs.gitlab.com/ee/ci/yaml/#needsartifacts
+
+test-job1:
+  stage: test
+  needs:
+    - job: build_job1
+      artifacts: true
+
+test-job2:
+  stage: test
+  needs:
+    - job: build_job2
+      artifacts: false
+
+test-job3:
+  needs:
+    - job: build_job1
+      artifacts: true
+    - job: build_job2
+    - build_job3

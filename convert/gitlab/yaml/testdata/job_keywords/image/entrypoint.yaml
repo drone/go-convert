@@ -1,0 +1,5 @@
+# https://docs.gitlab.com/ee/ci/yaml/#imageentrypoint
+
+image:
+  name: super/sql:experimental
+  entrypoint: [""]
