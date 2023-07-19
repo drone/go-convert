@@ -14,6 +14,8 @@
 
 package yaml
 
+import "errors"
+
 // Job defines a gitlab job.
 // https://docs.gitlab.com/ee/ci/yaml/#job-keywords
 type Job struct {
@@ -32,7 +34,7 @@ type Job struct {
 	Image             *Image                   `yaml:"image,omitempty"`
 	Inherit           *Inherit                 `yaml:"inherit,omitempty"`
 	Interruptible     bool                     `yaml:"interruptible,omitempty"`
-	Needs             []*Needs                 `yaml:"needs,omitempty"`
+	Needs             *NeedsListOrStruct       `yaml:"needs,omitempty"`
 	Only              *Conditions              `yaml:"only,omitempty"`
 	Pages             *Job                     `yaml:"pages,omitempty"`
 	Parallel          *Parallel                `yaml:"parallel,omitempty"`
@@ -58,4 +60,32 @@ type DASTConfiguration struct {
 
 type IDToken struct {
 	Aud interface{} `yaml:"aud"`
+}
+
+type NeedsListOrStruct struct {
+	NeedsList   []*Needs `yaml:",omitempty"`
+	NeedsStruct *Needs   `yaml:",omitempty"`
+}
+
+func (n *NeedsListOrStruct) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var needsStruct Needs
+	if err := unmarshal(&needsStruct); err == nil {
+		*n = NeedsListOrStruct{NeedsStruct: &needsStruct}
+		return nil
+	}
+
+	var needsList []*Needs
+	if err := unmarshal(&needsList); err == nil {
+		*n = NeedsListOrStruct{NeedsList: needsList}
+		return nil
+	}
+
+	return errors.New("failed to unmarshal needs")
+}
+
+func (n *NeedsListOrStruct) MarshalYAML() (interface{}, error) {
+	if n.NeedsStruct != nil {
+		return n.NeedsStruct, nil
+	}
+	return n.NeedsList, nil
 }

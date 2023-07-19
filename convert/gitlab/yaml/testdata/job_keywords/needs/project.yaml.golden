@@ -1,0 +1,14 @@
+jobs:
+    build_job:
+        needs:
+            - job: build-1
+              ref: main
+              project: namespace/group/project-name
+              artifacts: true
+            - job: build-2
+              ref: main
+              project: namespace/group/project-name-2
+              artifacts: true
+        script:
+            - ls -lhR
+        stage: build
