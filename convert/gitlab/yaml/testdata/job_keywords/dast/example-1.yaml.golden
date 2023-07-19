@@ -1,0 +1,10 @@
+include:
+    - template: DAST.gitlab-ci.yml
+jobs:
+    dast:
+        dast_configuration:
+            site_profile: Example Co
+            scanner_profile: Quick Passive Test
+stages:
+    - build
+    - dast

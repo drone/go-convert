@@ -15,4 +15,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require gopkg.in/yaml.v2 v2.4.0 // indirect
+require (
+	github.com/ieee0824/go-deepmerge v0.0.0-20170912170951-7ec7dbbd5a1f // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
+)

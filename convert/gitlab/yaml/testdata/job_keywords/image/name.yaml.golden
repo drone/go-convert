@@ -1,0 +1,3 @@
+default:
+    image:
+        name: registry.example.com/my/image:latest

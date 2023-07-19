@@ -29,7 +29,7 @@ func TestInheritKeys(t *testing.T) {
 		{
 			yaml: `false`,
 			want: InheritKeys{
-				None: true,
+				All: true,
 			},
 		},
 		{

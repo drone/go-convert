@@ -16,6 +16,7 @@ package yaml
 
 import (
 	"reflect"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -23,13 +24,14 @@ import (
 type (
 	// Pipeline defines a gitlab pipeline.
 	Pipeline struct {
-		Default   *Default             `yaml:"default,omitempty"`
-		Include   []*Include           `yaml:"include,omitempty"`
-		Image     *Image               `yaml:"image,omitempty"`
-		Jobs      map[string]*Job      `yaml:"jobs,omitempty"`
-		Stages    []string             `yaml:"stages,omitempty"`
-		Variables map[string]*Variable `yaml:"variables,omitempty"`
-		Workflow  *Workflow            `yaml:"workflow,omitempty"`
+		Default      *Default             `yaml:"default,omitempty"`
+		Include      []*Include           `yaml:"include,omitempty"`
+		Image        *Image               `yaml:"image,omitempty"`
+		Jobs         map[string]*Job      `yaml:"jobs,omitempty"`
+		TemplateJobs map[string]*Job      `yaml:"-"`
+		Stages       []string             `yaml:"stages,omitempty"`
+		Variables    map[string]*Variable `yaml:"variables,omitempty"`
+		Workflow     *Workflow            `yaml:"workflow,omitempty"`
 	}
 
 	// Default defines global pipeline defaults.
@@ -76,7 +78,17 @@ func (p *Pipeline) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	for k, v := range rawData {
 		// we check if the key is a global one
-		if _, isGlobal := globalKeys[k]; isGlobal {
+		if k == "default" {
+			defaultYaml, err := yaml.Marshal(v)
+			if err != nil {
+				return err
+			}
+			if err := yaml.Unmarshal(defaultYaml, p.Default); err != nil {
+				return err
+			}
+			// Remove the key to avoid processing it again
+			delete(rawData, k)
+		} else if _, isGlobal := globalKeys[k]; isGlobal {
 			switch k {
 			case "artifacts":
 				artifactsYaml, err := yaml.Marshal(v)
@@ -161,8 +173,28 @@ func (p *Pipeline) UnmarshalYAML(unmarshal func(interface{}) error) error {
 				if err := yaml.Unmarshal(variablesYaml, &p.Variables); err != nil {
 					return err
 				}
-			default:
-				if err := yaml.Unmarshal([]byte(v.(string)), &p.Default); err != nil {
+			case "workflow":
+				workflowYaml, err := yaml.Marshal(v)
+				if err != nil {
+					return err
+				}
+				if err := yaml.Unmarshal(workflowYaml, &p.Workflow); err != nil {
+					return err
+				}
+			case "stages":
+				stagesYaml, err := yaml.Marshal(v)
+				if err != nil {
+					return err
+				}
+				if err := yaml.Unmarshal(stagesYaml, &p.Stages); err != nil {
+					return err
+				}
+			case "include":
+				includeYaml, err := yaml.Marshal(v)
+				if err != nil {
+					return err
+				}
+				if err := yaml.Unmarshal(includeYaml, &p.Include); err != nil {
 					return err
 				}
 			}
@@ -188,7 +220,15 @@ func (p *Pipeline) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		if err := yaml.Unmarshal(jobYaml, job); err != nil {
 			return err
 		}
-		p.Jobs[k] = job
+		// If the job name starts with a dot, it's a template job
+		if strings.HasPrefix(k, ".") {
+			if p.TemplateJobs == nil {
+				p.TemplateJobs = make(map[string]*Job)
+			}
+			p.TemplateJobs[k] = job
+		} else {
+			p.Jobs[k] = job
+		}
 	}
 
 	return nil

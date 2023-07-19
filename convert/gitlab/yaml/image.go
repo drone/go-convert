@@ -25,7 +25,7 @@ type Image struct {
 	Alias      string        `yaml:"alias,omitempty"`
 	Entrypoint Stringorslice `yaml:"entrypoint,omitempty"`
 	Command    Stringorslice `yaml:"command,omitempty"`
-	PullPolicy string        `yaml:"pull_policy,omitempty"` // always, never, if-not-present
+	PullPolicy Stringorslice `yaml:"pull_policy,omitempty"` // single string or array of strings
 }
 
 // UnmarshalYAML implements the unmarshal interface.
@@ -36,7 +36,7 @@ func (v *Image) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Alias      string        `yaml:"alias,omitempty"`
 		Entrypoint Stringorslice `yaml:"entrypoint,omitempty"`
 		Command    Stringorslice `yaml:"command,omitempty"`
-		PullPolicy string        `yaml:"pull_policy,omitempty"`
+		PullPolicy Stringorslice `yaml:"pull_policy,omitempty"` // single string or array of strings
 	}{}
 
 	if err := unmarshal(&out1); err == nil {

@@ -1,0 +1,5 @@
+jobs:
+    job1:
+        coverage: '/Code coverage: \d+\.\d+/'
+        script:
+            - rspec

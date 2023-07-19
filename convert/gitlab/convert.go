@@ -18,6 +18,7 @@ package gitlab
 import (
 	"bytes"
 	"io"
+	"log"
 	"os"
 	"sort"
 	"strconv"
@@ -142,6 +143,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		},
 	}
 	dst.Stages = append(dst.Stages, dstStage)
+
 	var jobKeys []string
 	for jobKey := range ctx.config.Jobs {
 		jobKeys = append(jobKeys, jobKey)
@@ -163,10 +165,27 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 			if job.After != nil {
 				job.Stage = ".post"
 			}
+			if job.Stage == "" {
+				job.Stage = "test" // default
+			}
 			if !cacheFound && job.Cache != nil {
 				dstStage.Spec.(*harness.StageCI).Cache = convertCache(job.Cache) // Update cache if it's defined in the job
 				cacheFound = true
 			}
+
+			if len(job.Extends) > 0 {
+				for _, extend := range job.Extends {
+					if templateJob, ok := ctx.config.TemplateJobs[extend]; ok {
+						// Perform deep merge of the template job into the current job.
+						var err error
+						job = mergeJobConfiguration(templateJob, job)
+						if err != nil {
+							return nil, err
+						}
+					}
+				}
+			}
+
 			if job == nil || job.Stage != stageName {
 				continue
 			}
@@ -200,6 +219,9 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 			if ctx.config.Default != nil && ctx.config.Default.After != nil && i == len(jobKeys)-1 {
 				afterScriptStep := convertScriptToStep(ctx.config.Default.After, "after_script", "5m", true)
 				dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, afterScriptStep)
+			}
+			if job.Inherit != nil && job.Inherit.Variables != nil {
+				dstStage.Spec.(*harness.StageCI).Envs = convertInheritedVariables(job, dstStage.Spec.(*harness.StageCI).Envs)
 			}
 		}
 	}
@@ -256,14 +278,21 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 	spec := new(harness.StepExec)
 
 	if job.Image != nil {
-		spec.Image = job.Image.Name
-		spec.Pull = job.Image.PullPolicy
-	} else if ctx.config.Default != nil && ctx.config.Default.Image != nil {
-		spec.Image = ctx.config.Default.Image.Name
-		spec.Pull = ctx.config.Default.Image.PullPolicy
-	} else if ctx.config.Image != nil {
-		spec.Image = ctx.config.Image.Name
-		spec.Pull = ctx.config.Image.PullPolicy
+		spec.Image, spec.Pull = convertImageAndPullPolicy(job.Image)
+	} else if job.Inherit == nil || job.Inherit.Default == nil || !job.Inherit.Default.All {
+		if ctx.config.Default != nil && ctx.config.Default.Image != nil {
+			spec.Image, spec.Pull = convertImageAndPullPolicy(ctx.config.Default.Image)
+		} else if ctx.config.Image != nil {
+			spec.Image, spec.Pull = convertImageAndPullPolicy(ctx.config.Image)
+		}
+	}
+
+	if job.Inherit != nil && job.Inherit.Default != nil {
+		if job.Inherit.Default.All {
+			convertInheritDefaultFields(spec, ctx.config.Default, nil)
+		} else {
+			convertInheritDefaultFields(spec, ctx.config.Default, job.Inherit.Default.Keys)
+		}
 	}
 
 	// Convert all scripts into a single step
@@ -288,6 +317,258 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 	// job.Secrets
 
 	return steps
+}
+
+// convertInheritDefaultFields converts the default fields from the default job into the current job.
+func convertInheritDefaultFields(spec *harness.StepExec, defaultJob *gitlab.Default, keys []string) {
+	for _, key := range keys {
+		switch key {
+		case "after_script":
+			if len(defaultJob.After) > 0 {
+				spec.Run = strings.Join(defaultJob.After, "\n")
+			}
+		case "before_script":
+			if len(defaultJob.Before) > 0 {
+				spec.Run = strings.Join(defaultJob.Before, "\n")
+			}
+		case "artifacts":
+			if defaultJob.Artifacts != nil {
+				// Add logic to handle Artifacts here
+				// spec.Artifacts = ...
+			}
+		case "cache":
+			if defaultJob.Cache != nil {
+				// Add logic to handle Cache here
+				// spec.Cache = ...
+			}
+		case "image":
+			if defaultJob.Image != nil {
+				spec.Image, spec.Pull = convertImageAndPullPolicy(defaultJob.Image)
+			}
+		case "interruptible":
+			//spec.Interruptible = defaultJob.Interruptible
+		case "retry":
+			if defaultJob.Retry != nil {
+				// Add logic to handle Retry here
+				// spec.Retry = ...
+			}
+		case "services":
+			if len(defaultJob.Services) > 0 {
+				// Add logic to handle Services here
+				// spec.Services = ...
+			}
+		case "tags":
+			if len(defaultJob.Tags) > 0 {
+				//spec.Tags = strings.Join(defaultJob.Tags, ", ") //TODO
+			}
+		case "duration":
+			//spec.Timeout = defaultJob.Timeout
+		default:
+			log.Printf("Unrecognized inherit key: %s", key)
+		}
+	}
+}
+
+func convertInheritedVariables(job *gitlab.Job, stageEnvs map[string]string) map[string]string {
+	// If there is no inheritance configuration, or inherit.variables is not set, all variables are inherited.
+	if job.Inherit == nil || job.Inherit.Variables == nil {
+		return stageEnvs
+	}
+
+	if job.Inherit.Variables.All {
+		return make(map[string]string)
+	}
+
+	// If inherit.variables is an array, only the variables in the array are inherited.
+	if job.Inherit.Variables.Keys != nil {
+		newEnvs := make(map[string]string)
+		for _, key := range job.Inherit.Variables.Keys {
+			if value, ok := stageEnvs[key]; ok {
+				newEnvs[key] = value
+			}
+		}
+		return newEnvs
+	}
+
+	return stageEnvs
+}
+
+func convertImageAndPullPolicy(image *gitlab.Image) (string, string) {
+	name := ""
+	pullPolicy := ""
+
+	if image != nil {
+		name = image.Name
+
+		if len(image.PullPolicy) == 1 {
+			pullPolicyMapping := map[string]string{
+				"always":         "always",
+				"never":          "never",
+				"if-not-present": "if-not-exists",
+			}
+
+			pullPolicy = pullPolicyMapping[image.PullPolicy[0]]
+		}
+	}
+
+	return name, pullPolicy
+}
+
+func mergeJobConfiguration(child *gitlab.Job, parent *gitlab.Job) *gitlab.Job {
+	mergedJob := &gitlab.Job{}
+
+	// Merge each field manually
+	mergedJob.After = child.After
+	if len(mergedJob.After) == 0 {
+		mergedJob.After = parent.After
+	}
+
+	mergedJob.Artifacts = child.Artifacts
+	if mergedJob.Artifacts == nil {
+		mergedJob.Artifacts = parent.Artifacts
+	}
+
+	mergedJob.AllowFailure = child.AllowFailure
+	if mergedJob.AllowFailure == nil {
+		mergedJob.AllowFailure = parent.AllowFailure
+	}
+
+	mergedJob.Before = child.Before
+	if len(mergedJob.Before) == 0 {
+		mergedJob.Before = parent.Before
+	}
+
+	mergedJob.Cache = child.Cache
+	if mergedJob.Cache == nil {
+		mergedJob.Cache = parent.Cache
+	}
+
+	mergedJob.Coverage = child.Coverage
+	if mergedJob.Coverage == "" {
+		mergedJob.Coverage = parent.Coverage
+	}
+
+	mergedJob.DASTConfiguration = child.DASTConfiguration
+	if mergedJob.DASTConfiguration == nil {
+		mergedJob.DASTConfiguration = parent.DASTConfiguration
+	}
+
+	mergedJob.Dependencies = child.Dependencies
+	if len(mergedJob.Dependencies) == 0 {
+		mergedJob.Dependencies = parent.Dependencies
+	}
+
+	mergedJob.Environment = child.Environment
+	if mergedJob.Environment == nil {
+		mergedJob.Environment = parent.Environment
+	}
+
+	mergedJob.Extends = child.Extends
+	if len(mergedJob.Extends) == 0 {
+		mergedJob.Extends = parent.Extends
+	}
+
+	mergedJob.Image = child.Image
+	if mergedJob.Image == nil {
+		mergedJob.Image = parent.Image
+	}
+
+	mergedJob.Inherit = child.Inherit
+	if mergedJob.Inherit == nil {
+		mergedJob.Inherit = parent.Inherit
+	}
+
+	mergedJob.Interruptible = child.Interruptible
+	if !mergedJob.Interruptible {
+		mergedJob.Interruptible = parent.Interruptible
+	}
+
+	mergedJob.Needs = child.Needs
+	if mergedJob.Needs == nil {
+		mergedJob.Needs = parent.Needs
+	}
+
+	mergedJob.Only = child.Only
+	if mergedJob.Only == nil {
+		mergedJob.Only = parent.Only
+	}
+
+	mergedJob.Pages = child.Pages
+	if mergedJob.Pages == nil {
+		mergedJob.Pages = parent.Pages
+	}
+
+	mergedJob.Parallel = child.Parallel
+	if mergedJob.Parallel == nil {
+		mergedJob.Parallel = parent.Parallel
+	}
+
+	mergedJob.Release = child.Release
+	if mergedJob.Release == nil {
+		mergedJob.Release = parent.Release
+	}
+
+	mergedJob.ResourceGroup = child.ResourceGroup
+	if mergedJob.ResourceGroup == "" {
+		mergedJob.ResourceGroup = parent.ResourceGroup
+	}
+
+	mergedJob.Retry = child.Retry
+	if mergedJob.Retry == nil {
+		mergedJob.Retry = parent.Retry
+	}
+
+	mergedJob.Rules = child.Rules
+	if mergedJob.Rules == nil {
+		mergedJob.Rules = parent.Rules
+	}
+
+	mergedJob.Script = child.Script
+	if len(mergedJob.Script) == 0 {
+		mergedJob.Script = parent.Script
+	}
+
+	mergedJob.Secrets = child.Secrets
+	if mergedJob.Secrets == nil {
+		mergedJob.Secrets = parent.Secrets
+	}
+
+	mergedJob.Services = child.Services
+	if mergedJob.Services == nil {
+		mergedJob.Services = parent.Services
+	}
+
+	mergedJob.Stage = child.Stage
+	if mergedJob.Stage == "" {
+		mergedJob.Stage = parent.Stage
+	}
+
+	mergedJob.Tags = child.Tags
+	if len(mergedJob.Tags) == 0 {
+		mergedJob.Tags = parent.Tags
+	}
+
+	mergedJob.Timeout = child.Timeout
+	if mergedJob.Timeout == "" {
+		mergedJob.Timeout = parent.Timeout
+	}
+
+	mergedJob.Trigger = child.Trigger
+	if mergedJob.Trigger == nil {
+		mergedJob.Trigger = parent.Trigger
+	}
+
+	mergedJob.Variables = child.Variables
+	if mergedJob.Variables == nil {
+		mergedJob.Variables = parent.Variables
+	}
+
+	mergedJob.When = child.When
+	if mergedJob.When == "" {
+		mergedJob.When = parent.When
+	}
+
+	return mergedJob
 }
 
 // convertAllowFailure converts a GitLab job's allow_failure to a Harness step's on.failure.

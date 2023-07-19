@@ -1,0 +1,5 @@
+default:
+    image:
+        name: super/sql:experimental
+        entrypoint:
+            - ""

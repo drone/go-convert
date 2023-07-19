@@ -1,0 +1,25 @@
+jobs:
+    job1:
+        inherit:
+            variables:
+                all: true
+        script:
+            - echo "This job does not inherit any global variables."
+    job2:
+        inherit:
+            variables:
+                keys:
+                    - VARIABLE1
+                    - VARIABLE2
+        script:
+            - echo "This job inherits only the two listed global variables. It does not inherit 'VARIABLE3'."
+variables:
+    VARIABLE1:
+        value: This is variable 1
+        expand: true
+    VARIABLE2:
+        value: This is variable 2
+        expand: true
+    VARIABLE3:
+        value: This is variable 3
+        expand: true

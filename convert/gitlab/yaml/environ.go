@@ -22,7 +22,7 @@ type Environment struct {
 	OnStop         string      `yaml:"on_stop,omitempty"`
 	Action         string      `yaml:"action,omitempty"` // start, prepare, stop, verify, access
 	AutoStopIn     string      `yaml:"auto_stop_in,omitempty"`
-	DeploymentTier string      `yaml:"deployment_tier"` // production, staging, testing, development, other
+	DeploymentTier string      `yaml:"deployment_tier,omitempty"` // production, staging, testing, development, other
 	Kubernetes     *Kubernetes `yaml:"kubernetes,omitempty"`
 }
 
@@ -39,7 +39,7 @@ func (v *Environment) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		OnStop         string      `yaml:"on_stop,omitempty"`
 		Action         string      `yaml:"action,omitempty"`
 		AutoStopIn     string      `yaml:"auto_stop_in,omitempty"`
-		DeploymentTier string      `yaml:"deployment_tier"`
+		DeploymentTier string      `yaml:"deployment_tier,omitempty"`
 		Kubernetes     *Kubernetes `yaml:"kubernetes,omitempty"`
 	}{}
 

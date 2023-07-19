@@ -17,27 +17,50 @@ package yaml
 import "errors"
 
 type Inherit struct {
-	Default   *InheritKeys `yaml:"default"`
-	Variables *InheritKeys `yaml:"variables"`
+	Default   *InheritKeys `yaml:"default,omitempty"`
+	Variables *InheritKeys `yaml:"variables,omitempty"`
 }
 
 type InheritKeys struct {
-	None bool
-	Keys []string
+	All  bool     `yaml:"all,omitempty"`
+	Keys []string `yaml:"keys,omitempty"`
 }
 
-// UnmarshalYAML implements the unmarshal interface.
+// UnmarshalYAML implements the unmarshal interface for InheritKeys.
 func (v *InheritKeys) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var out1 bool
 	var out2 []string
 
 	if err := unmarshal(&out1); err == nil {
-		v.None = !out1
+		v.All = !out1
 		return nil
 	}
 
 	if err := unmarshal(&out2); err == nil {
 		v.Keys = out2
+		return nil
+	}
+
+	return errors.New("failed to unmarshal inherit keys")
+}
+
+// UnmarshalYAML implements the unmarshal interface for Inherit.
+func (v *Inherit) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var out1 bool
+	var out2 struct {
+		Default   *InheritKeys `yaml:"default,omitempty"`
+		Variables *InheritKeys `yaml:"variables,omitempty"`
+	}
+
+	if err := unmarshal(&out1); err == nil {
+		v.Default = &InheritKeys{All: !out1}
+		v.Variables = &InheritKeys{All: !out1}
+		return nil
+	}
+
+	if err := unmarshal(&out2); err == nil {
+		v.Default = out2.Default
+		v.Variables = out2.Variables
 		return nil
 	}
 

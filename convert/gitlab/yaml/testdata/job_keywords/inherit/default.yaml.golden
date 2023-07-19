@@ -1,0 +1,21 @@
+default:
+    image:
+        name: ruby:3.0
+    interruptible: true
+    retry:
+        max: 2
+jobs:
+    job1:
+        inherit:
+            default:
+                all: true
+        script:
+            - echo "This job does not inherit any default keywords."
+    job2:
+        inherit:
+            default:
+                keys:
+                    - retry
+                    - image
+        script:
+            - echo "This job inherits only the two listed default keywords. It does not inherit 'interruptible'."

@@ -1,0 +1,9 @@
+jobs:
+    rspec:
+        extends:
+            - .tests
+        only:
+            variables:
+                - $RSPEC
+        script:
+            - rake rspec

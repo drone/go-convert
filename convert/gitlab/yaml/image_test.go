@@ -49,7 +49,7 @@ func TestImage(t *testing.T) {
 			want: Image{
 				Name:       "postgres:12",
 				Alias:      "postgres",
-				PullPolicy: "always",
+				PullPolicy: Stringorslice{"always"},
 			},
 		},
 		{
