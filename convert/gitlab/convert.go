@@ -333,44 +333,40 @@ func convertInheritDefaultFields(spec *harness.StepExec, defaultJob *gitlab.Defa
 			}
 		case "artifacts":
 			if defaultJob.Artifacts != nil {
-				// Add logic to handle Artifacts here
-				// spec.Artifacts = ...
+				//TODO no supported
 			}
 		case "cache":
 			if defaultJob.Cache != nil {
-				// Add logic to handle Cache here
-				// spec.Cache = ...
+				//TODO
 			}
 		case "image":
 			if defaultJob.Image != nil {
 				spec.Image, spec.Pull = convertImageAndPullPolicy(defaultJob.Image)
 			}
 		case "interruptible":
-			//spec.Interruptible = defaultJob.Interruptible
+			//TODO not supported
 		case "retry":
 			if defaultJob.Retry != nil {
-				// Add logic to handle Retry here
-				// spec.Retry = ...
+				//TODO not supported
 			}
 		case "services":
 			if len(defaultJob.Services) > 0 {
-				// Add logic to handle Services here
-				// spec.Services = ...
+				//TODO
 			}
 		case "tags":
 			if len(defaultJob.Tags) > 0 {
 				//spec.Tags = strings.Join(defaultJob.Tags, ", ") //TODO
 			}
 		case "duration":
-			//spec.Timeout = defaultJob.Timeout
+			//spec.Timeout = defaultJob.Timeout //TODO
 		default:
 			log.Printf("Unrecognized inherit key: %s", key)
 		}
 	}
 }
 
+// convertInherit converts the inherit fields from the default job into the current job.
 func convertInheritedVariables(job *gitlab.Job, stageEnvs map[string]string) map[string]string {
-	// If there is no inheritance configuration, or inherit.variables is not set, all variables are inherited.
 	if job.Inherit == nil || job.Inherit.Variables == nil {
 		return stageEnvs
 	}
@@ -393,6 +389,7 @@ func convertInheritedVariables(job *gitlab.Job, stageEnvs map[string]string) map
 	return stageEnvs
 }
 
+// convertImageAndPullPolicy converts a GitLab image to a Harness image and pull policy.
 func convertImageAndPullPolicy(image *gitlab.Image) (string, string) {
 	name := ""
 	pullPolicy := ""
@@ -414,10 +411,10 @@ func convertImageAndPullPolicy(image *gitlab.Image) (string, string) {
 	return name, pullPolicy
 }
 
+// mergeJobConfiguration merges the child job configuration into the parent job configuration.
 func mergeJobConfiguration(child *gitlab.Job, parent *gitlab.Job) *gitlab.Job {
 	mergedJob := &gitlab.Job{}
 
-	// Merge each field manually
 	mergedJob.After = child.After
 	if len(mergedJob.After) == 0 {
 		mergedJob.After = parent.After
