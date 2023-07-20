@@ -18,7 +18,6 @@ package gitlab
 import (
 	"bytes"
 	"io"
-	"log"
 	"os"
 	"sort"
 	"strconv"
@@ -366,8 +365,6 @@ func convertInheritDefaultFields(spec *harness.StepExec, defaultJob *gitlab.Defa
 			}
 		case "duration":
 			//spec.Timeout = defaultJob.Timeout //TODO
-		default:
-			log.Printf("Unrecognized inherit key: %s", key)
 		}
 	}
 }
@@ -398,8 +395,8 @@ func convertInheritedVariables(job *gitlab.Job, stageEnvs map[string]string) map
 
 // convertImageAndPullPolicy converts a GitLab image to a Harness image and pull policy.
 func convertImageAndPullPolicy(image *gitlab.Image) (string, string) {
-	name := ""
-	pullPolicy := ""
+	var name string
+	var pullPolicy string
 
 	if image != nil {
 		name = image.Name
