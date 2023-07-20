@@ -7,5 +7,10 @@ stages:
       paths:
       - binaries/*.apk
       - .config
+    steps:
+    - name: rspec
+      spec:
+        run: echo "This job uses a cache."
+      type: script
   type: ci
 version: 1

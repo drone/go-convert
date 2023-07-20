@@ -2,17 +2,13 @@ stages:
 - name: build
   spec:
     steps:
-    - name: greeting
+    - name: en
       spec:
-        steps:
-        - name: en
-          spec:
-            run: echo hello world
-          type: script
-        - name: fr
-          spec:
-            run: echo bonjour monde
-          type: script
-      type: parallel
+        run: echo hello world
+      type: script
+    - name: fr
+      spec:
+        run: echo bonjour monde
+      type: script
   type: ci
 version: 1

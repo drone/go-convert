@@ -1,5 +1,0 @@
-# https://docs.gitlab.com/ee/ci/yaml/#onlykubernetes--exceptkubernetes
-
-deploy:
-  only:
-    kubernetes: active
