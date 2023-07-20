@@ -233,3 +233,69 @@ func (p *Pipeline) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	return nil
 }
+
+func (p *Pipeline) MarshalYAML() (interface{}, error) {
+	m := make(map[string]interface{})
+
+	// Include global configurations if they exist
+	if p.Default != nil {
+		if len(p.Default.After) > 0 {
+			m["after_script"] = p.Default.After
+		}
+		if len(p.Default.Before) > 0 {
+			m["before_script"] = p.Default.Before
+		}
+		if p.Default.Artifacts != nil {
+			m["artifacts"] = p.Default.Artifacts
+		}
+		if p.Default.Cache != nil {
+			m["cache"] = p.Default.Cache
+		}
+		if p.Default.Image != nil {
+			m["image"] = p.Default.Image
+		}
+		if p.Default.Interruptible {
+			m["interruptible"] = p.Default.Interruptible
+		}
+		if p.Default.Retry != nil {
+			m["retry"] = p.Default.Retry
+		}
+		if len(p.Default.Services) > 0 {
+			m["services"] = p.Default.Services
+		}
+		if len(p.Default.Tags) > 0 {
+			m["tags"] = p.Default.Tags
+		}
+		if p.Default.Timeout != "" {
+			m["timeout"] = p.Default.Timeout
+		}
+	}
+
+	if p.Include != nil {
+		m["include"] = p.Include
+	}
+	if p.Image != nil {
+		m["image"] = p.Image
+	}
+	if len(p.Stages) > 0 {
+		m["stages"] = p.Stages
+	}
+	if p.Variables != nil {
+		m["variables"] = p.Variables
+	}
+	if p.Workflow != nil {
+		m["workflow"] = p.Workflow
+	}
+
+	// Include jobs
+	for k, v := range p.Jobs {
+		m[k] = v
+	}
+
+	// Include template jobs if they exist
+	for k, v := range p.TemplateJobs {
+		m[k] = v
+	}
+
+	return m, nil
+}

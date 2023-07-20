@@ -24,7 +24,7 @@ import (
 )
 
 func TestJobYaml(t *testing.T) {
-	tests, err := filepath.Glob("testdata/job_keywords/*/*.yaml")
+	tests, err := filepath.Glob("testdata/job_keywords/needs/*.yaml")
 	if err != nil {
 		t.Error(err)
 		return

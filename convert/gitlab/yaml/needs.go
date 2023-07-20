@@ -17,6 +17,32 @@ package yaml
 import "errors"
 
 type Needs struct {
+	Items []*Need
+}
+
+// UnmarshalYAML implements the unmarshal interface.
+func (v *Needs) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var out1 *Need
+	var out2 []*Need
+	if err := unmarshal(&out1); err == nil {
+		v.Items = append(v.Items, out1)
+		return nil
+	}
+	if err := unmarshal(&out2); err == nil {
+		v.Items = append(v.Items, out2...)
+		return nil
+	}
+	return errors.New("failed to unmarshal needs list")
+}
+
+func (v *Needs) MarshalYAML() (interface{}, error) {
+	if v.Items == nil || len(v.Items) == 0 {
+		return []*Need{}, nil
+	}
+	return v.Items, nil
+}
+
+type Need struct {
 	Job       string `yaml:"job,omitempty"`
 	Ref       string `yaml:"ref,omitempty"`
 	Project   string `yaml:"project,omitempty"`
@@ -26,7 +52,7 @@ type Needs struct {
 }
 
 // UnmarshalYAML implements the unmarshal interface.
-func (v *Needs) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (v *Need) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var out1 string
 	var out2 = struct {
 		Job       string `yaml:"job,omitempty"`

@@ -1,5 +1,4 @@
-jobs:
-    upstream_status:
-        needs:
-            pipeline: other/project
-        stage: test
+upstream_status:
+    needs:
+        - pipeline: other/project
+    stage: test

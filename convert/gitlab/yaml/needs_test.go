@@ -24,24 +24,24 @@ import (
 func TestNeeds(t *testing.T) {
 	tests := []struct {
 		yaml string
-		want Needs
+		want Need
 	}{
 		{
 			yaml: `"linux:build"`,
-			want: Needs{
+			want: Need{
 				Job: "linux:build",
 			},
 		},
 		{
 			yaml: `{ "job": "linux:build", "ref": "main" }`,
-			want: Needs{
+			want: Need{
 				Job: "linux:build",
 				Ref: "main",
 			},
 		},
 		{
 			yaml: `{ "job": "linux:build", "ref": "main", "artifacts": true, "optional": true }`,
-			want: Needs{
+			want: Need{
 				Job:       "linux:build",
 				Ref:       "main",
 				Artifacts: true,
