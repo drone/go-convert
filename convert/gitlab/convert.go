@@ -372,7 +372,7 @@ func convertInheritedVariables(job *gitlab.Job, stageEnvs map[string]string) map
 	}
 
 	if job.Inherit.Variables.All {
-		return make(map[string]string)
+		return stageEnvs
 	}
 
 	// If inherit.variables is an array, only the variables in the array are inherited.

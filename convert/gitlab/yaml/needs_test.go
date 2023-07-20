@@ -51,7 +51,7 @@ func TestNeeds(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		got := new(Needs)
+		got := new(Need)
 		if err := yaml.Unmarshal([]byte(test.yaml), got); err != nil {
 			t.Error(err)
 			return
@@ -64,7 +64,7 @@ func TestNeeds(t *testing.T) {
 }
 
 func TestNeeds_Error(t *testing.T) {
-	err := yaml.Unmarshal([]byte("[]"), new(Needs))
+	err := yaml.Unmarshal([]byte("[]"), new(Need))
 	if err == nil || err.Error() != "failed to unmarshal needs" {
 		t.Errorf("Expect error, got %s", err)
 	}

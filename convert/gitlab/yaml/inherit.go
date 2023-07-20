@@ -66,3 +66,25 @@ func (v *Inherit) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	return errors.New("failed to unmarshal inherit")
 }
+
+func (v *Inherit) MarshalYAML() (interface{}, error) {
+	m := make(map[string]interface{})
+
+	if v.Default != nil {
+		if v.Default.All {
+			m["default"] = false
+		} else {
+			m["default"] = v.Default.Keys
+		}
+	}
+
+	if v.Variables != nil {
+		if v.Variables.All {
+			m["variables"] = false
+		} else {
+			m["variables"] = v.Variables.Keys
+		}
+	}
+
+	return m, nil
+}
