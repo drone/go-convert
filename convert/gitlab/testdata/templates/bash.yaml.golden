@@ -28,6 +28,11 @@ stages:
           echo "Do another parallel test here"
           echo "For example run a lint test"
       type: script
+    - name: deploy1
+      spec:
+        image: busybox:latest
+        run: echo "Do your deploy here"
+      type: script
     - name: after_script
       "on":
         failure:
@@ -38,10 +43,6 @@ stages:
           echo "For example you might do some cleanup here"
       timeout: 5m
       type: script
-    - name: deploy1
-      spec:
-        image: busybox:latest
-        run: echo "Do your deploy here"
-      type: script
   type: ci
 version: 1
+

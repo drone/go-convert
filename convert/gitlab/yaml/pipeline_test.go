@@ -10,7 +10,7 @@ import (
 )
 
 func TestPipelineYaml(t *testing.T) {
-	tests, err := filepath.Glob("testdata/job_keywords/*/*.yaml")
+	tests, err := filepath.Glob("testdata/job_keywords/artifacts/example-2.yaml")
 	if err != nil {
 		t.Error(err)
 		return

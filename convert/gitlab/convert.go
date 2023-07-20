@@ -214,16 +214,23 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 				beforeScriptStep := convertScriptToStep(ctx.config.Default.Before, "before_script", "", false)
 				dstStage.Spec.(*harness.StageCI).Steps = append([]*harness.Step{beforeScriptStep}, dstStage.Spec.(*harness.StageCI).Steps...)
 			}
-
-			// If last job in the stage, append the after_script
-			if ctx.config.Default != nil && ctx.config.Default.After != nil && i == len(jobKeys)-1 {
-				afterScriptStep := convertScriptToStep(ctx.config.Default.After, "after_script", "5m", true)
-				dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, afterScriptStep)
+			if ctx.config.BeforeScript != nil && i == 0 {
+				beforeScriptStep := convertScriptToStep(ctx.config.BeforeScript, "before_script", "", false)
+				dstStage.Spec.(*harness.StageCI).Steps = append([]*harness.Step{beforeScriptStep}, dstStage.Spec.(*harness.StageCI).Steps...)
 			}
 			if job.Inherit != nil && job.Inherit.Variables != nil {
 				dstStage.Spec.(*harness.StageCI).Envs = convertInheritedVariables(job, dstStage.Spec.(*harness.StageCI).Envs)
 			}
 		}
+	}
+	// If last job in the stage, append the after_script
+	if ctx.config.Default != nil && ctx.config.Default.After != nil {
+		afterScriptStep := convertScriptToStep(ctx.config.Default.After, "after_script", "5m", true)
+		dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, afterScriptStep)
+	}
+	if ctx.config.AfterScript != nil {
+		afterScriptStep := convertScriptToStep(ctx.config.AfterScript, "after_script", "5m", true)
+		dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, afterScriptStep)
 	}
 	// marshal the harness yaml
 	out, err := yaml.Marshal(dst)
