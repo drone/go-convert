@@ -1,9 +1,8 @@
-jobs:
-    rspec:
-        cache:
-            paths:
-                - binaries/*.apk
-                - .config
-            key: binaries-cache
-        script:
-            - echo "This job uses a cache."
+rspec:
+    cache:
+        paths:
+            - binaries/*.apk
+            - .config
+        key: binaries-cache
+    script:
+        - echo "This job uses a cache."

@@ -1,6 +1,5 @@
-jobs:
-    job:
-        after_script:
-            - echo "Execute this command after the `script` section completes."
-        script:
-            - echo "An example script section."
+job:
+    after_script:
+        - echo "Execute this command after the `script` section completes."
+    script:
+        - echo "An example script section."

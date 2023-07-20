@@ -26,7 +26,7 @@ import (
 )
 
 func TestConvert(t *testing.T) {
-	tests, err := filepath.Glob("testdata/*/*.yaml")
+	tests, err := filepath.Glob("testdata//*.yaml")
 	if err != nil {
 		t.Error(err)
 		return

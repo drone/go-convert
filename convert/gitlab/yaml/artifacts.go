@@ -20,7 +20,7 @@ type Artifacts struct {
 	ExpireIn  string                 `yaml:"expire_in,omitempty"`
 	ExposeAs  string                 `yaml:"expose_as,omitempty"`
 	Name      string                 `yaml:"name,omitempty"`
-	Public    bool                   `yaml:"public,omitempty"`
+	Public    *bool                  `yaml:"public,omitempty"`
 	Reports   map[string]interface{} `yaml:"reports,omitempty"`
 	Untracked bool                   `yaml:"untracked,omitempty"`
 	When      string                 `yaml:"when,omitempty"` // on_success, on_failure, always

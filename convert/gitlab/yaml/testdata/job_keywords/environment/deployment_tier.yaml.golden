@@ -1,7 +1,6 @@
-jobs:
-    deploy:
-        environment:
-            name: customer-portal
-            deployment_tier: production
-        script:
-            - echo
+deploy:
+    environment:
+        name: customer-portal
+        deployment_tier: production
+    script:
+        - echo

@@ -145,14 +145,14 @@ func TestArtifacts(t *testing.T) {
 			yaml: `
   public: false`,
 			want: Artifacts{
-				Public: false,
+				Public: pointerToBool(false),
 			},
 		},
 		{
 			yaml: `
   public: true`,
 			want: Artifacts{
-				Public: true,
+				Public: pointerToBool(true),
 			},
 		},
 		{
@@ -234,4 +234,8 @@ func TestArtifacts_Error(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "cannot unmarshal") {
 		t.Errorf("Expect error, got %s", err)
 	}
+}
+
+func pointerToBool(b bool) *bool {
+	return &b
 }

@@ -1,6 +1,5 @@
-jobs:
-    rspec:
-        cache:
-            unprotect: true
-        script:
-            - test
+rspec:
+    cache:
+        unprotect: true
+    script:
+        - test

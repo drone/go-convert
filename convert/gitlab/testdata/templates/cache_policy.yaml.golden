@@ -3,21 +3,14 @@ stages:
   spec:
     cache:
       enabled: true
-      key: gems
+      key: binaries-cache
       paths:
-      - vendor/bundle
-      policy: pull
+      - binaries/*.apk
+      - .config
     steps:
-    - name: prepare-dependencies-job
+    - name: rspec
       spec:
-        run: |-
-          echo "This job only downloads dependencies and builds the cache."
-          echo "Downloading dependencies..."
-      type: script
-    - name: faster-test-job
-      spec:
-        run: |-
-          echo "This job script uses the cache, but does not update it."
-          echo "Running tests..."
+        run: echo "This job uses a cache."
       type: script
   type: ci
+version: 1

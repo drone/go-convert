@@ -1,5 +1,4 @@
-default:
-    image:
-        name: super/sql:experimental
-        entrypoint:
-            - ""
+image:
+    name: super/sql:experimental
+    entrypoint:
+        - ""

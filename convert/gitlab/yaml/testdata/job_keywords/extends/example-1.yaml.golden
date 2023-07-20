@@ -1,9 +1,15 @@
-jobs:
-    rspec:
-        extends:
-            - .tests
-        only:
-            variables:
-                - $RSPEC
-        script:
-            - rake rspec
+.tests:
+    only:
+        refs:
+            - branches
+    script:
+        - rake test
+    stage: test
+rspec:
+    extends:
+        - .tests
+    only:
+        variables:
+            - $RSPEC
+    script:
+        - rake rspec

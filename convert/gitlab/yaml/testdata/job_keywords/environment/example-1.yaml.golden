@@ -1,7 +1,6 @@
-jobs:
-    deploy to production:
-        environment:
-            name: production
-        script:
-            - git push production HEAD:main
-        stage: deploy
+deploy to production:
+    environment:
+        name: production
+    script:
+        - git push production HEAD:main
+    stage: deploy

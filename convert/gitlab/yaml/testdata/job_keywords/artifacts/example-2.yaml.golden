@@ -1,6 +1,5 @@
-default:
-    artifacts:
-        paths:
-            - binaries/
-        exclude:
-            - binaries/**/*.o
+artifacts:
+    paths:
+        - binaries/
+    exclude:
+        - binaries/**/*.o

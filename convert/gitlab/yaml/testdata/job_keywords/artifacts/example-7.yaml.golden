@@ -1,9 +1,8 @@
-jobs:
-    rspec:
-        artifacts:
-            reports:
-                junit: rspec.xml
-        script:
-            - bundle install
-            - rspec --format RspecJunitFormatter --out rspec.xml
-        stage: test
+rspec:
+    artifacts:
+        reports:
+            junit: rspec.xml
+    script:
+        - bundle install
+        - rspec --format RspecJunitFormatter --out rspec.xml
+    stage: test

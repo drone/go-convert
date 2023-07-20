@@ -24,14 +24,15 @@ import (
 type (
 	// Pipeline defines a gitlab pipeline.
 	Pipeline struct {
-		Default      *Default             `yaml:"default,omitempty"`
-		Include      []*Include           `yaml:"include,omitempty"`
-		Image        *Image               `yaml:"image,omitempty"`
-		Jobs         map[string]*Job      `yaml:"jobs,omitempty"`
-		TemplateJobs map[string]*Job      `yaml:"-"`
-		Stages       []string             `yaml:"stages,omitempty"`
-		Variables    map[string]*Variable `yaml:"variables,omitempty"`
-		Workflow     *Workflow            `yaml:"workflow,omitempty"`
+		Default       *Default             `yaml:"default,omitempty"`
+		Include       []*Include           `yaml:"include,omitempty"`
+		Image         *Image               `yaml:"image,omitempty"`
+		Jobs          map[string]*Job      `yaml:"jobs,omitempty"`
+		TemplateJobs  map[string]*Job      `yaml:"-"`
+		Stages        []string             `yaml:"stages,omitempty"`
+		Variables     map[string]*Variable `yaml:"variables,omitempty"`
+		Workflow      *Workflow            `yaml:"workflow,omitempty"`
+		HasDefaultKey bool                 `yaml:"-"`
 	}
 
 	// Default defines global pipeline defaults.
@@ -80,6 +81,7 @@ func (p *Pipeline) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		// we check if the key is a global one
 		if k == "default" {
 			defaultYaml, err := yaml.Marshal(v)
+			p.HasDefaultKey = true
 			if err != nil {
 				return err
 			}
@@ -239,38 +241,41 @@ func (p *Pipeline) MarshalYAML() (interface{}, error) {
 
 	// Include global configurations if they exist
 	if p.Default != nil {
-		if len(p.Default.After) > 0 {
-			m["after_script"] = p.Default.After
-		}
-		if len(p.Default.Before) > 0 {
-			m["before_script"] = p.Default.Before
-		}
-		if p.Default.Artifacts != nil {
-			m["artifacts"] = p.Default.Artifacts
-		}
-		if p.Default.Cache != nil {
-			m["cache"] = p.Default.Cache
-		}
-		if p.Default.Image != nil {
-			m["image"] = p.Default.Image
-		}
-		if p.Default.Interruptible {
-			m["interruptible"] = p.Default.Interruptible
-		}
-		if p.Default.Retry != nil {
-			m["retry"] = p.Default.Retry
-		}
-		if len(p.Default.Services) > 0 {
-			m["services"] = p.Default.Services
-		}
-		if len(p.Default.Tags) > 0 {
-			m["tags"] = p.Default.Tags
-		}
-		if p.Default.Timeout != "" {
-			m["timeout"] = p.Default.Timeout
+		if p.HasDefaultKey {
+			m["default"] = p.Default
+		} else {
+			if len(p.Default.After) > 0 {
+				m["after_script"] = p.Default.After
+			}
+			if len(p.Default.Before) > 0 {
+				m["before_script"] = p.Default.Before
+			}
+			if p.Default.Artifacts != nil {
+				m["artifacts"] = p.Default.Artifacts
+			}
+			if p.Default.Cache != nil {
+				m["cache"] = p.Default.Cache
+			}
+			if p.Default.Image != nil {
+				m["image"] = p.Default.Image
+			}
+			if p.Default.Interruptible {
+				m["interruptible"] = p.Default.Interruptible
+			}
+			if p.Default.Retry != nil {
+				m["retry"] = p.Default.Retry
+			}
+			if len(p.Default.Services) > 0 {
+				m["services"] = p.Default.Services
+			}
+			if len(p.Default.Tags) > 0 {
+				m["tags"] = p.Default.Tags
+			}
+			if p.Default.Timeout != "" {
+				m["timeout"] = p.Default.Timeout
+			}
 		}
 	}
-
 	if p.Include != nil {
 		m["include"] = p.Include
 	}

@@ -1,8 +1,7 @@
-jobs:
-    rspec:
-        cache:
-            paths:
-                - binaries/
-            untracked: true
-        script:
-            - test
+rspec:
+    cache:
+        paths:
+            - binaries/
+        untracked: true
+    script:
+        - test

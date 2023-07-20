@@ -1,6 +1,5 @@
-jobs:
-    job:
-        before_script:
-            - echo "Execute this command before any 'script:' commands."
-        script:
-            - echo "This command executes after the job's 'before_script' commands."
+job:
+    before_script:
+        - echo "Execute this command before any 'script:' commands."
+    script:
+        - echo "This command executes after the job's 'before_script' commands."
