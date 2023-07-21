@@ -44,7 +44,7 @@ stages:
           echo "Do your deploy here"
       type: script
     - name: after_script
-      "on":
+      on:
         failure:
           type: ignore
       spec:
