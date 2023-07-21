@@ -34,9 +34,9 @@ stages:
         run: echo "Do your deploy here"
       type: script
     - name: after_script
-      "on":
-        failure:
-          type: ignore
+      when:
+        status:
+          eq: all
       spec:
         run: |-
           echo "After script section"
