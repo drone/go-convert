@@ -1,0 +1,18 @@
+stages:
+    - stage1
+    - stage2
+    - stage3
+step-1:
+    interruptible: true
+    script:
+        - echo "Can be canceled."
+    stage: stage1
+step-2:
+    script:
+        - echo "Can not be canceled."
+    stage: stage2
+step-3:
+    interruptible: true
+    script:
+        - echo "Because step-2 can not be canceled, this step can never be canceled, even though it's set as interruptible."
+    stage: stage3

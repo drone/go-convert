@@ -1,0 +1,8 @@
+deploy:
+    environment:
+        name: production
+        kubernetes:
+            namespace: production
+    script:
+        - make deploy-app
+    stage: deploy

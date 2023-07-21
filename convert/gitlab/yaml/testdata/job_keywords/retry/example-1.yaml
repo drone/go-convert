@@ -1,5 +1,0 @@
-# https://docs.gitlab.com/ee/ci/yaml/#retry
-
-test:
-  script: rspec
-  retry: 2

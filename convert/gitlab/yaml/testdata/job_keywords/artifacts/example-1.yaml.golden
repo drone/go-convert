@@ -1,0 +1,5 @@
+job:
+    artifacts:
+        paths:
+            - binaries/
+            - .config

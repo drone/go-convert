@@ -1,0 +1,6 @@
+review_app:
+    environment:
+        name: review/$CI_COMMIT_REF_SLUG
+        auto_stop_in: 1 day
+    script:
+        - deploy-review-app

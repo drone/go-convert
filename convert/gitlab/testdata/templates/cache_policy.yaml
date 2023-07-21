@@ -1,0 +1,21 @@
+prepare-dependencies-job:
+  stage: build
+  cache:
+    key: gems
+    paths:
+      - vendor/bundle
+    policy: push
+  script:
+    - echo "This job only downloads dependencies and builds the cache."
+    - echo "Downloading dependencies..."
+
+faster-test-job:
+  stage: test
+  cache:
+    key: gems
+    paths:
+      - vendor/bundle
+    policy: pull
+  script:
+    - echo "This job script uses the cache, but does not update it."
+    - echo "Running tests..."

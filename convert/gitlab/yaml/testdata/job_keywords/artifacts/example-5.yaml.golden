@@ -1,0 +1,5 @@
+job:
+    artifacts:
+        paths:
+            - binaries/
+        name: job1-artifacts-file

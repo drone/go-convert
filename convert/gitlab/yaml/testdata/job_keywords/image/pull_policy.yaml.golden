@@ -1,0 +1,15 @@
+job1:
+    image:
+        name: ruby:3.0
+        pull_policy:
+            - if-not-present
+    script:
+        - echo "A single pull policy."
+job2:
+    image:
+        name: ruby:3.0
+        pull_policy:
+            - always
+            - if-not-present
+    script:
+        - echo "Multiple pull policies."

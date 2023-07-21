@@ -1,0 +1,7 @@
+rspec:
+    cache:
+        paths:
+            - rspec/
+        when: always
+    script:
+        - rspec

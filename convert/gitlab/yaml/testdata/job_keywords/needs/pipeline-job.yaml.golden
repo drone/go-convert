@@ -1,0 +1,6 @@
+use-artifact:
+    needs:
+        - job: create-artifact
+          pipeline: $PARENT_PIPELINE_ID
+    script:
+        - cat artifact.txt

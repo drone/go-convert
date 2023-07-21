@@ -1,0 +1,7 @@
+cache-job:
+    cache:
+        paths:
+            - binaries/
+        key: binaries-cache-$CI_COMMIT_REF_SLUG
+    script:
+        - echo "This job uses a cache."

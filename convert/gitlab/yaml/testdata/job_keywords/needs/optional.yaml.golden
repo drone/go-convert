@@ -1,0 +1,23 @@
+build-job:
+    stage: build
+deploy-job:
+    environment:
+        name: production
+    needs:
+        - job: test-job2
+          optional: true
+        - job: test-job1
+    stage: deploy
+review-job:
+    environment:
+        name: review
+    needs:
+        - job: test-job2
+          optional: true
+    stage: deploy
+test-job1:
+    stage: test
+test-job2:
+    rules:
+        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    stage: test

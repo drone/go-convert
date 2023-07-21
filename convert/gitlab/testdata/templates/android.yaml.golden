@@ -8,7 +8,6 @@ stages:
     steps:
     - name: before_script
       spec:
-        image: eclipse-temurin:17-jdk-jammy
         run: |-
           apt-get --quiet update --yes
           apt-get --quiet install --yes wget unzip
@@ -25,20 +24,16 @@ stages:
           sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}"
           chmod +x ./gradlew
       type: script
-    - name: build
+    - name: assembleDebug
       spec:
-        steps:
-        - name: assembleDebug
-          spec:
-            image: eclipse-temurin:17-jdk-jammy
-            run: ./gradlew assembleDebug
-          type: script
-        - name: lintDebug
-          spec:
-            image: eclipse-temurin:17-jdk-jammy
-            run: ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
-          type: script
-      type: parallel
+        image: eclipse-temurin:17-jdk-jammy
+        run: ./gradlew assembleDebug
+      type: script
+    - name: lintDebug
+      spec:
+        image: eclipse-temurin:17-jdk-jammy
+        run: ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
+      type: script
     - name: debugTests
       spec:
         image: eclipse-temurin:17-jdk-jammy

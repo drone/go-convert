@@ -1,0 +1,15 @@
+test-job1:
+    needs:
+        - job: build_job1
+          artifacts: true
+    stage: test
+test-job2:
+    needs:
+        - job: build_job2
+    stage: test
+test-job3:
+    needs:
+        - job: build_job1
+          artifacts: true
+        - job: build_job2
+        - job: build_job3

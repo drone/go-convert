@@ -1,0 +1,5 @@
+rspec:
+    cache:
+        unprotect: true
+    script:
+        - test

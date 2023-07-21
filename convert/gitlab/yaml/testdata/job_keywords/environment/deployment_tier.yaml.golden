@@ -1,0 +1,6 @@
+deploy:
+    environment:
+        name: customer-portal
+        deployment_tier: production
+    script:
+        - echo

@@ -1,0 +1,7 @@
+deploy to production:
+    environment:
+        name: production
+        url: https://prod.example.com
+    script:
+        - git push production HEAD:main
+    stage: deploy

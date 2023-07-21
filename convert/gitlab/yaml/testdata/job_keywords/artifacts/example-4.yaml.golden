@@ -1,0 +1,7 @@
+test:
+    artifacts:
+        paths:
+            - file.txt
+        expose_as: artifact 1
+    script:
+        - echo 'test' > file.txt

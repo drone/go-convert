@@ -1,0 +1,31 @@
+lint:
+    needs: []
+    script:
+        - echo "Linting..."
+    stage: test
+linux:build:
+    script:
+        - echo "Building linux..."
+    stage: build
+linux:rspec:
+    needs:
+        - job: linux:build
+    script:
+        - echo "Running rspec on linux..."
+    stage: test
+mac:build:
+    script:
+        - echo "Building mac..."
+    stage: build
+mac:rspec:
+    needs:
+        - job: mac:build
+    script:
+        - echo "Running rspec on mac..."
+    stage: test
+production:
+    environment:
+        name: production
+    script:
+        - echo "Running production..."
+    stage: deploy

@@ -1,0 +1,15 @@
+test_job_1:
+    allow_failure:
+        exit_codes:
+            - 137
+    script:
+        - echo "Run a script that results in exit code 1. This job fails."
+        - exit 1
+test_job_2:
+    allow_failure:
+        exit_codes:
+            - 137
+            - 255
+    script:
+        - echo "Run a script that results in exit code 137. This job is allowed to fail."
+        - exit 137

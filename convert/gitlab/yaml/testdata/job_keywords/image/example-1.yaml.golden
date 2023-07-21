@@ -1,0 +1,11 @@
+default:
+    image:
+        name: ruby:3.0
+rspec:
+    script:
+        - bundle exec rspec
+rspec 2.7:
+    image:
+        name: registry.example.com/my-group/my-project/ruby:2.7
+    script:
+        - bundle exec rspec

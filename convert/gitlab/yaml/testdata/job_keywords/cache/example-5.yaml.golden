@@ -1,0 +1,7 @@
+rspec:
+    cache:
+        paths:
+            - binaries/
+        untracked: true
+    script:
+        - test

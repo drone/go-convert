@@ -19,12 +19,13 @@ import (
 )
 
 type Cache struct {
-	Paths     Stringorslice `yaml:"paths,omitempty"`
-	Key       string        `yaml:"key,omitempty"` // TODO complex item (files []string, prefix)
-	Untracked bool          `yaml:"untracked,omitempty"`
-	Unprotect bool          `yaml:"unprotect,omitempty"`
-	When      string        `yaml:"when,omitempty"`   // on_success, on_failure, always
-	Policy    string        `yaml:"policy,omitempty"` // pull, push, pull-push
+	Paths        Stringorslice `yaml:"paths,omitempty"`
+	Key          *CacheKey     `yaml:"key,omitempty"`
+	Untracked    bool          `yaml:"untracked,omitempty"`
+	Unprotect    bool          `yaml:"unprotect,omitempty"`
+	When         string        `yaml:"when,omitempty"`   // on_success, on_failure, always
+	Policy       string        `yaml:"policy,omitempty"` // pull, push, pull-push
+	FallbackKeys Stringorslice `yaml:"fallback_keys,omitempty"`
 }
 
 type CacheKey struct {
@@ -33,7 +34,6 @@ type CacheKey struct {
 	Prefix string        `yaml:"prefix,omitempty"`
 }
 
-// UnmarshalYAML implements the unmarshal interface.
 func (v *CacheKey) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var out1 string
 	var out2 = struct {
@@ -53,4 +53,18 @@ func (v *CacheKey) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	return errors.New("failed to unmarshal cache key")
+}
+
+func (v *CacheKey) MarshalYAML() (interface{}, error) {
+	if v.Files != nil || v.Prefix != "" {
+		return struct {
+			Files  Stringorslice `yaml:"files,omitempty"`
+			Prefix string        `yaml:"prefix,omitempty"`
+		}{
+			Files:  v.Files,
+			Prefix: v.Prefix,
+		}, nil
+	}
+
+	return v.Value, nil
 }

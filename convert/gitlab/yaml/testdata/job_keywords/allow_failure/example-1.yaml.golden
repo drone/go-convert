@@ -1,0 +1,15 @@
+job1:
+    script:
+        - execute_script_1
+    stage: test
+job2:
+    allow_failure: true
+    script:
+        - execute_script_2
+    stage: test
+job3:
+    environment:
+        name: staging
+    script:
+        - deploy_to_staging
+    stage: deploy

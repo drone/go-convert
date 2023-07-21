@@ -1,6 +1,0 @@
-# https://docs.gitlab.com/ee/ci/yaml/#releasedescription
-
-job:
-  release:
-    tag_name: ${MAJOR}_${MINOR}_${REVISION}
-    description: './path/to/CHANGELOG.md'

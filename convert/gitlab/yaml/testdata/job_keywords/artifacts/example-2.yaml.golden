@@ -1,0 +1,5 @@
+artifacts:
+    paths:
+        - binaries/
+    exclude:
+        - binaries/**/*.o

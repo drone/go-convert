@@ -1,0 +1,32 @@
+build linux:
+    artifacts:
+        paths:
+            - binaries/
+    script:
+        - make build:linux
+    stage: build
+build osx:
+    artifacts:
+        paths:
+            - binaries/
+    script:
+        - make build:osx
+    stage: build
+deploy:
+    environment:
+        name: production
+    script:
+        - make deploy
+    stage: deploy
+test linux:
+    dependencies:
+        - build linux
+    script:
+        - make test:linux
+    stage: test
+test osx:
+    dependencies:
+        - build osx
+    script:
+        - make test:osx
+    stage: test

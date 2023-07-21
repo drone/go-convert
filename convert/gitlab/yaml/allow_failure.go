@@ -50,3 +50,17 @@ func (v *AllowFailure) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	return errors.New("failed to unmarshal allow_failure")
 }
+
+// MarshalYAML implements the Marshal interface.
+func (v *AllowFailure) MarshalYAML() (interface{}, error) {
+	type allowFailureMarshal AllowFailure
+	if !v.Value {
+		return nil, nil
+	}
+
+	if len(v.ExitCodes) == 0 {
+		return v.Value, nil
+	}
+
+	return allowFailureMarshal(*v), nil
+}

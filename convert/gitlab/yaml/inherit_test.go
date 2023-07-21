@@ -29,7 +29,7 @@ func TestInheritKeys(t *testing.T) {
 		{
 			yaml: `false`,
 			want: InheritKeys{
-				None: true,
+				All: true,
 			},
 		},
 		{
@@ -55,7 +55,7 @@ func TestInheritKeys(t *testing.T) {
 
 func TestInheritKeys_Error(t *testing.T) {
 	err := yaml.Unmarshal([]byte("{}"), new(InheritKeys))
-	if err == nil || err.Error() != "failed to unmarshal inherit" {
+	if err == nil || err.Error() != "failed to unmarshal inherit keys" {
 		t.Errorf("Expect error, got %s", err)
 	}
 }

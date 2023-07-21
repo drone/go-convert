@@ -1,0 +1,9 @@
+dast:
+    dast_configuration:
+        site_profile: Example Co
+        scanner_profile: Quick Passive Test
+include:
+    - template: DAST.gitlab-ci.yml
+stages:
+    - build
+    - dast

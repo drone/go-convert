@@ -1,0 +1,11 @@
+cache-job:
+    cache:
+        paths:
+            - vendor/ruby
+            - node_modules
+        key:
+            files:
+                - Gemfile.lock
+                - package.json
+    script:
+        - echo "This job uses a cache."

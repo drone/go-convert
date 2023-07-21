@@ -1,0 +1,10 @@
+rspec:
+    cache:
+        paths:
+            - vendor/ruby
+        key:
+            files:
+                - Gemfile.lock
+            prefix: $CI_JOB_NAME
+    script:
+        - echo "This rspec job uses a cache."
