@@ -11,8 +11,7 @@ stages:
           echo "Or perhaps you might print out some debugging details"
           echo "Do your build here"
       type: script
-    - name: test
-      spec:
+    - spec:
         steps:
         - name: test1
           spec:
