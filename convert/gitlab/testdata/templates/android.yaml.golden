@@ -6,8 +6,53 @@ stages:
       ANDROID_COMPILE_SDK: "33"
       ANDROID_SDK_TOOLS: "9477386"
     steps:
-    - name: before_script
+    - name: build
       spec:
+        steps:
+        - name: assembleDebug
+          spec:
+            image: eclipse-temurin:17-jdk-jammy
+            run: |-
+              apt-get --quiet update --yes
+              apt-get --quiet install --yes wget unzip
+              export ANDROID_HOME="${PWD}/android-sdk-root"
+              install -d $ANDROID_HOME
+              wget --no-verbose --output-document=$ANDROID_HOME/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS}_latest.zip
+              unzip -q -d "$ANDROID_HOME/cmdline-tools" "$ANDROID_HOME/cmdline-tools.zip"
+              mv -T "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/tools"
+              export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/cmdline-tools/tools/bin
+              sdkmanager --version
+              yes | sdkmanager --licenses > /dev/null || true
+              sdkmanager "platforms;android-${ANDROID_COMPILE_SDK}"
+              sdkmanager "platform-tools"
+              sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}"
+              chmod +x ./gradlew
+              ./gradlew assembleDebug
+          type: script
+        - name: lintDebug
+          spec:
+            image: eclipse-temurin:17-jdk-jammy
+            run: |-
+              apt-get --quiet update --yes
+              apt-get --quiet install --yes wget unzip
+              export ANDROID_HOME="${PWD}/android-sdk-root"
+              install -d $ANDROID_HOME
+              wget --no-verbose --output-document=$ANDROID_HOME/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS}_latest.zip
+              unzip -q -d "$ANDROID_HOME/cmdline-tools" "$ANDROID_HOME/cmdline-tools.zip"
+              mv -T "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/tools"
+              export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/cmdline-tools/tools/bin
+              sdkmanager --version
+              yes | sdkmanager --licenses > /dev/null || true
+              sdkmanager "platforms;android-${ANDROID_COMPILE_SDK}"
+              sdkmanager "platform-tools"
+              sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}"
+              chmod +x ./gradlew
+              ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
+          type: script
+      type: parallel
+    - name: debugTests
+      spec:
+        image: eclipse-temurin:17-jdk-jammy
         run: |-
           apt-get --quiet update --yes
           apt-get --quiet install --yes wget unzip
@@ -23,21 +68,7 @@ stages:
           sdkmanager "platform-tools"
           sdkmanager "build-tools;${ANDROID_BUILD_TOOLS}"
           chmod +x ./gradlew
-      type: script
-    - name: assembleDebug
-      spec:
-        image: eclipse-temurin:17-jdk-jammy
-        run: ./gradlew assembleDebug
-      type: script
-    - name: lintDebug
-      spec:
-        image: eclipse-temurin:17-jdk-jammy
-        run: ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
-      type: script
-    - name: debugTests
-      spec:
-        image: eclipse-temurin:17-jdk-jammy
-        run: ./gradlew -Pci --console=plain :app:testDebug
+          ./gradlew -Pci --console=plain :app:testDebug
       type: script
   type: ci
 version: 1

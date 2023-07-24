@@ -155,8 +155,9 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	}
 
 	for _, stageName := range stages {
+		stageSteps := make([]*harness.Step, 0)
 		// iterate through jobs and find jobs assigned to the stage. Skip other stages.
-		for i, jobName := range jobKeys {
+		for _, jobName := range jobKeys {
 			job := ctx.config.Jobs[jobName] // maintaining order here
 			if job.Before != nil {
 				job.Stage = ".pre"
@@ -188,48 +189,48 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 			if job == nil || job.Stage != stageName {
 				continue
 			}
-
-			if job.Before != nil {
-				beforeScriptStep := convertScriptToStep(job.Before, "before_script", "", false)
-				dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, beforeScriptStep)
-			}
-
 			// Convert each job to a step
 			steps := convertJobToStep(ctx, jobName, job)
 
-			// Add all steps from the job to the stage
 			for _, step := range steps {
-				dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, step)
+				// Prepend the pipeline-level before_script
+				if ctx.config.BeforeScript != nil {
+					prependScript := convertScriptToStep(ctx.config.BeforeScript, "", "", false)
+					step.Spec.(*harness.StepExec).Run = prependScript.Spec.(*harness.StepExec).Run + "\n" + step.Spec.(*harness.StepExec).Run
+				}
+
+				// Prepend the default job-level before_script
+				if ctx.config.Default != nil && ctx.config.Default.Before != nil {
+					prependScript := convertScriptToStep(ctx.config.Default.Before, "", "", false)
+					step.Spec.(*harness.StepExec).Run = prependScript.Spec.(*harness.StepExec).Run + "\n" + step.Spec.(*harness.StepExec).Run
+				}
+
+				// Prepend the job-specific before_script
+				if job.Before != nil {
+					prependScript := convertScriptToStep(job.Before, "", "", false)
+					step.Spec.(*harness.StepExec).Run = prependScript.Spec.(*harness.StepExec).Run + "\n" + step.Spec.(*harness.StepExec).Run
+				}
+				stageSteps = append(stageSteps, step)
 			}
 
-			// If job has an after_script, append it to the steps
-			if job.After != nil {
-				afterScriptStep := convertScriptToStep(job.After, "after_script", "5m", true)
-				dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, afterScriptStep)
-			}
-
-			// If first job in the stage, prepend the before_script
-			if ctx.config.Default != nil && ctx.config.Default.Before != nil && i == 0 {
-				beforeScriptStep := convertScriptToStep(ctx.config.Default.Before, "before_script", "", false)
-				dstStage.Spec.(*harness.StageCI).Steps = append([]*harness.Step{beforeScriptStep}, dstStage.Spec.(*harness.StageCI).Steps...)
-			}
-			if ctx.config.BeforeScript != nil && i == 0 {
-				beforeScriptStep := convertScriptToStep(ctx.config.BeforeScript, "before_script", "", false)
-				dstStage.Spec.(*harness.StageCI).Steps = append([]*harness.Step{beforeScriptStep}, dstStage.Spec.(*harness.StageCI).Steps...)
-			}
 			if job.Inherit != nil && job.Inherit.Variables != nil {
 				dstStage.Spec.(*harness.StageCI).Envs = convertInheritedVariables(job, dstStage.Spec.(*harness.StageCI).Envs)
 			}
 		}
-	}
-	// If last job in the stage, append the after_script
-	if ctx.config.Default != nil && ctx.config.Default.After != nil {
-		afterScriptStep := convertScriptToStep(ctx.config.Default.After, "after_script", "5m", true)
-		dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, afterScriptStep)
-	}
-	if ctx.config.AfterScript != nil {
-		afterScriptStep := convertScriptToStep(ctx.config.AfterScript, "after_script", "5m", true)
-		dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, afterScriptStep)
+		// If there are multiple steps, wrap them with a parallel group to mirror gitlab behavior
+		if len(stageSteps) > 1 {
+			group := &harness.Step{
+				Name: stageName,
+				Type: "parallel",
+				Spec: &harness.StepParallel{
+					Steps: stageSteps,
+				},
+			}
+			dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, group)
+		} else if len(stageSteps) == 1 {
+			// If there's a single step, append it to the stage directly
+			dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, stageSteps[0])
+		}
 	}
 	// marshal the harness yaml
 	out, err := yaml.Marshal(dst)
