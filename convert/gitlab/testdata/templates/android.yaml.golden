@@ -6,8 +6,7 @@ stages:
       ANDROID_COMPILE_SDK: "33"
       ANDROID_SDK_TOOLS: "9477386"
     steps:
-    - name: build
-      spec:
+    - spec:
         steps:
         - name: assembleDebug
           spec:
