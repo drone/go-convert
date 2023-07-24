@@ -199,12 +199,6 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 					step.Spec.(*harness.StepExec).Run = prependScript.Spec.(*harness.StepExec).Run + "\n" + step.Spec.(*harness.StepExec).Run
 				}
 
-				// Prepend the default job-level before_script
-				if ctx.config.Default != nil && ctx.config.Default.Before != nil {
-					prependScript := convertScriptToStep(ctx.config.Default.Before, "", "", false)
-					step.Spec.(*harness.StepExec).Run = prependScript.Spec.(*harness.StepExec).Run + "\n" + step.Spec.(*harness.StepExec).Run
-				}
-
 				// Prepend the job-specific before_script
 				if job.Before != nil {
 					prependScript := convertScriptToStep(job.Before, "", "", false)
@@ -336,7 +330,7 @@ func convertInheritDefaultFields(spec *harness.StepExec, defaultJob *gitlab.Defa
 			}
 		case "before_script":
 			if len(defaultJob.Before) > 0 {
-				spec.Run = strings.Join(defaultJob.Before, "\n")
+				spec.Run = strings.Join(defaultJob.Before, "\n") + "\n" + spec.Run
 			}
 		case "artifacts":
 			if defaultJob.Artifacts != nil {
