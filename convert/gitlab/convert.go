@@ -288,12 +288,10 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 		}
 	}
 
-	if job.Inherit != nil && job.Inherit.Default != nil {
-		if job.Inherit.Default.All {
-			convertInheritDefaultFields(spec, ctx.config.Default, nil)
-		} else {
-			convertInheritDefaultFields(spec, ctx.config.Default, job.Inherit.Default.Keys)
-		}
+	if job.Inherit == nil || job.Inherit.Default == nil || job.Inherit.Default.All {
+		convertInheritDefaultFields(spec, ctx.config.Default, nil)
+	} else {
+		convertInheritDefaultFields(spec, ctx.config.Default, job.Inherit.Default.Keys)
 	}
 
 	// Convert all scripts into a single step
@@ -322,6 +320,15 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 
 // convertInheritDefaultFields converts the default fields from the default job into the current job.
 func convertInheritDefaultFields(spec *harness.StepExec, defaultJob *gitlab.Default, keys []string) {
+	if defaultJob == nil {
+		return
+	}
+	if keys == nil {
+		keys = []string{
+			"after_script", "before_script", "artifacts", "cache", "image",
+			"interruptible", "retry", "services", "tags", "duration",
+		}
+	}
 	for _, key := range keys {
 		switch key {
 		case "after_script":
