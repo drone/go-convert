@@ -150,12 +150,19 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	sort.Strings(jobKeys)
 
 	stages := ctx.config.Stages
-	if len(stages) == 0 {
+	stagesLength := len(stages)
+	if stagesLength == 0 {
 		stages = []string{".pre", "build", "test", "deploy", ".post"} // stages don't have to be declared for valid yaml. Default to test
 	}
 
 	for _, stageName := range stages {
 		stageSteps := make([]*harness.Step, 0)
+
+		// maintain stage name if set
+		if stagesLength != 0 {
+			dstStage.Name = stageName
+		}
+
 		// iterate through jobs and find jobs assigned to the stage. Skip other stages.
 		for _, jobName := range jobKeys {
 			job := ctx.config.Jobs[jobName] // maintaining order here
@@ -225,6 +232,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 			dstStage.Spec.(*harness.StageCI).Steps = append(dstStage.Spec.(*harness.StageCI).Steps, stageSteps[0])
 		}
 	}
+
 	// marshal the harness yaml
 	out, err := yaml.Marshal(dst)
 	if err != nil {
