@@ -1,0 +1,13 @@
+stages:
+- name: test
+  spec:
+    steps:
+    - name: rspec
+      on:
+        failure:
+          type: ignore
+      spec:
+        run: rake rspec
+      type: script
+  type: ci
+version: 1

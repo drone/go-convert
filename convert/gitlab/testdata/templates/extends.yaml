@@ -1,0 +1,7 @@
+.example:
+  script: rake test
+  allow_failure: true
+
+rspec:
+  extends: .example
+  script: rake rspec
