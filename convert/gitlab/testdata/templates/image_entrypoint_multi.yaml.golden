@@ -1,0 +1,15 @@
+stages:
+- name: test
+  spec:
+    steps:
+    - name: rspec 2.7
+      spec:
+        args:
+        - --foo
+        - --bar
+        entrypoint: /bin/example
+        image: registry.example.com/my-group/my-project/ruby:2.7
+        run: bundle exec rspec
+      type: script
+  type: ci
+version: 1

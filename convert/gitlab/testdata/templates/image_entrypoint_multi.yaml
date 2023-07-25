@@ -1,0 +1,8 @@
+rspec 2.7:
+  image:
+    name: registry.example.com/my-group/my-project/ruby:2.7
+    entrypoint:
+      - /bin/example
+      - --foo
+      - --bar
+  script: bundle exec rspec
