@@ -2,8 +2,7 @@ stages:
 - name: build
   spec:
     steps:
-    - name: greeting
-      spec:
+    - spec:
         steps:
         - name: en
           spec:

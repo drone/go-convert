@@ -214,7 +214,6 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		// If there are multiple steps, wrap them with a parallel group to mirror gitlab behavior
 		if len(stageSteps) > 1 {
 			group := &harness.Step{
-				Name: stageName,
 				Type: "parallel",
 				Spec: &harness.StepParallel{
 					Steps: stageSteps,
