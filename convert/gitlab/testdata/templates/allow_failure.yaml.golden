@@ -1,0 +1,13 @@
+stages:
+- name: test
+  spec:
+    steps:
+    - name: job1
+      on:
+        failure:
+          type: ignore
+      spec:
+        run: execute_script_1
+      type: script
+  type: ci
+version: 1

@@ -1,5 +1,5 @@
 stages:
-- name: build
+- name: test
   spec:
     steps:
     - name: build1

@@ -1,5 +1,5 @@
 stages:
-- name: build
+- name: test
   spec:
     envs:
       ANDROID_BUILD_TOOLS: 33.0.2
