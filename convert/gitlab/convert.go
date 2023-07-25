@@ -24,9 +24,10 @@ import (
 	"strings"
 
 	gitlab "github.com/drone/go-convert/convert/gitlab/yaml"
+	"github.com/drone/go-convert/internal/store"
 	harness "github.com/drone/spec/dist/go"
 
-	"github.com/drone/go-convert/internal/store"
+	"dario.cat/mergo"
 	"github.com/ghodss/yaml"
 )
 
@@ -186,11 +187,11 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 				for _, extend := range job.Extends {
 					if templateJob, ok := ctx.config.TemplateJobs[extend]; ok {
 						// Perform deep merge of the template job into the current job.
-						var err error
-						job = mergeJobConfiguration(templateJob, job)
+						mergedJob, err := mergeJobConfiguration(job, templateJob)
 						if err != nil {
 							return nil, err
 						}
+						job = mergedJob
 					}
 				}
 			}
@@ -426,161 +427,20 @@ func convertImageAndPullPolicy(image *gitlab.Image) (string, string) {
 	return name, pullPolicy
 }
 
-// mergeJobConfiguration merges the child job configuration into the parent job configuration.
-func mergeJobConfiguration(child *gitlab.Job, parent *gitlab.Job) *gitlab.Job {
+func mergeJobConfiguration(child *gitlab.Job, parent *gitlab.Job) (*gitlab.Job, error) {
 	mergedJob := &gitlab.Job{}
 
-	mergedJob.After = child.After
-	if len(mergedJob.After) == 0 {
-		mergedJob.After = parent.After
+	// Copy all fields from the parent job into mergedJob.
+	if err := mergo.Merge(mergedJob, parent, mergo.WithOverride); err != nil {
+		return nil, err
 	}
 
-	mergedJob.Artifacts = child.Artifacts
-	if mergedJob.Artifacts == nil {
-		mergedJob.Artifacts = parent.Artifacts
+	// Then, copy all non-empty fields from the child job into mergedJob.
+	if err := mergo.Merge(mergedJob, child, mergo.WithOverride); err != nil {
+		return nil, err
 	}
 
-	mergedJob.AllowFailure = child.AllowFailure
-	if mergedJob.AllowFailure == nil {
-		mergedJob.AllowFailure = parent.AllowFailure
-	}
-
-	mergedJob.Before = child.Before
-	if len(mergedJob.Before) == 0 {
-		mergedJob.Before = parent.Before
-	}
-
-	mergedJob.Cache = child.Cache
-	if mergedJob.Cache == nil {
-		mergedJob.Cache = parent.Cache
-	}
-
-	mergedJob.Coverage = child.Coverage
-	if mergedJob.Coverage == "" {
-		mergedJob.Coverage = parent.Coverage
-	}
-
-	mergedJob.DASTConfiguration = child.DASTConfiguration
-	if mergedJob.DASTConfiguration == nil {
-		mergedJob.DASTConfiguration = parent.DASTConfiguration
-	}
-
-	mergedJob.Dependencies = child.Dependencies
-	if len(mergedJob.Dependencies) == 0 {
-		mergedJob.Dependencies = parent.Dependencies
-	}
-
-	mergedJob.Environment = child.Environment
-	if mergedJob.Environment == nil {
-		mergedJob.Environment = parent.Environment
-	}
-
-	mergedJob.Extends = child.Extends
-	if len(mergedJob.Extends) == 0 {
-		mergedJob.Extends = parent.Extends
-	}
-
-	mergedJob.Image = child.Image
-	if mergedJob.Image == nil {
-		mergedJob.Image = parent.Image
-	}
-
-	mergedJob.Inherit = child.Inherit
-	if mergedJob.Inherit == nil {
-		mergedJob.Inherit = parent.Inherit
-	}
-
-	mergedJob.Interruptible = child.Interruptible
-	if !mergedJob.Interruptible {
-		mergedJob.Interruptible = parent.Interruptible
-	}
-
-	mergedJob.Needs = child.Needs
-	if mergedJob.Needs == nil {
-		mergedJob.Needs = parent.Needs
-	}
-
-	mergedJob.Only = child.Only
-	if mergedJob.Only == nil {
-		mergedJob.Only = parent.Only
-	}
-
-	mergedJob.Pages = child.Pages
-	if mergedJob.Pages == nil {
-		mergedJob.Pages = parent.Pages
-	}
-
-	mergedJob.Parallel = child.Parallel
-	if mergedJob.Parallel == nil {
-		mergedJob.Parallel = parent.Parallel
-	}
-
-	mergedJob.Release = child.Release
-	if mergedJob.Release == nil {
-		mergedJob.Release = parent.Release
-	}
-
-	mergedJob.ResourceGroup = child.ResourceGroup
-	if mergedJob.ResourceGroup == "" {
-		mergedJob.ResourceGroup = parent.ResourceGroup
-	}
-
-	mergedJob.Retry = child.Retry
-	if mergedJob.Retry == nil {
-		mergedJob.Retry = parent.Retry
-	}
-
-	mergedJob.Rules = child.Rules
-	if mergedJob.Rules == nil {
-		mergedJob.Rules = parent.Rules
-	}
-
-	mergedJob.Script = child.Script
-	if len(mergedJob.Script) == 0 {
-		mergedJob.Script = parent.Script
-	}
-
-	mergedJob.Secrets = child.Secrets
-	if mergedJob.Secrets == nil {
-		mergedJob.Secrets = parent.Secrets
-	}
-
-	mergedJob.Services = child.Services
-	if mergedJob.Services == nil {
-		mergedJob.Services = parent.Services
-	}
-
-	mergedJob.Stage = child.Stage
-	if mergedJob.Stage == "" {
-		mergedJob.Stage = parent.Stage
-	}
-
-	mergedJob.Tags = child.Tags
-	if len(mergedJob.Tags) == 0 {
-		mergedJob.Tags = parent.Tags
-	}
-
-	mergedJob.Timeout = child.Timeout
-	if mergedJob.Timeout == "" {
-		mergedJob.Timeout = parent.Timeout
-	}
-
-	mergedJob.Trigger = child.Trigger
-	if mergedJob.Trigger == nil {
-		mergedJob.Trigger = parent.Trigger
-	}
-
-	mergedJob.Variables = child.Variables
-	if mergedJob.Variables == nil {
-		mergedJob.Variables = parent.Variables
-	}
-
-	mergedJob.When = child.When
-	if mergedJob.When == "" {
-		mergedJob.When = parent.When
-	}
-
-	return mergedJob
+	return mergedJob, nil
 }
 
 // convertAllowFailure converts a GitLab job's allow_failure to a Harness step's on.failure.

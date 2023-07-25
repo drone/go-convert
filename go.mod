@@ -3,6 +3,7 @@ module github.com/drone/go-convert
 go 1.19
 
 require (
+	dario.cat/mergo v1.0.0
 	github.com/bmatcuk/doublestar v1.3.4
 	github.com/buildkite/yaml v2.1.0+incompatible
 	github.com/docker/go-units v0.4.0
