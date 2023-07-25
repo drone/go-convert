@@ -130,7 +130,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 
 	// create the harness stage.
 	dstStage := &harness.Stage{
-		Name: "build",
+		Name: "test",
 		Type: "ci",
 		// When: convertCond(from.Trigger),
 		Spec: &harness.StageCI{
@@ -601,6 +601,7 @@ func convertAllowFailure(job *gitlab.Job) *harness.On {
 		if len(exitCodesStr) > 0 {
 			on.Failure.ExitCodes = exitCodesStr
 		}
+		return on
 	}
 	return nil
 }

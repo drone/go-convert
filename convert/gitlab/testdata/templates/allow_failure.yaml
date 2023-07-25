@@ -1,0 +1,4 @@
+job1:
+  script:
+    - execute_script_1
+  allow_failure: true
