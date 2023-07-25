@@ -153,6 +153,8 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	stagesLength := len(stages)
 	if stagesLength == 0 {
 		stages = []string{".pre", "build", "test", "deploy", ".post"} // stages don't have to be declared for valid yaml. Default to test
+	} else {
+		dstStage.Name = ctx.config.Stages[0]
 	}
 
 	for _, stageName := range stages {
