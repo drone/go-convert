@@ -2,47 +2,46 @@ stages:
 - name: build
   spec:
     steps:
-    - name: before_script
+    - name: build1
       spec:
+        image: busybox:latest
         run: |-
           echo "Before script section"
           echo "For example you might run an update here or install a build dependency"
           echo "Or perhaps you might print out some debugging details"
+          echo "Do your build here"
       type: script
-    - name: build1
-      spec:
-        image: busybox:latest
-        run: echo "Do your build here"
-      type: script
-    - name: test1
-      spec:
-        image: busybox:latest
-        run: |-
-          echo "Do a test here"
-          echo "For example run a test suite"
-      type: script
-    - name: test2
-      spec:
-        image: busybox:latest
-        run: |-
-          echo "Do another parallel test here"
-          echo "For example run a lint test"
-      type: script
+    - spec:
+        steps:
+        - name: test1
+          spec:
+            image: busybox:latest
+            run: |-
+              echo "Before script section"
+              echo "For example you might run an update here or install a build dependency"
+              echo "Or perhaps you might print out some debugging details"
+              echo "Do a test here"
+              echo "For example run a test suite"
+          type: script
+        - name: test2
+          spec:
+            image: busybox:latest
+            run: |-
+              echo "Before script section"
+              echo "For example you might run an update here or install a build dependency"
+              echo "Or perhaps you might print out some debugging details"
+              echo "Do another parallel test here"
+              echo "For example run a lint test"
+          type: script
+      type: parallel
     - name: deploy1
       spec:
         image: busybox:latest
-        run: echo "Do your deploy here"
-      type: script
-    - name: after_script
-      "on":
-        failure:
-          type: ignore
-      spec:
         run: |-
-          echo "After script section"
-          echo "For example you might do some cleanup here"
-      timeout: 5m
+          echo "Before script section"
+          echo "For example you might run an update here or install a build dependency"
+          echo "Or perhaps you might print out some debugging details"
+          echo "Do your deploy here"
       type: script
   type: ci
 version: 1
-

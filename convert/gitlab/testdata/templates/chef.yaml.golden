@@ -1,5 +1,5 @@
 stages:
-- name: build
+- name: deploy
   spec:
     envs:
       DOCKER_HOST: tcp://docker:2375
