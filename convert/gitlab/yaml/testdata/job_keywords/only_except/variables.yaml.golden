@@ -1,0 +1,7 @@
+deploy:
+    only:
+        variables:
+            - $RELEASE == "staging"
+            - $STAGING
+    script:
+        - cap staging deploy

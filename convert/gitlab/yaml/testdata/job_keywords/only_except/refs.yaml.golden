@@ -1,0 +1,14 @@
+job1:
+    only:
+        - main
+        - /^issue-.*$/
+        - merge_requests
+    script:
+        - echo
+job2:
+    except:
+        - main
+        - /^stable-branch.*$/
+        - schedules
+    script:
+        - echo

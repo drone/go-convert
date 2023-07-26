@@ -1,7 +1,6 @@
 .tests:
     only:
-        refs:
-            - branches
+        - branches
     script:
         - rake test
     stage: test
