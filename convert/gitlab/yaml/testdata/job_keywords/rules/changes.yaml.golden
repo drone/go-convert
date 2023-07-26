@@ -2,7 +2,7 @@ docker build:
     rules:
         - if: $CI_PIPELINE_SOURCE == "merge_request_event"
           changes:
-            - paths:
+            paths:
                 - Dockerfile
           allow_failure: true
           when: manual

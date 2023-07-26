@@ -39,7 +39,7 @@ func TestChange(t *testing.T) {
 			},
 		},
 		{
-			yaml: `{"paths": "Dockerfile" }`,
+			yaml: `{"paths": ["Dockerfile"] }`,
 			want: Change{
 				Paths: []string{"Dockerfile"},
 			},

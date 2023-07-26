@@ -1,0 +1,23 @@
+build-dev:
+    rules:
+        - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+    script:
+        - echo "Feature branch, so building dev version..."
+    stage: build
+build-prod:
+    rules:
+        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    script:
+        - echo "Default branch, so building prod version..."
+    stage: build
+specs:
+    needs:
+        - job: build-dev
+    rules:
+        - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+          needs:
+            - build-prod
+        - when: on_success
+    script:
+        - echo "Running dev specs by default, or prod specs when default branch..."
+    stage: test

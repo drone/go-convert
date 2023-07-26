@@ -1,0 +1,15 @@
+job:
+    rules:
+        - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+          variables:
+            DEPLOY_VARIABLE: deploy-production
+        - if: $CI_COMMIT_REF_NAME =~ /feature/
+          variables:
+            IS_A_FEATURE: "true"
+    script:
+        - echo "Run script with $DEPLOY_VARIABLE as an argument"
+        - echo "Run another script if $IS_A_FEATURE exists"
+    variables:
+        DEPLOY_VARIABLE:
+            value: default-deploy
+            expand: true

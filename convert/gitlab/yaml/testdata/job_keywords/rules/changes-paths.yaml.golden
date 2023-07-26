@@ -1,0 +1,8 @@
+docker-build-2:
+    rules:
+        - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+          changes:
+            paths:
+                - Dockerfile
+    script:
+        - docker build -t my-image:$CI_COMMIT_REF_SLUG .
