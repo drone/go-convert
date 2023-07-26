@@ -28,6 +28,7 @@ type Job struct {
 	DASTConfiguration *DASTConfiguration       `yaml:"dast_configuration,omitempty"`
 	Dependencies      Stringorslice            `yaml:"dependencies,omitempty"`
 	Environment       *Environment             `yaml:"environment,omitempty"`
+	Except            *Conditions              `yaml:"except,omitempty"`
 	Extends           Stringorslice            `yaml:"extends,omitempty"`
 	Hooks             map[string]Stringorslice `yaml:"hooks,omitempty"`
 	IDTokens          map[string]*IDToken      `yaml:"id_tokens,omitempty"`
@@ -66,6 +67,7 @@ func (v *Job) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		DASTConfiguration *DASTConfiguration       `yaml:"dast_configuration,omitempty"`
 		Dependencies      Stringorslice            `yaml:"dependencies,omitempty"`
 		Environment       *Environment             `yaml:"environment,omitempty"`
+		Except            *Conditions              `yaml:"except,omitempty"`
 		Extends           Stringorslice            `yaml:"extends,omitempty"`
 		Hooks             map[string]Stringorslice `yaml:"hooks,omitempty"`
 		IDTokens          map[string]*IDToken      `yaml:"id_tokens,omitempty"`
