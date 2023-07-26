@@ -288,14 +288,12 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 	var steps []*harness.Step
 	spec := new(harness.StepExec)
 
-	if job.Image != nil {
-		spec.Image, spec.Pull = convertImageAndPullPolicy(job.Image)
-	} else if job.Inherit == nil || job.Inherit.Default == nil || !job.Inherit.Default.All {
-		if ctx.config.Default != nil && ctx.config.Default.Image != nil {
-			spec.Image, spec.Pull = convertImageAndPullPolicy(ctx.config.Default.Image)
-		} else if ctx.config.Image != nil {
-			spec.Image, spec.Pull = convertImageAndPullPolicy(ctx.config.Image)
-		}
+	if imageProvided(job.Image) {
+		spec = convertImage(job.Image)
+	} else if useDefaultImage(job, ctx) {
+		spec = convertImage(ctx.config.Default.Image)
+	} else if imageProvided(ctx.config.Image) {
+		spec = convertImage(ctx.config.Image)
 	}
 
 	if job.Inherit == nil || job.Inherit.Default == nil || job.Inherit.Default.All {
@@ -326,6 +324,18 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 	// job.Secrets
 
 	return steps
+}
+
+func imageProvided(image *gitlab.Image) bool {
+	return image != nil
+}
+
+func isInheritAll(job *gitlab.Job) bool {
+	return job.Inherit != nil && job.Inherit.Default != nil && job.Inherit.Default.All
+}
+
+func useDefaultImage(job *gitlab.Job, ctx *context) bool {
+	return !isInheritAll(job) && ctx.config.Default != nil && imageProvided(ctx.config.Default.Image)
 }
 
 // convertInheritDefaultFields converts the default fields from the default job into the current job.
@@ -359,7 +369,7 @@ func convertInheritDefaultFields(spec *harness.StepExec, defaultJob *gitlab.Defa
 			}
 		case "image":
 			if defaultJob.Image != nil {
-				spec.Image, spec.Pull = convertImageAndPullPolicy(defaultJob.Image)
+				spec = convertImage(defaultJob.Image)
 			}
 		case "interruptible":
 			//TODO not supported
@@ -405,14 +415,12 @@ func convertInheritedVariables(job *gitlab.Job, stageEnvs map[string]string) map
 	return stageEnvs
 }
 
-// convertImageAndPullPolicy converts a GitLab image to a Harness image and pull policy.
-func convertImageAndPullPolicy(image *gitlab.Image) (string, string) {
-	var name string
-	var pullPolicy string
+// convertImage extracts the image name, pull policy, and entrypoint from a GitLab image.
+func convertImage(image *gitlab.Image) *harness.StepExec {
+	spec := &harness.StepExec{}
 
 	if image != nil {
-		name = image.Name
-
+		spec.Image = image.Name
 		if len(image.PullPolicy) == 1 {
 			pullPolicyMapping := map[string]string{
 				"always":         "always",
@@ -420,11 +428,17 @@ func convertImageAndPullPolicy(image *gitlab.Image) (string, string) {
 				"if-not-present": "if-not-exists",
 			}
 
-			pullPolicy = pullPolicyMapping[image.PullPolicy[0]]
+			spec.Pull = pullPolicyMapping[image.PullPolicy[0]]
+		}
+		if len(image.Entrypoint) > 0 {
+			spec.Entrypoint = image.Entrypoint[0]
+			if len(image.Entrypoint) > 1 {
+				spec.Args = image.Entrypoint[1:]
+			}
 		}
 	}
 
-	return name, pullPolicy
+	return spec
 }
 
 func mergeJobConfiguration(child *gitlab.Job, parent *gitlab.Job) (*gitlab.Job, error) {
