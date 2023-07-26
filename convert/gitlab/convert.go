@@ -289,11 +289,11 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 	spec := new(harness.StepExec)
 
 	if imageProvided(job.Image) {
-		spec.Image, spec.Pull, spec.Entrypoint = convertImage(job.Image)
+		spec = convertImage(job.Image)
 	} else if useDefaultImage(job, ctx) {
-		spec.Image, spec.Pull, spec.Entrypoint = convertImage(ctx.config.Default.Image)
+		spec = convertImage(ctx.config.Default.Image)
 	} else if imageProvided(ctx.config.Image) {
-		spec.Image, spec.Pull, spec.Entrypoint = convertImage(ctx.config.Image)
+		spec = convertImage(ctx.config.Image)
 	}
 
 	if job.Inherit == nil || job.Inherit.Default == nil || job.Inherit.Default.All {
@@ -369,7 +369,7 @@ func convertInheritDefaultFields(spec *harness.StepExec, defaultJob *gitlab.Defa
 			}
 		case "image":
 			if defaultJob.Image != nil {
-				spec.Image, spec.Pull, spec.Entrypoint = convertImage(defaultJob.Image)
+				spec = convertImage(defaultJob.Image)
 			}
 		case "interruptible":
 			//TODO not supported
@@ -416,13 +416,11 @@ func convertInheritedVariables(job *gitlab.Job, stageEnvs map[string]string) map
 }
 
 // convertImage extracts the image name, pull policy, and entrypoint from a GitLab image.
-func convertImage(image *gitlab.Image) (string, string, string) {
-	var name string
-	var pullPolicy string
-	var entryPoint string
+func convertImage(image *gitlab.Image) *harness.StepExec {
+	spec := &harness.StepExec{}
 
 	if image != nil {
-		name = image.Name
+		spec.Image = image.Name
 		if len(image.PullPolicy) == 1 {
 			pullPolicyMapping := map[string]string{
 				"always":         "always",
@@ -430,14 +428,17 @@ func convertImage(image *gitlab.Image) (string, string, string) {
 				"if-not-present": "if-not-exists",
 			}
 
-			pullPolicy = pullPolicyMapping[image.PullPolicy[0]]
+			spec.Pull = pullPolicyMapping[image.PullPolicy[0]]
 		}
 		if len(image.Entrypoint) > 0 {
-			entryPoint = image.Entrypoint[0]
+			spec.Entrypoint = image.Entrypoint[0]
+			if len(image.Entrypoint) > 1 {
+				spec.Args = image.Entrypoint[1:]
+			}
 		}
 	}
 
-	return name, pullPolicy, entryPoint
+	return spec
 }
 
 func mergeJobConfiguration(child *gitlab.Job, parent *gitlab.Job) (*gitlab.Job, error) {
