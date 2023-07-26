@@ -1,0 +1,10 @@
+# https://docs.gitlab.com/ee/ci/yaml/#ruleschanges
+
+docker build:
+  script: docker build -t my-image:$CI_COMMIT_REF_SLUG .
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - Dockerfile
+      when: manual
+      allow_failure: true

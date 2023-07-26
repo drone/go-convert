@@ -1,0 +1,9 @@
+# https://docs.gitlab.com/ee/ci/yaml/#releasetag_name
+
+job:
+  script: echo "Running the release job for the new tag."
+  release:
+    tag_name: $CI_COMMIT_TAG
+    description: 'Release description'
+  rules:
+    - if: $CI_COMMIT_TAG

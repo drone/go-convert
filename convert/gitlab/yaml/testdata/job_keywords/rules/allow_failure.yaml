@@ -1,0 +1,8 @@
+# https://docs.gitlab.com/ee/ci/yaml/#rulesallow_failure
+
+job:
+  script: echo "Hello, Rules!"
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+      when: manual
+      allow_failure: true

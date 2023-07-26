@@ -1,0 +1,22 @@
+# https://docs.gitlab.com/ee/ci/yaml/#rulesneeds
+
+build-dev:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+  script: echo "Feature branch, so building dev version..."
+
+build-prod:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script: echo "Default branch, so building prod version..."
+
+specs:
+  stage: test
+  needs: ['build-dev']
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      needs: ['build-prod']
+    - when: on_success # Run the job in other cases
+  script: echo "Running dev specs by default, or prod specs when default branch..."

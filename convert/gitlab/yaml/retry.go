@@ -60,3 +60,18 @@ const (
 	RetrySchedulerFailure       = "scheduler_failure"
 	RetryIntegrityFailure       = "data_integrity_failure"
 )
+
+func (v *Retry) MarshalYAML() (interface{}, error) {
+	if v.Max > 0 && len(v.When) > 0 {
+		return struct {
+			Max  int           `yaml:"max,omitempty"`
+			When Stringorslice `yaml:"when,omitempty"`
+		}{
+			Max:  v.Max,
+			When: v.When,
+		}, nil
+	} else if v.Max > 0 {
+		return v.Max, nil
+	}
+	return nil, nil
+}

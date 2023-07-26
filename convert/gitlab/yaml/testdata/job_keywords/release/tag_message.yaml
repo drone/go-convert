@@ -1,0 +1,8 @@
+# https://docs.gitlab.com/ee/ci/yaml/#releasetag_message
+
+  release_job:
+    stage: release
+    release:
+      tag_name: $CI_COMMIT_TAG
+      description: 'Release description'
+      tag_message: 'Annotated tag message'
