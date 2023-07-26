@@ -1,0 +1,6 @@
+job:
+    rules:
+        - exists:
+            - Dockerfile
+    script:
+        - docker build -t my-image:$CI_COMMIT_REF_SLUG .

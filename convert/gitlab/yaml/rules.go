@@ -18,34 +18,34 @@ import "errors"
 
 type Rule struct {
 	If            string            `yaml:"if,omitempty"`
-	Changes       []*Change         `yaml:"changes,omitempty"`
+	Changes       Change            `yaml:"changes,omitempty"`
 	Exists        []string          `yaml:"exists,omitempty"`
 	AllowFailures bool              `yaml:"allow_failure,omitempty"`
 	Variables     map[string]string `yaml:"variables,omitempty"`
 	When          string            `yaml:"when,omitempty"`
+	Needs         []string          `yaml:"needs,omitempty"`
 }
 
 type Change struct {
-	Paths     []string `yaml:"paths,omitempty"`
+	Paths     []string `yaml:"paths"`
 	CompareTo string   `yaml:"compare_to,omitempty"`
 }
 
-// UnmarshalYAML implements the unmarshal interface.
 func (v *Change) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	var out1 string
-	var out2 []string
+	var out1 []string
+	var out2 string
 	var out3 = struct {
-		Paths     Stringorslice `yaml:"paths,omitempty"`
-		CompareTo string        `yaml:"compare_to,omitempty"`
+		Paths     []string `yaml:"paths"`
+		CompareTo string   `yaml:"compare_to,omitempty"`
 	}{}
 
 	if err := unmarshal(&out1); err == nil {
-		v.Paths = []string{out1}
+		v.Paths = out1
 		return nil
 	}
 
 	if err := unmarshal(&out2); err == nil {
-		v.Paths = out2
+		v.Paths = []string{out2}
 		return nil
 	}
 
@@ -56,4 +56,14 @@ func (v *Change) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	return errors.New("failed to unmarshal rules:changes")
+}
+
+func (v *Change) MarshalYAML() (interface{}, error) {
+	if v.CompareTo != "" {
+		return map[string]interface{}{
+			"paths":      v.Paths,
+			"compare_to": v.CompareTo,
+		}, nil
+	}
+	return v.Paths, nil
 }

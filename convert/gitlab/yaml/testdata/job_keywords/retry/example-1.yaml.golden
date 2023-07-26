@@ -1,0 +1,4 @@
+test:
+    retry: 2
+    script:
+        - rspec

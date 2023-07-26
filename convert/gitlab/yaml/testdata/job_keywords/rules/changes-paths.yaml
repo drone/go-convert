@@ -1,0 +1,16 @@
+# https://docs.gitlab.com/ee/ci/yaml/#ruleschangespaths
+
+#docker-build-1:
+#  script: docker build -t my-image:$CI_COMMIT_REF_SLUG .
+#  rules:
+#    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+#      changes:
+#        - Dockerfile
+
+docker-build-2:
+  script: docker build -t my-image:$CI_COMMIT_REF_SLUG .
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        paths:
+          - Dockerfile

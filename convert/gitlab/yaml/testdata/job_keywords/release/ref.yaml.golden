@@ -1,0 +1,5 @@
+release_job:
+    release:
+        tag_name: $CI_COMMIT_TAG
+        ref: release-branch
+    stage: release

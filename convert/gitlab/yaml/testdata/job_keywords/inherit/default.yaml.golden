@@ -2,8 +2,7 @@ default:
     image:
         name: ruby:3.0
     interruptible: true
-    retry:
-        max: 2
+    retry: 2
 job1:
     inherit:
         default: false

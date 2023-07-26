@@ -1,0 +1,6 @@
+# https://docs.gitlab.com/ee/ci/yaml/#releasename
+
+  release_job:
+    stage: release
+    release:
+      name: 'Release $CI_COMMIT_TAG'

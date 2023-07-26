@@ -1,0 +1,10 @@
+job:
+    rules:
+        - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^feature/ && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME != $CI_DEFAULT_BRANCH
+          when: never
+        - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^feature/
+          allow_failure: true
+          when: manual
+        - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    script:
+        - echo "Hello, Rules!"

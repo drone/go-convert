@@ -1,0 +1,4 @@
+deploy-to-production:
+    resource_group: production
+    script:
+        - deploy

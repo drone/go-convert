@@ -1,0 +1,7 @@
+test:
+    retry:
+        max: 2
+        when:
+            - runner_system_failure
+    script:
+        - rspec

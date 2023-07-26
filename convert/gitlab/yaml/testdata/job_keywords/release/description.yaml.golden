@@ -1,0 +1,4 @@
+job:
+    release:
+        tag_name: ${MAJOR}_${MINOR}_${REVISION}
+        description: ./path/to/CHANGELOG.md

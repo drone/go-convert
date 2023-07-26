@@ -1,0 +1,7 @@
+job:
+    rules:
+        - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+          allow_failure: true
+          when: manual
+    script:
+        - echo "Hello, Rules!"

@@ -17,13 +17,6 @@ func TestPipelineYaml(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		//switch test {
-		//case "testdata/job_keywords/parallel/matrix.yaml",
-		//	"testdata/job_keywords/rules/changes-paths.yaml",
-		//	"testdata/job_keywords/rules/compare_to.yaml":
-		//	// TODO these should be eventually re-enabled
-		//	continue
-		//}
 		t.Run(test, func(t *testing.T) {
 			// parse the yaml file
 			tmp1, err := ParseFile(test)

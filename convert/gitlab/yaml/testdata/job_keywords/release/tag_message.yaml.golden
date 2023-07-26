@@ -1,0 +1,6 @@
+release_job:
+    release:
+        tag_name: $CI_COMMIT_TAG
+        tag_message: Annotated tag message
+        description: Release description
+    stage: release
