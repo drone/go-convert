@@ -39,6 +39,7 @@ type Job struct {
 	Only              *Conditions              `yaml:"only,omitempty"`
 	Pages             *Job                     `yaml:"pages,omitempty"`
 	Parallel          *Parallel                `yaml:"parallel,omitempty"`
+	Publish           string                   `yaml:"publish,omitempty"`
 	Release           *Release                 `yaml:"release,omitempty"`
 	ResourceGroup     string                   `yaml:"resource_group,omitempty"`
 	Retry             *Retry                   `yaml:"retry,omitempty"`
@@ -78,6 +79,7 @@ func (v *Job) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Only              *Conditions              `yaml:"only,omitempty"`
 		Pages             *Job                     `yaml:"pages,omitempty"`
 		Parallel          *Parallel                `yaml:"parallel,omitempty"`
+		Publish           string                   `yaml:"publish,omitempty"`
 		Release           *Release                 `yaml:"release,omitempty"`
 		ResourceGroup     string                   `yaml:"resource_group,omitempty"`
 		Retry             *Retry                   `yaml:"retry,omitempty"`

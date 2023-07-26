@@ -1,0 +1,12 @@
+pages:
+    artifacts:
+        paths:
+            - dist
+    environment:
+        name: production
+    publish: dist
+    rules:
+        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    script:
+        - npx @11ty/eleventy --input=path/to/eleventy/root --output=dist
+    stage: deploy

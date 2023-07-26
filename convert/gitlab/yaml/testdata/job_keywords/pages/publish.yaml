@@ -1,0 +1,13 @@
+# https://docs.gitlab.com/ee/ci/yaml/#pagespublish
+
+pages:
+  stage: deploy
+  script:
+    - npx @11ty/eleventy --input=path/to/eleventy/root --output=dist
+  artifacts:
+    paths:
+      - dist
+  publish: dist
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  environment: production
