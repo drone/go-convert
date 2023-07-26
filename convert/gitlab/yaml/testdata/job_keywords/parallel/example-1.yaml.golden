@@ -1,0 +1,4 @@
+test:
+    parallel: 5
+    script:
+        - rspec

@@ -33,11 +33,17 @@ func TestParallel(t *testing.T) {
 			},
 		},
 		{
-			yaml: `{ "PROVIDER": "aws", "STACK": [ "monitoring", "app1", "app2" ] }`,
+			yaml: `
+            matrix:
+            - PROVIDER: ["aws"]
+              STACK: ["monitoring", "app1", "app2"]
+            `,
 			want: Parallel{
-				Matrix: map[string][]string{
-					"PROVIDER": {"aws"},
-					"STACK":    {"monitoring", "app1", "app2"},
+				Matrix: []map[string][]string{
+					{
+						"PROVIDER": {"aws"},
+						"STACK":    {"monitoring", "app1", "app2"},
+					},
 				},
 			},
 		},

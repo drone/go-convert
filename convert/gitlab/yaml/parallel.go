@@ -17,14 +17,14 @@ package yaml
 import "errors"
 
 type Parallel struct {
-	Count  int                 `yaml:"-,omitempty"`
-	Matrix map[string][]string `yaml:"matrix,omitempty"`
+	Count  int                   `yaml:"-,omitempty"`
+	Matrix []map[string][]string `yaml:"matrix,omitempty"`
 }
 
 // UnmarshalYAML implements the unmarshal interface.
 func (v *Parallel) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var out1 int
-	var out2 = map[string]Stringorslice{}
+	var out2 map[string][]map[string]interface{}
 
 	if err := unmarshal(&out1); err == nil {
 		v.Count = out1
@@ -32,12 +32,48 @@ func (v *Parallel) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	if err := unmarshal(&out2); err == nil {
-		v.Matrix = map[string][]string{}
-		for key, val := range out2 {
-			v.Matrix[key] = []string(val)
+		matrix := make([]map[string][]string, len(out2["matrix"]))
+		for i, item := range out2["matrix"] {
+			matrixItem := make(map[string][]string)
+			for key, value := range item {
+				switch v := value.(type) {
+				case string:
+					matrixItem[key] = []string{v}
+				case []interface{}:
+					strings := make([]string, len(v))
+					for i, s := range v {
+						strings[i] = s.(string)
+					}
+					matrixItem[key] = strings
+				}
+			}
+			matrix[i] = matrixItem
 		}
+		v.Matrix = matrix
 		return nil
 	}
 
 	return errors.New("failed to unmarshal parallel")
+}
+
+func (v *Parallel) MarshalYAML() (interface{}, error) {
+	if v.Count > 0 {
+		return v.Count, nil
+	}
+
+	// Convert the complex structure of v.Matrix back into a simpler form
+	matrix := make([]map[string]interface{}, len(v.Matrix))
+	for i, item := range v.Matrix {
+		matrixItem := make(map[string]interface{})
+		for key, value := range item {
+			if len(value) == 1 {
+				matrixItem[key] = value[0] // Single string
+			} else {
+				matrixItem[key] = value // Slice of strings
+			}
+		}
+		matrix[i] = matrixItem
+	}
+
+	return map[string][]map[string]interface{}{"matrix": matrix}, nil
 }
