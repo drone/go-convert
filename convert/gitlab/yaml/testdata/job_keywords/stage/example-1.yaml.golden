@@ -1,0 +1,21 @@
+stages:
+    - build
+    - test
+    - deploy
+job1:
+    script:
+        - echo "This job compiles code."
+    stage: build
+job2:
+    script:
+        - echo "This job tests the compiled code. It runs when the build stage completes."
+    stage: test
+job3:
+    script:
+        - echo "This job also runs in the test stage".
+job4:
+    environment:
+        name: production
+    script:
+        - echo "This job deploys the code. It runs when the test stage completes."
+    stage: deploy

@@ -1,0 +1,26 @@
+# https://docs.gitlab.com/ee/ci/yaml/#stage
+
+stages:
+  - build
+  - test
+  - deploy
+
+job1:
+  stage: build
+  script:
+    - echo "This job compiles code."
+
+job2:
+  stage: test
+  script:
+    - echo "This job tests the compiled code. It runs when the build stage completes."
+
+job3:
+  script:
+    - echo "This job also runs in the test stage".
+
+job4:
+  stage: deploy
+  script:
+    - echo "This job deploys the code. It runs when the test stage completes."
+  environment: production
