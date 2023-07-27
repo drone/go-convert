@@ -1,0 +1,4 @@
+trigger-multi-project-pipeline:
+    trigger:
+        project: my-group/my-project
+        branch: development

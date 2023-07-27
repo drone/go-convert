@@ -1,0 +1,6 @@
+# https://docs.gitlab.com/ee/ci/yaml/#tags
+
+job:
+  tags:
+    - ruby
+    - postgres

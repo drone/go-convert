@@ -1,0 +1,9 @@
+# https://docs.gitlab.com/ee/ci/yaml/#timeout
+
+build:
+  script: build.sh
+  timeout: 3 hours 30 minutes
+
+test:
+  script: rspec
+  timeout: 3h 30m

@@ -1,0 +1,6 @@
+# https://docs.gitlab.com/ee/ci/yaml/#triggerproject
+
+trigger-multi-project-pipeline:
+  trigger:
+    project: my-group/my-project
+    branch: development
