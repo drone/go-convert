@@ -10,6 +10,4 @@ job:
         - echo "Run script with $DEPLOY_VARIABLE as an argument"
         - echo "Run another script if $IS_A_FEATURE exists"
     variables:
-        DEPLOY_VARIABLE:
-            value: default-deploy
-            expand: true
+        DEPLOY_VARIABLE: default-deploy

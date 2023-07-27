@@ -1,0 +1,18 @@
+# https://docs.gitlab.com/ee/ci/yaml/#variables
+
+variables:
+  DEPLOY_SITE: "https://example.com/"
+
+deploy_job:
+  stage: deploy
+  script:
+    - deploy-script --url $DEPLOY_SITE --path "/"
+  environment: production
+
+deploy_review_job:
+  stage: deploy
+  variables:
+    REVIEW_PATH: "/review"
+  script:
+    - deploy-review-script --url $DEPLOY_SITE --path $REVIEW_PATH
+  environment: production

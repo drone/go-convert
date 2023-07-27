@@ -1,0 +1,6 @@
+# https://docs.gitlab.com/ee/ci/yaml/#variablesvalue
+
+variables:
+  DEPLOY_ENVIRONMENT:
+    value: "staging"
+    description: "The deployment target. Change this variable to 'canary' or 'production' if needed."

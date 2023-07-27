@@ -1,7 +1,5 @@
 variables:
-    VAR:
-        value: value
-        expand: true
+    VAR: value
 child1:
     trigger:
         include: .child-pipeline.yml

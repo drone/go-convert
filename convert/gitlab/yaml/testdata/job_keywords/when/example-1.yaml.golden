@@ -1,0 +1,31 @@
+stages:
+    - build
+    - cleanup_build
+    - test
+    - deploy
+    - cleanup
+build_job:
+    script:
+        - make build
+    stage: build
+cleanup_build_job:
+    script:
+        - cleanup build when failed
+    stage: cleanup_build
+    when: on_failure
+cleanup_job:
+    script:
+        - cleanup after jobs
+    stage: cleanup
+    when: always
+deploy_job:
+    environment:
+        name: production
+    script:
+        - make deploy
+    stage: deploy
+    when: manual
+test_job:
+    script:
+        - make test
+    stage: test

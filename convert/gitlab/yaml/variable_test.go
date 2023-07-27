@@ -30,14 +30,14 @@ func TestVariable(t *testing.T) {
 			yaml: `"https://example.com/"`,
 			want: Variable{
 				Value:  "https://example.com/",
-				Expand: true,
+				Expand: toPointerBool(true),
 			},
 		},
 		{
 			yaml: `{ "description": "The deployment note." }`,
 			want: Variable{
 				Desc:   "The deployment note.",
-				Expand: true,
+				Expand: toPointerBool(true),
 			},
 		},
 		{
@@ -45,7 +45,7 @@ func TestVariable(t *testing.T) {
 			want: Variable{
 				Value:  "staging",
 				Desc:   "The deployment target.",
-				Expand: true,
+				Expand: toPointerBool(true),
 			},
 		},
 		{
@@ -53,14 +53,14 @@ func TestVariable(t *testing.T) {
 			want: Variable{
 				Value:   "staging",
 				Options: []string{"production", "staging", "development"},
-				Expand:  true,
+				Expand:  toPointerBool(true),
 			},
 		},
 		{
 			yaml: `{ "value": "value3 $VAR1", "expand": false }`,
 			want: Variable{
 				Value:  "value3 $VAR1",
-				Expand: false,
+				Expand: toPointerBool(false),
 			},
 		},
 	}
@@ -83,6 +83,10 @@ func TestVariable_Error(t *testing.T) {
 	if err == nil || err.Error() != "failed to unmarshal variable" {
 		t.Errorf("Expect error, got %s", err)
 	}
+}
+
+func toPointerBool(b bool) *bool {
+	return &b
 }
 
 // variables:
