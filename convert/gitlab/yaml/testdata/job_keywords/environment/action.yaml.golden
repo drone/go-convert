@@ -6,7 +6,5 @@ stop_review_app:
         - make delete-app
     stage: deploy
     variables:
-        GIT_STRATEGY:
-            value: none
-            expand: true
+        GIT_STRATEGY: none
     when: manual

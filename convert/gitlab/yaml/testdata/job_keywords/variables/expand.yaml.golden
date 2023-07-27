@@ -1,0 +1,6 @@
+variables:
+    VAR1: value1
+    VAR2: value2 $VAR1
+    VAR3:
+        value: value3 $VAR1
+        expand: false

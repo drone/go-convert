@@ -1,0 +1,9 @@
+variables:
+    DEPLOY_ENVIRONMENT:
+        value: staging
+        description: The deployment target. Set to 'staging' by default.
+        options:
+            - production
+            - staging
+            - canary
+        expand: true

@@ -22,7 +22,7 @@ type Variable struct {
 	Value   string        `yaml:"value,omitempty"`
 	Desc    string        `yaml:"description,omitempty"`
 	Options Stringorslice `yaml:"options,omitempty"`
-	Expand  bool          `yaml:"expand,omitempty"`
+	Expand  *bool         `yaml:"expand,omitempty"`
 }
 
 // UnmarshalYAML implements the unmarshal interface.
@@ -32,12 +32,13 @@ func (v *Variable) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		Value   string        `yaml:"value,omitempty"`
 		Desc    string        `yaml:"description,omitempty"`
 		Options Stringorslice `yaml:"options,omitempty"`
-		Expand  *bool         `yaml:"expand,omitempty"`
+		Expand  interface{}   `yaml:"expand"`
 	}{}
 
 	if err := unmarshal(&out1); err == nil {
+		expand := true
 		v.Value = out1
-		v.Expand = true
+		v.Expand = &expand
 		return nil
 	}
 
@@ -45,12 +46,36 @@ func (v *Variable) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		v.Value = out2.Value
 		v.Desc = out2.Desc
 		v.Options = out2.Options
-		v.Expand = true
-		if out2.Expand != nil {
-			v.Expand = *out2.Expand
+
+		switch out2.Expand.(type) {
+		case bool:
+			expand := out2.Expand.(bool)
+			v.Expand = &expand
+		default:
+			expand := true
+			v.Expand = &expand
 		}
 		return nil
 	}
 
 	return errors.New("failed to unmarshal variable")
+}
+
+func (v *Variable) MarshalYAML() (interface{}, error) {
+	// If there's no description and expand is true or not set, just output the value as a string
+	if v.Desc == "" && (v.Expand == nil || *v.Expand) {
+		return v.Value, nil
+	}
+
+	return struct {
+		Value   string        `yaml:"value,omitempty"`
+		Desc    string        `yaml:"description,omitempty"`
+		Options Stringorslice `yaml:"options,omitempty"`
+		Expand  *bool         `yaml:"expand,omitempty"`
+	}{
+		Value:   v.Value,
+		Desc:    v.Desc,
+		Options: v.Options,
+		Expand:  v.Expand,
+	}, nil
 }

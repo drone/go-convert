@@ -1,0 +1,16 @@
+variables:
+    DEPLOY_SITE: https://example.com/
+deploy_job:
+    environment:
+        name: production
+    script:
+        - deploy-script --url $DEPLOY_SITE --path "/"
+    stage: deploy
+deploy_review_job:
+    environment:
+        name: production
+    script:
+        - deploy-review-script --url $DEPLOY_SITE --path $REVIEW_PATH
+    stage: deploy
+    variables:
+        REVIEW_PATH: /review

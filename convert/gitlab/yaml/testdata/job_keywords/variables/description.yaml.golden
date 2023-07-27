@@ -1,0 +1,4 @@
+variables:
+    DEPLOY_NOTE:
+        description: The deployment note. Explain the reason for this deployment.
+        expand: true
