@@ -1,0 +1,17 @@
+variables:
+    VAR:
+        value: value
+        expand: true
+child1:
+    trigger:
+        include: .child-pipeline.yml
+child2:
+    trigger:
+        include: .child-pipeline.yml
+        forward:
+            pipeline_variables: true
+child3:
+    trigger:
+        include: .child-pipeline.yml
+        forward:
+            yaml_variables: false

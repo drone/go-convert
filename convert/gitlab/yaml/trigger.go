@@ -16,9 +16,8 @@ package yaml
 
 import "errors"
 
-// Trigger defines trigger logic
 type Trigger struct {
-	Project  string   `yaml:"project,omitempty"`
+	Project  string   `yaml:"-"`
 	Branch   string   `yaml:"branch,omitempty"`
 	Include  string   `yaml:"include,omitempty"`
 	Strategy string   `yaml:"strategy,omitempty"`
@@ -30,7 +29,7 @@ type Forward struct {
 	PipelineVariables bool  `yaml:"pipeline_variables,omitempty"`
 }
 
-// UnmarshalYAML implements the unmarshal interface.
+// UnmarshalYAML implements the yaml.Unmarshaler interface.
 func (v *Trigger) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var out1 string
 	var out2 = struct {
@@ -56,4 +55,21 @@ func (v *Trigger) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 
 	return errors.New("failed to unmarshal trigger")
+}
+
+func (v *Trigger) MarshalYAML() (interface{}, error) {
+	// Always marshal as a struct
+	return struct {
+		Project  string   `yaml:"project,omitempty"`
+		Branch   string   `yaml:"branch,omitempty"`
+		Include  string   `yaml:"include,omitempty"`
+		Strategy string   `yaml:"strategy,omitempty"`
+		Forward  *Forward `yaml:"forward,omitempty"`
+	}{
+		Project:  v.Project,
+		Branch:   v.Branch,
+		Include:  v.Include,
+		Strategy: v.Strategy,
+		Forward:  v.Forward,
+	}, nil
 }
