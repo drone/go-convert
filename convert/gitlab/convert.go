@@ -307,11 +307,18 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 
 	spec.Run = strings.Join(script, "\n")
 
+	var on *harness.On
+	if job.Retry != nil {
+		on = convertRetry(job)
+	} else if job.AllowFailure != nil {
+		on = convertAllowFailure(job)
+	}
+
 	step := &harness.Step{
 		Name: jobName,
 		Type: "script",
 		Spec: spec,
-		On:   convertAllowFailure(job),
+		On:   on,
 	}
 
 	steps = append(steps, step)
@@ -497,4 +504,19 @@ func convertVariables(variables map[string]*gitlab.Variable) map[string]string {
 	}
 
 	return result
+}
+
+func convertRetry(job *gitlab.Job) *harness.On {
+	if job.Retry == nil {
+		return nil
+	}
+
+	return &harness.On{
+		Failure: &harness.Failure{
+			Type: "retry",
+			Spec: harness.Retry{
+				Attempts: int64(job.Retry.Max),
+			},
+		},
+	}
 }
