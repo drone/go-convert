@@ -18,62 +18,9 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+
 	"gopkg.in/yaml.v3"
 )
-
-// job:
-//   secrets:
-//     DATABASE_PASSWORD:  # Store the path to the secret in this CI/CD variable
-// 		vault:  # Translates to secret: `ops/data/production/db`, field: `password`
-// 		engine:
-// 			name: kv-v2
-// 			path: ops
-// 		path: production/db
-// 		field: password
-
-// job:
-//   secrets:
-//     DATABASE_PASSWORD:  # Store the path to the secret in this CI/CD variable
-//       vault: production/db/password  # Translates to secret: `kv-v2/data/production/db`, field: `password`
-
-// job:
-//   secrets:
-//     DATABASE_PASSWORD:  # Store the path to the secret in this CI/CD variable
-//       vault: production/db/password@ops  # Translates to secret: `ops/data/production/db`, field: `password`
-
-// job:
-//   secrets:
-//     DATABASE_PASSWORD:
-//       vault: production/db/password@ops
-//       file: false
-
-// job:
-//   id_tokens:
-//     AWS_TOKEN:
-//       aud: https://aws.example.com
-//     VAULT_TOKEN:
-//       aud: https://vault.example.com
-//   secrets:
-//     DB_PASSWORD:
-//       vault: gitlab/production/db
-//       token: $VAULT_TOKEN
-
-// job:
-//   secrets:
-//     DATABASE_PASSWORD:
-//       vault: production/db/password@ops
-//       file: false
-
-// job:
-//   id_tokens:
-//     AWS_TOKEN:
-//       aud: https://aws.example.com
-//     VAULT_TOKEN:
-//       aud: https://vault.example.com
-//   secrets:
-//     DB_PASSWORD:
-//       vault: gitlab/production/db
-//       token: $VAULT_TOKEN
 
 func TestSecret(t *testing.T) {
 	tests := []struct {
@@ -92,18 +39,21 @@ func TestSecret(t *testing.T) {
 			},
 		},
 		{
-			// TODO according to the gitlab documentation this should translate to:
-			// secret: `kv-v2/data/production/db`, field: `password`
 			yaml: `"production/db/password"`,
 			want: Vault{
-				Path: "production/db/password",
+				Path:  "production/db",
+				Field: "password",
 			},
 		},
 		{
 			yaml: `"production/db/password@ops"`,
 			want: Vault{
-				Path:  "production/db/password",
-				Field: "ops",
+				Path:  "production/db",
+				Field: "password",
+				Engine: &VaultEngine{
+					Name: "kv-v2",
+					Path: "ops",
+				},
 			},
 		},
 	}
