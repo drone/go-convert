@@ -1,0 +1,15 @@
+stages:
+- name: test
+  spec:
+    steps:
+    - name: test
+      on:
+        failure:
+          spec:
+            attempts: 2
+          type: retry
+      spec:
+        run: rspec
+      type: script
+  type: ci
+version: 1
