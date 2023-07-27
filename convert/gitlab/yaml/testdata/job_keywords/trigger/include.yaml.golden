@@ -1,0 +1,3 @@
+trigger-child-pipeline:
+    trigger:
+        include: path/to/child-pipeline.gitlab-ci.yml

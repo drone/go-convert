@@ -1,0 +1,4 @@
+# https://docs.gitlab.com/ee/ci/yaml/#trigger
+
+trigger-multi-project-pipeline:
+  trigger: my-group/my-project

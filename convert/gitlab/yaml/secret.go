@@ -22,6 +22,7 @@ import (
 type Secret struct {
 	Vault *Vault `yaml:"vault,omitempty"`
 	File  *bool  `yaml:"file,omitempty"`
+	Token string `yaml:"token,omitempty"`
 }
 
 type Vault struct {
@@ -45,10 +46,18 @@ func (v *Vault) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}{}
 
 	if err := unmarshal(&out1); err == nil {
-		parts := strings.SplitN(out1, "@", 2)
-		if len(parts) == 2 {
-			v.Path = parts[0]
-			v.Field = parts[1]
+		parts := strings.SplitN(out1, "/", 3)
+		if len(parts) == 3 {
+			v.Path = parts[0] + "/" + parts[1]
+			v.Field = parts[2]
+			engineParts := strings.SplitN(parts[2], "@", 2)
+			if len(engineParts) == 2 {
+				v.Field = engineParts[0]
+				v.Engine = &VaultEngine{
+					Path: engineParts[1],
+					Name: "kv-v2",
+				}
+			}
 		} else {
 			v.Path = out1
 		}

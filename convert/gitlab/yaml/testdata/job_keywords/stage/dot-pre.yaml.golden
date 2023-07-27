@@ -1,0 +1,15 @@
+stages:
+    - build
+    - test
+first-job:
+    script:
+        - echo "This job runs in the .pre stage, before all other stages."
+    stage: .pre
+job1:
+    script:
+        - echo "This job runs in the build stage."
+    stage: build
+job2:
+    script:
+        - echo "This job runs in the test stage."
+    stage: test

@@ -1,0 +1,13 @@
+# https://docs.gitlab.com/ee/ci/yaml/#servicepull_policy
+
+job1:
+  script: echo "A single pull policy."
+  services:
+    - name: postgres:11.6
+      pull_policy: if-not-present
+
+job2:
+  script: echo "Multiple pull policies."
+  services:
+    - name: postgres:11.6
+      pull_policy: [always, if-not-present]

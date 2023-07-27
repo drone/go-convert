@@ -1,0 +1,7 @@
+job1:
+    script:
+        - bundle exec rspec
+job2:
+    script:
+        - uname -a
+        - bundle exec rspec
