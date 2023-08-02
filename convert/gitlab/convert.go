@@ -255,22 +255,6 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	return out, nil
 }
 
-//func (d *Converter) generateJobsByProvider(ctx *context, provider string, job *gitlab.Job) []*harness.Step {
-//	// This function should convert the job (which can have multiple scripts, envs, etc.) into a step for a given provider.
-//
-//	// Assuming the convertJobToStep function returns []*harness.Step for a given job and provider.
-//	steps := convertJobToStep(ctx, provider, job, job.Parallel)
-//
-//	for _, step := range steps {
-//		// Adjust the step environment variables based on the provider
-//		if step.Spec != nil && step.Spec.(*harness.StepExec) != nil {
-//			step.Spec.(*harness.StepExec).Envs["PROVIDER"] = provider
-//		}
-//	}
-//
-//	return steps
-//}
-
 // convertCache converts a GitLab cache to a Harness cache.
 func convertCache(cache *gitlab.Cache) *harness.Cache {
 	if cache == nil {
