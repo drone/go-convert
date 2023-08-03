@@ -1,0 +1,6 @@
+build:
+  script: build.sh
+  timeout: 3 hours 30 minutes
+
+test:
+  script: rspec
