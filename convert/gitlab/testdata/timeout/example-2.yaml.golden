@@ -1,0 +1,19 @@
+stages:
+- name: test
+  spec:
+    steps:
+    - spec:
+        steps:
+        - name: build
+          spec:
+            run: build.sh
+          timeout: 3 hours 30 minutes
+          type: script
+        - name: test
+          spec:
+            run: rspec
+          type: script
+      type: parallel
+  type: ci
+version: 1
+

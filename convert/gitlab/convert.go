@@ -315,10 +315,11 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 	}
 
 	step := &harness.Step{
-		Name: jobName,
-		Type: "script",
-		Spec: spec,
-		On:   on,
+		Name:    jobName,
+		Type:    "script",
+		Spec:    spec,
+		On:      on,
+		Timeout: job.Timeout,
 	}
 
 	steps = append(steps, step)
