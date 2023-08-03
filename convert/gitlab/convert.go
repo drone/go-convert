@@ -126,8 +126,9 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	// TODO handle includes
 	// src.Include
 
-	// TODO handle workflow
-	// src.Workflow
+	if ctx.config.Workflow != nil {
+		dst.Name = ctx.config.Workflow.Name
+	}
 
 	// create the harness stage.
 	dstStage := &harness.Stage{
