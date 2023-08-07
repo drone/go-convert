@@ -1,0 +1,6 @@
+workflow:
+  name: 'Example pipeline'
+
+job:
+  script:
+    - echo "Example job."

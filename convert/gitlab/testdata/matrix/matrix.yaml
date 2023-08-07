@@ -1,0 +1,17 @@
+deploystacks:
+  stage: deploy
+  script:
+    - echo $PROVIDER/$STACK
+    - bin/deploy
+  parallel:
+    matrix:
+      - PROVIDER: aws
+        STACK:
+          - monitoring
+          - app1
+          - app2
+      - PROVIDER: ovh
+        STACK: [monitoring, backup, app]
+      - PROVIDER: [gcp, vultr]
+        STACK: [data, processing]
+  environment: $PROVIDER/$STACK
