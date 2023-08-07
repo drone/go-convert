@@ -1,0 +1,11 @@
+name: Example pipeline
+stages:
+- name: test
+  spec:
+    steps:
+    - name: job
+      spec:
+        run: echo "Example job."
+      type: script
+  type: ci
+version: 1
