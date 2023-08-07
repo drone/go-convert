@@ -17,6 +17,7 @@ package gitlab
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"sort"
@@ -199,26 +200,35 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 			if job == nil || job.Stage != stageName {
 				continue
 			}
-			// Convert each job to a step
-			steps := convertJobToStep(ctx, jobName, job)
 
-			for _, step := range steps {
-				// Prepend the pipeline-level before_script
-				if ctx.config.BeforeScript != nil {
-					prependScript := convertScriptToStep(ctx.config.BeforeScript, "", "", false)
-					step.Spec.(*harness.StepExec).Run = prependScript.Spec.(*harness.StepExec).Run + "\n" + step.Spec.(*harness.StepExec).Run
+			if job.Parallel != nil {
+				if job.Parallel.Matrix != nil {
+					for i, matrix := range job.Parallel.Matrix {
+						steps := convertJobToStep(ctx, fmt.Sprintf("%s-%d", jobName, i), job, matrix)
+						stageSteps = append(stageSteps, steps...)
+					}
+				}
+			} else {
+				// Convert each job to a step
+				steps := convertJobToStep(ctx, jobName, job, nil)
+				for _, step := range steps {
+					// Prepend the pipeline-level before_script
+					if ctx.config.BeforeScript != nil {
+						prependScript := convertScriptToStep(ctx.config.BeforeScript, "", "", false)
+						step.Spec.(*harness.StepExec).Run = prependScript.Spec.(*harness.StepExec).Run + "\n" + step.Spec.(*harness.StepExec).Run
+					}
+
+					// Prepend the job-specific before_script
+					if job.Before != nil {
+						prependScript := convertScriptToStep(job.Before, "", "", false)
+						step.Spec.(*harness.StepExec).Run = prependScript.Spec.(*harness.StepExec).Run + "\n" + step.Spec.(*harness.StepExec).Run
+					}
+					stageSteps = append(stageSteps, step)
 				}
 
-				// Prepend the job-specific before_script
-				if job.Before != nil {
-					prependScript := convertScriptToStep(job.Before, "", "", false)
-					step.Spec.(*harness.StepExec).Run = prependScript.Spec.(*harness.StepExec).Run + "\n" + step.Spec.(*harness.StepExec).Run
+				if job.Inherit != nil && job.Inherit.Variables != nil {
+					dstStage.Spec.(*harness.StageCI).Envs = convertInheritedVariables(job, dstStage.Spec.(*harness.StageCI).Envs)
 				}
-				stageSteps = append(stageSteps, step)
-			}
-
-			if job.Inherit != nil && job.Inherit.Variables != nil {
-				dstStage.Spec.(*harness.StageCI).Envs = convertInheritedVariables(job, dstStage.Spec.(*harness.StageCI).Envs)
 			}
 		}
 		// If there are multiple steps, wrap them with a parallel group to mirror gitlab behavior
@@ -284,7 +294,7 @@ func convertScriptToStep(script []string, name, timeout string, onFailureIgnore 
 }
 
 // convertJobToStep converts a GitLab job to a Harness step.
-func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.Step {
+func convertJobToStep(ctx *context, jobName string, job *gitlab.Job, matrix map[string][]string) []*harness.Step {
 	var steps []*harness.Step
 	spec := new(harness.StepExec)
 
@@ -314,11 +324,23 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job) []*harness.
 		on = convertAllowFailure(job)
 	}
 
+	var strategy *harness.Strategy
+	if matrix != nil {
+		strategy = convertStrategy(matrix)
+	}
+
 	step := &harness.Step{
 		Name: jobName,
 		Type: "script",
 		Spec: spec,
-		On:   on,
+	}
+	// map on if exists
+	if on != nil {
+		step.On = on
+	}
+	// map strategy if exists
+	if strategy != nil {
+		step.Strategy = strategy
 	}
 
 	steps = append(steps, step)
@@ -517,6 +539,15 @@ func convertRetry(job *gitlab.Job) *harness.On {
 			Spec: harness.Retry{
 				Attempts: int64(job.Retry.Max),
 			},
+		},
+	}
+}
+
+func convertStrategy(axis map[string][]string) *harness.Strategy {
+	return &harness.Strategy{
+		Type: "matrix",
+		Spec: &harness.Matrix{
+			Axis: axis,
 		},
 	}
 }
