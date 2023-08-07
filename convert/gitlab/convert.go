@@ -325,6 +325,11 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job, matrix map[
 		on = convertAllowFailure(job)
 	}
 
+
+	if job.Secrets != nil {
+		spec.Envs = convertSecrets(job.Secrets)
+  }
+  
 	var strategy *harness.Strategy
 	if matrix != nil {
 		strategy = convertStrategy(matrix)
@@ -529,6 +534,7 @@ func convertVariables(variables map[string]*gitlab.Variable) map[string]string {
 	return result
 }
 
+// convertRetry converts a GitLab job's retry to a Harness step's on.failure.retry.
 func convertRetry(job *gitlab.Job) *harness.On {
 	if job.Retry == nil {
 		return nil
@@ -544,6 +550,24 @@ func convertRetry(job *gitlab.Job) *harness.On {
 	}
 }
 
+
+// convertSecrets converts a GitLab secrets map to a Harness secrets map.
+func convertSecrets(secrets map[string]*gitlab.Secret) map[string]string {
+	result := make(map[string]string)
+
+	var keys []string
+	for k := range secrets {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys) // to maintain order
+
+	for secretName := range secrets {
+		result[secretName] = fmt.Sprintf("<+secrets.getValue(\"%s\")>", secretName)
+	}
+
+	return result
+}
+  
 func convertStrategy(axis map[string][]string) *harness.Strategy {
 	return &harness.Strategy{
 		Type: "matrix",
