@@ -420,13 +420,13 @@ func (d *Downgrader) convertStepGroup(src *v1.Step, depth int) []*v0.Steps {
 
 // helper function to convert a Parallel step from the v1
 // structure to the v0 harness structure.
-func (d *Downgrader) convertStepParallel(src *v1.Step) []*v0.Step {
+func (d *Downgrader) convertStepParallel(src *v1.Step) []*v0.Steps {
 	spec_ := src.Spec.(*v1.StepParallel)
 
-	var steps []*v0.Step
+	var steps []*v0.Steps
 	for _, step := range spec_.Steps {
 		dst := d.convertStep(step)
-		steps = append(steps, dst.Step)
+		steps = append(steps, &v0.Steps{Step: dst.Step})
 	}
 	return steps
 }
