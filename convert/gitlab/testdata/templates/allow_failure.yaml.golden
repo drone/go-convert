@@ -5,6 +5,8 @@ stages:
     - name: job1
       on:
         failure:
+          errors:
+          - all
           type: ignore
       spec:
         run: execute_script_1

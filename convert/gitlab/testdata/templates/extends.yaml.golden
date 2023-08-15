@@ -5,6 +5,8 @@ stages:
     - name: rspec
       on:
         failure:
+          errors:
+          - all
           type: ignore
       spec:
         run: rake rspec
