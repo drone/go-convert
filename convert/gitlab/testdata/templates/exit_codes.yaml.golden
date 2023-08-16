@@ -7,6 +7,8 @@ stages:
         - name: test_job_1
           on:
             failure:
+              errors:
+              - all
               exit_codes:
               - "137"
               type: ignore
@@ -18,6 +20,8 @@ stages:
         - name: test_job_2
           on:
             failure:
+              errors:
+              - all
               exit_codes:
               - "137"
               - "255"
