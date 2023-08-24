@@ -22,6 +22,9 @@ func Parse(r io.Reader) ([]*v1.Pipeline, error) {
 	docs := bytes.Split(b, []byte("\n---\n"))
 
 	for _, doc := range docs {
+		// workaround for this issue
+		// https://stackoverflow.com/questions/70849190/golang-how-to-avoid-double-quoted-on-key-on-when-marshaling-struct-to-yaml
+		doc = bytes.ReplaceAll(doc, []byte(` "on":`), []byte(` on:`))
 		docReader := bytes.NewReader(doc)
 		parsedPipeline, err := v1.Parse(docReader)
 		if err != nil {
