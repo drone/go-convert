@@ -1,0 +1,41 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: test1
+      name: test
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - step:
+              identifier: test
+              name: test
+              spec:
+                command: |-
+                  go build
+                  go test
+                image: golang
+              timeout: ""
+              type: Run
+              when:
+                condition: <+trigger.targetBranch> == "main" || <+trigger.targetBranch>
+                  == "develop"
+                stageStatus: Success
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI
+      when:
+        condition: (<+trigger.event> == "PUSH" || <+trigger.event> == "PR")
+        pipelineStatus: Success
