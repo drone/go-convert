@@ -30,6 +30,7 @@ type (
 		Type        string            `json:"type,omitempty"              yaml:"type,omitempty"`
 		When        *StepWhen         `json:"when,omitempty"              yaml:"when,omitempty"`
 		Env         map[string]string `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
+		Strategy    *Strategy         `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
 	}
 
 	//

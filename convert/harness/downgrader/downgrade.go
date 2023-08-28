@@ -462,7 +462,8 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 			Reports:         convertReports(spec_.Reports),
 			Shell:           strings.Title(spec_.Shell),
 		},
-		When: convertStepWhen(src.When, id),
+		When:     convertStepWhen(src.When, id),
+		Strategy: convertStrategy(src.Strategy),
 	}
 }
 
