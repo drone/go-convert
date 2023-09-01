@@ -1,0 +1,44 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: test
+      name: test
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - parallel:
+            - step:
+                identifier: deploystacks0
+                name: deploystacks-0
+                spec:
+                  command: bin/deploy $PROVIDER/$STACK
+                  envVariables:
+                    PROVIDER: <+matrix.PROVIDER>
+                    STACK: <+matrix.STACK>
+                strategy:
+                  matrix:
+                    PROVIDER:
+                    - aws
+                    STACK:
+                    - monitoring
+                    - app1
+                    - app2
+                    exclude: null
+                timeout: ""
+                type: Run
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI

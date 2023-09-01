@@ -212,7 +212,6 @@ func (d *Downgrader) downgrade(src []*v1.Pipeline) ([]byte, error) {
 // TODO tags
 // TODO when
 // TODO failure strategy
-// TODO matrix strategy
 // TODO volumes
 // TODO if no stage clone, use global clone, if exists
 func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
@@ -470,7 +469,8 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 			Reports:         convertReports(spec_.Reports),
 			Shell:           strings.Title(spec_.Shell),
 		},
-		When: convertStepWhen(src.When, id),
+		When:     convertStepWhen(src.When, id),
+		Strategy: convertStrategy(src.Strategy),
 	}
 }
 
