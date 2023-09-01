@@ -1,6 +1,6 @@
 pipeline:
-  identifier: default
-  name: default
+  identifier: service
+  name: service
   orgIdentifier: default
   projectIdentifier: default
   properties:

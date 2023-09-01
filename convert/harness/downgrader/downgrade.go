@@ -153,8 +153,16 @@ func (d *Downgrader) downgrade(src []*v1.Pipeline) ([]byte, error) {
 	var buf bytes.Buffer
 	for i, p := range src {
 		config := new(v0.Config)
-		config.Pipeline.ID = d.pipelineId
-		config.Pipeline.Name = d.pipelineName
+
+		// use name from yaml if set and name not provided
+		if p.Name != "" && d.pipelineId == "default" {
+			config.Pipeline.ID = slug.Create(p.Name)
+			config.Pipeline.Name = p.Name
+		} else {
+			config.Pipeline.ID = d.pipelineId
+			config.Pipeline.Name = d.pipelineName
+		}
+
 		config.Pipeline.Org = d.pipelineOrg
 		config.Pipeline.Project = d.pipelineProj
 		config.Pipeline.Props.CI.Codebase = v0.Codebase{
