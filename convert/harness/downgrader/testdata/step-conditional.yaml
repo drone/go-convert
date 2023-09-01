@@ -1,0 +1,29 @@
+options: {}
+stages:
+- name: test
+  spec:
+    clone:
+      depth: 50
+    runtime:
+      spec: {}
+      type: machine
+    steps:
+    - name: test
+      spec:
+        image: golang
+        run: |-
+          go build
+          go test
+      type: script
+      when:
+      - branch:
+          in:
+          - main
+          - develop
+  type: ci
+  when:
+  - event:
+      in:
+      - push
+      - pull_request
+version: 1

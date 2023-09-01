@@ -818,14 +818,14 @@ func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 				if v.In != nil {
 					var branchConditions []string
 					for _, branch := range v.In {
-						branchConditions = append(branchConditions, fmt.Sprintf("<+trigger.branch> == %q", branch))
+						branchConditions = append(branchConditions, fmt.Sprintf("<+trigger.targetBranch> == %q", branch))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(branchConditions, " || ")))
 				}
 				if v.Not != nil && v.Not.In != nil {
 					var notBranchConditions []string
 					for _, branch := range v.Not.In {
-						notBranchConditions = append(notBranchConditions, fmt.Sprintf("<+trigger.branch> != %q", branch))
+						notBranchConditions = append(notBranchConditions, fmt.Sprintf("<+trigger.targetBranch> != %q", branch))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notBranchConditions, " && ")))
 				}
@@ -925,14 +925,14 @@ func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
 				if v.In != nil {
 					var branchConditions []string
 					for _, branch := range v.In {
-						branchConditions = append(branchConditions, fmt.Sprintf("<+trigger.branch> == %q", branch))
+						branchConditions = append(branchConditions, fmt.Sprintf("<+trigger.targetBranch> == %q", branch))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(branchConditions, " || ")))
 				}
 				if v.Not != nil && v.Not.In != nil {
 					var notBranchConditions []string
 					for _, branch := range v.Not.In {
-						notBranchConditions = append(notBranchConditions, fmt.Sprintf("<+trigger.branch> != %q", branch))
+						notBranchConditions = append(notBranchConditions, fmt.Sprintf("<+trigger.targetBranch> != %q", branch))
 					}
 					conditions = append(conditions, fmt.Sprintf("%s", strings.Join(notBranchConditions, " && ")))
 				}
