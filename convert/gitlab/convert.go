@@ -325,8 +325,18 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job, matrix map[
 		on = convertAllowFailure(job)
 	}
 
+	if job.Variables != nil {
+		spec.Envs = convertVariables(job.Variables)
+	}
+
 	if job.Secrets != nil {
-		spec.Envs = convertSecrets(job.Secrets)
+		if spec.Envs == nil {
+			spec.Envs = make(map[string]string)
+		}
+		envSecrets := convertSecrets(job.Secrets)
+		for key := range envSecrets {
+			spec.Envs[key] = envSecrets[key]
+		}
 	}
 
 	var strategy *harness.Strategy
