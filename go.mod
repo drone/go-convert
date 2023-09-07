@@ -7,7 +7,7 @@ require (
 	github.com/bmatcuk/doublestar v1.3.4
 	github.com/buildkite/yaml v2.1.0+incompatible
 	github.com/docker/go-units v0.4.0
-	github.com/drone/spec v0.0.0-20230330193014-737aceb47e26
+	github.com/drone/spec v0.0.0-20230906220911-f12508081721
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-cmp v0.5.9
 	github.com/google/subcommands v1.2.0

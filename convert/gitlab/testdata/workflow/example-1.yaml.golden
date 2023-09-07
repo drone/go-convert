@@ -1,4 +1,4 @@
-name: Example pipeline
+#name: Example pipeline
 stages:
 - name: test
   spec:

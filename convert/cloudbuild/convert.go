@@ -211,7 +211,7 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 		Desc:     "converted from google cloud build",
 		Type:     "ci",
 		Delegate: nil, // No Google equivalent
-		On:       nil, // No Google equivalent
+		Failure:  nil, // No Google equivalent
 		When:     nil, // No Google equivalent
 		Spec:     spec,
 	})
@@ -285,7 +285,7 @@ func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step
 		),
 		Desc:    "",  // No Google equivalent
 		When:    nil, // No Google equivalent
-		On:      createFailurestrategy(srcstep),
+		Failure: createFailurestrategy(srcstep),
 		Type:    "script",
 		Timeout: convertTimeout(srcstep.Timeout),
 		Spec: &harness.StepExec{
@@ -311,16 +311,21 @@ func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step
 	}
 }
 
-func createFailurestrategy(src *cloudbuild.Step) *harness.On {
+func createFailurestrategy(src *cloudbuild.Step) *harness.FailureList {
 	if src.Allowfailure == false && len(src.Allowexitcodes) == 0 {
 		return nil
 	}
-	return &harness.On{
-		Failure: &harness.Failure{
-			Type:      "ignore",
-			Spec:      &harness.Ignore{},
-			Errors:    []string{"all"},
-			ExitCodes: src.Allowexitcodes,
+	return &harness.FailureList{
+		Items: []*harness.Failure{
+			{
+				Errors: []string{"all"},
+				Action: &harness.FailureAction{
+					Type: "ignore",
+					Spec: &harness.Ignore{},
+					// TODO exit_codes needs to be re-added to spec
+					// ExitCodes: src.Allowexitcodes,
+				},
+			},
 		},
 	}
 }

@@ -185,14 +185,13 @@ func (d *Converter) convertStage() *harness.Stage {
 		Type: "ci",
 		Spec: spec,
 		// TODO When
-		// TODO On
+		// TODO Failure
 	}
 
 	// find the unique selectors and append
 	// to the stage.
 	if runson := extractRunsOn(d.stage); len(runson) != 0 {
-		stage.Delegate = new(harness.Delegate)
-		stage.Delegate.Selectors = runson
+		stage.Delegate = runson
 	}
 
 	// default docker service (container-based only)

@@ -13,7 +13,6 @@ stages:
       type: script
   type: ci
   delegate:
-    selectors:
-    - my.custom.label
-    - self.hosted
+  - my.custom.label
+  - self.hosted
 version: 1

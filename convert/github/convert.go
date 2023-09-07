@@ -126,7 +126,8 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		Stages:  []*harness.Stage{},
 	}
 
-	pipeline.Name = ctx.pipeline.Name
+	// TODO pipeline.name removed from spec
+	// pipeline.Name = ctx.pipeline.Name
 
 	if ctx.pipeline.Env != nil {
 		pipeline.Options = &harness.Default{
@@ -337,7 +338,7 @@ func convertSteps(src *github.Job) []*harness.Step {
 		}
 
 		if step.ContinueOnErr {
-			dst.On = convertContinueOnError(step)
+			dst.Failure = convertContinueOnError(step)
 		}
 
 		if step.Timeout != 0 {
@@ -386,16 +387,20 @@ func convertAction(src *github.Step) *harness.StepAction {
 	return dst
 }
 
-func convertContinueOnError(src *github.Step) *harness.On {
+func convertContinueOnError(src *github.Step) *harness.FailureList {
 	if !src.ContinueOnErr {
 		return nil
 	}
 
-	return &harness.On{
-		Failure: &harness.Failure{
-			Type:   "ignore",
-			Spec:   &harness.Ignore{},
-			Errors: []string{"all"},
+	return &harness.FailureList{
+		Items: []*harness.Failure{
+			{
+				Errors: []string{"all"},
+				Action: &harness.FailureAction{
+					Type: "ignore",
+					Spec: &harness.Ignore{},
+				},
+			},
 		},
 	}
 }

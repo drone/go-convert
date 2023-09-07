@@ -1,6 +1,6 @@
 pipeline:
-  identifier: test
-  name: test
+  identifier: default
+  name: default
   orgIdentifier: default
   projectIdentifier: default
   properties:
