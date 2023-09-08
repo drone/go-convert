@@ -155,7 +155,8 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		case v1.KindSecret: // TODO
 		case v1.KindSignature: // TODO
 		case v1.KindPipeline:
-			pipeline.Name = from.Name
+			// TODO pipeline.name removed from spec
+			// pipeline.Name = from.Name
 			pipeline.Version = 1
 			pipeline.Stages = append(pipeline.Stages, &v2.Stage{
 				Name:     from.Name,
@@ -658,14 +659,14 @@ func convertClone(src v1.Clone) *v2.CloneStage {
 	return dst
 }
 
-func convertNode(src map[string]string) *v2.Delegate {
+func convertNode(src map[string]string) []string {
 	if len(src) == 0 {
 		return nil
 	}
-	dst := new(v2.Delegate)
+	var dst []string
 	for k, v := range src {
-		dst.Selectors = append(
-			dst.Selectors, k+":"+v)
+		dst = append(
+			dst, k+":"+v)
 	}
 	return dst
 }

@@ -128,7 +128,8 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	// src.Include
 
 	if ctx.config.Workflow != nil {
-		dst.Name = ctx.config.Workflow.Name
+		// TODO pipeline.name removed from spec
+		// dst.Name = ctx.config.Workflow.Name
 	}
 
 	// create the harness stage.
@@ -284,9 +285,13 @@ func convertScriptToStep(script []string, name, timeout string, onFailureIgnore 
 		step.Timeout = timeout
 	}
 	if onFailureIgnore {
-		step.On = &harness.On{
-			Failure: &harness.Failure{
-				Type: "ignore",
+		step.Failure = &harness.FailureList{
+			Items: []*harness.Failure{
+				{
+					Action: &harness.FailureAction{
+						Type: "ignore",
+					},
+				},
 			},
 		}
 	}
@@ -318,7 +323,7 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job, matrix map[
 
 	spec.Run = strings.Join(script, "\n")
 
-	var on *harness.On
+	var on *harness.FailureList
 	if job.Retry != nil {
 		on = convertRetry(job)
 	} else if job.AllowFailure != nil {
@@ -351,7 +356,7 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job, matrix map[
 	}
 	// map on if exists
 	if on != nil {
-		step.On = on
+		step.Failure = on
 	}
 	// map strategy if exists
 	if strategy != nil {
@@ -502,7 +507,7 @@ func mergeJobConfiguration(child *gitlab.Job, parent *gitlab.Job) (*gitlab.Job, 
 }
 
 // convertAllowFailure converts a GitLab job's allow_failure to a Harness step's on.failure.
-func convertAllowFailure(job *gitlab.Job) *harness.On {
+func convertAllowFailure(job *gitlab.Job) *harness.FailureList {
 	if job.AllowFailure != nil && job.AllowFailure.Value {
 		var exitCodesStr []string
 		for _, code := range job.AllowFailure.ExitCodes {
@@ -511,14 +516,19 @@ func convertAllowFailure(job *gitlab.Job) *harness.On {
 		// Sort the slice to maintain order
 		sort.Strings(exitCodesStr)
 
-		on := &harness.On{
-			Failure: &harness.Failure{
-				Errors: []string{"all"},
-				Type:   "ignore",
+		on := &harness.FailureList{
+			Items: []*harness.Failure{
+				{
+					Errors: []string{"all"},
+					Action: &harness.FailureAction{
+						Type: "ignore",
+					},
+				},
 			},
 		}
 		if len(exitCodesStr) > 0 {
-			on.Failure.ExitCodes = exitCodesStr
+			// TODO exit_code needs to be re-added to spec
+			// on.Failure.ExitCodes = exitCodesStr
 		}
 		return on
 	}
@@ -545,16 +555,20 @@ func convertVariables(variables map[string]*gitlab.Variable) map[string]string {
 }
 
 // convertRetry converts a GitLab job's retry to a Harness step's on.failure.retry.
-func convertRetry(job *gitlab.Job) *harness.On {
+func convertRetry(job *gitlab.Job) *harness.FailureList {
 	if job.Retry == nil {
 		return nil
 	}
 
-	return &harness.On{
-		Failure: &harness.Failure{
-			Type: "retry",
-			Spec: harness.Retry{
-				Attempts: int64(job.Retry.Max),
+	return &harness.FailureList{
+		Items: []*harness.Failure{
+			{
+				Action: &harness.FailureAction{
+					Type: "retry",
+					Spec: harness.Retry{
+						Attempts: int64(job.Retry.Max),
+					},
+				},
 			},
 		},
 	}

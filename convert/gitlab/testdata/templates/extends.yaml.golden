@@ -3,10 +3,10 @@ stages:
   spec:
     steps:
     - name: rspec
-      on:
-        failure:
-          errors:
-          - all
+      failure:
+        errors:
+        - all
+        action:
           type: ignore
       spec:
         run: rake rspec

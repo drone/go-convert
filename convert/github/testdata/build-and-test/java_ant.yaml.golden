@@ -1,4 +1,4 @@
-name: Java CI
+#name: Java CI
 stages:
 - name: build
   spec:

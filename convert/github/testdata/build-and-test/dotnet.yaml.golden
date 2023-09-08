@@ -1,4 +1,4 @@
-name: dotnet package
+#name: dotnet package
 stages:
 - name: build
   spec:

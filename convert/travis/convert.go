@@ -130,7 +130,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		Desc:     "converted from travis.yml",
 		Type:     "ci",
 		Delegate: nil, // No Travis equivalent
-		On:       nil, // No Travis equivalent
+		Failure:  nil, // No Travis equivalent
 		Strategy: convertStrategy(ctx),
 		When:     nil, // TODO convert travis condition (if, branches)
 		Spec: &harness.StageCI{

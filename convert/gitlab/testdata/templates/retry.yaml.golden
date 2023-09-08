@@ -3,8 +3,8 @@ stages:
   spec:
     steps:
     - name: test
-      on:
-        failure:
+      failure:
+        action:
           spec:
             attempts: 2
           type: retry

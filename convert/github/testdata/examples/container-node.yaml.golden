@@ -1,4 +1,4 @@
-name: CI
+#name: CI
 stages:
 - name: container-test-job
   spec:

@@ -3,10 +3,10 @@ stages:
   spec:
     steps:
     - name: job1
-      on:
-        failure:
-          errors:
-          - all
+      failure:
+        errors:
+        - all
+        action:
           type: ignore
       spec:
         run: execute_script_1

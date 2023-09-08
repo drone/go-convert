@@ -21,10 +21,10 @@ stages:
       type: cloud
     steps:
     - name: ubuntu
-      "on":
-        failure:
-          errors:
-          - all
+      failure:
+        errors:
+        - all
+        action:
           spec: {}
           type: ignore
       spec:

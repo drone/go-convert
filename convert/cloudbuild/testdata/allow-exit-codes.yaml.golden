@@ -21,12 +21,12 @@ stages:
       type: cloud
     steps:
     - name: ubuntu
-      "on":
-        failure:
-          errors:
-          - all
-          exit_codes:
-          - "1"
+      failure:
+        errors:
+        - all
+        action:
+#          exit_codes:
+#          - "1"
           spec: {}
           type: ignore
       spec:

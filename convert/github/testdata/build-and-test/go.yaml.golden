@@ -1,4 +1,4 @@
-name: Go package
+#name: Go package
 stages:
 - name: build
   spec:

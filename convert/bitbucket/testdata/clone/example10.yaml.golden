@@ -10,6 +10,5 @@ stages:
       type: script
   type: ci
   delegate:
-    selectors:
-    - self.hosted
+  - self.hosted
 version: 1
