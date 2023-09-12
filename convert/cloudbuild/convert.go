@@ -105,10 +105,16 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 // converts converts a Cloud Build pipeline to a Harness pipeline.
 func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 
-	// create the harness pipeline
+	// create the harness pipeline spec
 	pipeline := &harness.Pipeline{
-		Version: 1,
 		Options: new(harness.Default),
+	}
+
+	// create the harness pipeline
+	config := &harness.Config{
+		Version: 1,
+		Kind:    "pipeline",
+		Spec:    pipeline,
 	}
 
 	// convert subsitutions to inputs
@@ -218,8 +224,8 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 
 	// replace google cloud build substitution variable
 	// with harness jexl expressions
-	pipeline, err := replaceAll(
-		pipeline,
+	config, err := replaceAll(
+		config,
 		combineEnv(
 			envMappingJexl,
 			mapInputsToExpr(src.Substitutions),
@@ -231,10 +237,10 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 
 	// map cloud build environment variables to harness
 	// environment variables using jexl.
-	pipeline.Options.Envs = envMappingJexl
+	config.Spec.(*harness.Pipeline).Options.Envs = envMappingJexl
 
 	// marshal the harness yaml
-	out, err := yaml.Marshal(pipeline)
+	out, err := yaml.Marshal(config)
 	if err != nil {
 		return nil, err
 	}
@@ -418,7 +424,7 @@ func mapInputsToExpr(envs map[string]string) map[string]string {
 	return out
 }
 
-func replaceAll(in *harness.Pipeline, envs map[string]string) (*harness.Pipeline, error) {
+func replaceAll(in *harness.Config, envs map[string]string) (*harness.Config, error) {
 	// marshal the harness yaml
 	b, err := yaml.Marshal(in)
 	if err != nil {
