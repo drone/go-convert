@@ -120,10 +120,16 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 // converts a GitHub pipeline to Harness pipeline.
 func (d *Converter) convert(ctx *context) ([]byte, error) {
 
-	// create the harness pipeline
+	// create the harness pipeline spec
 	pipeline := &harness.Pipeline{
+		Stages: []*harness.Stage{},
+	}
+
+	// create the harness pipeline resource
+	config := &harness.Config{
 		Version: 1,
-		Stages:  []*harness.Stage{},
+		Kind:    "pipeline",
+		Spec:    pipeline,
 	}
 
 	// TODO pipeline.name removed from spec
@@ -176,7 +182,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	}
 
 	// marshal the harness yaml
-	out, err := yaml.Marshal(pipeline)
+	out, err := yaml.Marshal(config)
 	if err != nil {
 		return nil, err
 	}

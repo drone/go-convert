@@ -124,10 +124,8 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 // converts converts a circle pipeline pipeline.
 func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 
-	// create the harness pipeline
-	pipeline := &harness.Pipeline{
-		Version: 1,
-	}
+	// create the harness pipeline spec
+	pipeline := &harness.Pipeline{}
 
 	// convert pipeline and job parameters to inputs
 	if params := extractParameters(config); len(params) != 0 {
@@ -148,7 +146,11 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 	var buf bytes.Buffer
 	for i, pipeline := range pipelines {
 		// marshal the harness yaml
-		out, err := yaml.Marshal(pipeline)
+		out, err := yaml.Marshal(&harness.Config{
+			Version: 1,
+			Kind:    "pipeline",
+			Spec:    pipeline,
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -173,10 +175,8 @@ func (d *Converter) convert(config *circle.Config) ([]byte, error) {
 // converts converts a circle pipeline pipeline.
 func (d *Converter) convertPipeline(workflow *circle.Workflow, config *circle.Config) *harness.Pipeline {
 
-	// create the harness pipeline
-	pipeline := &harness.Pipeline{
-		Version: 1,
-	}
+	// create the harness pipeline spec
+	pipeline := &harness.Pipeline{}
 
 	// convert pipeline and job parameters to inputs
 	if params := extractParameters(config); len(params) != 0 {

@@ -144,12 +144,12 @@ func (d *Downgrader) DowngradeFile(path string) ([]byte, error) {
 }
 
 // DowngradeFrom downgrades a v1 pipeline object.
-func (d *Downgrader) DowngradeFrom(src []*v1.Pipeline) ([]byte, error) {
+func (d *Downgrader) DowngradeFrom(src []*v1.Config) ([]byte, error) {
 	return d.downgrade(src)
 }
 
 // downgrade downgrades a v1 pipeline.
-func (d *Downgrader) downgrade(src []*v1.Pipeline) ([]byte, error) {
+func (d *Downgrader) downgrade(src []*v1.Config) ([]byte, error) {
 	var buf bytes.Buffer
 	for i, p := range src {
 		config := new(v0.Config)
@@ -172,12 +172,14 @@ func (d *Downgrader) downgrade(src []*v1.Pipeline) ([]byte, error) {
 			Conn:  d.codebaseConn,
 			Build: "<+input>",
 		}
-		if p.Options != nil {
-			config.Pipeline.Variables = convertVariables(p.Options.Envs)
+		// FIXME: this is subject to a nil pointer
+		if p.Spec.(*v1.Pipeline).Options != nil {
+			config.Pipeline.Variables = convertVariables(p.Spec.(*v1.Pipeline).Options.Envs)
 		}
 
 		// convert stages
-		for _, stage := range p.Stages {
+		// FIXME: this is subject to a nil pointer
+		for _, stage := range p.Spec.(*v1.Pipeline).Stages {
 			// skip nil stages. this is un-necessary, we have
 			// this logic in place just to be safe.
 			if stage == nil {

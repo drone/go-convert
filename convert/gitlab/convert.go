@@ -118,10 +118,16 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 // converts converts a GitLab pipeline to a Harness pipeline.
 func (d *Converter) convert(ctx *context) ([]byte, error) {
 
-	// create the harness pipeline
-	dst := &harness.Pipeline{
+	// create the harness pipeline spec
+	dst := &harness.Pipeline{}
+
+	// create the harness pipeline resource
+	config := &harness.Config{
 		Version: 1,
+		Kind:    "pipeline",
+		Spec:    dst,
 	}
+
 	cacheFound := false
 
 	// TODO handle includes
@@ -249,7 +255,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	}
 
 	// marshal the harness yaml
-	out, err := yaml.Marshal(dst)
+	out, err := yaml.Marshal(config)
 	if err != nil {
 		return nil, err
 	}
