@@ -1,26 +1,28 @@
 options: {}
-stages:
-- name: test
-  spec:
-    clone:
-      depth: 50
-    runtime:
-      spec: {}
-      type: machine
-    steps:
-    - name: test
-      spec:
-        image: golang
-        run: |-
-          go build
-          go test
-      type: script
-  type: ci
-  when:
-  - branch:
-      in:
-      - main
-  - event:
-      in:
-      - push
+kind: pipeline
+spec:
+  stages:
+  - name: test
+    spec:
+      clone:
+        depth: 50
+      runtime:
+        spec: {}
+        type: machine
+      steps:
+      - name: test
+        spec:
+          image: golang
+          run: |-
+            go build
+            go test
+        type: script
+    type: ci
+    when:
+    - branch:
+        in:
+        - main
+    - event:
+        in:
+        - push
 version: 1

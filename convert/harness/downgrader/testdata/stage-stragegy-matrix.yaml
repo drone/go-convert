@@ -1,26 +1,28 @@
-stages:
-- name: test
-  spec:
-    steps:
-    - spec:
-        steps:
-        - name: deploystacks-0
-          spec:
-            envs:
-              PROVIDER: <+matrix.PROVIDER>
-              STACK: <+matrix.STACK>
-            run: bin/deploy $PROVIDER/$STACK
-          type: script
-      type: parallel
-  type: ci
-  strategy:
+kind: pipeline
+spec:
+  stages:
+  - name: test
     spec:
-      axis:
-        PROVIDER:
-        - aws
-        STACK:
-        - monitoring
-        - app1
-        - app2
-    type: matrix
+      steps:
+      - spec:
+          steps:
+          - name: deploystacks-0
+            spec:
+              envs:
+                PROVIDER: <+matrix.PROVIDER>
+                STACK: <+matrix.STACK>
+              run: bin/deploy $PROVIDER/$STACK
+            type: script
+        type: parallel
+    type: ci
+    strategy:
+      spec:
+        axis:
+          PROVIDER:
+          - aws
+          STACK:
+          - monitoring
+          - app1
+          - app2
+      type: matrix
 version: 1

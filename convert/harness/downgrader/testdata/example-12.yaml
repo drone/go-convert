@@ -1,22 +1,23 @@
-name: default
 options: {}
-stages:
-  - name: default
-    spec:
-      clone: {}
-      runtime:
-        spec: {}
-        type: machine
-      steps:
-        - name: publish
-          spec:
-            image: plugins/docker
-            with:
-              list:
-                - first
-                - second
-                - third
-              repo: gcr.io/example/repo
-          type: plugin
-    type: ci
+kind: pipeline
+spec:
+  stages:
+    - name: default
+      spec:
+        clone: {}
+        runtime:
+          spec: {}
+          type: machine
+        steps:
+          - name: publish
+            spec:
+              image: plugins/docker
+              with:
+                list:
+                  - first
+                  - second
+                  - third
+                repo: gcr.io/example/repo
+            type: plugin
+      type: ci
 version: 1

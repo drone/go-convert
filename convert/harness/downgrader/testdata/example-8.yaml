@@ -1,35 +1,38 @@
 options: {}
-stages:
-  - name: default
-    spec:
-      clone: {}
-      runtime:
-        spec: {}
-        type: machine
-      steps:
-        - name: build
-          spec:
-            image: golang:1.16
-            run: |-
-              go build
-              go test
-          type: script
-        - name: publish
-          spec:
-            image: plugins/docker
-            with:
-              password: <+ secrets.getValue("docker_password") >
-              repo: octocat/hello-world
-              tags:
-                - latest
-                - 1
-                - 1.1
-                - 1.1.1
-              username: <+ secrets.getValue("docker_username") >
-          type: plugin
-          when:
-            - event:
-                in:
-                  - push
-                  - tag
-    type: ci
+kind: pipeline
+version: 1
+spec:
+  stages:
+    - name: default
+      spec:
+        clone: {}
+        runtime:
+          spec: {}
+          type: machine
+        steps:
+          - name: build
+            spec:
+              image: golang:1.16
+              run: |-
+                go build
+                go test
+            type: script
+          - name: publish
+            spec:
+              image: plugins/docker
+              with:
+                password: <+ secrets.getValue("docker_password") >
+                repo: octocat/hello-world
+                tags:
+                  - latest
+                  - 1
+                  - 1.1
+                  - 1.1.1
+                username: <+ secrets.getValue("docker_username") >
+            type: plugin
+            when:
+              - event:
+                  in:
+                    - push
+                    - tag
+      type: ci
