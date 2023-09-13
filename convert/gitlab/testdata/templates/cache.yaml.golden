@@ -1,16 +1,18 @@
-stages:
-- name: test
-  spec:
-    cache:
-      enabled: true
-      key: binaries-cache
-      paths:
-      - binaries/*.apk
-      - .config
-    steps:
-    - name: rspec
-      spec:
-        run: echo "This job uses a cache."
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: test
+    spec:
+      cache:
+        enabled: true
+        key: binaries-cache
+        paths:
+        - binaries/*.apk
+        - .config
+      steps:
+      - name: rspec
+        spec:
+          run: echo "This job uses a cache."
+        type: script
+    type: ci
 version: 1

@@ -1,26 +1,28 @@
-stages:
-- name: build
-  spec:
-    steps:
-    - name: Build and test2
-      spec:
-        steps:
-        - name: Build and test
-          spec:
-            run: npm install
-          type: script
-        - name: Build and test1
-          spec:
-            run: npm run build
-          type: script
-      type: group
-    - name: lint code and store results
-      spec:
-        run: npm lint > results.txt
-      type: script
-    - name: Test code from build step stored in the dist/ directory
-      spec:
-        run: npm test
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      steps:
+      - name: Build and test2
+        spec:
+          steps:
+          - name: Build and test
+            spec:
+              run: npm install
+            type: script
+          - name: Build and test1
+            spec:
+              run: npm run build
+            type: script
+        type: group
+      - name: lint code and store results
+        spec:
+          run: npm lint > results.txt
+        type: script
+      - name: Test code from build step stored in the dist/ directory
+        spec:
+          run: npm test
+        type: script
+    type: ci
 version: 1

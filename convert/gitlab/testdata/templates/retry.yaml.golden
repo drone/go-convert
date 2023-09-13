@@ -1,15 +1,17 @@
-stages:
-- name: test
-  spec:
-    steps:
-    - name: test
-      failure:
-        action:
-          spec:
-            attempts: 2
-          type: retry
-      spec:
-        run: rspec
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: test
+    spec:
+      steps:
+      - failure:
+          action:
+            spec:
+              attempts: 2
+            type: retry
+        name: test
+        spec:
+          run: rspec
+        type: script
+    type: ci
 version: 1

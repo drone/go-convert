@@ -1,15 +1,17 @@
-stages:
-- desc: converted from travis.yml
-  name: pipeline
-  spec:
-    cache:
-      enabled: true
-      paths:
-      - ~/.cache/pip
-    steps:
-    - name: install
-      spec:
-        run: pip install -r requirements.txt
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - desc: converted from travis.yml
+    name: pipeline
+    spec:
+      cache:
+        enabled: true
+        paths:
+        - ~/.cache/pip
+      steps:
+      - name: install
+        spec:
+          run: pip install -r requirements.txt
+        type: script
+    type: ci
 version: 1

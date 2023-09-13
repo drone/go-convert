@@ -1,19 +1,21 @@
-stages:
-- name: deploy
-  spec:
-    envs:
-      DOCKER_HOST: tcp://docker:2375
-      KITCHEN_LOCAL_YAML: .kitchen.dokken.yml
-    steps:
-    - name: cookstyle
-      spec:
-        image: chef/chefdk
-        run: chef exec cookstyle .
-      type: script
-    - name: chefspec
-      spec:
-        image: chef/chefdk
-        run: chef exec rspec spec
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: deploy
+    spec:
+      envs:
+        DOCKER_HOST: tcp://docker:2375
+        KITCHEN_LOCAL_YAML: .kitchen.dokken.yml
+      steps:
+      - name: cookstyle
+        spec:
+          image: chef/chefdk
+          run: chef exec cookstyle .
+        type: script
+      - name: chefspec
+        spec:
+          image: chef/chefdk
+          run: chef exec rspec spec
+        type: script
+    type: ci
 version: 1

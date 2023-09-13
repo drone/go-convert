@@ -1,17 +1,18 @@
-#name: default
-options: {}
-stages:
-- name: default
-  spec:
-    clone: {}
-    runtime:
-      spec: {}
-      type: machine
-    steps:
-    - name: workspace
-      spec:
-        image: busybox
-        run: ls /harness
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  options: {}
+  stages:
+  - name: default
+    spec:
+      clone: {}
+      runtime:
+        spec: {}
+        type: machine
+      steps:
+      - name: workspace
+        spec:
+          image: busybox
+          run: ls /harness
+        type: script
+    type: ci
 version: 1

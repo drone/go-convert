@@ -1,26 +1,28 @@
-stages:
-- name: build
-  spec:
-    steps:
-    - name: run
-      spec:
-        run: ./build.sh
-      type: script
-    - name: parallel
-      spec:
-        steps:
-        - name: run1
-          spec:
-            run: ./integration-tests.sh --batch 1
-          type: script
-        - name: run2
-          spec:
-            run: ./integration-tests.sh --batch 2
-          type: script
-      type: parallel
-    - name: run3
-      spec:
-        run: ./deploy.sh
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      steps:
+      - name: run
+        spec:
+          run: ./build.sh
+        type: script
+      - name: parallel
+        spec:
+          steps:
+          - name: run1
+            spec:
+              run: ./integration-tests.sh --batch 1
+            type: script
+          - name: run2
+            spec:
+              run: ./integration-tests.sh --batch 2
+            type: script
+        type: parallel
+      - name: run3
+        spec:
+          run: ./deploy.sh
+        type: script
+    type: ci
 version: 1

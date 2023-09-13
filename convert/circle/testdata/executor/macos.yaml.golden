@@ -1,18 +1,20 @@
-stages:
-- name: build
-  spec:
-    platform:
-      arch: arm64
-      os: macos
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - spec:
-        run: |-
-          set -eo pipefail
-          echo "Hello Mac"
-        shell: bash
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      platform:
+        arch: arm64
+        os: macos
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - spec:
+          run: |-
+            set -eo pipefail
+            echo "Hello Mac"
+          shell: bash
+        type: script
+    type: ci
 version: 1

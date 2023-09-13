@@ -1,56 +1,58 @@
-options:
-  envs:
-    BRANCH_NAME: <+trigger.branch>
-    BUILD_ID: <+pipeline.sequenceId>
-    COMMIT_SHA: <+trigger.commitSha>
-    PROJECT_ID: <+project.name>
-    PROJECT_NUMBER: <+pipeline.sequenceId>
-    REPO_NAME: <+trigger.payload.repository.name>
-    REVISION_ID: <+trigger.commitSha>
-    SHORT_SHA: <+codebase.shortCommitSha>
-    TAG_NAME: <+trigger.commitSha>
-stages:
-- desc: converted from google cloud build
-  name: pipeline
-  spec:
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: kubectl
-      spec:
-        args:
-        - set
-        - image
-        - deployment/mydepl
-        - my-image=gcr.io/my-project/myimage
-        envs:
-          CLOUDSDK_COMPUTE_ZONE: us-east4-b
-          CLOUDSDK_CONTAINER_CLUSTER: my-cluster
-        image: gcr.io/cloud-builders/kubectl
-        mount:
-        - name: dockersock
+kind: pipeline
+spec:
+  options:
+    envs:
+      BRANCH_NAME: <+trigger.branch>
+      BUILD_ID: <+pipeline.sequenceId>
+      COMMIT_SHA: <+trigger.commitSha>
+      PROJECT_ID: <+project.name>
+      PROJECT_NUMBER: <+pipeline.sequenceId>
+      REPO_NAME: <+trigger.payload.repository.name>
+      REVISION_ID: <+trigger.commitSha>
+      SHORT_SHA: <+codebase.shortCommitSha>
+      TAG_NAME: <+trigger.commitSha>
+  stages:
+  - desc: converted from google cloud build
+    name: pipeline
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: kubectl
+        spec:
+          args:
+          - set
+          - image
+          - deployment/mydepl
+          - my-image=gcr.io/my-project/myimage
+          envs:
+            CLOUDSDK_COMPUTE_ZONE: us-east4-b
+            CLOUDSDK_CONTAINER_CLUSTER: my-cluster
+          image: gcr.io/cloud-builders/kubectl
+          mount:
+          - name: dockersock
+            path: /var/run/docker.sock
+        type: script
+      - name: docker
+        spec:
+          args:
+          - build
+          - -t
+          - gcr.io/my-project-id/myimage
+          - .
+          image: gcr.io/cloud-builders/docker
+          mount:
+          - name: dockersock
+            path: /var/run/docker.sock
+        type: script
+      volumes:
+      - name: dockersock
+        spec:
           path: /var/run/docker.sock
-      type: script
-    - name: docker
-      spec:
-        args:
-        - build
-        - -t
-        - gcr.io/my-project-id/myimage
-        - .
-        image: gcr.io/cloud-builders/docker
-        mount:
-        - name: dockersock
-          path: /var/run/docker.sock
-      type: script
-    volumes:
-    - name: dockersock
-      spec:
-        path: /var/run/docker.sock
-      type: host
-  type: ci
+        type: host
+    type: ci
 version: 1

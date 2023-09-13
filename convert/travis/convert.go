@@ -113,9 +113,14 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 // converts converts a Travis pipeline to a Harness pipeline.
 func (d *Converter) convert(ctx *context) ([]byte, error) {
 
-	// create the harness pipeline
-	pipeline := &harness.Pipeline{
+	// create the harness pipeline spec
+	pipeline := &harness.Pipeline{}
+
+	// create the harness pipeline resource
+	config := &harness.Config{
 		Version: 1,
+		Kind:    "pipeline",
+		Spec:    pipeline,
 	}
 
 	// convert the clone
@@ -144,7 +149,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	})
 
 	// marshal the harness yaml
-	out, err := yaml.Marshal(pipeline)
+	out, err := yaml.Marshal(config)
 	if err != nil {
 		return nil, err
 	}

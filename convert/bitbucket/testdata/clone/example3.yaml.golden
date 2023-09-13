@@ -1,16 +1,18 @@
-stages:
-- name: build
-  spec:
-    clone:
-      depth: 2
-      insecure: true
-    steps:
-    - name: run
-      spec:
-        run: ls -R $BITBUCKET_CLONE_DIR
-      type: script
-  type: ci
-  delegate:
-  - linux
-  - self.hosted
+kind: pipeline
+spec:
+  stages:
+  - delegate:
+    - linux
+    - self.hosted
+    name: build
+    spec:
+      clone:
+        depth: 2
+        insecure: true
+      steps:
+      - name: run
+        spec:
+          run: ls -R $BITBUCKET_CLONE_DIR
+        type: script
+    type: ci
 version: 1

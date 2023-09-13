@@ -1,37 +1,39 @@
-stages:
-- name: test
-  spec:
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: install_browser_tools
-      spec:
-        envs:
-          HOME: /root
-          ORB_PARAM_CHROME_VERSION: latest
-          ORB_PARAM_DRIVER_INSTALL_DIR: /usr/local/bin
-          ORB_PARAM_FIREFOX_INSTALL_DIR: /usr/local/bin
-          ORB_PARAM_FIREFOX_VERSION: latest
-          ORB_PARAM_GECKO_INSTALL_DIR: /usr/local/bin
-          ORB_PARAM_GECKO_VERSION: latest
-        run: curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-firefox.sh
-          | bash && curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-geckodriver.sh
-          | bash && curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-chrome.sh
-          | bash && curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-chromedriver.sh
-          | bash
-      type: script
-    - name: Check install
-      spec:
-        run: |
-          set -eo pipefail
-          google-chrome --version
-          chromedriver --version
-          firefox --version
-        shell: bash
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: test
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: install_browser_tools
+        spec:
+          envs:
+            HOME: /root
+            ORB_PARAM_CHROME_VERSION: latest
+            ORB_PARAM_DRIVER_INSTALL_DIR: /usr/local/bin
+            ORB_PARAM_FIREFOX_INSTALL_DIR: /usr/local/bin
+            ORB_PARAM_FIREFOX_VERSION: latest
+            ORB_PARAM_GECKO_INSTALL_DIR: /usr/local/bin
+            ORB_PARAM_GECKO_VERSION: latest
+          run: curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-firefox.sh
+            | bash && curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-geckodriver.sh
+            | bash && curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-chrome.sh
+            | bash && curl https://raw.githubusercontent.com/CircleCI-Public/browser-tools-orb/vx.y/src/scripts/install-chromedriver.sh
+            | bash
+        type: script
+      - name: Check install
+        spec:
+          run: |
+            set -eo pipefail
+            google-chrome --version
+            chromedriver --version
+            firefox --version
+          shell: bash
+        type: script
+    type: ci
 version: 1

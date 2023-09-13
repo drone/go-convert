@@ -1,36 +1,40 @@
-stages:
-  - name: test
-    spec:
-      platform:
-        arch: amd64
-        os: linux
-      runtime:
-        spec: {}
-        type: cloud
-      steps:
-        - name: test
-          spec:
-            image: cimg/base:2023.03
-            run: echo "this is the test job"
-          type: script
-    type: ci
+kind: pipeline
+spec:
+  stages:
+    - name: test
+      spec:
+        platform:
+          arch: amd64
+          os: linux
+        runtime:
+          spec: {}
+          type: cloud
+        steps:
+          - name: test
+            spec:
+              image: cimg/base:2023.03
+              run: echo "this is the test job"
+            type: script
+      type: ci
 version: 1
 
 ---
-stages:
-  - name: build
-    spec:
-      platform:
-        arch: amd64
-        os: linux
-      runtime:
-        spec: {}
-        type: cloud
-      steps:
-        - name: build
-          spec:
-            image: cimg/base:2023.03
-            run: echo "this is the build job"
-          type: script
-    type: ci
+kind: pipeline
+spec:
+  stages:
+    - name: build
+      spec:
+        platform:
+          arch: amd64
+          os: linux
+        runtime:
+          spec: {}
+          type: cloud
+        steps:
+          - name: build
+            spec:
+              image: cimg/base:2023.03
+              run: echo "this is the build job"
+            type: script
+      type: ci
 version: 1

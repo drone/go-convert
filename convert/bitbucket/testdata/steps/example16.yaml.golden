@@ -1,21 +1,23 @@
-stages:
-- name: build
-  spec:
-    steps:
-    - name: Alert everyone!
-      spec:
-        image: atlassian/opsgenie-send-alert:latest
-        with:
-          GENIE_KEY: $GENIE_KEY
-          MESSAGE: Wake up!
-      type: plugin
-    - name: Alert everyone!1
-      spec:
-        image: atlassian/slack-notify:latest
-        with:
-          MESSAGE: We have a problem!
-          PRETEXT: Alert Everyone!
-          WEBHOOK_URL: $SLACK_WEBHOOK
-      type: plugin
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      steps:
+      - name: Alert everyone!
+        spec:
+          image: atlassian/opsgenie-send-alert:latest
+          with:
+            GENIE_KEY: $GENIE_KEY
+            MESSAGE: Wake up!
+        type: plugin
+      - name: Alert everyone!1
+        spec:
+          image: atlassian/slack-notify:latest
+          with:
+            MESSAGE: We have a problem!
+            PRETEXT: Alert Everyone!
+            WEBHOOK_URL: $SLACK_WEBHOOK
+        type: plugin
+    type: ci
 version: 1

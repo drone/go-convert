@@ -1,19 +1,13 @@
-{
-    "image": {
-        "name": "<aws_account_id>.dkr.ecr.<region>.amazonaws.com/bash:latest",
-        "aws": {
-            "oidc-role": "arn:aws:iam::<aws_account_id>:role/<your_role_name>"
-        }
-    },
-    "pipelines": {
-        "default": [
-            {
-                "step": {
-                    "script": [
-                        "echo \"Hello, World!\""
-                    ]
-                }
-            }
-        ]
-    }
-}
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      steps:
+      - name: run
+        spec:
+          image: <aws_account_id>.dkr.ecr.<region>.amazonaws.com/bash:latest
+          run: echo "Hello, World!"
+        type: script
+    type: ci
+version: 1

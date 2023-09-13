@@ -1,12 +1,14 @@
-options:
-  clone: {}
-stages:
-- name: build
-  spec:
-    steps:
-    - name: Clone and download
-      spec:
-        run: echo "Clone and download my LFS files!"
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  options:
+    clone: {}
+  stages:
+  - name: build
+    spec:
+      steps:
+      - name: Clone and download
+        spec:
+          run: echo "Clone and download my LFS files!"
+        type: script
+    type: ci
 version: 1

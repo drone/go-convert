@@ -1,46 +1,48 @@
-stages:
-- name: build-medium
-  spec:
-    platform:
-      arch: arm64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - spec:
-        run: |-
-          set -eo pipefail
-          uname -a
-        shell: bash
-      type: script
-    - spec:
-        run: |-
-          set -eo pipefail
-          echo "Hello, Arm!"
-        shell: bash
-      type: script
-  type: ci
-- name: build-large
-  spec:
-    platform:
-      arch: arm64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - spec:
-        run: |-
-          set -eo pipefail
-          uname -a
-        shell: bash
-      type: script
-    - spec:
-        run: |-
-          set -eo pipefail
-          echo "Hello, Arm!"
-        shell: bash
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build-medium
+    spec:
+      platform:
+        arch: arm64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - spec:
+          run: |-
+            set -eo pipefail
+            uname -a
+          shell: bash
+        type: script
+      - spec:
+          run: |-
+            set -eo pipefail
+            echo "Hello, Arm!"
+          shell: bash
+        type: script
+    type: ci
+  - name: build-large
+    spec:
+      platform:
+        arch: arm64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - spec:
+          run: |-
+            set -eo pipefail
+            uname -a
+          shell: bash
+        type: script
+      - spec:
+          run: |-
+            set -eo pipefail
+            echo "Hello, Arm!"
+          shell: bash
+        type: script
+    type: ci
 version: 1

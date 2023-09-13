@@ -140,10 +140,18 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	// TODO convert from_secret to expression
 	//
 
+	// create the pipeline spec
 	pipeline := &v2.Pipeline{
 		Options: &v2.Default{
 			Registry: convertRegistry(ctx.pipeline),
 		},
+	}
+
+	// create the harness pipeline resource
+	config := &v2.Config{
+		Version: 1,
+		Kind:    "pipeline",
+		Spec:    pipeline,
 	}
 
 	for _, from := range ctx.pipeline {
@@ -157,7 +165,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		case v1.KindPipeline:
 			// TODO pipeline.name removed from spec
 			// pipeline.Name = from.Name
-			pipeline.Version = 1
+
 			pipeline.Stages = append(pipeline.Stages, &v2.Stage{
 				Name:     from.Name,
 				Type:     "ci",
@@ -179,7 +187,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	}
 
 	// marshal the harness yaml
-	out, err := yaml.Marshal(pipeline)
+	out, err := yaml.Marshal(config)
 	if err != nil {
 		return nil, err
 	}

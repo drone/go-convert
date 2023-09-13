@@ -1,18 +1,20 @@
-stages:
-- name: build-push
-  spec:
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: env
-      spec:
-        image: alpine:3.11
-        run: env
-        shell: sh
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build-push
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: env
+        spec:
+          image: alpine:3.11
+          run: env
+          shell: sh
+        type: script
+    type: ci
 version: 1

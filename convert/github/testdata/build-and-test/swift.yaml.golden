@@ -1,22 +1,23 @@
-#name: Swift
-stages:
-- name: build
-  spec:
-    clone: {}
-    platform:
-      arch: amd64
-      os: darwin
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: Build
-      spec:
-        run: swift build
-      type: script
-    - name: Run tests
-      spec:
-        run: swift test
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      clone: {}
+      platform:
+        arch: amd64
+        os: darwin
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: Build
+        spec:
+          run: swift build
+        type: script
+      - name: Run tests
+        spec:
+          run: swift test
+        type: script
+    type: ci
 version: 1

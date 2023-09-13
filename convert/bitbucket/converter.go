@@ -118,10 +118,16 @@ func (d *Converter) convert() ([]byte, error) {
 	// by stage to simplify conversion.
 	bitbucket.Normalize(d.config)
 
-	// create the harness pipeline
+	// create the harness pipeline spec
 	pipeline := &harness.Pipeline{
-		Version: 1,
 		Options: convertDefault(d.config),
+	}
+
+	// create the harness pipeline resource
+	config := &harness.Config{
+		Version: 1,
+		Kind:    "pipeline",
+		Spec:    pipeline,
 	}
 
 	for _, steps := range d.config.Pipelines.Default {
@@ -134,7 +140,7 @@ func (d *Converter) convert() ([]byte, error) {
 	}
 
 	// marshal the harness yaml
-	out, err := yaml.Marshal(pipeline)
+	out, err := yaml.Marshal(config)
 	if err != nil {
 		return nil, err
 	}

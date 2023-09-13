@@ -1,19 +1,20 @@
-name: service
-stages:
-  - name: test
-    spec:
-      platform:
-        arch: amd64
-        os: linux
-      runtime:
-        spec: {}
-        type: cloud
-      steps:
-        - name: nginx
-          spec:
-            image: nginx
-            ports:
-              - 8080:80
-          type: background
-    type: ci
+kind: pipeline
+spec:
+  stages:
+    - name: test
+      spec:
+        platform:
+          arch: amd64
+          os: linux
+        runtime:
+          spec: {}
+          type: cloud
+        steps:
+          - name: nginx
+            spec:
+              image: nginx
+              ports:
+                - 8080:80
+            type: background
+      type: ci
 version: 1

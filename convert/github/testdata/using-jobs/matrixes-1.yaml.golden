@@ -1,38 +1,40 @@
-stages:
-- name: example_matrix
-  spec:
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - spec:
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-      type: action
-    - spec:
-        run: npm install -g npm@${{ matrix.npm }}
-      type: script
-    - spec:
-        run: npm --version
-      type: script
-  strategy:
+kind: pipeline
+spec:
+  stages:
+  - name: example_matrix
     spec:
-      axis:
-        node:
-        - "12"
-        - "14"
-        - "16"
-        os:
-        - windows-latest
-        - ubuntu-latest
-      include:
-      - node: "16"
-        npm: "6"
-        os: windows-latest
-    type: matrix
-  type: ci
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - spec:
+          uses: actions/setup-node@v3
+          with:
+            node-version: ${{ matrix.node }}
+        type: action
+      - spec:
+          run: npm install -g npm@${{ matrix.npm }}
+        type: script
+      - spec:
+          run: npm --version
+        type: script
+    strategy:
+      spec:
+        axis:
+          node:
+          - "12"
+          - "14"
+          - "16"
+          os:
+          - windows-latest
+          - ubuntu-latest
+        include:
+        - node: "16"
+          npm: "6"
+          os: windows-latest
+      type: matrix
+    type: ci
 version: 1

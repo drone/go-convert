@@ -1,29 +1,30 @@
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: circleci/go
+        spec:
+          run: echo unable to convert orb circleci/go/load-cache
+        type: script
+      - name: circleci/go1
+        spec:
+          run: echo unable to convert orb circleci/go/mod-download
+        type: script
+      - name: circleci/go2
+        spec:
+          run: echo unable to convert orb circleci/go/save-cache
+        type: script
+      - name: go_test
+        spec:
+          run: go test -cover -covermode atomic -race ./...
+        type: script
+    type: ci
 version: 1
-
-stages:
-- name: build
-  type: ci
-  spec:
-    platform:
-      os: linux
-      arch: amd64
-    runtime:
-      type: cloud
-      spec: {}
-    steps:
-    - name: circleci/go
-      type: script
-      spec:
-        run: echo unable to convert orb circleci/go/load-cache
-    - name: circleci/go1
-      type: script
-      spec:
-        run: echo unable to convert orb circleci/go/mod-download
-    - name: circleci/go2
-      type: script
-      spec:
-        run: echo unable to convert orb circleci/go/save-cache
-    - name: go_test
-      type: script
-      spec:
-        run: go test -cover -covermode atomic -race ./...

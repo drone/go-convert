@@ -1,48 +1,49 @@
-#name: Python package
-stages:
-- name: build
-  spec:
-    clone: {}
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: Set up Python ${{ matrix.python-version }}
-      spec:
-        uses: actions/setup-python@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-      type: action
-    - name: Install dependencies
-      spec:
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install flake8 pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      type: script
-    - name: Lint with flake8
-      spec:
-        run: |
-          # stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      type: script
-    - name: Test with pytest
-      spec:
-        run: |
-          pytest
-      type: script
-  strategy:
+kind: pipeline
+spec:
+  stages:
+  - name: build
     spec:
-      axis:
-        python-version:
-        - "3.8"
-        - "3.9"
-        - "3.10"
-    type: matrix
-  type: ci
+      clone: {}
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: Set up Python ${{ matrix.python-version }}
+        spec:
+          uses: actions/setup-python@v3
+          with:
+            python-version: ${{ matrix.python-version }}
+        type: action
+      - name: Install dependencies
+        spec:
+          run: |
+            python -m pip install --upgrade pip
+            python -m pip install flake8 pytest
+            if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        type: script
+      - name: Lint with flake8
+        spec:
+          run: |
+            # stop the build if there are Python syntax errors or undefined names
+            flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+            # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+            flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        type: script
+      - name: Test with pytest
+        spec:
+          run: |
+            pytest
+        type: script
+    strategy:
+      spec:
+        axis:
+          python-version:
+          - "3.8"
+          - "3.9"
+          - "3.10"
+      type: matrix
+    type: ci
 version: 1

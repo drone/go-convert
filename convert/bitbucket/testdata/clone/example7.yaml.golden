@@ -1,15 +1,17 @@
-stages:
-- name: build
-  spec:
-    clone: {}
-    steps:
-    - name: run
-      spec:
-        run: ls -R $BITBUCKET_CLONE_DIR
-      type: script
-    - name: run1
-      spec:
-        run: ls -R $BITBUCKET_CLONE_DIR
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      clone: {}
+      steps:
+      - name: run
+        spec:
+          run: ls -R $BITBUCKET_CLONE_DIR
+        type: script
+      - name: run1
+        spec:
+          run: ls -R $BITBUCKET_CLONE_DIR
+        type: script
+    type: ci
 version: 1

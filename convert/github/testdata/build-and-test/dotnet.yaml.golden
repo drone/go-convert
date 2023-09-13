@@ -1,39 +1,40 @@
-#name: dotnet package
-stages:
-- name: build
-  spec:
-    clone: {}
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
-      spec:
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: ${{ matrix.dotnet-version }}
-      type: action
-    - name: Install dependencies
-      spec:
-        run: dotnet restore
-      type: script
-    - name: Build
-      spec:
-        run: dotnet build --configuration Release --no-restore
-      type: script
-    - name: Test
-      spec:
-        run: dotnet test --no-restore --verbosity normal
-      type: script
-  strategy:
+kind: pipeline
+spec:
+  stages:
+  - name: build
     spec:
-      axis:
-        dotnet-version:
-        - 3.1.x
-        - 6.0.x
-    type: matrix
-  type: ci
+      clone: {}
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
+        spec:
+          uses: actions/setup-dotnet@v3
+          with:
+            dotnet-version: ${{ matrix.dotnet-version }}
+        type: action
+      - name: Install dependencies
+        spec:
+          run: dotnet restore
+        type: script
+      - name: Build
+        spec:
+          run: dotnet build --configuration Release --no-restore
+        type: script
+      - name: Test
+        spec:
+          run: dotnet test --no-restore --verbosity normal
+        type: script
+    strategy:
+      spec:
+        axis:
+          dotnet-version:
+          - 3.1.x
+          - 6.0.x
+      type: matrix
+    type: ci
 version: 1

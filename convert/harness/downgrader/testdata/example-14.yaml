@@ -1,20 +1,21 @@
-name: test
-stages:
-  - name: test
-    spec:
-      clone: {}
-      platform:
-        arch: amd64
-        os: linux
-      runtime:
-        spec: {}
-        type: cloud
-      steps:
-        - spec:
-            run: pip3 install
-          type: script
-        - spec:
-            run: echo hello
-          type: script
-    type: ci
+kind: pipeline
+spec:
+  stages:
+    - name: test
+      spec:
+        clone: {}
+        platform:
+          arch: amd64
+          os: linux
+        runtime:
+          spec: {}
+          type: cloud
+        steps:
+          - spec:
+              run: pip3 install
+            type: script
+          - spec:
+              run: echo hello
+            type: script
+      type: ci
 version: 1

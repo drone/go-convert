@@ -1,34 +1,35 @@
-#name: default
-options: {}
-stages:
-- name: default
-  spec:
-    clone: {}
-    runtime:
-      spec: {}
-      type: machine
-    steps:
-    - name: docker
-      spec:
-        image: docker:dind
-        mount:
-        - name: dockersock
-          path: /var/run
-        privileged: true
-      type: background
-    - name: test
-      spec:
-        image: docker:dind
-        mount:
-        - name: dockersock
-          path: /var/run
-        run: |-
-          sleep 5
-          docker ps -a
-      type: script
-    volumes:
-    - name: dockersock
-      spec: {}
-      type: temp
-  type: ci
+kind: pipeline
+spec:
+  options: {}
+  stages:
+  - name: default
+    spec:
+      clone: {}
+      runtime:
+        spec: {}
+        type: machine
+      steps:
+      - name: docker
+        spec:
+          image: docker:dind
+          mount:
+          - name: dockersock
+            path: /var/run
+          privileged: true
+        type: background
+      - name: test
+        spec:
+          image: docker:dind
+          mount:
+          - name: dockersock
+            path: /var/run
+          run: |-
+            sleep 5
+            docker ps -a
+        type: script
+      volumes:
+      - name: dockersock
+        spec: {}
+        type: temp
+    type: ci
 version: 1

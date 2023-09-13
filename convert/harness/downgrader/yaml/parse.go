@@ -10,8 +10,8 @@ import (
 )
 
 // Parse parses the configuration from io.Reader r.
-func Parse(r io.Reader) ([]*v1.Pipeline, error) {
-	var pipelines []*v1.Pipeline
+func Parse(r io.Reader) ([]*v1.Config, error) {
+	var resources []*v1.Config
 
 	// Read all data from the reader
 	b, err := ioutil.ReadAll(r)
@@ -22,33 +22,33 @@ func Parse(r io.Reader) ([]*v1.Pipeline, error) {
 	docs := bytes.Split(b, []byte("\n---\n"))
 
 	for _, doc := range docs {
-		docReader := bytes.NewReader(doc)
-		parsedPipeline, err := v1.Parse(docReader)
+		r := bytes.NewReader(doc)
+		resource, err := v1.Parse(r)
 		if err != nil {
 			return nil, err
 		}
-		pipelines = append(pipelines, parsedPipeline)
+		resources = append(resources, resource)
 	}
 
-	return pipelines, nil
+	return resources, nil
 }
 
 // ParseBytes parses the configuration from bytes b.
-func ParseBytes(b []byte) ([]*v1.Pipeline, error) {
+func ParseBytes(b []byte) ([]*v1.Config, error) {
 	return Parse(
 		bytes.NewBuffer(b),
 	)
 }
 
 // ParseString parses the configuration from string s.
-func ParseString(s string) ([]*v1.Pipeline, error) {
+func ParseString(s string) ([]*v1.Config, error) {
 	return ParseBytes(
 		[]byte(s),
 	)
 }
 
 // ParseFile parses the configuration from path p.
-func ParseFile(p string) ([]*v1.Pipeline, error) {
+func ParseFile(p string) ([]*v1.Config, error) {
 	f, err := os.Open(p)
 	if err != nil {
 		return nil, err

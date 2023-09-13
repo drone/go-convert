@@ -1,24 +1,26 @@
-stages:
-- name: test
-  spec:
-    cache:
-      enabled: true
-      key: gems
-      paths:
-      - vendor/bundle
-      policy: pull
-    steps:
-    - name: prepare-dependencies-job
-      spec:
-        run: |-
-          echo "This job only downloads dependencies and builds the cache."
-          echo "Downloading dependencies..."
-      type: script
-    - name: faster-test-job
-      spec:
-        run: |-
-          echo "This job script uses the cache, but does not update it."
-          echo "Running tests..."
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: test
+    spec:
+      cache:
+        enabled: true
+        key: gems
+        paths:
+        - vendor/bundle
+        policy: pull
+      steps:
+      - name: prepare-dependencies-job
+        spec:
+          run: |-
+            echo "This job only downloads dependencies and builds the cache."
+            echo "Downloading dependencies..."
+        type: script
+      - name: faster-test-job
+        spec:
+          run: |-
+            echo "This job script uses the cache, but does not update it."
+            echo "Running tests..."
+        type: script
+    type: ci
 version: 1

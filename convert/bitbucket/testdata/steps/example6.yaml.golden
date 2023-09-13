@@ -1,14 +1,16 @@
-stages:
-- name: build
-  spec:
-    runtime:
-      spec:
-        size: large
-      type: cloud
-    steps:
-    - name: run
-      spec:
-        run: echo "This step gets double the memory!"
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      runtime:
+        spec:
+          size: large
+        type: cloud
+      steps:
+      - name: run
+        spec:
+          run: echo "This step gets double the memory!"
+        type: script
+    type: ci
 version: 1

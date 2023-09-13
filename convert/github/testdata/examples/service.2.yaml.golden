@@ -1,23 +1,24 @@
-#name: service
-stages:
-- name: test
-  spec:
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: postgres
-      spec:
-        image: postgres
-        envs:
-          POSTGRES_PASSWORD: postgres
-      type: background
-    - name: docker ps
-      spec:
-        run: docker ps
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: test
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: postgres
+        spec:
+          envs:
+            POSTGRES_PASSWORD: postgres
+          image: postgres
+        type: background
+      - name: docker ps
+        spec:
+          run: docker ps
+        type: script
+    type: ci
 version: 1

@@ -1,13 +1,15 @@
-options:
-  clone:
-    disabled: true
-stages:
-- name: build
-  spec:
-    steps:
-    - name: run
-      spec:
-        run: echo "No code cloned!"
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  options:
+    clone:
+      disabled: true
+  stages:
+  - name: build
+    spec:
+      steps:
+      - name: run
+        spec:
+          run: echo "No code cloned!"
+        type: script
+    type: ci
 version: 1

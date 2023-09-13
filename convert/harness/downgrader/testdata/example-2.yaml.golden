@@ -45,10 +45,11 @@ pipeline:
           spec: {}
           type: Cloud
       type: CI
-  variables:
-  - name: RUBY_VERSION
-    type: String
-    value: "3.1"
-  - name: my-key
-    type: String
-    value: my-value
+# TODO: options.envs
+#  variables:
+#  - name: RUBY_VERSION
+#    type: String
+#    value: "3.1"
+#  - name: my-key
+#    type: String
+#    value: my-value
