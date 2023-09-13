@@ -1,6 +1,5 @@
-version: 1
 kind: pipeline
-spec: 
+spec:
   options:
     envs:
       BRANCH_NAME: <+trigger.branch>
@@ -23,15 +22,13 @@ spec:
         spec: {}
         type: cloud
       steps:
-      - name: ubuntu
-        failure:
-          errors:
-          - all
+      - failure:
           action:
-  #          exit_codes:
-  #          - "1"
             spec: {}
             type: ignore
+          errors:
+          - all
+        name: ubuntu
         spec:
           args:
           - -c
@@ -57,3 +54,4 @@ spec:
           path: /var/run/docker.sock
         type: host
     type: ci
+version: 1

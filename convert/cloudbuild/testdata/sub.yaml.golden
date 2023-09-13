@@ -1,6 +1,5 @@
-version: 1
 kind: pipeline
-spec: 
+spec:
   inputs:
     _SUB_VALUE:
       default: world
@@ -43,3 +42,4 @@ spec:
           path: /var/run/docker.sock
         type: host
     type: ci
+version: 1

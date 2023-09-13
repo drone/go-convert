@@ -1,16 +1,18 @@
-stages:
-- name: build
-  spec:
-    steps:
-    - name: Step using the Bash image
-      spec:
-        image: bash:latest
-        run: bash --version
-      type: script
-    - name: Step using the default Bitbucket Pipelines image
-      spec:
-        image: atlassian/default-image:latest
-        run: echo "Hello, World from the default Pipelines image"
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      steps:
+      - name: Step using the Bash image
+        spec:
+          image: bash:latest
+          run: bash --version
+        type: script
+      - name: Step using the default Bitbucket Pipelines image
+        spec:
+          image: atlassian/default-image:latest
+          run: echo "Hello, World from the default Pipelines image"
+        type: script
+    type: ci
 version: 1

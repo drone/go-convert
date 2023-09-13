@@ -1,28 +1,30 @@
-stages:
-- desc: converted from travis.yml
-  name: pipeline
-  spec:
-    steps:
-    - name: mariadb
-      spec:
-        envs:
-          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
-          MARIADB_DATABASE: test
-          MARIADB_USER: root
-          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-          MYSQL_DATABASE: test
-          MYSQL_USER: root
-        image: mariadb
-        ports:
-        - "3306"
-      type: background
-    - name: install
-      spec:
-        run: bundle install --jobs=3 --retry=3
-      type: script
-    - name: script
-      spec:
-        run: rake
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - desc: converted from travis.yml
+    name: pipeline
+    spec:
+      steps:
+      - name: mariadb
+        spec:
+          envs:
+            MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
+            MARIADB_DATABASE: test
+            MARIADB_USER: root
+            MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+            MYSQL_DATABASE: test
+            MYSQL_USER: root
+          image: mariadb
+          ports:
+          - "3306"
+        type: background
+      - name: install
+        spec:
+          run: bundle install --jobs=3 --retry=3
+        type: script
+      - name: script
+        spec:
+          run: rake
+        type: script
+    type: ci
 version: 1

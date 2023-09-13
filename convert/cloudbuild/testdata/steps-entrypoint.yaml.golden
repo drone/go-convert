@@ -1,6 +1,5 @@
-version: 1
 kind: pipeline
-spec: 
+spec:
   options:
     envs:
       BRANCH_NAME: <+trigger.branch>
@@ -39,3 +38,4 @@ spec:
           path: /var/run/docker.sock
         type: host
     type: ci
+version: 1

@@ -1,20 +1,20 @@
+kind: pipeline
+spec:
+  options:
+    clone:
+      depth: 3
+  stages:
+  - desc: converted from travis.yml
+    name: pipeline
+    spec:
+      steps:
+      - name: install
+        spec:
+          run: bundle install --jobs=3 --retry=3
+        type: script
+      - name: script
+        spec:
+          run: rake
+        type: script
+    type: ci
 version: 1
-
-options:
-  clone:
-    depth: 3
-
-stages:
-- desc: converted from travis.yml
-  name: pipeline
-  type: ci
-  spec:
-    steps:
-    - name: install
-      type: script
-      spec:
-        run: bundle install --jobs=3 --retry=3
-    - name: script
-      type: script
-      spec:
-        run: rake

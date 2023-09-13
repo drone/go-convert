@@ -1,18 +1,19 @@
-#name: CI
-stages:
-- name: container-test-job
-  spec:
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: Node version
-      spec:
-        image: node:14.16
-        run: node --version
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: container-test-job
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: Node version
+        spec:
+          image: node:14.16
+          run: node --version
+        type: script
+    type: ci
 version: 1

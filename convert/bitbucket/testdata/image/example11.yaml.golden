@@ -1,20 +1,13 @@
-{
-    "image": "my/bash:lts",
-    "pipelines": {
-        "default": [
-            {
-                "step": {
-                    "image": {
-                        "name": "my/bash:latest",
-                        "username": "$CONTAINER_REGISTRY_USERNAME",
-                        "password": "$CONTAINER_REGISTRY_PASSWORD",
-                        "email": "$CONTAINER_REGISTRY_EMAIL"
-                    },
-                    "script": [
-                        "echo \"Hello, World!\""
-                    ]
-                }
-            }
-        ]
-    }
-}
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      steps:
+      - name: run
+        spec:
+          image: my/bash:latest
+          run: echo "Hello, World!"
+        type: script
+    type: ci
+version: 1

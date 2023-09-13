@@ -1,17 +1,19 @@
-stages:
-- name: greeting
-  spec:
-    steps:
-    - spec:
-        steps:
-        - name: en
-          spec:
-            run: echo hello world
-          type: script
-        - name: fr
-          spec:
-            run: echo bonjour monde
-          type: script
-      type: parallel
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: greeting
+    spec:
+      steps:
+      - spec:
+          steps:
+          - name: en
+            spec:
+              run: echo hello world
+            type: script
+          - name: fr
+            spec:
+              run: echo bonjour monde
+            type: script
+        type: parallel
+    type: ci
 version: 1

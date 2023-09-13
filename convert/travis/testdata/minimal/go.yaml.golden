@@ -1,16 +1,17 @@
+kind: pipeline
+spec:
+  stages:
+  - desc: converted from travis.yml
+    name: pipeline
+    spec:
+      steps:
+      - name: install
+        spec:
+          run: go install
+        type: script
+      - name: script
+        spec:
+          run: go test -v
+        type: script
+    type: ci
 version: 1
-
-stages:
-- desc: converted from travis.yml
-  name: pipeline
-  type: ci
-  spec:
-    steps:
-    - name: install
-      type: script
-      spec:
-        run: go install
-    - name: script
-      type: script
-      spec:
-        run: go test -v

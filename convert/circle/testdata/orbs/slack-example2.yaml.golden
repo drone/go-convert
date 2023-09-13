@@ -1,63 +1,65 @@
-stages:
-- name: test
-  spec:
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - spec:
-        image: cimg/base:stable
-        run: |-
-          set -eo pipefail
-          echo "test my app"
-        shell: bash
-      type: script
-  type: ci
-- name: slack/on-hold
-  spec:
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: circleci/slack
-      spec:
-        run: echo unable to convert orb circleci/slack/on-hold
-      type: script
-  type: ci
-- name: deploy
-  spec:
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - spec:
-        image: cimg/base:stable
-        run: |-
-          set -eo pipefail
-          echo "deploy my app"
-        shell: bash
-      type: script
-    - name: notify_slack
-      spec:
-        image: plugins/slack
-        with:
-          recipient: '@EngineeringTeam'
-          template: basic_fail_1
-      type: plugin
-    - name: notify_slack
-      spec:
-        image: plugins/slack
-        with:
-          template: success_tagged_deploy_1
-      type: plugin
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: test
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - spec:
+          image: cimg/base:stable
+          run: |-
+            set -eo pipefail
+            echo "test my app"
+          shell: bash
+        type: script
+    type: ci
+  - name: slack/on-hold
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: circleci/slack
+        spec:
+          run: echo unable to convert orb circleci/slack/on-hold
+        type: script
+    type: ci
+  - name: deploy
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - spec:
+          image: cimg/base:stable
+          run: |-
+            set -eo pipefail
+            echo "deploy my app"
+          shell: bash
+        type: script
+      - name: notify_slack
+        spec:
+          image: plugins/slack
+          with:
+            recipient: '@EngineeringTeam'
+            template: basic_fail_1
+        type: plugin
+      - name: notify_slack
+        spec:
+          image: plugins/slack
+          with:
+            template: success_tagged_deploy_1
+        type: plugin
+    type: ci
 version: 1

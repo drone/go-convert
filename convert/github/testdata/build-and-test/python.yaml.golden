@@ -1,49 +1,50 @@
-#name: Python package
-stages:
-- name: build
-  spec:
-    clone: {}
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: Set up Python ${{ matrix.python-version }}
-      spec:
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      type: action
-    - name: Install dependencies
-      spec:
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      type: script
-    - name: Lint with ruff
-      spec:
-        run: |
-          # stop the build if there are Python syntax errors or undefined names
-          ruff --format=github --select=E9,F63,F7,F82 --target-version=py37 .
-          # default set of ruff rules with GitHub Annotations
-          ruff --format=github --target-version=py37 .
-      type: script
-    - name: Test with pytest
-      spec:
-        run: pytest
-      type: script
-  strategy:
+kind: pipeline
+spec:
+  stages:
+  - name: build
     spec:
-      axis:
-        python-version:
-        - "3.7"
-        - "3.8"
-        - "3.9"
-        - "3.10"
-        - "3.11"
-    type: matrix
-  type: ci
+      clone: {}
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: Set up Python ${{ matrix.python-version }}
+        spec:
+          uses: actions/setup-python@v4
+          with:
+            python-version: ${{ matrix.python-version }}
+        type: action
+      - name: Install dependencies
+        spec:
+          run: |
+            python -m pip install --upgrade pip
+            pip install ruff pytest
+            if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        type: script
+      - name: Lint with ruff
+        spec:
+          run: |
+            # stop the build if there are Python syntax errors or undefined names
+            ruff --format=github --select=E9,F63,F7,F82 --target-version=py37 .
+            # default set of ruff rules with GitHub Annotations
+            ruff --format=github --target-version=py37 .
+        type: script
+      - name: Test with pytest
+        spec:
+          run: pytest
+        type: script
+    strategy:
+      spec:
+        axis:
+          python-version:
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+      type: matrix
+    type: ci
 version: 1

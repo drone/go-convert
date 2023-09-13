@@ -1,13 +1,15 @@
-stages:
-- name: build
-  spec:
-    steps:
-    - name: Running my custom pipe
-      spec:
-        image: <DockerAccountName>/<ImageName>:<version>
-        with:
-          PASSWORD: $Password
-          USERNAME: $My_username
-      type: plugin
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      steps:
+      - name: Running my custom pipe
+        spec:
+          image: <DockerAccountName>/<ImageName>:<version>
+          with:
+            PASSWORD: $Password
+            USERNAME: $My_username
+        type: plugin
+    type: ci
 version: 1

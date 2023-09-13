@@ -1,18 +1,20 @@
-stages:
-- name: build
-  spec:
-    platform:
-      arch: amd64
-      os: windows
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - spec:
-        run: |-
-          set -eo pipefail
-          Write-Host 'Hello, Windows'
-        shell: bash
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      platform:
+        arch: amd64
+        os: windows
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - spec:
+          run: |-
+            set -eo pipefail
+            Write-Host 'Hello, Windows'
+          shell: bash
+        type: script
+    type: ci
 version: 1

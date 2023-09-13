@@ -1,28 +1,29 @@
-#name: Publish Package to npmjs
-stages:
-- name: build
-  spec:
-    clone: {}
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - spec:
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-          registry-url: https://registry.npmjs.org
-      type: action
-    - spec:
-        run: npm ci
-      type: script
-    - spec:
-        envs:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      clone: {}
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - spec:
+          uses: actions/setup-node@v3
+          with:
+            node-version: 16.x
+            registry-url: https://registry.npmjs.org
+        type: action
+      - spec:
+          run: npm ci
+        type: script
+      - spec:
+          envs:
+            NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          run: npm publish
+        type: script
+    type: ci
 version: 1

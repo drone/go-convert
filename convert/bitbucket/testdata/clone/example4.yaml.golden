@@ -1,13 +1,15 @@
-options:
-  clone:
-    depth: 2
-stages:
-- name: build
-  spec:
-    steps:
-    - name: run
-      spec:
-        run: ls $BITBUCKET_CLONE_DIR
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  options:
+    clone:
+      depth: 2
+  stages:
+  - name: build
+    spec:
+      steps:
+      - name: run
+        spec:
+          run: ls $BITBUCKET_CLONE_DIR
+        type: script
+    type: ci
 version: 1

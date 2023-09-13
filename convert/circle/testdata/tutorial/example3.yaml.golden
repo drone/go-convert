@@ -1,58 +1,60 @@
-stages:
-- name: Hello-World
-  spec:
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: Saying Hello
-      spec:
-        image: cimg/base:2021.04
-        run: |
-          set -eo pipefail
-          echo 'Hello World!'
-          echo 'This is the delivery pipeline'
-        shell: bash
-      type: script
-  type: ci
-- name: Fetch-Code
-  spec:
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: Getting the Code
-      spec:
-        image: cimg/base:2021.04
-        run: |
-          set -eo pipefail
-          ls -al
-          echo '^^^Your repo files^^^'
-        shell: bash
-      type: script
-  type: ci
-- name: Using-Node
-  spec:
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: Running the Node Container
-      spec:
-        image: cimg/node:17.2
-        run: |
-          set -eo pipefail
-          node -v
-        shell: bash
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: Hello-World
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: Saying Hello
+        spec:
+          image: cimg/base:2021.04
+          run: |
+            set -eo pipefail
+            echo 'Hello World!'
+            echo 'This is the delivery pipeline'
+          shell: bash
+        type: script
+    type: ci
+  - name: Fetch-Code
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: Getting the Code
+        spec:
+          image: cimg/base:2021.04
+          run: |
+            set -eo pipefail
+            ls -al
+            echo '^^^Your repo files^^^'
+          shell: bash
+        type: script
+    type: ci
+  - name: Using-Node
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: Running the Node Container
+        spec:
+          image: cimg/node:17.2
+          run: |
+            set -eo pipefail
+            node -v
+          shell: bash
+        type: script
+    type: ci
 version: 1

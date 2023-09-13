@@ -1,22 +1,23 @@
+kind: pipeline
+spec:
+  stages:
+  - desc: converted from travis.yml
+    name: pipeline
+    spec:
+      steps:
+      - name: homebrew
+        spec:
+          run: |-
+            brew update
+            brew install beanstalk
+        type: script
+      - name: install
+        spec:
+          run: bundle install --jobs=3 --retry=3
+        type: script
+      - name: script
+        spec:
+          run: rake
+        type: script
+    type: ci
 version: 1
-
-stages:
-- desc: converted from travis.yml
-  name: pipeline
-  type: ci
-  spec:
-    steps:
-    - name: homebrew
-      type: script
-      spec:
-        run: |-
-          brew update
-          brew install beanstalk
-    - name: install
-      type: script
-      spec:
-        run: bundle install --jobs=3 --retry=3
-    - name: script
-      type: script
-      spec:
-        run: rake

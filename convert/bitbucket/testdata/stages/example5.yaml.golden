@@ -1,26 +1,28 @@
-stages:
-- name: build
-  spec:
-    steps:
-    - name: Build app
-      spec:
-        run: sh ./build-app.sh
-      type: script
-    - name: Run unit tests
-      spec:
-        run: sh ./run-tests.sh
-      type: script
-  type: ci
-- name: build
-  spec:
-    steps:
-    - name: Build app1
-      spec:
-        run: sh ./build-app.sh
-      type: script
-    - name: Run unit tests1
-      spec:
-        run: sh ./run-tests.sh
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      steps:
+      - name: Build app
+        spec:
+          run: sh ./build-app.sh
+        type: script
+      - name: Run unit tests
+        spec:
+          run: sh ./run-tests.sh
+        type: script
+    type: ci
+  - name: build
+    spec:
+      steps:
+      - name: Build app1
+        spec:
+          run: sh ./build-app.sh
+        type: script
+      - name: Run unit tests1
+        spec:
+          run: sh ./run-tests.sh
+        type: script
+    type: ci
 version: 1

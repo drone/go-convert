@@ -1,12 +1,14 @@
-stages:
-- name: test
-  spec:
-    steps:
-    - name: job
-      spec:
-        run: |-
-          echo "Execute this command before any 'script:' commands."
-          echo "This command executes after the job's 'before_script' commands."
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: test
+    spec:
+      steps:
+      - name: job
+        spec:
+          run: |-
+            echo "Execute this command before any 'script:' commands."
+            echo "This command executes after the job's 'before_script' commands."
+        type: script
+    type: ci
 version: 1

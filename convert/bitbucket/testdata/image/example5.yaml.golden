@@ -1,11 +1,13 @@
-stages:
-- name: build
-  spec:
-    steps:
-    - name: run
-      spec:
-        image: my-account/bash:latest
-        run: echo "Hello, World!"
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      steps:
+      - name: run
+        spec:
+          image: my-account/bash:latest
+          run: echo "Hello, World!"
+        type: script
+    type: ci
 version: 1

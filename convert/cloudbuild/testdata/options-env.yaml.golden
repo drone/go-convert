@@ -1,4 +1,3 @@
-version: 1
 kind: pipeline
 spec:
   options:
@@ -45,3 +44,4 @@ spec:
           path: /var/run/docker.sock
         type: host
     type: ci
+version: 1

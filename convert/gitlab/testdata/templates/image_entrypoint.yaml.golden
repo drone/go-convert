@@ -1,12 +1,14 @@
-stages:
-- name: test
-  spec:
-    steps:
-    - name: rspec 2.7
-      spec:
-        entrypoint: /bin/example
-        image: registry.example.com/my-group/my-project/ruby:2.7
-        run: bundle exec rspec
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: test
+    spec:
+      steps:
+      - name: rspec 2.7
+        spec:
+          entrypoint: /bin/example
+          image: registry.example.com/my-group/my-project/ruby:2.7
+          run: bundle exec rspec
+        type: script
+    type: ci
 version: 1

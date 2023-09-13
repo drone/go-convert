@@ -1,21 +1,23 @@
-stages:
-- name: notify
-  spec:
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: notify_slack
-      spec:
-        image: plugins/slack
-        with:
-          channel: channel
-          color: '#C02B2B'
-          message: some message
-          webhook: webhook
-      type: plugin
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: notify
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: notify_slack
+        spec:
+          image: plugins/slack
+          with:
+            channel: channel
+            color: '#C02B2B'
+            message: some message
+            webhook: webhook
+        type: plugin
+    type: ci
 version: 1

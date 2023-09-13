@@ -1,17 +1,19 @@
-options:
-  clone: {}
-stages:
-- name: build
-  spec:
+kind: pipeline
+spec:
+  options:
     clone: {}
-    steps:
-    - name: run
-      spec:
-        run: echo "No code cloned!"
-      type: script
-    - name: run1
-      spec:
-        run: echo "Repo cloned in this step!"
-      type: script
-  type: ci
+  stages:
+  - name: build
+    spec:
+      clone: {}
+      steps:
+      - name: run
+        spec:
+          run: echo "No code cloned!"
+        type: script
+      - name: run1
+        spec:
+          run: echo "Repo cloned in this step!"
+        type: script
+    type: ci
 version: 1

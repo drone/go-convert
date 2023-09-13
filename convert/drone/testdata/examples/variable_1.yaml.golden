@@ -1,56 +1,57 @@
-#name: default
-options: {}
-stages:
-- name: default
-  spec:
-    clone: {}
-    runtime:
-      spec: {}
-      type: machine
-    steps:
-    - name: example
-      spec:
-        image: busybox
-        run: |-
-          echo this is build number <+pipeline.sequenceId>
-          echo commit author is <+codebase.gitUserId>
-          echo branch is <+codebase.branch>
-          echo this is pull request number <+codebase.prNumber>
-          echo repo name is <+<+codebase.repoUrl>.substring(<+codebase.repoUrl>.lastIndexOf('/') + 1)>
-      type: script
-    - name: publish
-      spec:
-        image: plugins/docker
-        with:
-          repo: gcr.io/example/repo
-          tags:
-          - 1.0.<+pipeline.sequenceId>
-          - <+codebase.branch>-<+codebase.commitSha>
-      type: plugin
-    - name: notify
-      spec:
-        image: plugins/slack
-        with:
-          channel: builds
-          message: Build <+pipeline.sequenceId> completed
-      type: plugin
-    - name: envinfo
-      spec:
-        envs:
-          COMBINED_VAR: <+codebase.gitUserId> <+codebase.branch>
-          SENSITIVE: <+secrets.getValue("THE_ORG_SECRET")>
-        image: alpine:3
-        pull: if-not-exists
-        run: |-
-          echo DRONE_BRANCH is <+codebase.branch>
-          echo DRONE_BUILD_NUMBER is <+pipeline.sequenceId>
-          echo DRONE_COMMIT_SHA is <+codebase.commitSha>
-          echo DRONE_PULL_REQUEST is <+codebase.prNumber>
-          echo DRONE_PULL_REQUEST_TITLE is <+codebase.prTitle>
-          echo DRONE_REMOTE_URL is <+codebase.repoUrl>
-          echo DRONE_REPO_NAME is <+<+codebase.repoUrl>.substring(<+codebase.repoUrl>.lastIndexOf('/') + 1)>
-          echo COMBINED_VAR is $COMBINED_VAR
-          echo this is sensitive $SENSITIVE
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  options: {}
+  stages:
+  - name: default
+    spec:
+      clone: {}
+      runtime:
+        spec: {}
+        type: machine
+      steps:
+      - name: example
+        spec:
+          image: busybox
+          run: |-
+            echo this is build number <+pipeline.sequenceId>
+            echo commit author is <+codebase.gitUserId>
+            echo branch is <+codebase.branch>
+            echo this is pull request number <+codebase.prNumber>
+            echo repo name is <+<+codebase.repoUrl>.substring(<+codebase.repoUrl>.lastIndexOf('/') + 1)>
+        type: script
+      - name: publish
+        spec:
+          image: plugins/docker
+          with:
+            repo: gcr.io/example/repo
+            tags:
+            - 1.0.<+pipeline.sequenceId>
+            - <+codebase.branch>-<+codebase.commitSha>
+        type: plugin
+      - name: notify
+        spec:
+          image: plugins/slack
+          with:
+            channel: builds
+            message: Build <+pipeline.sequenceId> completed
+        type: plugin
+      - name: envinfo
+        spec:
+          envs:
+            COMBINED_VAR: <+codebase.gitUserId> <+codebase.branch>
+            SENSITIVE: <+secrets.getValue("THE_ORG_SECRET")>
+          image: alpine:3
+          pull: if-not-exists
+          run: |-
+            echo DRONE_BRANCH is <+codebase.branch>
+            echo DRONE_BUILD_NUMBER is <+pipeline.sequenceId>
+            echo DRONE_COMMIT_SHA is <+codebase.commitSha>
+            echo DRONE_PULL_REQUEST is <+codebase.prNumber>
+            echo DRONE_PULL_REQUEST_TITLE is <+codebase.prTitle>
+            echo DRONE_REMOTE_URL is <+codebase.repoUrl>
+            echo DRONE_REPO_NAME is <+<+codebase.repoUrl>.substring(<+codebase.repoUrl>.lastIndexOf('/') + 1)>
+            echo COMBINED_VAR is $COMBINED_VAR
+            echo this is sensitive $SENSITIVE
+        type: script
+    type: ci
 version: 1

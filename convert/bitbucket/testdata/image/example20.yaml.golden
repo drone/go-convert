@@ -1,29 +1,17 @@
-{
-    "definitions": {
-        "services": {
-            "my-service": {
-                "image": {
-                    "name": "<aws_account_id>.dkr.ecr.<region>.amazonaws.com/bash:latest",
-                    "aws": {
-                        "access-key": "$AWS_ACCESS_KEY",
-                        "secret-key": "$AWS_SECRET_KEY"
-                    }
-                }
-            }
-        }
-    },
-    "pipelines": {
-        "default": [
-            {
-                "step": {
-                    "services": [
-                        "my-service"
-                    ],
-                    "script": [
-                        "echo \"Hello, World!\""
-                    ]
-                }
-            }
-        ]
-    }
-}
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      steps:
+      - name: my-service
+        spec:
+          image: <aws_account_id>.dkr.ecr.<region>.amazonaws.com/bash:latest
+          network: host
+        type: background
+      - name: run
+        spec:
+          run: echo "Hello, World!"
+        type: script
+    type: ci
+version: 1

@@ -1,23 +1,24 @@
-#name: timeouts
-stages:
-- name: cypress-run
-  spec:
-    clone: {}
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: Cypress run
-      spec:
-        envs:
-          CYPRESS_firstName: Joe
-        uses: cypress-io/github-action@v2
-        with:
-          command: npm run expect -- --env lastName=Smith
-      timeout: 1h0m0s
-      type: action
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: cypress-run
+    spec:
+      clone: {}
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: Cypress run
+        spec:
+          envs:
+            CYPRESS_firstName: Joe
+          uses: cypress-io/github-action@v2
+          with:
+            command: npm run expect -- --env lastName=Smith
+        timeout: 1h0m0s
+        type: action
+    type: ci
 version: 1

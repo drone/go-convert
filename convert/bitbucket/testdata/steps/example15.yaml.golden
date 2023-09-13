@@ -1,18 +1,20 @@
-stages:
-- name: build
-  spec:
-    steps:
-    - name: Step 1
-      spec:
-        run: echo "This step will run on a self-hosted runner with the 'my.custom.label'
-          and 'self.hosted' labels.";
-      type: script
-    - name: Step 2
-      spec:
-        run: echo "This step will run on Atlassian's infrastructure as usual.";
-      type: script
-  type: ci
-  delegate:
-  - my.custom.label
-  - self.hosted
+kind: pipeline
+spec:
+  stages:
+  - delegate:
+    - my.custom.label
+    - self.hosted
+    name: build
+    spec:
+      steps:
+      - name: Step 1
+        spec:
+          run: echo "This step will run on a self-hosted runner with the 'my.custom.label'
+            and 'self.hosted' labels.";
+        type: script
+      - name: Step 2
+        spec:
+          run: echo "This step will run on Atlassian's infrastructure as usual.";
+        type: script
+    type: ci
 version: 1

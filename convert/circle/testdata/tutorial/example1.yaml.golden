@@ -1,21 +1,23 @@
-stages:
-- name: build
-  spec:
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: The First Step
-      spec:
-        image: alpine:3.15
-        run: |
-          set -eo pipefail
-          echo 'Hello World!'
-          echo 'This is the delivery pipeline'
-        shell: bash
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: build
+    spec:
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: The First Step
+        spec:
+          image: alpine:3.15
+          run: |
+            set -eo pipefail
+            echo 'Hello World!'
+            echo 'This is the delivery pipeline'
+          shell: bash
+        type: script
+    type: ci
 version: 1

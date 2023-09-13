@@ -1,22 +1,23 @@
-#name: Test PowerShell on Ubuntu
-stages:
-- name: pester-test
-  spec:
-    clone: {}
-    platform:
-      arch: amd64
-      os: linux
-    runtime:
-      spec: {}
-      type: cloud
-    steps:
-    - name: Perform a Pester test from the command-line
-      spec:
-        run: Test-Path resultsfile.log | Should -Be $true
-      type: script
-    - name: Perform a Pester test from the Tests.ps1 file
-      spec:
-        run: Invoke-Pester Unit.Tests.ps1 -Passthru
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  stages:
+  - name: pester-test
+    spec:
+      clone: {}
+      platform:
+        arch: amd64
+        os: linux
+      runtime:
+        spec: {}
+        type: cloud
+      steps:
+      - name: Perform a Pester test from the command-line
+        spec:
+          run: Test-Path resultsfile.log | Should -Be $true
+        type: script
+      - name: Perform a Pester test from the Tests.ps1 file
+        spec:
+          run: Invoke-Pester Unit.Tests.ps1 -Passthru
+        type: script
+    type: ci
 version: 1

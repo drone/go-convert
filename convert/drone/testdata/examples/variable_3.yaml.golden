@@ -1,25 +1,25 @@
-#name: default
-options: {}
-stages:
-- name: default
-  spec:
-    clone: {}
-    runtime:
-      spec: {}
-      type: machine
-    steps:
-    - name: example
-      spec:
-        envs:
-          BRANCH_WITH_FORWARDSLASH: <+codebase.branch.replaceFirst('-', '/')>
-          BRANCH_WITH_HYPHEN: <+codebase.branch.replaceFirst('/', '-')>
-          BRANCH_WITH_UNDERSCORE: <+codebase.branch.replaceFirst('.', '_')>
-        image: busybox
-        run: |-
-          echo $BRANCH_WITH_FORWARDSLASH
-          echo $BRANCH_WITH_HYPHEN
-          echo $BRANCH_WITH_UNDERSCORE
-      type: script
-  type: ci
+kind: pipeline
+spec:
+  options: {}
+  stages:
+  - name: default
+    spec:
+      clone: {}
+      runtime:
+        spec: {}
+        type: machine
+      steps:
+      - name: example
+        spec:
+          envs:
+            BRANCH_WITH_FORWARDSLASH: <+codebase.branch.replaceFirst('-', '/')>
+            BRANCH_WITH_HYPHEN: <+codebase.branch.replaceFirst('/', '-')>
+            BRANCH_WITH_UNDERSCORE: <+codebase.branch.replaceFirst('.', '_')>
+          image: busybox
+          run: |-
+            echo $BRANCH_WITH_FORWARDSLASH
+            echo $BRANCH_WITH_HYPHEN
+            echo $BRANCH_WITH_UNDERSCORE
+        type: script
+    type: ci
 version: 1
-
