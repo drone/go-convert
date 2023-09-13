@@ -8,6 +8,9 @@ spec:
           steps:
           - name: deploystacks-0
             spec:
+              envs:
+                PROVIDER: "<+matrix.PROVIDER>"
+                STACK: "<+matrix.STACK>"
               run: |-
                 echo $PROVIDER/$STACK
                 bin/deploy
@@ -24,6 +27,9 @@ spec:
             type: script
           - name: deploystacks-1
             spec:
+              envs:
+                PROVIDER: "<+matrix.PROVIDER>"
+                STACK: "<+matrix.STACK>"
               run: |-
                 echo $PROVIDER/$STACK
                 bin/deploy
@@ -40,6 +46,9 @@ spec:
             type: script
           - name: deploystacks-2
             spec:
+              envs:
+                PROVIDER: "<+matrix.PROVIDER>"
+                STACK: "<+matrix.STACK>"
               run: |-
                 echo $PROVIDER/$STACK
                 bin/deploy
