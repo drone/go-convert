@@ -336,17 +336,32 @@ func convertJobToStep(ctx *context, jobName string, job *gitlab.Job, matrix map[
 		on = convertAllowFailure(job)
 	}
 
-	if job.Variables != nil {
-		spec.Envs = convertVariables(job.Variables)
-	}
+	// set step environment variables
+	if job.Variables != nil || job.Secrets != nil || matrix != nil {
+		spec.Envs = make(map[string]string)
 
-	if job.Secrets != nil {
-		if spec.Envs == nil {
-			spec.Envs = make(map[string]string)
+		// job variables become step variables
+		if job.Variables != nil {
+			envVariables := convertVariables(job.Variables)
+			for key := range envVariables {
+				spec.Envs[key] = envVariables[key]
+			}
 		}
-		envSecrets := convertSecrets(job.Secrets)
-		for key := range envSecrets {
-			spec.Envs[key] = envSecrets[key]
+
+		// job secrets become step variables that reference Harness secrets
+		if job.Secrets != nil {
+			envSecrets := convertSecrets(job.Secrets)
+			for key := range envSecrets {
+				spec.Envs[key] = envSecrets[key]
+			}
+		}
+
+		// job matrix axes become step variables that reference Harness matrix values
+		if matrix != nil {
+			envMatrix := convertVariablesMatrix(matrix)
+			for key := range envMatrix {
+				spec.Envs[key] = envMatrix[key]
+			}
 		}
 	}
 
@@ -555,6 +570,23 @@ func convertVariables(variables map[string]*gitlab.Variable) map[string]string {
 		if variable != nil {
 			result[key] = variable.Value
 		}
+	}
+
+	return result
+}
+
+// convertVariablesMatrix converts a matrix axis map to a Harness variables map.
+func convertVariablesMatrix(axis map[string][]string) map[string]string {
+	result := make(map[string]string)
+
+	var keys []string
+	for k := range axis {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys) // to maintain order
+
+	for axisName := range axis {
+		result[axisName] = fmt.Sprintf("<+matrix.%s>", axisName)
 	}
 
 	return result
