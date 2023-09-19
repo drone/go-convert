@@ -686,17 +686,17 @@ func convertPlatform(src v1.Platform) *v2.Platform {
 	dst := new(v2.Platform)
 	switch src.OS {
 	case "windows", "win", "win32":
-		dst.Os = v2.OSWindows
+		dst.Os = v2.OSWindows.String()
 	case "darwin", "macos", "mac":
-		dst.Os = v2.OSDarwin
+		dst.Os = v2.OSDarwin.String()
 	default:
-		dst.Os = v2.OSLinux
+		dst.Os = v2.OSLinux.String()
 	}
 	switch src.Arch {
 	case "arm", "arm64":
-		dst.Arch = v2.ArchArm64
+		dst.Arch = v2.ArchArm64.String()
 	default:
-		dst.Arch = v2.ArchAmd64
+		dst.Arch = v2.ArchAmd64.String()
 	}
 	return dst
 }

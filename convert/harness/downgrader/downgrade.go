@@ -714,7 +714,7 @@ func convertPlatform(platform *v1.Platform, runtime *v0.Runtime) *v0.Platform {
 		var os, arch string
 
 		// convert the OS name
-		switch platform.Os.String() {
+		switch platform.Os {
 		case "linux":
 			os = "Linux"
 		case "windows":
@@ -726,7 +726,7 @@ func convertPlatform(platform *v1.Platform, runtime *v0.Runtime) *v0.Platform {
 		}
 
 		// convert the Arch name
-		switch platform.Arch.String() {
+		switch platform.Arch {
 		case "amd64":
 			arch = "Amd64"
 		case "arm", "arm64":
