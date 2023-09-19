@@ -233,35 +233,35 @@ func convertPlatform(job *circle.Job, config *circle.Config) *harness.Platform {
 	}
 	if executor.Windows != nil {
 		return &harness.Platform{
-			Os:   harness.OSWindows,
-			Arch: harness.ArchAmd64,
+			Os:   harness.OSWindows.String(),
+			Arch: harness.ArchAmd64.String(),
 		}
 	}
 	if executor.Machine != nil {
 		if strings.Contains(executor.Machine.Image, "win") ||
 			strings.Contains(executor.ResourceClass, "win") {
 			return &harness.Platform{
-				Os:   harness.OSWindows,
-				Arch: harness.ArchAmd64,
+				Os:   harness.OSWindows.String(),
+				Arch: harness.ArchAmd64.String(),
 			}
 		}
 		if strings.Contains(executor.Machine.Image, "arm") ||
 			strings.Contains(executor.ResourceClass, "arm") {
 			return &harness.Platform{
-				Os:   harness.OSLinux,
-				Arch: harness.ArchArm64,
+				Os:   harness.OSLinux.String(),
+				Arch: harness.ArchArm64.String(),
 			}
 		}
 	}
 	if executor.Macos != nil {
 		return &harness.Platform{
-			Os:   harness.OSMacos,
-			Arch: harness.ArchArm64,
+			Os:   harness.OSMacos.String(),
+			Arch: harness.ArchArm64.String(),
 		}
 	}
 	return &harness.Platform{
-		Os:   harness.OSLinux,
-		Arch: harness.ArchAmd64,
+		Os:   harness.OSLinux.String(),
+		Arch: harness.ArchAmd64.String(),
 	}
 }
 

@@ -137,8 +137,8 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 		Cache: nil, // No Google equivalent
 		Envs:  nil,
 		Platform: &harness.Platform{
-			Os:   harness.OSLinux,
-			Arch: harness.ArchAmd64,
+			Os:   harness.OSLinux.String(),
+			Arch: harness.ArchAmd64.String(),
 		},
 		Runtime: d.convertRuntime(src),
 		Steps:   d.convertSteps(src),

@@ -309,13 +309,13 @@ func convertRunsOn(src string) *harness.Platform {
 	dst := new(harness.Platform)
 	switch {
 	case strings.Contains(src, "windows"), strings.Contains(src, "win"):
-		dst.Os = harness.OSWindows
+		dst.Os = harness.OSWindows.String()
 	case strings.Contains(src, "darwin"), strings.Contains(src, "macos"), strings.Contains(src, "mac"):
-		dst.Os = harness.OSDarwin
+		dst.Os = harness.OSDarwin.String()
 	default:
-		dst.Os = harness.OSLinux
+		dst.Os = harness.OSLinux.String()
 	}
-	dst.Arch = harness.ArchAmd64 // we assume amd64 for now
+	dst.Arch = harness.ArchAmd64.String() // we assume amd64 for now
 	return dst
 }
 
