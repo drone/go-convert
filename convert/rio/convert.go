@@ -36,7 +36,7 @@ type Converter struct {
 	pipelineProj string
 }
 
-// New creates a new Converter that converts a Travis
+// New creates a new Converter that converts a Rio
 // pipeline to a Harness v1 pipeline.
 func New(options ...Option) *Converter {
 	d := new(Converter)
@@ -58,7 +58,7 @@ func New(options ...Option) *Converter {
 
 	// set default kubernetes OS
 	if d.kubeOs == "" {
-		d.kubeOs = "Linux"
+		d.kubeOs = harness.InfraOsLinux
 	}
 
 	// set the runtime to kubernetes if the kubernetes
@@ -69,7 +69,7 @@ func New(options ...Option) *Converter {
 
 	// set default docker connector
 	if d.dockerhubConn == "" {
-		d.dockerhubConn = "account.harnessImage"
+		d.dockerhubConn = harness.DefaultDockerConnector
 	}
 
 	return d
@@ -118,7 +118,7 @@ func (d *Converter) convertRunStep(p rio.Pipeline) harness.StepRun {
 		command += fmt.Sprintf("%s\n", s)
 	}
 	step.Command = command
-	step.Shell = "Sh"
+	step.Shell = harness.ShellPosix
 	step.ConnRef = d.dockerhubConn
 	step.Image = p.Machine.BaseImage
 	return *step
@@ -147,10 +147,10 @@ func (d *Converter) convertExecution(p rio.Pipeline) harness.Execution {
 	if len(p.Build.Steps) != 0 {
 		steps := harness.Steps{
 			Step: &harness.Step{
-				Name: "run",
-				ID:   "run",
+				Name: "Build",
+				ID:   "Build",
 				Spec: d.convertRunStep(p),
-				Type: "Run",
+				Type: harness.StepTypeRun,
 			},
 		}
 		executionSteps = append(executionSteps, &steps)
@@ -171,10 +171,10 @@ func (d *Converter) convertExecution(p rio.Pipeline) harness.Execution {
 			for _, dStep := range dockerSteps {
 				steps := harness.Steps{
 					Step: &harness.Step{
-						Name: fmt.Sprintf("docker_build_and_push_%d", dockerStepCounter),
-						ID:   fmt.Sprintf("docker_build_and_push_%d", dockerStepCounter),
+						Name: fmt.Sprintf("BuildAndPush_%d", dockerStepCounter),
+						ID:   fmt.Sprintf("BuildAndPush_%d", dockerStepCounter),
 						Spec: &dStep,
-						Type: "BuildAndPushDockerRegistry",
+						Type: harness.StepTypeBuildAndPushDockerRegistry,
 					},
 				}
 				executionSteps = append(executionSteps, &steps)
@@ -192,7 +192,7 @@ func (d *Converter) convertCIStage(p rio.Pipeline) harness.StageCI {
 	}
 	if d.kubeEnabled {
 		infra := harness.Infrastructure{
-			Type: "KubernetesDirect",
+			Type: harness.InfraTypeKubernetesDirect,
 			Spec: &harness.InfraSpec{
 				Namespace:             d.kubeNamespace,
 				Conn:                  d.kubeConnector,
@@ -205,13 +205,13 @@ func (d *Converter) convertCIStage(p rio.Pipeline) harness.StageCI {
 	return stage
 }
 
-func convertNameToID(name string) string {
+func (d *Converter) convertNameToID(name string) string {
 	ID := strings.ReplaceAll(name, " ", "_")
 	ID = strings.ReplaceAll(ID, "-", "_")
 	return ID
 }
 
-// converts converts a Travis pipeline to a Harness pipeline.
+// converts converts a Rio pipeline to a Harness pipeline.
 func (d *Converter) convert(ctx *context) ([]byte, error) {
 	// create the harness pipeline spec
 	pipeline := &harness.Pipeline{}
@@ -219,9 +219,9 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		stage := harness.Stages{
 			Stage: &harness.Stage{
 				Name: p.Name,
-				ID:   convertNameToID(p.Name),
+				ID:   d.convertNameToID(p.Name),
 				Spec: d.convertCIStage(p),
-				Type: "CI",
+				Type: harness.StageTypeCI,
 			},
 		}
 		pipeline.Stages = append(pipeline.Stages, &stage)

@@ -14,6 +14,10 @@
 
 package yaml
 
+const (
+	DefaultDockerConnector = "account.harnessImage"
+)
+
 type WhenStatus string
 
 const (
@@ -85,7 +89,7 @@ type Shell string
 const (
 	ShellNone       Shell = "None"
 	ShellBash             = "Bash"
-	ShellPosix            = "Shell"
+	ShellPosix            = "Sh"
 	ShellPowershell       = "Powershell"
 )
 
@@ -96,4 +100,12 @@ const (
 	ImagePullAlways                       = "Always"
 	ImagePullIfNotPresent                 = "IfNotPresent"
 	ImagePullNever                        = "Never"
+)
+
+type InfraOs string
+
+const (
+	InfraOsLinux   = "Linux"
+	InfraOsMac     = "MacOS"
+	InfraOsWindows = "Windows"
 )
