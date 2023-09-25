@@ -205,8 +205,8 @@ func (d *Converter) convertCIStage(p rio.Pipeline) harness.StageCI {
 	return stage
 }
 
-func (d *Converter) convertNameToID(name string) string {
-	ID := strings.ReplaceAll(name, " ", "_")
+func (d *Converter) convertNameToID(name string) (ID string) {
+	ID = strings.ReplaceAll(name, " ", "_")
 	ID = strings.ReplaceAll(ID, "-", "_")
 	return ID
 }
@@ -230,6 +230,9 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	pipeline.ID = d.pipelineId
 	pipeline.Org = d.pipelineOrg
 	pipeline.Project = d.pipelineProj
+	if ctx.config.Timeout != 0 {
+		pipeline.Timeout = fmt.Sprintf("%dm", ctx.config.Timeout)
+	}
 
 	// create the harness pipeline resource
 	config := &harness.Config{Pipeline: *pipeline}
