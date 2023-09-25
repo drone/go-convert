@@ -69,10 +69,12 @@ type (
 		Spec *InfraSpec `json:"spec,omitempty"          yaml:"spec,omitempty"`
 	}
 
-	// InfraSpec describes pipeline infastructure.
+	// InfraSpec describes pipeline infrastructure.
 	InfraSpec struct {
-		Namespace string `json:"namespace,omitempty"    yaml:"namespace,omitempty"`
-		Conn      string `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
+		Namespace             string `json:"namespace,omitempty"    yaml:"namespace,omitempty"`
+		Conn                  string `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
+		AutomountServiceToken bool   `json:"automountServiceAccountToken,omitempty" yaml:"automountServiceAccountToken,omitempty"`
+		Os                    string `json:"os,omitempty" yaml:"os,omitempty"`
 	}
 
 	Platform struct {
