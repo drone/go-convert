@@ -58,7 +58,7 @@ func New(options ...Option) *Converter {
 
 	// set default kubernetes OS
 	if d.kubeOs == "" {
-		d.kubeOs = harness.InfraOsLinux
+		d.kubeOs = string(harness.InfraOsLinux)
 	}
 
 	// set the runtime to kubernetes if the kubernetes

@@ -105,7 +105,7 @@ const (
 type InfraOs string
 
 const (
-	InfraOsLinux   = "Linux"
-	InfraOsMac     = "MacOS"
-	InfraOsWindows = "Windows"
+	InfraOsLinux   InfraOs = "Linux"
+	InfraOsMac             = "MacOS"
+	InfraOsWindows         = "Windows"
 )

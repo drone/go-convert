@@ -31,7 +31,7 @@ type (
 		Props     Properties  `json:"properties,omitempty"        yaml:"properties,omitempty"`
 		Stages    []*Stages   `json:"stages,omitempty"            yaml:"stages"`
 		Variables []*Variable `json:"variables,omitempty"         yaml:"variables,omitempty"`
-		Timeout   string      `json:"timeout,omitempty"         yaml:"timeout,omitempty"`
+		Timeout   string      `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
 	}
 
 	// Properties defines pipeline properties.
