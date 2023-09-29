@@ -18,11 +18,10 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/drone/go-convert/convert/rio"
 	"io/ioutil"
 	"log"
 	"os"
-
-	"github.com/drone/go-convert/convert/rio"
 
 	"github.com/google/subcommands"
 )
@@ -36,6 +35,8 @@ type Rio struct {
 	kubeName   string
 	kubeConn   string
 	dockerConn string
+	userGroup  string
+	githubConn string
 
 	downgrade   bool
 	beforeAfter bool
@@ -60,6 +61,8 @@ func (c *Rio) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.kubeConn, "kube-connector", "", "kubernetes connector")
 	f.StringVar(&c.kubeName, "kube-namespace", "", "kubernets namespace")
 	f.StringVar(&c.dockerConn, "docker-connector", "", "dockerhub connector")
+	f.StringVar(&c.userGroup, "notification-user-group", "", "notification-user-group")
+	f.StringVar(&c.githubConn, "github-connector", "", "github-connector")
 }
 
 func (c *Rio) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
@@ -88,6 +91,8 @@ func (c *Rio) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subc
 		rio.WithIdentifier(c.name),
 		rio.WithOrganization(c.org),
 		rio.WithProject(c.proj),
+		rio.WithNotifyUserGroup(c.userGroup),
+		rio.WithGithubConnector(c.githubConn),
 	)
 	after, err := converter.ConvertBytes(before)
 	if err != nil {

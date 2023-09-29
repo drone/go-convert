@@ -23,17 +23,20 @@ type context struct {
 // Converter converts a Rio pipeline to a Harness
 // v0 pipeline.
 type Converter struct {
-	kubeEnabled   bool
-	kubeNamespace string
-	kubeConnector string
-	kubeOs        string
-	dockerhubConn string
-	identifiers   *store.Identifiers
+	kubeEnabled     bool
+	kubeNamespace   string
+	kubeConnector   string
+	kubeOs          string
+	dockerhubConn   string
+	githubConnector string
+	identifiers     *store.Identifiers
 
 	pipelineId   string
 	pipelineName string
 	pipelineOrg  string
 	pipelineProj string
+
+	notifyUserGroup string
 }
 
 // New creates a new Converter that converts a Rio
@@ -72,6 +75,9 @@ func New(options ...Option) *Converter {
 		d.dockerhubConn = harness.DefaultDockerConnector
 	}
 
+	if d.notifyUserGroup == "" {
+		d.notifyUserGroup = "account._account_all_users"
+	}
 	return d
 }
 
@@ -126,12 +132,17 @@ func (d *Converter) convertRunStep(p rio.Pipeline) harness.StepRun {
 
 func (d *Converter) convertDockerSteps(dockerfile rio.Dockerfile) []harness.StepDocker {
 	steps := make([]harness.StepDocker, 0)
+	if dockerfile.Version == "" {
+		dockerfile.Version = "latest"
+	}
+	tags := dockerfile.ExtraTags
+	tags = append(tags, dockerfile.Version)
 	for _, r := range dockerfile.Publish {
 		step := new(harness.StepDocker)
 		step.Context = dockerfile.Context
 		step.Dockerfile = dockerfile.DockerfilePath
 		step.Repo = r.Repo
-		step.Tags = []string{dockerfile.Version}
+		step.Tags = tags
 		step.BuildsArgs = dockerfile.Env
 		step.ConnectorRef = d.dockerhubConn
 		steps = append(steps, *step)
@@ -186,7 +197,7 @@ func (d *Converter) convertExecution(p rio.Pipeline) harness.Execution {
 	return execution
 }
 
-func (d *Converter) convertCIStage(p rio.Pipeline) harness.StageCI {
+func (d *Converter) convertCIStage(p rio.Pipeline, platform string) harness.StageCI {
 	stage := harness.StageCI{
 		Execution: d.convertExecution(p),
 	}
@@ -200,15 +211,78 @@ func (d *Converter) convertCIStage(p rio.Pipeline) harness.StageCI {
 				Os:                    d.kubeOs,
 			},
 		}
+		if platform == "linux/amd64" {
+			infra.Spec.NodeSelector = map[string]string{"kubernetes.io/arch": "amd64"}
+			infra.Spec.Os = string(harness.InfraOsLinux)
+		} else if platform == "linux/arm64" {
+			infra.Spec.NodeSelector = map[string]string{"kubernetes.io/arch": "arm64"}
+			infra.Spec.Os = string(harness.InfraOsLinux)
+		}
 		stage.Infrastructure = &infra
 	}
+	if d.githubConnector != "" {
+		stage.Clone = true
+	}
 	return stage
+}
+
+func (d *Converter) getStages(p rio.Pipeline) *harness.Stages {
+	if len(p.Machine.TargetPlatforms) == 0 {
+		// assume linux/amd64 - one stage
+		return &harness.Stages{
+			Stage: &harness.Stage{
+				Name: p.Name,
+				ID:   d.convertNameToID(p.Name),
+				Spec: d.convertCIStage(p, ""),
+				Type: harness.StageTypeCI,
+			},
+		}
+	}
+	// parallel stages with different target platforms
+	stages := make([]*harness.Stages, 0)
+	for _, platform := range p.Machine.TargetPlatforms {
+		stageName := fmt.Sprintf("%s_%s", p.Name, d.convertNameToID(platform))
+		stage := &harness.Stages{
+			Stage: &harness.Stage{
+				Name: stageName,
+				ID:   d.convertNameToID(stageName),
+				Spec: d.convertCIStage(p, platform),
+				Type: harness.StageTypeCI,
+			},
+		}
+		stages = append(stages, stage)
+	}
+	return &harness.Stages{
+		Parallel: stages,
+	}
 }
 
 func (d *Converter) convertNameToID(name string) (ID string) {
 	ID = strings.ReplaceAll(name, " ", "_")
 	ID = strings.ReplaceAll(ID, "-", "_")
+	ID = strings.ReplaceAll(ID, "/", "_")
 	return ID
+}
+
+func (d *Converter) getNotifications() []harness.NotificationRules {
+	notificationRules := []harness.NotificationRules{
+		{
+			Name: "user_group_notification",
+			Id:   "user_group_notification",
+			PipelineEvents: []harness.NotificationPipelineEvent{
+				{Type: "PipelineSuccess"},
+				{Type: "PipelineFailed"},
+			},
+			NotificationMethod: harness.NotificationMethod{
+				Type: "Email",
+				Spec: harness.NotificationSpec{
+					UserGroups: []string{d.notifyUserGroup},
+				},
+			},
+			Enabled: true,
+		},
+	}
+	return notificationRules
 }
 
 // converts converts a Rio pipeline to a Harness pipeline.
@@ -216,15 +290,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	// create the harness pipeline spec
 	pipeline := &harness.Pipeline{}
 	for _, p := range ctx.config.Pipelines {
-		stage := harness.Stages{
-			Stage: &harness.Stage{
-				Name: p.Name,
-				ID:   d.convertNameToID(p.Name),
-				Spec: d.convertCIStage(p),
-				Type: harness.StageTypeCI,
-			},
-		}
-		pipeline.Stages = append(pipeline.Stages, &stage)
+		pipeline.Stages = append(pipeline.Stages, d.getStages(p))
 	}
 	pipeline.Name = d.pipelineName
 	pipeline.ID = d.pipelineId
@@ -232,6 +298,15 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	pipeline.Project = d.pipelineProj
 	if ctx.config.Timeout != 0 {
 		pipeline.Timeout = fmt.Sprintf("%dm", ctx.config.Timeout)
+	}
+	if ctx.config.Notify.Email.Enabled {
+		pipeline.NotificationRules = d.getNotifications()
+	}
+	if d.githubConnector != "" {
+		pipeline.Props.CI.Codebase = harness.Codebase{
+			Conn:  d.githubConnector,
+			Build: "<+input>",
+		}
 	}
 
 	// create the harness pipeline resource

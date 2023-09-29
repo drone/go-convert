@@ -13,8 +13,9 @@ type (
 		Name       string `yaml:"name,omitempty"`
 		BranchName string `yaml:"branchName,omitempty"`
 		Machine    struct {
-			BaseImage string            `yaml:"baseImage,omitempty"`
-			Env       map[string]string `yaml:"env,omitempty"`
+			BaseImage       string            `yaml:"baseImage,omitempty"`
+			Env             map[string]string `yaml:"env,omitempty"`
+			TargetPlatforms []string          `yaml:"targetPlatforms,omitempty"`
 		} `yaml:"machine,omitempty"`
 		Build   Build   `yaml:"build,omitempty"`
 		Reports Reports `yaml:"reports,omitempty"`
@@ -50,6 +51,7 @@ type (
 		DockerfilePath string            `yaml:"dockerfilePath,omitempty"`
 		Env            map[string]string `yaml:"env,omitempty"`
 		Publish        []Publish         `yaml:"publish,omitempty"`
+		ExtraTags      []string          `yaml:"extraTags,omitempty"`
 	}
 
 	Publish struct {
@@ -63,12 +65,12 @@ type (
 	}
 
 	Notify struct {
-		email struct {
-			enabled bool `yaml:"enabled,omitempty"`
+		Email struct {
+			Enabled bool `yaml:"enabled,omitempty"`
 		} `yaml:"email,omitempty"`
-		pullRequestComment struct {
-			postOnSuccess bool `yaml:"postOnSuccess,omitempty"`
-			postOnFailure bool `yaml:"postOnFailure,omitempty"`
+		PullRequestComment struct {
+			PostOnSuccess bool `yaml:"postOnSuccess,omitempty"`
+			PostOnFailure bool `yaml:"postOnFailure,omitempty"`
 		} `yaml:"pullRequestComment,omitempty"`
 	}
 )

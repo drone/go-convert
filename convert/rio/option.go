@@ -50,3 +50,17 @@ func WithProject(project string) Option {
 		d.pipelineProj = project
 	}
 }
+
+// WithNotifyUserGroup returns an option to set the notification email.
+func WithNotifyUserGroup(notifyUserGroup string) Option {
+	return func(d *Converter) {
+		d.notifyUserGroup = notifyUserGroup
+	}
+}
+
+// WithGithubConnector returns an option to set the github connector.
+func WithGithubConnector(githubConnector string) Option {
+	return func(d *Converter) {
+		d.githubConnector = githubConnector
+	}
+}

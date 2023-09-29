@@ -22,16 +22,17 @@ type (
 
 	// Pipeline defines a pipeline.
 	Pipeline struct {
-		ID        string      `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
-		Name      string      `json:"name,omitempty"              yaml:"name,omitempty"`
-		Desc      string      `json:"description,omitempty"       yaml:"description,omitempty"`
-		Account   string      `json:"accountIdentifier,omitempty" yaml:"accountIdentifier,omitempty"`
-		Project   string      `json:"projectIdentifier,omitempty" yaml:"projectIdentifier,omitempty"`
-		Org       string      `json:"orgIdentifier,omitempty"     yaml:"orgIdentifier,omitempty"`
-		Props     Properties  `json:"properties,omitempty"        yaml:"properties,omitempty"`
-		Stages    []*Stages   `json:"stages,omitempty"            yaml:"stages"`
-		Variables []*Variable `json:"variables,omitempty"         yaml:"variables,omitempty"`
-		Timeout   string      `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
+		ID                string              `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
+		Name              string              `json:"name,omitempty"              yaml:"name,omitempty"`
+		Desc              string              `json:"description,omitempty"       yaml:"description,omitempty"`
+		Account           string              `json:"accountIdentifier,omitempty" yaml:"accountIdentifier,omitempty"`
+		Project           string              `json:"projectIdentifier,omitempty" yaml:"projectIdentifier,omitempty"`
+		Org               string              `json:"orgIdentifier,omitempty"     yaml:"orgIdentifier,omitempty"`
+		Props             Properties          `json:"properties,omitempty"        yaml:"properties,omitempty"`
+		Stages            []*Stages           `json:"stages,omitempty"            yaml:"stages"`
+		Variables         []*Variable         `json:"variables,omitempty"         yaml:"variables,omitempty"`
+		Timeout           string              `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
+		NotificationRules []NotificationRules `json:"notificationRules,omitempty" yaml:"notificationRules,omitempty"`
 	}
 
 	// Properties defines pipeline properties.
@@ -72,10 +73,11 @@ type (
 
 	// InfraSpec describes pipeline infrastructure.
 	InfraSpec struct {
-		Namespace             string `json:"namespace,omitempty"    yaml:"namespace,omitempty"`
-		Conn                  string `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
-		AutomountServiceToken bool   `json:"automountServiceAccountToken,omitempty" yaml:"automountServiceAccountToken,omitempty"`
-		Os                    string `json:"os,omitempty" yaml:"os,omitempty"`
+		Namespace             string            `json:"namespace,omitempty"    yaml:"namespace,omitempty"`
+		Conn                  string            `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
+		AutomountServiceToken bool              `json:"automountServiceAccountToken,omitempty" yaml:"automountServiceAccountToken,omitempty"`
+		Os                    string            `json:"os,omitempty" yaml:"os,omitempty"`
+		NodeSelector          map[string]string `json:"nodeSelector,omitempty" yaml:"nodeSelector,omitempty"`
 	}
 
 	Platform struct {
@@ -136,5 +138,26 @@ type (
 	Limits struct {
 		Memory BytesSize `json:"memory,omitempty" yaml:"memory,omitempty"`
 		CPU    MilliSize `json:"cpu,omitempty"    yaml:"cpu,omitempty"` // TODO
+	}
+
+	NotificationRules struct {
+		Name               string                      `json:"name,omitempty"               yaml:"name,omitempty"`
+		Id                 string                      `json:"identifier,omitempty"         yaml:"identifier,omitempty"`
+		PipelineEvents     []NotificationPipelineEvent `json:"pipelineEvents,omitempty"     yaml:"pipelineEvents,omitempty"`
+		NotificationMethod NotificationMethod          `json:"notificationMethod,omitempty" yaml:"notificationMethod,omitempty"`
+		Enabled            bool                        `json:"enabled,omitempty"            yaml:"enabled,omitempty"`
+	}
+
+	NotificationPipelineEvent struct {
+		Type string `json:"type,omitempty"        yaml:"type,omitempty"`
+	}
+
+	NotificationMethod struct {
+		Type string           `json:"type,omitempty"        yaml:"type,omitempty"`
+		Spec NotificationSpec `json:"spec,omitempty"        yaml:"spec,omitempty"`
+	}
+
+	NotificationSpec struct {
+		UserGroups []string `json:"userGroups,omitempty"        yaml:"userGroups,omitempty"`
 	}
 )
