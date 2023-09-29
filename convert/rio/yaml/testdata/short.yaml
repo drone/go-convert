@@ -1,0 +1,60 @@
+schemaVersion: 2.0
+
+notify:
+  email:
+    enabled: true
+  pullRequestComment:
+    postOnSuccess: true
+    postOnFailure: true
+
+package:
+  dockerfile:
+    perApplication: false
+
+pipelines:
+  - name: pull-request-build
+    branchName: main
+    machine:
+      baseImage: docker.harness.io/base-images/ubi9/go1.20-builder
+    build:
+      template: freestyle:v4:prb
+      steps:
+        - make test
+        - make build
+
+  - name: pull-request-pre-commit
+    branchName: main
+    machine:
+      baseImage: docker.harness.io/cloud-technologies/build-tools-go:1.1.14
+      env:
+        GOPRIVATE: "github.pie.harness.io"
+    build:
+      template: freestyle:v4:prb
+      steps:
+        - git config --global url."git@github.pie.harness.io:".insteadOf "https://github.pie.harness.io/"
+        - pre-commit install
+        - pre-commit run --all-files
+
+  - name: publish
+    branchName: main
+    trigger:
+      gitPush: true
+    machine:
+      executor:
+        type: moes
+      targetPlatforms:
+        - linux/amd64
+        - linux/arm64
+      baseImage: docker.harness.io/base-images/ubi9/go1.20-builder
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - make build
+    checkout:
+      fetchTags: true
+    package:
+      dockerfile:
+        - dockerfilePath: Dockerfile
+          context: bin
+          publish:
+            - repo: docker.harness.io/cloudtech/core-service-iam
