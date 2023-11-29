@@ -19,12 +19,14 @@ const (
 )
 
 type Node struct {
-	Name         string
-	Parent       string
-	SpanName     string
-	SpanId       string
-	ParentSpanId string
-	TraceId      string
-	Children     []Node
-	ParameterMap map[string]string
+	Name          string
+	Parent        string
+	SpanName      string
+	SpanId        string
+	ParentSpanId  string
+	TraceId       string
+	Children      []Node
+	Type          string
+	ParameterMap  map[string]interface{}
+	AttributesMap map[string]string
 }

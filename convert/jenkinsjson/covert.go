@@ -1,4 +1,4 @@
-// Copyright 2022 Harness, Inc.
+// Copyright 2023 Harness, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,11 +17,14 @@ package jenkinsjson
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"os"
 
 	jenkinsjson "github.com/drone/go-convert/convert/jenkinsjson/json"
 	"github.com/drone/go-convert/internal/store"
+	harness "github.com/drone/spec/dist/go"
+	"gopkg.in/yaml.v2"
 )
 
 // conversion context
@@ -71,7 +74,47 @@ func New(options ...Option) *Converter {
 
 // Convert downgrades a v1 pipeline.
 func (d *Converter) Convert(r io.Reader) ([]byte, error) {
-	return jenkinsjson.Parse(r)
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(r)
+	var pipelineJson jenkinsjson.Node
+	err := json.Unmarshal(buf.Bytes(), &pipelineJson)
+
+	// create the harness pipeline spec
+	dst := &harness.Pipeline{}
+
+	// create the harness pipeline resource
+	config := &harness.Config{
+		Version: 1,
+		Kind:    "pipeline",
+		Spec:    dst,
+	}
+
+	stepsInStage := make([]*harness.Step, 0)
+
+	recursiveParseJsonToSteps(pipelineJson, &stepsInStage)
+
+	// create the harness stage.
+	dstStage := &harness.Stage{
+		Name: pipelineJson.Name,
+		Id:   pipelineJson.SpanId,
+		Type: "ci",
+		// When: convertCond(from.Trigger),
+		Spec: &harness.StageCI{
+			// Delegate: convertNode(from.Node),
+			// Envs: convertVariables(ctx.config.Variables),
+			// Platform: convertPlatform(from.Platform),
+			// Runtime:  convertRuntime(from),
+			Steps: stepsInStage, // Initialize the Steps slice
+		},
+	}
+	dst.Stages = append(dst.Stages, dstStage)
+
+	out, err := yaml.Marshal(config)
+	if err != nil {
+		return nil, err
+	}
+
+	return out, nil
 }
 
 // ConvertBytes downgrades a v1 pipeline.
@@ -102,4 +145,41 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 func (d *Converter) convert(ctx *context) ([]byte, error) {
 
 	return nil, nil
+}
+
+func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.Step) {
+	if len(currentNode.AttributesMap) == 0 {
+		for _, child := range currentNode.Children {
+			recursiveParseJsonToSteps(child, steps)
+		}
+	}
+
+	switch currentNode.AttributesMap["jenkins.pipeline.step.type"] {
+	case "node":
+		for _, child := range currentNode.Children {
+			recursiveParseJsonToSteps(child, steps)
+		}
+	case "stage":
+		if len(currentNode.Children) > 1 {
+			parallelStepItems := make([]*harness.Step, 0)
+			for _, child := range currentNode.Children {
+				recursiveParseJsonToSteps(child, &parallelStepItems)
+			}
+			parallelStep := &harness.Step{
+				Name: currentNode.SpanName,
+				Id:   currentNode.SpanId,
+				Spec: &harness.StepParallel{
+					Steps: parallelStepItems,
+				},
+			}
+			*steps = append(*steps, parallelStep)
+		} else {
+			for _, child := range currentNode.Children {
+				recursiveParseJsonToSteps(child, steps)
+			}
+		}
+	case "sh":
+		*steps = append(*steps, jenkinsjson.ConvertSh(currentNode))
+	}
+
 }
