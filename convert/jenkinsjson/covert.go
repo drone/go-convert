@@ -18,6 +18,7 @@ package jenkinsjson
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 
@@ -82,13 +83,6 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	// create the harness pipeline spec
 	dst := &harness.Pipeline{}
 
-	// create the harness pipeline resource
-	config := &harness.Config{
-		Version: 1,
-		Kind:    "pipeline",
-		Spec:    dst,
-	}
-
 	stepsInStage := make([]*harness.Step, 0)
 
 	recursiveParseJsonToSteps(pipelineJson, &stepsInStage)
@@ -105,9 +99,18 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 			// Platform: convertPlatform(from.Platform),
 			// Runtime:  convertRuntime(from),
 			Steps: stepsInStage, // Initialize the Steps slice
+			// Clone: clone,
+			// Repository: repo,
 		},
 	}
 	dst.Stages = append(dst.Stages, dstStage)
+
+	// create the harness pipeline resource
+	config := &harness.Config{
+		Version: 1,
+		Kind:    "pipeline",
+		Spec:    dst,
+	}
 
 	out, err := yaml.Marshal(config)
 	if err != nil {
@@ -147,39 +150,67 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	return nil, nil
 }
 
-func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.Step) {
+func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.Step) (*harness.CloneStage, *harness.Repository) {
+	var clone *harness.CloneStage
+	var repo *harness.Repository
+
 	if len(currentNode.AttributesMap) == 0 {
 		for _, child := range currentNode.Children {
-			recursiveParseJsonToSteps(child, steps)
+			clone, repo = recursiveParseJsonToSteps(child, steps)
 		}
 	}
 
 	switch currentNode.AttributesMap["jenkins.pipeline.step.type"] {
-	case "node":
+	case "node", "parallel":
+		// node and parallel are wrapper layer to hold actual steps
+		// parallel should be handled at it's parent
 		for _, child := range currentNode.Children {
-			recursiveParseJsonToSteps(child, steps)
+			clone, repo = recursiveParseJsonToSteps(child, steps)
 		}
 	case "stage":
+		// this is techinically a step group, we treat it as just steps for now
 		if len(currentNode.Children) > 1 {
-			parallelStepItems := make([]*harness.Step, 0)
-			for _, child := range currentNode.Children {
-				recursiveParseJsonToSteps(child, &parallelStepItems)
+			// handle parallel from parent
+			if currentNode.Children[0].AttributesMap["jenkins.pipeline.step.type"] == "parallel" {
+				parallelStepItems := make([]*harness.Step, 0)
+				for _, child := range currentNode.Children {
+					clone, repo = recursiveParseJsonToSteps(child, &parallelStepItems)
+				}
+				parallelStep := &harness.Step{
+					Name: currentNode.SpanName,
+					Id:   currentNode.SpanId,
+					Type: "parallel",
+					Spec: &harness.StepParallel{
+						Steps: parallelStepItems,
+					},
+				}
+				*steps = append(*steps, parallelStep)
+			} else {
+				for _, child := range currentNode.Children {
+					clone, repo = recursiveParseJsonToSteps(child, steps)
+				}
 			}
-			parallelStep := &harness.Step{
-				Name: currentNode.SpanName,
-				Id:   currentNode.SpanId,
-				Spec: &harness.StepParallel{
-					Steps: parallelStepItems,
-				},
-			}
-			*steps = append(*steps, parallelStep)
 		} else {
 			for _, child := range currentNode.Children {
-				recursiveParseJsonToSteps(child, steps)
+				clone, repo = recursiveParseJsonToSteps(child, steps)
 			}
 		}
 	case "sh":
 		*steps = append(*steps, jenkinsjson.ConvertSh(currentNode))
+	case "git":
+		clone, repo = jenkinsjson.ConvertClone(currentNode)
+	case "":
+	default:
+		*steps = append(*steps, &harness.Step{
+			Name: currentNode.SpanName,
+			Id:   currentNode.SpanId,
+			Type: "script",
+			Spec: &harness.StepExec{
+				Shell: "sh",
+				Run:   fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"]),
+			},
+			Desc: "This is a place holder for: " + currentNode.AttributesMap["jenkins.pipeline.step.type"],
+		})
 	}
-
+	return clone, repo
 }

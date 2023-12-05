@@ -10,9 +10,10 @@ func ConvertSh(node Node) *harness.Step {
 	return &harness.Step{
 		Name: node.SpanName,
 		Id:   node.SpanId,
-		Spec: &harness.StepRun{
-			Shell:  "sh",
-			Script: []string{fmt.Sprintf("%v", node.ParameterMap["script"])},
+		Type: "script",
+		Spec: &harness.StepExec{
+			Shell: "sh",
+			Run:   fmt.Sprintf("%v", node.ParameterMap["script"]),
 		},
 	}
 }
