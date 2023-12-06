@@ -90,7 +90,7 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	// create the harness stage.
 	dstStage := &harness.Stage{
 		Name: pipelineJson.Name,
-		Id:   pipelineJson.SpanId,
+		Id:   SanitizeForId(pipelineJson.SpanName, pipelineJson.SpanId),
 		Type: "ci",
 		// When: convertCond(from.Trigger),
 		Spec: &harness.StageCI{
@@ -178,7 +178,7 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 				}
 				parallelStep := &harness.Step{
 					Name: currentNode.SpanName,
-					Id:   currentNode.SpanId,
+					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 					Type: "parallel",
 					Spec: &harness.StepParallel{
 						Steps: parallelStepItems,
@@ -203,7 +203,7 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	default:
 		*steps = append(*steps, &harness.Step{
 			Name: currentNode.SpanName,
-			Id:   currentNode.SpanId,
+			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 			Type: "script",
 			Spec: &harness.StepExec{
 				Shell: "sh",

@@ -6,6 +6,8 @@ github.com/buildkite/yaml v2.1.0+incompatible h1:xirI+ql5GzfikVNDmt+yeiXpf/v1Gt0
 github.com/buildkite/yaml v2.1.0+incompatible/go.mod h1:UoU8vbcwu1+vjZq01+KrpSeLBgQQIjL/H7Y6KwikUrI=
 github.com/docker/go-units v0.4.0 h1:3uh0PgVws3nIA0Q+MwDC8yjEPf9zjRfZZWXZYDct3Tw=
 github.com/docker/go-units v0.4.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
+github.com/drone/go-convert v0.0.0-20230919093251-7104c3bcc635 h1:qQX+U2iEm4X2FcmBzxZwZgz8gLpUTa6lBB1vBBCV9Oo=
+github.com/drone/go-convert v0.0.0-20230919093251-7104c3bcc635/go.mod h1:PyCDcuAhGF6W0VJ6qMmlM47dsSyGv/zDiMqeJxMFuGM=
 github.com/drone/spec v0.0.0-20230911203429-f7f1b5e9aa40 h1:XTADVN1LXkDk+TJc0WQr3ohWu94/NSP4FoIo50gwxIw=
 github.com/drone/spec v0.0.0-20230911203429-f7f1b5e9aa40/go.mod h1:pdaL6nOipGF/5L6jAu1DwAeLzmZdaU3+UIvQ1MUIZ9Y=
 github.com/drone/spec v0.0.0-20230919004456-7455b8913ff5 h1:NgAseJNQpJE3XtgJUPu4x7x5fcBjqZ3oKHDJfwBYdWk=
