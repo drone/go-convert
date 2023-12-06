@@ -21,7 +21,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/drone/go-convert/convert/harness/downgrader"
+	"github.com/jamie-harness/go-convert/convert/harness/downgrader"
 	"github.com/jamie-harness/go-convert/convert/jenkinsjson"
 
 	"github.com/google/subcommands"

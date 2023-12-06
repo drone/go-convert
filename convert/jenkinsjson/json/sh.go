@@ -9,7 +9,7 @@ import (
 func ConvertSh(node Node) *harness.Step {
 	return &harness.Step{
 		Name: node.SpanName,
-		Id:   node.SpanId,
+		Id:   SanitizeForId(node.SpanName, node.SpanId),
 		Type: "script",
 		Spec: &harness.StepExec{
 			Shell: "sh",
