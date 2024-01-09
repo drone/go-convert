@@ -1,4 +1,4 @@
-module github.com/jamie-harness/go-convert
+module github.com/drone/go-convert
 
 go 1.19
 

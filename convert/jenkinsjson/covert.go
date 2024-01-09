@@ -22,9 +22,9 @@ import (
 	"io"
 	"os"
 
+	jenkinsjson "github.com/drone/go-convert/convert/jenkinsjson/json"
+	"github.com/drone/go-convert/internal/store"
 	harness "github.com/drone/spec/dist/go"
-	jenkinsjson "github.com/jamie-harness/go-convert/convert/jenkinsjson/json"
-	"github.com/jamie-harness/go-convert/internal/store"
 	"gopkg.in/yaml.v2"
 )
 
