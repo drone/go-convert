@@ -19,7 +19,7 @@ import (
 	"flag"
 	"os"
 
-	"github.com/drone/go-convert/command"
+	"github.com/jamie-harness/go-convert/command"
 
 	"github.com/google/subcommands"
 )
