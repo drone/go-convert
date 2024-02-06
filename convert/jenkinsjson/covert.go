@@ -201,6 +201,8 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 		*steps = append(*steps, jenkinsjson.ConvertJunit(currentNode))
 	case "git":
 		clone, repo = jenkinsjson.ConvertClone(currentNode)
+	case "sleep":
+		*steps = append(*steps, jenkinsjson.ConvertSleep(currentNode))
 	case "":
 	default:
 		*steps = append(*steps, &harness.Step{
