@@ -22,13 +22,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/drone/go-convert/internal/slug"
-	"github.com/drone/go-convert/internal/store"
+	"github.com/jamie-harness/go-convert/internal/slug"
+	"github.com/jamie-harness/go-convert/internal/store"
 
-	harness "github.com/drone/go-convert/convert/harness/downgrader/yaml"
-	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/spec/dist/go"
 	"github.com/ghodss/yaml"
+	harness "github.com/jamie-harness/go-convert/convert/harness/downgrader/yaml"
+	v0 "github.com/jamie-harness/go-convert/convert/harness/yaml"
 )
 
 // Downgrader downgrades pipelines from the v0 harness

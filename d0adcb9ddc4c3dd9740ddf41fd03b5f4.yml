@@ -1,0 +1,131 @@
+version: 1
+kind: pipeline
+type: ""
+name: ""
+spec:
+  stages:
+  - desc: ""
+    id: ce013cf6383eafaf
+    name: 'openteleTest #41'
+    strategy: null
+    delegate: []
+    status: null
+    type: ci
+    when: null
+    failure: null
+    inputs: {}
+    spec:
+      cache: null
+      clone: null
+      platform: null
+      runtime: null
+      steps:
+      - id: f9d93305cd80bbc1
+        name: Maven install
+        desc: ""
+        type: run
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          shell: sh
+          script:
+          - mvn -Dmaven.test.failure.ignore=true clean package
+          container: null
+          envs: {}
+          reports: []
+          outputs: []
+          mount: []
+      - id: 3f09cb7ccf988166
+        name: junit
+        desc: 'Place holder for: junit'
+        type: run
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec: null
+      - id: f28886eb03a51429
+        name: archiveArtifacts
+        desc: 'Place holder for: archiveArtifacts'
+        type: run
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec: null
+      - id: 3d51da1eb1c2893d
+        name: 'Stage: Validate'
+        desc: ""
+        type: parallel
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: cf14ce1ab89061b6
+            name: sh
+            desc: ""
+            type: run
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              shell: sh
+              script:
+              - echo v1.0.32
+              container: null
+              envs: {}
+              reports: []
+              outputs: []
+              mount: []
+          - id: f01e1de1adf90a9d
+            name: fileExists
+            desc: 'Place holder for: fileExists'
+            type: run
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec: null
+          - id: eaa10766e919156d
+            name: fileExists
+            desc: 'Place holder for: fileExists'
+            type: run
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec: null
+          - id: a91f026817ff8cf4
+            name: sh
+            desc: ""
+            type: run
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              shell: sh
+              script:
+              - echo v2
+              container: null
+              envs: {}
+              reports: []
+              outputs: []
+              mount: []
+      envs: {}
+      volumes: []
+  inputs: {}
+  options: null

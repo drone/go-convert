@@ -23,8 +23,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/drone/go-convert/convert/drone"
-	"github.com/drone/go-convert/convert/harness/downgrader"
+	"github.com/jamie-harness/go-convert/convert/drone"
+	"github.com/jamie-harness/go-convert/convert/harness/downgrader"
 
 	"github.com/google/subcommands"
 )

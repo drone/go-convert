@@ -15,19 +15,19 @@
 package orbs
 
 import (
-	browser_tools "github.com/drone/go-convert/convert/circle/internal/orbs/browser-tools"
-	"github.com/drone/go-convert/convert/circle/internal/orbs/datadog"
-	circle "github.com/drone/go-convert/convert/circle/yaml"
 	harness "github.com/drone/spec/dist/go"
+	browser_tools "github.com/jamie-harness/go-convert/convert/circle/internal/orbs/browser-tools"
+	"github.com/jamie-harness/go-convert/convert/circle/internal/orbs/datadog"
+	circle "github.com/jamie-harness/go-convert/convert/circle/yaml"
 
-	"github.com/drone/go-convert/convert/circle/internal/orbs/codecov"
-	"github.com/drone/go-convert/convert/circle/internal/orbs/coveralls"
-	"github.com/drone/go-convert/convert/circle/internal/orbs/golang"
-	"github.com/drone/go-convert/convert/circle/internal/orbs/localstack"
-	"github.com/drone/go-convert/convert/circle/internal/orbs/node"
-	"github.com/drone/go-convert/convert/circle/internal/orbs/ruby"
-	"github.com/drone/go-convert/convert/circle/internal/orbs/saucelabs"
-	"github.com/drone/go-convert/convert/circle/internal/orbs/slack"
+	"github.com/jamie-harness/go-convert/convert/circle/internal/orbs/codecov"
+	"github.com/jamie-harness/go-convert/convert/circle/internal/orbs/coveralls"
+	"github.com/jamie-harness/go-convert/convert/circle/internal/orbs/golang"
+	"github.com/jamie-harness/go-convert/convert/circle/internal/orbs/localstack"
+	"github.com/jamie-harness/go-convert/convert/circle/internal/orbs/node"
+	"github.com/jamie-harness/go-convert/convert/circle/internal/orbs/ruby"
+	"github.com/jamie-harness/go-convert/convert/circle/internal/orbs/saucelabs"
+	"github.com/jamie-harness/go-convert/convert/circle/internal/orbs/slack"
 )
 
 // Convert converts an Orb step to a Harness step.

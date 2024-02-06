@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"strings"
 
-	circle "github.com/drone/go-convert/convert/circle/yaml"
 	"github.com/ghodss/yaml"
+	circle "github.com/jamie-harness/go-convert/convert/circle/yaml"
 )
 
 // replaceParams finds and replaces circle pipeline
