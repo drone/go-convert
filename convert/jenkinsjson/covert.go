@@ -197,6 +197,8 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 		}
 	case "sh":
 		*steps = append(*steps, jenkinsjson.ConvertSh(currentNode))
+	case "archiveArtifacts":
+		*steps = append(*steps, jenkinsjson.ConvertArchive(currentNode)...)
 	case "junit":
 		*steps = append(*steps, jenkinsjson.ConvertJunit(currentNode))
 	case "git":
