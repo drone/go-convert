@@ -549,6 +549,11 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 // TODO convert reports
 func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepPlugin)
+
+	if strings.Contains(spec_.Image, "kaniko-docker") {
+		return d.convertStepPluginToDocker(src)
+	}
+
 	var id = d.identifiers.Generate(
 		slug.Create(src.Id),
 		slug.Create(src.Name),
@@ -571,6 +576,70 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 			RunAsUser:       spec_.User,
 		},
 		When: convertStepWhen(src.When, id),
+	}
+}
+
+// helper function to convert a Plugin step from the v1
+// structure to the v0 harness structure.
+//
+// TODO convert resources
+// TODO convert reports
+func (d *Downgrader) convertStepPluginToDocker(src *v1.Step) *v0.Step {
+	spec_ := src.Spec.(*v1.StepPlugin)
+	var id = d.identifiers.Generate(
+		slug.Create(src.Id),
+		slug.Create(src.Name),
+		slug.Create(src.Type))
+	if src.Name == "" {
+		src.Name = id
+	}
+
+	stepDocker := &v0.StepDocker{
+		Caching:      true,
+		ConnectorRef: d.dockerhubConn,
+		Privileged:   spec_.Privileged,
+		RunAsUser:    spec_.User,
+	}
+
+	// Check if "repo" exists in spec_.With
+	if repo, ok := spec_.With["repo"].(string); ok {
+		// If "repo" exists, set it in StepDocker
+		stepDocker.Repo = repo
+	}
+	if context, ok := spec_.With["context"].(string); ok {
+		// If "context" exists, set it in StepDocker
+		stepDocker.Context = context
+	}
+	if dockerfile, ok := spec_.With["dockerfile"].(string); ok {
+		// If "dockerfile" exists, set it in StepDocker
+		stepDocker.Dockerfile = dockerfile
+	}
+	if target, ok := spec_.With["target"].(string); ok {
+		// If "target" exists, set it in StepDocker
+		stepDocker.Target = target
+	}
+	if cacheRepo, ok := spec_.With["cache_repo"].(string); ok {
+		// If "cache_repo" exists, set it in StepDocker
+		stepDocker.RemoteCacheRepo = cacheRepo
+	}
+	if tagsInterface, ok := spec_.With["tags"]; ok {
+		stepDocker.Tags = extractStringSlice(tagsInterface)
+	}
+
+	if buildArgsInterface, ok := spec_.With["build_args"]; ok {
+		stepDocker.BuildsArgs = extractStringMap(buildArgsInterface)
+	}
+	if labelsInterface, ok := spec_.With["custom_labels"]; ok {
+		stepDocker.Labels = extractStringMap(labelsInterface)
+	}
+
+	return &v0.Step{
+		ID:      id,
+		Name:    src.Name,
+		Type:    v0.StepTypeBuildAndPushDockerRegistry,
+		Timeout: convertTimeout(src.Timeout),
+		Spec:    stepDocker,
+		When:    convertStepWhen(src.When, id),
 	}
 }
 
@@ -979,4 +1048,46 @@ func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
 	}
 
 	return newWhen
+}
+
+func extractStringSlice(input interface{}) []string {
+	switch data := input.(type) {
+	case []interface{}:
+		var result []string
+		for _, item := range data {
+			result = append(result, strings.SplitN(fmt.Sprintf("%v", item), ",", -1)...)
+		}
+		return result
+	case interface{}:
+		return []string{fmt.Sprintf("%v", data)}
+	default:
+		return nil
+	}
+}
+
+func extractStringMap(input interface{}) map[string]string {
+	switch data := input.(type) {
+	case []interface{}:
+		result := make(map[string]string)
+		for _, item := range data {
+			for _, keyValue := range strings.SplitN(fmt.Sprintf("%v", item), ",", -1) {
+				pair := strings.SplitN(keyValue, "=", 2)
+				if len(pair) == 2 {
+					result[pair[0]] = pair[1]
+				}
+			}
+		}
+		return result
+	case interface{}:
+		result := make(map[string]string)
+		for _, keyValue := range strings.SplitN(fmt.Sprintf("%v", data), ",", -1) {
+			pair := strings.SplitN(keyValue, "=", 2)
+			if len(pair) == 2 {
+				result[pair[0]] = pair[1]
+			}
+		}
+		return result
+	default:
+		return nil
+	}
 }
