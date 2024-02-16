@@ -618,10 +618,10 @@ func (d *Downgrader) convertStepPluginToDocker(src *v1.Step) *v0.Step {
 		// If "target" exists, set it in StepDocker
 		stepDocker.Target = target
 	}
-	if cacheRepo, ok := spec_.With["cache_repo"].(string); ok {
-		// If "cache_repo" exists, set it in StepDocker
-		stepDocker.RemoteCacheRepo = cacheRepo
-	}
+	// if cacheRepo, ok := spec_.With["cache_repo"].(string); ok {
+	// 	// If "cache_repo" exists, set it in StepDocker
+	// 	stepDocker.RemoteCacheRepo = cacheRepo
+	// }
 	if tagsInterface, ok := spec_.With["tags"]; ok {
 		stepDocker.Tags = extractStringSlice(tagsInterface)
 	}
