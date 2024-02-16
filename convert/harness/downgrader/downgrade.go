@@ -625,7 +625,6 @@ func (d *Downgrader) convertStepPluginToDocker(src *v1.Step) *v0.Step {
 	if tagsInterface, ok := spec_.With["tags"]; ok {
 		stepDocker.Tags = extractStringSlice(tagsInterface)
 	}
-
 	if buildArgsInterface, ok := spec_.With["build_args"]; ok {
 		stepDocker.BuildsArgs = extractStringMap(buildArgsInterface)
 	}
