@@ -116,8 +116,9 @@ type (
 		Reports         []*Report         `json:"reports,omitempty"         yaml:"reports,omitempty"`
 		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
-		Tags            map[string]string `json:"tags,omitempty"            yaml:"tags,omitempty"`
+		Tags            []string          `json:"tags,omitempty"            yaml:"tags,omitempty"`
 		Target          string            `json:"target,omitempty"          yaml:"target,omitempty"`
+		Caching         bool              `json:"caching,omitempty"         yaml:"caching,omitempty"`
 	}
 
 	StepHTTP struct {
