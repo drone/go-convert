@@ -1,0 +1,45 @@
+options: {}
+kind: pipeline
+version: 1
+spec:
+  stages:
+    - name: default
+      spec:
+        clone: {}
+        runtime:
+          spec: {}
+          type: machine
+        steps:
+          - name: build
+            spec:
+              image: golang:1.16
+              run: |-
+                go build
+                go test
+            type: script
+          - name: publish
+            spec:
+              image: plugins/kaniko-docker
+              with:
+                password: <+ secrets.getValue("docker_password") >
+                repo: octocat/hello-world
+                tags:
+                  - latest
+                  - 1
+                  - 1.1
+                  - 1.1.1
+                username: <+ secrets.getValue("docker_username") >
+                dockerfile: DockerFile
+                context: context
+                target: target
+                custom_labels: latest=asd
+                build_args:
+                  - GITHUB_ACCESS_TOKEN=token,GITHUB_ACCESS_TOKEN2=token2
+                  - GITHUB_ACCESS_TOKEN3=token3,GITHUB_ACCESS_TOKEN4=token4
+            type: plugin
+            when:
+              - event:
+                  in:
+                    - push
+                    - tag
+      type: ci
