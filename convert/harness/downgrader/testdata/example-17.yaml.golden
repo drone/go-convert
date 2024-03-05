@@ -32,6 +32,7 @@ pipeline:
               spec:
                 repo: octocat/hello-world
                 caching: true
+                connectorRef: <+input>
                 tags:
                   - latest
                   - "1"

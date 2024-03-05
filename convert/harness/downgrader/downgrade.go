@@ -622,7 +622,7 @@ func (d *Downgrader) convertStepPluginToDocker(src *v1.Step) *v0.Step {
 
 	stepDocker := &v0.StepDocker{
 		Caching:      true,
-		ConnectorRef: d.dockerhubConn,
+		ConnectorRef: "<+input>",
 		Privileged:   spec_.Privileged,
 		RunAsUser:    spec_.User,
 	}
