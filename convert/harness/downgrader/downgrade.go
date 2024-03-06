@@ -422,6 +422,7 @@ func (d *Downgrader) convertStepGroup(src *v1.Step) *v0.StepGroup {
 
 	var steps []*v0.Steps
 	for _, step := range spec_.Steps {
+<<<<<<< HEAD
 		dst := d.convertStep(step)
 		steps = append(steps, dst)
 	}
@@ -430,6 +431,17 @@ func (d *Downgrader) convertStepGroup(src *v1.Step) *v0.StepGroup {
 		Name:    convertName(src.Name),
 		Timeout: convertTimeout(src.Timeout),
 		Steps:   steps,
+=======
+		// If this step is a step group, recursively convert it
+		if _, ok := step.Spec.(*v1.StepGroup); ok {
+			steps = append(steps, d.convertStepGroup(step, depth+1)...)
+		} else {
+			// Else, convert the step
+			if dst := d.convertStep(step); dst != nil {
+				steps = append(steps, &v0.Steps{Step: dst.Step})
+			}
+		}
+>>>>>>> 5fcaeec (skipping unsupported step for harness downgrader)
 	}
 }
 
@@ -440,8 +452,9 @@ func (d *Downgrader) convertStepParallel(src *v1.Step) []*v0.Steps {
 
 	var steps []*v0.Steps
 	for _, step := range spec_.Steps {
-		dst := d.convertStep(step)
-		steps = append(steps, &v0.Steps{Step: dst.Step})
+		if dst := d.convertStep(step); dst != nil {
+			steps = append(steps, &v0.Steps{Step: dst.Step})
+		}
 	}
 	return steps
 }
