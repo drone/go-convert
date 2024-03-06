@@ -235,7 +235,9 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		} else {
 			// else convert the step and append to
 			// the stage.
-			steps = append(steps, d.convertStep(v))
+			if step := d.convertStep(v); step != nil {
+				steps = append(steps, step)
+			}
 		}
 	}
 
