@@ -225,7 +225,24 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 	var steps []*v0.Steps
 	// convert each drone step to a harness step.
 	for _, v := range spec.Steps {
+<<<<<<< HEAD
 		steps = append(steps, d.convertStep(v))
+=======
+		// the v0 yaml does not have the concept of
+		// a group step, so we append all steps in
+		// the group directly to the stage to emulate
+		// this behavior.
+		if _, ok := v.Spec.(*v1.StepGroup); ok {
+			steps = append(steps, d.convertStepGroup(v, 10)...)
+
+		} else {
+			// else convert the step and append to
+			// the stage.
+			if step := d.convertStep(v); step != nil {
+				steps = append(steps, step)
+			}
+		}
+>>>>>>> 3c74bb9 (skipping unsupported step for harness downgrader)
 	}
 
 	// enable clone by default
