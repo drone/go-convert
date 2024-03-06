@@ -39,7 +39,7 @@ type (
 
 	// StageCI defines a continuous integration stage.
 	StageCI struct {
-		Cache          *Cache          `json:"cache,omitempty"               yaml:"cache,omitempty"`
+		Cache          *Cache          `json:"caching,omitempty"             yaml:"caching,omitempty"`
 		Clone          bool            `json:"cloneCodebase,omitempty"       yaml:"cloneCodebase,omitempty"`
 		Execution      Execution       `json:"execution,omitempty"           yaml:"execution,omitempty"`
 		Infrastructure *Infrastructure `json:"infrastructure,omitempty"      yaml:"infrastructure,omitempty"`
