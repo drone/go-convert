@@ -235,7 +235,9 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		} else {
 			// else convert the step and append to
 			// the stage.
-			steps = append(steps, d.convertStep(v))
+			if step := d.convertStep(v); step != nil {
+				steps = append(steps, step)
+			}
 		}
 	}
 
@@ -422,8 +424,9 @@ func (d *Downgrader) convertStepGroup(src *v1.Step, depth int) []*v0.Steps {
 			steps = append(steps, d.convertStepGroup(step, depth+1)...)
 		} else {
 			// Else, convert the step
-			dst := d.convertStep(step)
-			steps = append(steps, &v0.Steps{Step: dst.Step})
+			if dst := d.convertStep(step); dst != nil {
+				steps = append(steps, &v0.Steps{Step: dst.Step})
+			}
 		}
 	}
 	return steps
@@ -436,8 +439,9 @@ func (d *Downgrader) convertStepParallel(src *v1.Step) []*v0.Steps {
 
 	var steps []*v0.Steps
 	for _, step := range spec_.Steps {
-		dst := d.convertStep(step)
-		steps = append(steps, &v0.Steps{Step: dst.Step})
+		if dst := d.convertStep(step); dst != nil {
+			steps = append(steps, &v0.Steps{Step: dst.Step})
+		}
 	}
 	return steps
 }
