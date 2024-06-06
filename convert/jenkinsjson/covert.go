@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	harness "github.com/drone/spec/dist/go"
 	jenkinsjson "github.com/jamie-harness/go-convert/convert/jenkinsjson/json"
@@ -195,6 +196,65 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 				clone, repo = recursiveParseJsonToSteps(child, steps)
 			}
 		}
+	case "tool":
+		toolName := ""
+		toolType := ""
+		if attr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
+			toolAttributes := make(map[string]string)
+			if err := json.Unmarshal([]byte(attr), &toolAttributes); err == nil {
+				toolName = toolAttributes["name"]
+				fullToolType := toolAttributes["type"]
+				if parts := strings.Split(fullToolType, "$"); len(parts) > 1 {
+					toolType = parts[1]
+				} else {
+					toolType = fullToolType
+				}
+			}
+		}
+		var toolStep *harness.Step
+		switch toolType {
+		case "MavenInstallation":
+			toolStep = &harness.Step{
+				Name: currentNode.SpanName,
+				Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+				Type: "plugin",
+				Spec: &harness.StepPlugin{
+					Connector: "c.docker",
+					Image:     "docker.io/kameshsampath/drone-java-maven-plugin:v1.0.0",
+				},
+			}
+		case "GradleInstallation":
+			toolStep = &harness.Step{
+				Name: currentNode.SpanName,
+				Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+				Type: "plugin",
+				Spec: &harness.StepPlugin{
+					Connector: "c.docker",
+					Image:     "your-gradle-plugin-image:tag",
+				},
+			}
+		case "AntInstallation":
+			toolStep = &harness.Step{
+				Name: currentNode.SpanName,
+				Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+				Type: "plugin",
+				Spec: &harness.StepPlugin{
+					Connector: "c.docker",
+					Image:     "your-ant-plugin-image:tag",
+				},
+			}
+		default:
+			toolStep = &harness.Step{
+				Name: currentNode.SpanName,
+				Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+				Type: "script",
+				Spec: &harness.StepExec{
+					Shell: "sh",
+					Run:   fmt.Sprintf("echo 'This is a placeholder for tool: %s of type: %s'", toolName, toolType),
+				},
+			}
+		}
+		*steps = append(*steps, toolStep)
 	case "sh":
 		*steps = append(*steps, jenkinsjson.ConvertSh(currentNode))
 	case "archiveArtifacts":
