@@ -1,0 +1,641 @@
+schemaVersion: 2.0
+timeout: 30
+
+pipelines:
+  - name: Harness-main-build-prb
+    branchName: main
+    machine:
+      baseImage: docker.harness.io/base-images/ubi8/java17-builder:latest
+      env:
+        RUNTIME_JDK_VERSION: 17
+    build:
+      template: freestyle:v4:prb
+      steps:
+        - ./ci_scripts/sample_script.sh
+        - ./mvnw clean package -Dmaven.test.skip=true=
+    reports:
+      findbugs: true
+      jacoco:
+        exec: '**/target/jacoco.exec'
+        src: '**/src/main/java'
+        classes: '**/target/classes'
+
+  - name: Harness-main-build-publish-dev
+    branchName: main
+    machine:
+      baseImage: docker.harness.io/base-images/ubi8/java17-builder:latest
+      env:
+        RUNTIME_JDK_VERSION: 17
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - ./mvnw clean package -Dmaven.test.skip=true
+    package:
+      release: true
+      dockerfile:
+        - context: ./aggregatorservice
+          version: aggregatorservice
+          perApplication: false
+          dockerfilePath: ./aggregatorservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-dev
+
+        - context: ./artifactoryservice
+          version: artifactoryservice
+          perApplication: false
+          dockerfilePath: ./artifactoryservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-dev
+
+        - context: ./healthcheckservice
+          version: healthcheckservice
+          perApplication: false
+          dockerfilePath: ./healthcheckservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-dev
+
+        - context: ./Test-Scorecard
+          version: ossfscorecard
+          perApplication: false
+          dockerfilePath: ./Test-Scorecard/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-dev
+
+        - context: ./scorecardservice
+          version: scorecardservice
+          perApplication: false
+          dockerfilePath: ./scorecardservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-dev
+
+        - context: ./vulnerabilityservice
+          version: vulnerabilityservice
+          perApplication: false
+          dockerfilePath: ./vulnerabilityservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-dev
+
+        - context: ./externalservice
+          version: externalservice
+          perApplication: false
+          dockerfilePath: ./externalservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-dev
+
+        - context: ./communicationservice
+          version: communicationservice
+          perApplication: false
+          dockerfilePath: ./communicationservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-dev
+
+        - context: ./schedulerservice
+          version: schedulerservice
+          perApplication: false
+          dockerfilePath: ./schedulerservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-dev
+
+    finally:
+      tag:
+        enabled: false
+
+  - name: Harness-main-build-publish-develop
+    branchName: develop
+    machine:
+      baseImage: docker.harness.io/base-images/ubi8/java17-builder:latest
+      env:
+        RUNTIME_JDK_VERSION: 17
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - ./mvnw clean package -Dmaven.test.skip=true
+    package:
+      release: true
+      dockerfile:
+        - context: ./aggregatorservice
+          version: aggregatorservice
+          perApplication: false
+          dockerfilePath: ./aggregatorservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-develop
+
+        - context: ./artifactoryservice
+          version: artifactoryservice
+          perApplication: false
+          dockerfilePath: ./artifactoryservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-develop
+
+        - context: ./healthcheckservice
+          version: healthcheckservice
+          perApplication: false
+          dockerfilePath: ./healthcheckservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-develop
+
+        - context: ./Test-Scorecard
+          version: ossfscorecard
+          perApplication: false
+          dockerfilePath: ./Test-Scorecard/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-develop
+
+        - context: ./scorecardservice
+          version: scorecardservice
+          perApplication: false
+          dockerfilePath: ./scorecardservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-develop
+
+        - context: ./vulnerabilityservice
+          version: vulnerabilityservice
+          perApplication: false
+          dockerfilePath: ./vulnerabilityservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-develop
+
+        - context: ./externalservice
+          version: externalservice
+          perApplication: false
+          dockerfilePath: ./externalservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-develop
+
+        - context: ./communicationservice
+          version: communicationservice
+          perApplication: false
+          dockerfilePath: ./communicationservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-develop
+
+        - context: ./schedulerservice
+          version: schedulerservice
+          perApplication: false
+          dockerfilePath: ./schedulerservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-develop
+
+    finally:
+      tag:
+        enabled: false
+
+
+  - name: Harness-main-build-publish-qa
+    branchName: main
+    machine:
+      baseImage: docker.harness.io/base-images/ubi8/java17-builder:latest
+      env:
+        RUNTIME_JDK_VERSION: 17
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - ./mvnw clean package -Dmaven.test.skip=true
+    package:
+      release: true
+      dockerfile:
+        - context: ./aggregatorservice
+          version: aggregatorservice
+          perApplication: false
+          dockerfilePath: ./aggregatorservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-qa
+
+        - context: ./artifactoryservice
+          version: artifactoryservice
+          perApplication: false
+          dockerfilePath: ./artifactoryservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-qa
+
+        - context: ./healthcheckservice
+          version: healthcheckservice
+          perApplication: false
+          dockerfilePath: ./healthcheckservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-qa
+
+        - context: ./Test-Scorecard
+          version: ossfscorecard
+          perApplication: false
+          dockerfilePath: ./Test-Scorecard/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-qa
+
+        - context: ./scorecardservice
+          version: scorecardservice
+          perApplication: false
+          dockerfilePath: ./scorecardservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-qa
+
+        - context: ./vulnerabilityservice
+          version: vulnerabilityservice
+          perApplication: false
+          dockerfilePath: ./vulnerabilityservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-qa
+
+        - context: ./externalservice
+          version: externalservice
+          perApplication: false
+          dockerfilePath: ./externalservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-qa
+
+        - context: ./communicationservice
+          version: communicationservice
+          perApplication: false
+          dockerfilePath: ./communicationservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-qa
+
+        - context: ./schedulerservice
+          version: schedulerservice
+          perApplication: false
+          dockerfilePath: ./schedulerservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-qa
+
+    finally:
+      tag:
+        enabled: false
+
+  - name: Harness-main-build-publish-testbranch
+    branchName: test
+    machine:
+      baseImage: docker.harness.io/base-images/ubi8/java17-builder:latest
+      env:
+        RUNTIME_JDK_VERSION: 17
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - ./mvnw clean package -Dmaven.test.skip=true
+    package:
+      release: true
+      dockerfile:
+        - context: ./aggregatorservice
+          version: aggregatorservice
+          perApplication: false
+          dockerfilePath: ./aggregatorservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-test
+
+        - context: ./artifactoryservice
+          version: artifactoryservice
+          perApplication: false
+          dockerfilePath: ./artifactoryservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-test
+
+        - context: ./healthcheckservice
+          version: healthcheckservice
+          perApplication: false
+          dockerfilePath: ./healthcheckservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-test
+
+        - context: ./Test-Scorecard
+          version: ossfscorecard
+          perApplication: false
+          dockerfilePath: ./Test-Scorecard/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-test
+
+        - context: ./scorecardservice
+          version: scorecardservice
+          perApplication: false
+          dockerfilePath: ./scorecardservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-test
+
+        - context: ./vulnerabilityservice
+          version: vulnerabilityservice
+          perApplication: false
+          dockerfilePath: ./vulnerabilityservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-test
+
+        - context: ./externalservice
+          version: externalservice
+          perApplication: false
+          dockerfilePath: ./externalservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-test
+
+        - context: ./communicationservice
+          version: communicationservice
+          perApplication: false
+          dockerfilePath: ./communicationservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-test
+
+        - context: ./schedulerservice
+          version: schedulerservice
+          perApplication: false
+          dockerfilePath: ./schedulerservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-test
+
+    finally:
+      tag:
+        enabled: false
+
+
+  - name: Harness-main-build-publish-uat
+    branchName: main
+    machine:
+      baseImage: docker.harness.io/base-images/ubi8/java17-builder:latest
+      env:
+        RUNTIME_JDK_VERSION: 17
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - ./mvnw clean package -Dmaven.test.skip=true
+    package:
+      release: true
+      dockerfile:
+        - context: ./aggregatorservice
+          version: aggregatorservice
+          perApplication: false
+          dockerfilePath: ./aggregatorservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uat
+
+        - context: ./artifactoryservice
+          version: artifactoryservice
+          perApplication: false
+          dockerfilePath: ./artifactoryservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uat
+
+        - context: ./healthcheckservice
+          version: healthcheckservice
+          perApplication: false
+          dockerfilePath: ./healthcheckservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uat
+
+        - context: ./Test-Scorecard
+          version: ossfscorecard
+          perApplication: false
+          dockerfilePath: ./Test-Scorecard/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uat
+
+        - context: ./scorecardservice
+          version: scorecardservice
+          perApplication: false
+          dockerfilePath: ./scorecardservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uat
+
+        - context: ./vulnerabilityservice
+          version: vulnerabilityservice
+          perApplication: false
+          dockerfilePath: ./vulnerabilityservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uat
+
+        - context: ./externalservice
+          version: externalservice
+          perApplication: false
+          dockerfilePath: ./externalservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uat
+
+        - context: ./communicationservice
+          version: communicationservice
+          perApplication: false
+          dockerfilePath: ./communicationservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uat
+
+        - context: ./schedulerservice
+          version: schedulerservice
+          perApplication: false
+          dockerfilePath: ./schedulerservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uat
+
+    finally:
+      tag:
+        enabled: false
+
+  - name: Harness-main-build-publish-uatbranch
+    branchName: uat
+    machine:
+      baseImage: docker.harness.io/base-images/ubi8/java17-builder:latest
+      env:
+        RUNTIME_JDK_VERSION: 17
+    build:
+      template: freestyle:v4:publish
+      steps:
+        - ./mvnw clean package -Dmaven.test.skip=true
+    package:
+      release: true
+      dockerfile:
+        - context: ./aggregatorservice
+          version: aggregatorservice
+          perApplication: false
+          dockerfilePath: ./aggregatorservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uatbranch
+
+        - context: ./artifactoryservice
+          version: artifactoryservice
+          perApplication: false
+          dockerfilePath: ./artifactoryservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uatbranch
+
+        - context: ./healthcheckservice
+          version: healthcheckservice
+          perApplication: false
+          dockerfilePath: ./healthcheckservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uatbranch
+
+        - context: ./Test-Scorecard
+          version: ossfscorecard
+          perApplication: false
+          dockerfilePath: ./Test-Scorecard/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uatbranch
+
+        - context: ./scorecardservice
+          version: scorecardservice
+          perApplication: false
+          dockerfilePath: ./scorecardservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uatbranch
+
+        - context: ./vulnerabilityservice
+          version: vulnerabilityservice
+          perApplication: false
+          dockerfilePath: ./vulnerabilityservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uatbranch
+
+        - context: ./externalservice
+          version: externalservice
+          perApplication: false
+          dockerfilePath: ./externalservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uatbranch
+
+        - context: ./communicationservice
+          version: communicationservice
+          perApplication: false
+          dockerfilePath: ./communicationservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uatbranch
+
+        - context: ./schedulerservice
+          version: schedulerservice
+          perApplication: false
+          dockerfilePath: ./schedulerservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-uatbranch
+
+    finally:
+      tag:
+        enabled: false
+
+
+  - name: Harness-main-test-prb
+    branchName: main
+    machine:
+      baseImage: docker.harness.io/base-images/ubi8/java17-builder:latest
+      env:
+        RUNTIME_JDK_VERSION: 17
+    build:
+      template: freestyle:v4:prb
+      steps:
+        - ./mvnw clean package -Dmaven.test.skip=true
+    reports:
+      findbugs: true
+      jacoco:
+        exec: '**/target/jacoco.exec'
+        src: '**/src/main/java'
+        classes: '**/target/classes'
+    package:
+      release: true
+      dockerfile:
+        - context: ./aggregatorservice
+          version: aggregatorservice
+          extraTags: ["0.1.0.-${RIO_BUILD_NUMBER}"]
+          perApplication: false
+          dockerfilePath: ./aggregatorservice/Dockerfile
+          env:
+            RIO_APP_DIR: .
+          publish:
+            - repo: docker.harness.io/cloudtech-security/harness-dev
