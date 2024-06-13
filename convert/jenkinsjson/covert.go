@@ -85,8 +85,9 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	dst := &harness.Pipeline{}
 
 	stepsInStage := make([]*harness.Step, 0)
+	processedTool := false
 
-	recursiveParseJsonToSteps(pipelineJson, &stepsInStage)
+	recursiveParseJsonToSteps(pipelineJson, &stepsInStage, &processedTool)
 
 	// create the harness stage.
 	dstStage := &harness.Stage{
@@ -151,31 +152,31 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	return nil, nil
 }
 
-func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.Step) (*harness.CloneStage, *harness.Repository) {
+func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.Step, toolProcessed *bool) (*harness.CloneStage, *harness.Repository) {
 	var clone *harness.CloneStage
 	var repo *harness.Repository
 
 	if len(currentNode.AttributesMap) == 0 {
 		for _, child := range currentNode.Children {
-			clone, repo = recursiveParseJsonToSteps(child, steps)
+			clone, repo = recursiveParseJsonToSteps(child, steps, toolProcessed)
 		}
 	}
 
 	switch currentNode.AttributesMap["jenkins.pipeline.step.type"] {
-	case "node", "parallel":
-		// node and parallel are wrapper layer to hold actual steps
-		// parallel should be handled at it's parent
+	case "node", "parallel", "withEnv", "withMaven":
+		// node, parallel, withEnv, and withMaven are wrapper layers to hold actual steps
+		// parallel should be handled at its parent
 		for _, child := range currentNode.Children {
-			clone, repo = recursiveParseJsonToSteps(child, steps)
+			clone, repo = recursiveParseJsonToSteps(child, steps, toolProcessed)
 		}
 	case "stage":
-		// this is techinically a step group, we treat it as just steps for now
+		// this is technically a step group, we treat it as just steps for now
 		if len(currentNode.Children) > 1 {
 			// handle parallel from parent
 			if currentNode.Children[0].AttributesMap["jenkins.pipeline.step.type"] == "parallel" {
 				parallelStepItems := make([]*harness.Step, 0)
 				for _, child := range currentNode.Children {
-					clone, repo = recursiveParseJsonToSteps(child, &parallelStepItems)
+					clone, repo = recursiveParseJsonToSteps(child, &parallelStepItems, toolProcessed)
 				}
 				parallelStep := &harness.Step{
 					Name: currentNode.SpanName,
@@ -188,73 +189,76 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 				*steps = append(*steps, parallelStep)
 			} else {
 				for _, child := range currentNode.Children {
-					clone, repo = recursiveParseJsonToSteps(child, steps)
+					clone, repo = recursiveParseJsonToSteps(child, steps, toolProcessed)
 				}
 			}
 		} else {
 			for _, child := range currentNode.Children {
-				clone, repo = recursiveParseJsonToSteps(child, steps)
+				clone, repo = recursiveParseJsonToSteps(child, steps, toolProcessed)
 			}
 		}
 	case "tool":
-		toolName := ""
-		toolType := ""
-		if attr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
-			toolAttributes := make(map[string]string)
-			if err := json.Unmarshal([]byte(attr), &toolAttributes); err == nil {
-				toolName = toolAttributes["name"]
-				fullToolType := toolAttributes["type"]
-				if parts := strings.Split(fullToolType, "$"); len(parts) > 1 {
-					toolType = parts[1]
-				} else {
-					toolType = fullToolType
+		if !*toolProcessed {
+			toolName := ""
+			toolType := ""
+			if attr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
+				toolAttributes := make(map[string]string)
+				if err := json.Unmarshal([]byte(attr), &toolAttributes); err == nil {
+					toolName = toolAttributes["name"]
+					fullToolType := toolAttributes["type"]
+					if parts := strings.Split(fullToolType, "$"); len(parts) > 1 {
+						toolType = parts[1]
+					} else {
+						toolType = fullToolType
+					}
 				}
 			}
+			var toolStep *harness.Step
+			switch toolType {
+			case "MavenInstallation":
+				toolStep = &harness.Step{
+					Name: "maven-plugin",
+					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Type: "plugin",
+					Spec: &harness.StepPlugin{
+						Connector: "c.docker",
+						Image:     "docker.io/kameshsampath/drone-java-maven-plugin:v1.0.0",
+					},
+				}
+			case "GradleInstallation":
+				toolStep = &harness.Step{
+					Name: "gradle-plugin",
+					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Type: "plugin",
+					Spec: &harness.StepPlugin{
+						Connector: "c.docker",
+						Image:     "rakshitagar/drone-gradle-plugin:v0.1.2",
+					},
+				}
+			case "AntInstallation":
+				toolStep = &harness.Step{
+					Name: "ant-plugin",
+					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Type: "plugin",
+					Spec: &harness.StepPlugin{
+						Connector: "c.docker",
+						Image:     "rakshitagar/drone-ant-plugin:v0.2.0",
+					},
+				}
+			default:
+				toolStep = &harness.Step{
+					Name: currentNode.SpanName,
+					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Type: "script",
+					Spec: &harness.StepExec{
+						Shell: "sh",
+						Run:   fmt.Sprintf("echo 'This is a placeholder for tool: %s of type: %s'", toolName, toolType),
+					},
+				}
+			}
+			*steps = append(*steps, toolStep)
+			*toolProcessed = true
 		}
-		var toolStep *harness.Step
-		switch toolType {
-		case "MavenInstallation":
-			toolStep = &harness.Step{
-				Name: currentNode.SpanName,
-				Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
-				Type: "plugin",
-				Spec: &harness.StepPlugin{
-					Connector: "c.docker",
-					Image:     "docker.io/kameshsampath/drone-java-maven-plugin:v1.0.0",
-				},
-			}
-		case "GradleInstallation":
-			toolStep = &harness.Step{
-				Name: currentNode.SpanName,
-				Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
-				Type: "plugin",
-				Spec: &harness.StepPlugin{
-					Connector: "c.docker",
-					Image:     "your-gradle-plugin-image:tag",
-				},
-			}
-		case "AntInstallation":
-			toolStep = &harness.Step{
-				Name: currentNode.SpanName,
-				Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
-				Type: "plugin",
-				Spec: &harness.StepPlugin{
-					Connector: "c.docker",
-					Image:     "your-ant-plugin-image:tag",
-				},
-			}
-		default:
-			toolStep = &harness.Step{
-				Name: currentNode.SpanName,
-				Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
-				Type: "script",
-				Spec: &harness.StepExec{
-					Shell: "sh",
-					Run:   fmt.Sprintf("echo 'This is a placeholder for tool: %s of type: %s'", toolName, toolType),
-				},
-			}
-		}
-		*steps = append(*steps, toolStep)
 	case "sh":
 		*steps = append(*steps, jenkinsjson.ConvertSh(currentNode))
 	case "archiveArtifacts":
