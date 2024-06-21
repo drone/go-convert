@@ -36,13 +36,15 @@ type context struct {
 }
 
 type ProcessedTools struct {
-	ToolProcessed   bool
-	MavenPresent    bool
-	GradlePresent   bool
-	AntPresent      bool
-	MavenProcessed  bool
-	GradleProcessed bool
-	AntProcessed    bool
+	ToolProcessed      bool
+	MavenPresent       bool
+	GradlePresent      bool
+	AntPresent         bool
+	MavenProcessed     bool
+	GradleProcessed    bool
+	AntProcessed       bool
+	SonarCubeProcessed bool
+	SonarCubePresent   bool
 }
 
 var mavenGoals string
@@ -97,28 +99,8 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	// create the harness pipeline spec
 	dst := &harness.Pipeline{}
 
-	stepsInStage := make([]*harness.Step, 0)
-
-	recursiveParseJsonToSteps(pipelineJson, &stepsInStage, &ProcessedTools{false, false, false, false, false, false, false})
-
-	// create the harness stage.
-	dstStage := &harness.Stage{
-		Name: pipelineJson.Name,
-		Id:   SanitizeForId(pipelineJson.SpanName, pipelineJson.SpanId),
-		Type: "ci",
-		// When: convertCond(from.Trigger),
-		Spec: &harness.StageCI{
-			// Delegate: convertNode(from.Node),
-			// Envs: convertVariables(ctx.config.Variables),
-			// Platform: convertPlatform(from.Platform),
-			// Runtime:  convertRuntime(from),
-			Steps: stepsInStage, // Initialize the Steps slice
-			// Clone: clone,
-			// Repository: repo,
-		},
-	}
-	dst.Stages = append(dst.Stages, dstStage)
-
+	processedTools := &ProcessedTools{false, false, false, false, false, false, false, false, false}
+	recursiveParseJsonToStages(&pipelineJson, dst, processedTools)
 	// create the harness pipeline resource
 	config := &harness.Config{
 		Version: 1,
@@ -132,6 +114,41 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	}
 
 	return out, nil
+}
+
+// Recursive function to parse JSON nodes into stages and steps
+func recursiveParseJsonToStages(jsonNode *jenkinsjson.Node, dst *harness.Pipeline, processedTools *ProcessedTools) {
+	for _, childNode := range jsonNode.Children {
+		if childNode.AttributesMap["jenkins.pipeline.step.type"] == "stage" {
+			stageName, ok := childNode.ParameterMap["name"].(string)
+			if !ok || stageName == "" {
+				stageName = "Unnamed Stage"
+			}
+
+			// Skip stages with the name "Declarative Tool Install" since this does not conatin any step
+			if stageName == "Declarative: Tool Install" {
+				fmt.Println("Skipping stage with name:", stageName)
+				continue
+			}
+
+			stepsInStage := make([]*harness.Step, 0)
+			recursiveParseJsonToSteps(childNode, &stepsInStage, processedTools)
+
+			// Create the harness stage for each Jenkins stage
+			dstStage := &harness.Stage{
+				Name: stageName,
+				Id:   SanitizeForId(childNode.SpanName, childNode.SpanId),
+				Type: "ci",
+				Spec: &harness.StageCI{
+					Steps: stepsInStage,
+				},
+			}
+			dst.Stages = append(dst.Stages, dstStage)
+		} else {
+			// Recursively process the children
+			recursiveParseJsonToStages(&childNode, dst, processedTools)
+		}
+	}
 }
 
 // ConvertBytes downgrades a v1 pipeline.
@@ -165,7 +182,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 }
 
 func extractToolType(fullToolType string) string {
-	knownToolTypes := []string{"MavenInstallation", "GradleInstallation", "AntInstallation"}
+	knownToolTypes := []string{"MavenInstallation", "GradleInstallation", "AntInstallation", "SonarRunnerInstallation"}
 	for _, knownType := range knownToolTypes {
 		if strings.HasSuffix(fullToolType, knownType) {
 			return knownType
@@ -192,7 +209,7 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	if processedTools.MavenPresent {
 		for _, child := range currentNode.Children {
 			if child.AttributesMap["jenkins.pipeline.step.type"] == "withMaven" {
-				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "maven", "maven-plugin", "rakshitagar/drone-maven-plugin:v0.2.0")
+				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "maven", "maven", "rakshitagar/drone-maven-plugin:v0.2.0")
 			}
 		}
 	}
@@ -200,7 +217,7 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	if processedTools.GradlePresent {
 		for _, child := range currentNode.Children {
 			if child.AttributesMap["jenkins.pipeline.step.type"] == "withGradle" {
-				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "gradle", "gradle-plugin", "rakshitagar/drone-gradle-plugin:v0.2.0")
+				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "gradle", "gradle", "rakshitagar/drone-gradle-plugin:v0.2.0")
 			}
 		}
 	}
@@ -208,13 +225,17 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	if processedTools.AntPresent {
 		for _, child := range currentNode.Children {
 			if child.AttributesMap["jenkins.pipeline.step.type"] == "wrap" {
-				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "ant", "ant-plugin", "rakshitagar/drone-ant-plugin:v0.2.0")
+				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "ant", "ant", "rakshitagar/drone-ant-plugin:v0.2.0")
 			}
 		}
 	}
 
+	if !processedTools.SonarCubeProcessed && !processedTools.SonarCubePresent {
+		clone, repo = recursiveHandleSonarCube(currentNode, steps, processedTools, "sonarCube", "sonarCube", "aosapps/drone-sonar-plugin")
+	}
+
 	switch currentNode.AttributesMap["jenkins.pipeline.step.type"] {
-	case "node", "parallel", "withEnv":
+	case "node", "parallel", "withEnv", "script":
 		// node, parallel, withEnv, and withMaven are wrapper layers to hold actual steps
 		// parallel should be handled at its parent
 		for _, child := range currentNode.Children {
@@ -250,6 +271,20 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 		}
 	case "sh":
 		*steps = append(*steps, jenkinsjson.ConvertSh(currentNode))
+	case "checkout":
+		*steps = append(*steps, &harness.Step{
+			Name: currentNode.SpanName,
+			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+			Type: "plugin",
+			Spec: &harness.StepPlugin{
+				Image: "checkout_plugin",
+				With: map[string]interface{}{
+					"platform": currentNode.AttributesMap["net.peer.name"],
+					"git_url":  currentNode.AttributesMap["http.url"],
+					"branch":   currentNode.AttributesMap["git.branch"],
+				},
+			},
+		})
 	case "archiveArtifacts":
 		*steps = append(*steps, jenkinsjson.ConvertArchive(currentNode)...)
 	case "junit":
@@ -278,7 +313,6 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 func recursiveHandleWithTool(currentNode jenkinsjson.Node, steps *[]*harness.Step, processedTools *ProcessedTools, toolType string, pluginName string, pluginImage string) (*harness.CloneStage, *harness.Repository) {
 	var clone *harness.CloneStage
 	var repo *harness.Repository
-
 	for _, child := range currentNode.Children {
 		// Check if this child contains the type "sh"
 		stepType, ok := child.AttributesMap["jenkins.pipeline.step.type"]
@@ -338,26 +372,29 @@ func recursiveHandleWithTool(currentNode jenkinsjson.Node, steps *[]*harness.Ste
 }
 
 func handleTool(currentNode jenkinsjson.Node, processedTools *ProcessedTools) {
-	if attr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
-		toolAttributes := make(map[string]string)
-		if err := json.Unmarshal([]byte(attr), &toolAttributes); err == nil {
-			fullToolType := toolAttributes["type"]
-			toolType := ""
-			if parts := strings.Split(fullToolType, "$"); len(parts) > 1 {
-				toolType = parts[1]
-			} else {
-				toolType = extractToolType(fullToolType)
-			}
+	// Check if this node is a "tool" node
+	if stepType, ok := currentNode.AttributesMap["jenkins.pipeline.step.type"]; ok && stepType == "tool" {
+		if attr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
+			toolAttributes := make(map[string]string)
+			if err := json.Unmarshal([]byte(attr), &toolAttributes); err == nil {
+				fullToolType := toolAttributes["type"]
+				toolType := ""
+				if parts := strings.Split(fullToolType, "$"); len(parts) > 1 {
+					toolType = parts[1]
+				} else {
+					toolType = extractToolType(fullToolType)
+				}
 
-			switch toolType {
-			case "MavenInstallation":
-				processedTools.MavenPresent = true
-			case "GradleInstallation":
-				processedTools.GradlePresent = true
-			case "AntInstallation":
-				processedTools.AntPresent = true
-			default:
-				processedTools.ToolProcessed = true
+				switch toolType {
+				case "MavenInstallation":
+					processedTools.MavenPresent = true
+				case "GradleInstallation":
+					processedTools.GradlePresent = true
+				case "AntInstallation":
+					processedTools.AntPresent = true
+				default:
+					processedTools.ToolProcessed = true
+				}
 			}
 		}
 	}
@@ -366,4 +403,51 @@ func handleTool(currentNode jenkinsjson.Node, processedTools *ProcessedTools) {
 	for _, child := range currentNode.Children {
 		handleTool(child, processedTools)
 	}
+}
+
+func recursiveHandleSonarCube(currentNode jenkinsjson.Node, steps *[]*harness.Step, processedTools *ProcessedTools, toolType string, pluginName string, pluginImage string) (*harness.CloneStage, *harness.Repository) {
+	var clone *harness.CloneStage
+	var repo *harness.Repository
+
+	// Check if this node contains the type "wrap" (for withSonarQubeEnv)
+	stepType, ok := currentNode.AttributesMap["jenkins.pipeline.step.type"]
+	if ok && stepType == "wrap" {
+		// Extract delegate information
+		delegate, delegateOk := currentNode.ParameterMap["delegate"]
+		if delegateOk {
+			symbol, symbolOk := delegate.(map[string]interface{})["symbol"].(string)
+			if symbolOk && symbol == "withSonarQubeEnv" {
+				// Handle withSonarQubeEnv step
+				toolStep := &harness.Step{
+					Name: pluginName,
+					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Type: "plugin",
+					Spec: &harness.StepPlugin{
+						Connector: "c.docker",
+						Image:     pluginImage,
+						With:      map[string]interface{}{"sonar_token": "<+input>", "sonar_host": "<+input>"},
+					},
+				}
+				*steps = append(*steps, toolStep)
+
+				// Mark the tool as processed
+				processedTools.SonarCubeProcessed = true
+				processedTools.SonarCubePresent = true
+
+				// Since we found and processed the withSonarQubeEnv step, return early
+				return clone, repo
+			}
+		}
+	}
+
+	// Recursively handle other child nodes
+	for _, child := range currentNode.Children {
+		clone, repo = recursiveHandleSonarCube(child, steps, processedTools, toolType, pluginName, pluginImage)
+		if clone != nil || repo != nil {
+			// If we found and processed the step, return
+			return clone, repo
+		}
+	}
+
+	return clone, repo
 }
