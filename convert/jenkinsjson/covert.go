@@ -21,6 +21,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
+	"strconv"
 	"strings"
 
 	harness "github.com/drone/spec/dist/go"
@@ -33,6 +35,12 @@ import (
 type context struct {
 	// config *jenkinsjson.Pipeline
 	// job    *jenkinsjson.Job
+}
+
+// Struct used to store the stages so they can be sorted
+type StageWithID struct {
+	Stage *harness.Stage
+	ID    int
 }
 
 type ProcessedTools struct {
@@ -118,18 +126,37 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 
 // Recursive function to parse JSON nodes into stages and steps
 func recursiveParseJsonToStages(jsonNode *jenkinsjson.Node, dst *harness.Pipeline, processedTools *ProcessedTools) {
+	stagesWithID := make([]StageWithID, 0)
+
+	// Collect all stages with their IDs
+	collectStagesWithID(jsonNode, &stagesWithID, processedTools)
+
+	// Sort the stages based on their IDs
+	sort.Slice(stagesWithID, func(i, j int) bool {
+		return stagesWithID[i].ID < stagesWithID[j].ID
+	})
+
+	// Append sorted stages to the pipeline
+	for _, stageWithID := range stagesWithID {
+		dst.Stages = append(dst.Stages, stageWithID.Stage)
+	}
+}
+
+func collectStagesWithID(jsonNode *jenkinsjson.Node, stagesWithID *[]StageWithID, processedTools *ProcessedTools) {
 	for _, childNode := range jsonNode.Children {
 		if childNode.AttributesMap["jenkins.pipeline.step.type"] == "stage" {
+
 			stageName, ok := childNode.ParameterMap["name"].(string)
 			if !ok || stageName == "" {
 				stageName = "Unnamed Stage"
 			}
 
-			// Skip stages with the name "Declarative Tool Install" since this does not conatin any step
+			// Skip stages with the name "Declarative Tool Install" since this does not contain any step
 			if stageName == "Declarative: Tool Install" {
-				fmt.Println("Skipping stage with name:", stageName)
 				continue
 			}
+
+			stageID := searchChildNodesForStageId(&childNode, stageName)
 
 			stepsInStage := make([]*harness.Step, 0)
 			recursiveParseJsonToSteps(childNode, &stepsInStage, processedTools)
@@ -143,12 +170,36 @@ func recursiveParseJsonToStages(jsonNode *jenkinsjson.Node, dst *harness.Pipelin
 					Steps: stepsInStage,
 				},
 			}
-			dst.Stages = append(dst.Stages, dstStage)
+
+			// Convert stageID to integer and store it with the stage
+			id, err := strconv.Atoi(stageID)
+			if err != nil {
+				fmt.Println("Error converting stage ID to integer:", err)
+				continue
+			}
+
+			*stagesWithID = append(*stagesWithID, StageWithID{Stage: dstStage, ID: id})
 		} else {
 			// Recursively process the children
-			recursiveParseJsonToStages(&childNode, dst, processedTools)
+			collectStagesWithID(&childNode, stagesWithID, processedTools)
 		}
 	}
+}
+
+func searchChildNodesForStageId(node *jenkinsjson.Node, stageName string) string {
+	for _, childNode := range node.Children {
+		if childNode.AttributesMap["jenkins.pipeline.step.type"] == "stage" {
+			name, ok := childNode.AttributesMap["jenkins.pipeline.step.name"]
+			if ok && name == stageName {
+				return childNode.AttributesMap["jenkins.pipeline.step.id"]
+			}
+		}
+		// Recursively search in the children
+		if id := searchChildNodesForStageId(&childNode, stageName); id != "" {
+			return id
+		}
+	}
+	return ""
 }
 
 // ConvertBytes downgrades a v1 pipeline.
@@ -209,7 +260,7 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	if processedTools.MavenPresent {
 		for _, child := range currentNode.Children {
 			if child.AttributesMap["jenkins.pipeline.step.type"] == "withMaven" {
-				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "maven", "maven", "rakshitagar/drone-maven-plugin:v0.2.0")
+				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "maven", "maven", "harnesscommunitytest/maven-plugin:latest")
 			}
 		}
 	}
@@ -217,7 +268,7 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	if processedTools.GradlePresent {
 		for _, child := range currentNode.Children {
 			if child.AttributesMap["jenkins.pipeline.step.type"] == "withGradle" {
-				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "gradle", "gradle", "rakshitagar/drone-gradle-plugin:v0.2.0")
+				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "gradle", "gradle", "harnesscommunitytest/gradle-plugin:latest")
 			}
 		}
 	}
@@ -225,7 +276,7 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	if processedTools.AntPresent {
 		for _, child := range currentNode.Children {
 			if child.AttributesMap["jenkins.pipeline.step.type"] == "wrap" {
-				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "ant", "ant", "rakshitagar/drone-ant-plugin:v0.2.0")
+				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "ant", "ant", "harnesscommunitytest/ant-plugin:latest")
 			}
 		}
 	}
@@ -279,9 +330,10 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 			Spec: &harness.StepPlugin{
 				Image: "checkout_plugin",
 				With: map[string]interface{}{
-					"platform": currentNode.AttributesMap["net.peer.name"],
+					"platform": currentNode.AttributesMap["peer.service"],
 					"git_url":  currentNode.AttributesMap["http.url"],
 					"branch":   currentNode.AttributesMap["git.branch"],
+					"depth":    currentNode.AttributesMap["git.clone.depth"],
 				},
 			},
 		})
@@ -290,9 +342,33 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	case "junit":
 		*steps = append(*steps, jenkinsjson.ConvertJunit(currentNode))
 	case "git":
-		fmt.Println("inside the Git step")
 	case "sleep":
 		*steps = append(*steps, jenkinsjson.ConvertSleep(currentNode))
+	case "dir":
+		dirPath := currentNode.ParameterMap["path"].(string)
+		*steps = append(*steps, &harness.Step{
+			Name: "Deletingdir",
+			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+			Type: "script",
+			Spec: &harness.StepExec{
+				Shell: "sh",
+				Run:   fmt.Sprintf("rm -rf %s", dirPath),
+			},
+		})
+	case "deleteDir":
+		*steps = append(*steps, &harness.Step{
+			Name: "Deletingdir",
+			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+			Type: "script",
+			Spec: &harness.StepExec{
+				Shell: "sh",
+				Run: `
+					dir_to_delete=$(pwd)
+					cd ..
+					rm -rf $dir_to_delete
+					`,
+			},
+		})
 	case "":
 	case "withMaven", "withGradle", "withAnt", "tool", "envVarsForTool", "wrap":
 	default:
