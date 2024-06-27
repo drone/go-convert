@@ -340,6 +340,75 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 					`,
 			},
 		})
+	case "writeFile":
+		var text string
+		var file string
+		if attr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
+			var attrMap map[string]interface{}
+			if err := json.Unmarshal([]byte(attr), &attrMap); err == nil {
+				if f, ok := attrMap["file"].(string); ok {
+					file = f
+				}
+				if t, ok := attrMap["text"].(string); ok {
+					text = t
+				}
+			}
+		}
+		*steps = append(*steps, &harness.Step{
+			Name: currentNode.SpanName,
+			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+			Type: "script",
+			Spec: &harness.StepExec{
+				Shell: "sh",
+				Run:   fmt.Sprintf("printf '%s' > %s", text, file),
+			},
+		})
+	case "readFile":
+		var file string
+		if attr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
+			var attrMap map[string]interface{}
+			if err := json.Unmarshal([]byte(attr), &attrMap); err == nil {
+				if f, ok := attrMap["file"].(string); ok {
+					file = f
+				}
+			}
+		}
+		*steps = append(*steps, &harness.Step{
+			Name: currentNode.SpanName,
+			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+			Type: "script",
+			Spec: &harness.StepExec{
+				Shell: "sh",
+				Run:   fmt.Sprintf("cat %s", file),
+			},
+		})
+	case "synopsys_detect":
+		var detectProperties string
+		if attr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
+			var attrMap map[string]interface{}
+			if err := json.Unmarshal([]byte(attr), &attrMap); err == nil {
+				if props, ok := attrMap["detectProperties"].(string); ok {
+					detectProperties = props
+				}
+			}
+		}
+
+		parsedProperties := parseDetectProperties(detectProperties)
+		withProperties := make(map[string]interface{})
+		for key, value := range parsedProperties {
+			withProperties[key] = value
+		}
+
+		*steps = append(*steps, &harness.Step{
+			Name: currentNode.SpanName,
+			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+			Type: "plugin",
+			Spec: &harness.StepPlugin{
+				Connector: "c.docker",
+				Image:     "harnesscommunitytest/synopsys-detect:latest",
+				With:      withProperties,
+			},
+		})
 	case "":
 	case "withAnt", "tool", "envVarsForTool":
 	case "withMaven":
@@ -509,4 +578,43 @@ func recursiveHandleSonarCube(currentNode jenkinsjson.Node, steps *[]*harness.St
 	}
 
 	return clone, repo
+}
+
+func parseDetectProperties(detectProperties string) map[string]string {
+	properties := map[string]string{
+		"blackduck_url":             "--blackduck.url=",
+		"blackduck_token":           "--blackduck.api.token=",
+		"blackduck_project":         "--detect.project.name=",
+		"blackduck_offline_mode":    "--blackduck.offline.mode=",
+		"blackduck_test_connection": "--detect.test.connection=",
+		"blackduck_offline_bdio":    "--blackduck.offline.mode.force.bdio=",
+		"blackduck_trust_certs":     "--blackduck.trust.cert=",
+		"blackduck_timeout":         "--detect.timeout=",
+		"blackduck_scan_mode":       "--detect.blackduck.scan.mode=",
+	}
+
+	parsedProperties := make(map[string]string)
+	remainingProperties := detectProperties
+
+	for key, prefix := range properties {
+		startIndex := strings.Index(detectProperties, prefix)
+		if startIndex != -1 {
+			startIndex += len(prefix)
+			endIndex := strings.Index(detectProperties[startIndex:], " ")
+			if endIndex == -1 {
+				endIndex = len(detectProperties)
+			} else {
+				endIndex += startIndex
+			}
+			parsedProperties[key] = detectProperties[startIndex:endIndex]
+			remainingProperties = strings.Replace(remainingProperties, prefix+parsedProperties[key], "", 1)
+		}
+	}
+
+	remainingProperties = strings.TrimSpace(remainingProperties)
+	if remainingProperties != "" {
+		parsedProperties["blackduck_properties"] = remainingProperties
+	}
+
+	return parsedProperties
 }
