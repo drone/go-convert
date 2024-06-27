@@ -256,35 +256,6 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	// Handle all tool nodes at the beginning
 	handleTool(currentNode, processedTools)
 
-	// Search for withMaven only when you found the Maven tools Used under the Tools section
-	if processedTools.MavenPresent {
-		for _, child := range currentNode.Children {
-			if child.AttributesMap["jenkins.pipeline.step.type"] == "withMaven" {
-				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "maven", "maven", "harnesscommunitytest/maven-plugin:latest")
-			}
-		}
-	}
-
-	if processedTools.GradlePresent {
-		for _, child := range currentNode.Children {
-			if child.AttributesMap["jenkins.pipeline.step.type"] == "withGradle" {
-				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "gradle", "gradle", "harnesscommunitytest/gradle-plugin:latest")
-			}
-		}
-	}
-
-	if processedTools.AntPresent {
-		for _, child := range currentNode.Children {
-			if child.AttributesMap["jenkins.pipeline.step.type"] == "wrap" {
-				clone, repo = recursiveHandleWithTool(child, steps, processedTools, "ant", "ant", "harnesscommunitytest/ant-plugin:latest")
-			}
-		}
-	}
-
-	if !processedTools.SonarCubeProcessed && !processedTools.SonarCubePresent {
-		clone, repo = recursiveHandleSonarCube(currentNode, steps, processedTools, "sonarCube", "sonarCube", "aosapps/drone-sonar-plugin")
-	}
-
 	switch currentNode.AttributesMap["jenkins.pipeline.step.type"] {
 	case "node", "parallel", "withEnv", "script":
 		// node, parallel, withEnv, and withMaven are wrapper layers to hold actual steps
@@ -370,7 +341,19 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 			},
 		})
 	case "":
-	case "withMaven", "withGradle", "withAnt", "tool", "envVarsForTool", "wrap":
+	case "withAnt", "tool", "envVarsForTool":
+	case "withMaven":
+		clone, repo = recursiveHandleWithTool(currentNode, steps, processedTools, "maven", "maven", "harnesscommunitytest/maven-plugin:latest")
+	case "withGradle":
+		clone, repo = recursiveHandleWithTool(currentNode, steps, processedTools, "gradle", "gradle", "harnesscommunitytest/gradle-plugin:latest")
+	case "wrap":
+		if !processedTools.SonarCubeProcessed && !processedTools.SonarCubePresent {
+			clone, repo = recursiveHandleSonarCube(currentNode, steps, processedTools, "sonarCube", "sonarCube", "aosapps/drone-sonar-plugin")
+		}
+		if processedTools.AntPresent {
+			clone, repo = recursiveHandleWithTool(currentNode, steps, processedTools, "ant", "ant", "harnesscommunitytest/ant-plugin:latest")
+		}
+
 	default:
 		*steps = append(*steps, &harness.Step{
 			Name: currentNode.SpanName,
