@@ -556,21 +556,38 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 	if src.Name == "" {
 		src.Name = id
 	}
-	return &v0.Step{
-		ID:      id,
-		Name:    src.Name,
-		Type:    v0.StepTypePlugin,
-		Timeout: convertTimeout(src.Timeout),
-		Spec: &v0.StepPlugin{
-			Env:             spec_.Envs,
-			ConnRef:         d.dockerhubConn,
-			Image:           spec_.Image,
-			ImagePullPolicy: convertImagePull(spec_.Pull),
-			Settings:        convertSettings(spec_.With),
-			Privileged:      spec_.Privileged,
-			RunAsUser:       spec_.User,
-		},
-		When: convertStepWhen(src.When, id),
+	if spec_.Image == "checkout_plugin" {
+		fmt.Println("Found the checkout plugin")
+		setting := convertSettings(spec_.With)
+		return &v0.Step{
+			ID:   id,
+			Name: "GitClone",
+			Type: v0.StepTypeGitClone,
+
+			Spec: &v0.StepGitClone{
+				Repository:     setting["git_url"].(string),
+				BuildType:      "<+input>",
+				CloneDirectory: setting["branch"].(string),
+			},
+			When: convertStepWhen(src.When, id),
+		}
+	} else {
+		return &v0.Step{
+			ID:      id,
+			Name:    src.Name,
+			Type:    v0.StepTypePlugin,
+			Timeout: convertTimeout(src.Timeout),
+			Spec: &v0.StepPlugin{
+				Env:             spec_.Envs,
+				ConnRef:         d.dockerhubConn,
+				Image:           spec_.Image,
+				ImagePullPolicy: convertImagePull(spec_.Pull),
+				Settings:        convertSettings(spec_.With),
+				Privileged:      spec_.Privileged,
+				RunAsUser:       spec_.User,
+			},
+			When: convertStepWhen(src.When, id),
+		}
 	}
 }
 
