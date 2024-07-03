@@ -135,6 +135,19 @@ type (
 		Settings        map[string]interface{} `json:"settings,omitempty"        yaml:"settings,omitempty"`
 	}
 
+	StepGitClone struct {
+		Repository     string     `json:"repoName,omitempty"    yaml:"repoNama,omitempty"`
+		ConnRef        string     `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
+		BuildType      string     `json:"build,omitempty"    yaml:"build,omitempty"`
+		CloneDirectory string     `json:"cloneDirectory,omitempty"    yaml:"cloneDirectory,omitempty"`
+		Privileged     bool       `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
+		Depth          string     `json:"depth,omitempty"    yaml:"cloneDirectory,omitempty"`
+		Resources      *Resources `json:"resources,omitempty"       yaml:"resources,omitempty"`
+		SSLVerify      string     `json:"sslVerify,omitempty"    yaml:"cloneDirectory,omitempty"`
+		RunAsUser      string     `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
+		Timeout        string     `json:"timeout,omitempty"    yaml:"cloneDirectory,omitempty"`
+	}
+
 	StepAction struct {
 		Uses string                 `json:"uses,omitempty"            yaml:"uses,omitempty"`
 		With map[string]interface{} `json:"with,omitempty"            yaml:"with,omitempty"`
