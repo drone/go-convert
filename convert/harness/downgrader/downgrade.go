@@ -229,14 +229,14 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		// a group step, so we append all steps in
 		// the group directly to the stage to emulate
 		// this behavior.
-		if _, ok := v.Spec.(*v1.StepGroup); ok {
-			steps = append(steps, d.convertStepGroup(v, 10)...)
+		// if _, ok := v.Spec.(*v1.StepGroup); ok {
+		// 	steps = append(steps, d.convertStepGroup(v)...)
 
-		} else {
-			// else convert the step and append to
-			// the stage.
-			steps = append(steps, d.convertStep(v))
-		}
+		// } else {
+		// 	// else convert the step and append to
+		// 	// the stage.
+		steps = append(steps, d.convertStep(v))
+		// }
 	}
 
 	// enable clone by default
@@ -399,6 +399,8 @@ func (d *Downgrader) convertStep(src *v1.Step) *v0.Steps {
 		return &v0.Steps{Step: d.convertStepBitrise(src)}
 	case *v1.StepParallel:
 		return &v0.Steps{Parallel: d.convertStepParallel(src)}
+	case *v1.StepGroup:
+		return &v0.Steps{StepGroup: d.convertStepGroup(src)}
 	case *v1.StepBackground:
 		return &v0.Steps{Step: d.convertStepBackground(src)}
 	default:
@@ -409,24 +411,20 @@ func (d *Downgrader) convertStep(src *v1.Step) *v0.Steps {
 // helper function to convert a Group step from the v1
 // structure to a list of steps. The v0 yaml does not have
 // an equivalent to the group step.
-func (d *Downgrader) convertStepGroup(src *v1.Step, depth int) []*v0.Steps {
-	if depth > MaxDepth {
-		return nil // Reached maximum depth. Stop recursion to prevent stack overflow
-	}
+func (d *Downgrader) convertStepGroup(src *v1.Step) *v0.StepGroup {
 	spec_ := src.Spec.(*v1.StepGroup)
 
 	var steps []*v0.Steps
 	for _, step := range spec_.Steps {
-		// If this step is a step group, recursively convert it
-		if _, ok := step.Spec.(*v1.StepGroup); ok {
-			steps = append(steps, d.convertStepGroup(step, depth+1)...)
-		} else {
-			// Else, convert the step
-			dst := d.convertStep(step)
-			steps = append(steps, &v0.Steps{Step: dst.Step})
-		}
+		dst := d.convertStep(step)
+		steps = append(steps, &v0.Steps{Step: dst.Step})
 	}
-	return steps
+	return &v0.StepGroup{
+		ID:      src.Id,
+		Name:    convertName(src.Name),
+		Timeout: convertTimeout(src.Timeout),
+		Steps:   steps,
+	}
 }
 
 // helper function to convert a Parallel step from the v1

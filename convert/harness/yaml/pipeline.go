@@ -96,8 +96,9 @@ type (
 	}
 
 	Steps struct {
-		Step     *Step    `json:"step,omitempty" yaml:"step,omitempty"` // Un-necessary
-		Parallel []*Steps `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+		Step      *Step      `json:"step,omitempty" yaml:"step,omitempty"` // Un-necessary
+		Parallel  []*Steps   `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+		StepGroup *StepGroup `json:"stepGroup,omitempty" yaml:"stepGroup,omitempty"`
 	}
 
 	Report struct {

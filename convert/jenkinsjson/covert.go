@@ -21,8 +21,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"sort"
-	"strconv"
 	"strings"
 
 	harness "github.com/drone/spec/dist/go"
@@ -126,23 +124,30 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 
 // Recursive function to parse JSON nodes into stages and steps
 func recursiveParseJsonToStages(jsonNode *jenkinsjson.Node, dst *harness.Pipeline, processedTools *ProcessedTools) {
-	stagesWithID := make([]StageWithID, 0)
-
 	// Collect all stages with their IDs
-	collectStagesWithID(jsonNode, &stagesWithID, processedTools)
+	processedSteps := collectStagesWithID(jsonNode, processedTools)
 
 	// Sort the stages based on their IDs
-	sort.Slice(stagesWithID, func(i, j int) bool {
-		return stagesWithID[i].ID < stagesWithID[j].ID
-	})
+	// sort.Slice(stagesWithID, func(i, j int) bool {
+	// 	return stagesWithID[i].ID < stagesWithID[j].ID
+	// })
 
-	// Append sorted stages to the pipeline
-	for _, stageWithID := range stagesWithID {
-		dst.Stages = append(dst.Stages, stageWithID.Stage)
+	spec := &harness.StageCI{
+		Steps: processedSteps,
 	}
+
+	stage := &harness.Stage{
+		Name: "build",
+		Id:   "build",
+		Type: "ci",
+		Spec: spec,
+	}
+
+	dst.Stages = append(dst.Stages, stage)
 }
 
-func collectStagesWithID(jsonNode *jenkinsjson.Node, stagesWithID *[]StageWithID, processedTools *ProcessedTools) {
+func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTools) []*harness.Step {
+	stagesWithID := make([]*harness.Step, 0)
 	for _, childNode := range jsonNode.Children {
 		if childNode.AttributesMap["jenkins.pipeline.step.type"] == "stage" {
 
@@ -156,34 +161,35 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, stagesWithID *[]StageWithID
 				continue
 			}
 
-			stageID := searchChildNodesForStageId(&childNode, stageName)
+			searchChildNodesForStageId(&childNode, stageName)
 
 			stepsInStage := make([]*harness.Step, 0)
 			recursiveParseJsonToSteps(childNode, &stepsInStage, processedTools)
 
 			// Create the harness stage for each Jenkins stage
-			dstStage := &harness.Stage{
+			dstStep := &harness.Step{
 				Name: stageName,
 				Id:   SanitizeForId(childNode.SpanName, childNode.SpanId),
-				Type: "ci",
-				Spec: &harness.StageCI{
+				Type: "group",
+				Spec: &harness.StepGroup{
 					Steps: stepsInStage,
 				},
 			}
 
 			// Convert stageID to integer and store it with the stage
-			id, err := strconv.Atoi(stageID)
-			if err != nil {
-				fmt.Println("Error converting stage ID to integer:", err)
-				continue
-			}
+			// id, err := strconv.Atoi(stageID)
+			// if err != nil {
+			// 	fmt.Println("Error converting stage ID to integer:", err)
+			// 	continue
+			// }
 
-			*stagesWithID = append(*stagesWithID, StageWithID{Stage: dstStage, ID: id})
+			stagesWithID = append(stagesWithID, dstStep)
 		} else {
 			// Recursively process the children
-			collectStagesWithID(&childNode, stagesWithID, processedTools)
+			stagesWithID = append(stagesWithID, collectStagesWithID(&childNode, processedTools)...)
 		}
 	}
+	return stagesWithID
 }
 
 func searchChildNodesForStageId(node *jenkinsjson.Node, stageName string) string {
