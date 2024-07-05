@@ -33,6 +33,18 @@ type (
 		Strategy    *Strategy         `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
 	}
 
+	StepGroup struct { // TODO missing failure strategies
+		ID          string            `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
+		Description string            `json:"description,omitempty"       yaml:"description,omitempty"`
+		Name        string            `json:"name,omitempty"              yaml:"name,omitempty"`
+		Skip        string            `json:"skipCondition,omitempty"     yaml:"skipCondition,omitempty"`
+		Steps       []*Steps          `json:"steps,omitempty"              yaml:"steps,omitempty"`
+		Timeout     Duration          `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
+		When        *StepWhen         `json:"when,omitempty"              yaml:"when,omitempty"`
+		Env         map[string]string `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
+		Strategy    *Strategy         `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
+	}
+
 	//
 	// Step specifications
 	//
