@@ -271,9 +271,18 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 			clone, repo = recursiveParseJsonToSteps(child, steps, processedTools, variables)
 		}
 	case "withEnv":
+		if variables == nil {
+			variables = make(map[string]string)
+		}
 		var1 := ExtractEnvironmentVariables(currentNode)
 		if len(var1) > 0 {
-			variables = var1
+			// Merge var1 into variables
+			for key, value := range var1 {
+				// Check if the key already exists in variables
+				if _, exists := variables[key]; !exists {
+					variables[key] = value
+				}
+			}
 		}
 		for _, child := range currentNode.Children {
 			clone, repo = recursiveParseJsonToSteps(child, steps, processedTools, variables)
