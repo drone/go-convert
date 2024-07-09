@@ -271,21 +271,11 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 			clone, repo = recursiveParseJsonToSteps(child, steps, processedTools, variables)
 		}
 	case "withEnv":
-		if variables == nil {
-			variables = make(map[string]string)
-		}
 		var1 := ExtractEnvironmentVariables(currentNode)
-		if len(var1) > 0 {
-			// Merge var1 into variables
-			for key, value := range var1 {
-				// Check if the key already exists in variables
-				if _, exists := variables[key]; !exists {
-					variables[key] = value
-				}
-			}
-		}
+		combinedVariables := mergeMaps(variables, var1)
+
 		for _, child := range currentNode.Children {
-			clone, repo = recursiveParseJsonToSteps(child, steps, processedTools, variables)
+			clone, repo = recursiveParseJsonToSteps(child, steps, processedTools, combinedVariables)
 		}
 
 	case "stage":
@@ -406,6 +396,17 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 		})
 	}
 	return clone, repo
+}
+
+func mergeMaps(dest, src map[string]string) map[string]string {
+	result := make(map[string]string)
+	for key, value := range dest {
+		result[key] = value
+	}
+	for key, value := range src {
+		result[key] = value
+	}
+	return result
 }
 
 func ExtractEnvironmentVariables(node jenkinsjson.Node) map[string]string {
