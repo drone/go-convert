@@ -331,38 +331,9 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	case "sleep":
 		*steps = append(*steps, jenkinsjson.ConvertSleep(currentNode, variables))
 	case "dir":
-		dirPath := currentNode.ParameterMap["path"].(string)
-		step := &harness.Step{
-			Name: "Deletingdir",
-			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
-			Type: "script",
-			Spec: &harness.StepExec{
-				Shell: "sh",
-				Run:   fmt.Sprintf("rm -rf %s", dirPath),
-			},
-		}
-		if len(variables) > 0 {
-			step.Spec.(*harness.StepExec).Envs = variables
-		}
-		*steps = append(*steps, step)
+		*steps = append(*steps, jenkinsjson.ConvertDir(currentNode, variables))
 	case "deleteDir":
-		step := &harness.Step{
-			Name: "Deletingdir",
-			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
-			Type: "script",
-			Spec: &harness.StepExec{
-				Shell: "sh",
-				Run: `
-					dir_to_delete=$(pwd)
-					cd ..
-					rm -rf $dir_to_delete
-					`,
-			},
-		}
-		if len(variables) > 0 {
-			step.Spec.(*harness.StepExec).Envs = variables
-		}
-		*steps = append(*steps, step)
+		*steps = append(*steps, jenkinsjson.ConvertDeleteDir(currentNode, variables))
 	case "writeFile":
 		*steps = append(*steps, jenkinsjson.ConvertWriteFile(currentNode, variables))
 	case "readFile":
