@@ -6,7 +6,7 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
-func ConvertJunit(node Node) *harness.Step {
+func ConvertJunit(node Node, variables map[string]string) *harness.Step {
 	// Extract the "testResults" parameter from the node
 	pathsString, ok := node.ParameterMap["testResults"].(string)
 	if !ok {
@@ -24,14 +24,18 @@ func ConvertJunit(node Node) *harness.Step {
 	}
 
 	// Create and return a Step with the specified properties
-	return &harness.Step{
+	junitStep := &harness.Step{
 		Name: node.SpanName,
 		Id:   SanitizeForId(node.SpanName, node.SpanId),
 		Type: "script",
 		Spec: &harness.StepExec{
-			Shell: "sh",
-			Run:   "echo 'This Step is to Upload JUNIT Reports'",
+			Shell:   "sh",
+			Run:     "echo 'This Step is to Upload JUNIT Reports'",
 			Reports: []*harness.Report{&report},
 		},
 	}
+	if len(variables) > 0 {
+		junitStep.Spec.(*harness.StepExec).Envs = variables
+	}
+	return junitStep
 }
