@@ -414,9 +414,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "withGradle":
 		clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "gradle", "gradle", "harnesscommunitytest/gradle-plugin:latest", variables)
 	case "wrap":
-		// if !processedTools.SonarCubeProcessed && !processedTools.SonarCubePresent {
-		// 	clone, repo = recursiveHandleSonarCube(currentNode, steps, processedTools, "sonarCube", "sonarCube", "aosapps/drone-sonar-plugin", variables)
-		// }
+		if !processedTools.SonarCubeProcessed && !processedTools.SonarCubePresent {
+			clone, repo = recursiveHandleSonarCube(currentNode, stepWithIDList, processedTools, "sonarCube", "sonarCube", "aosapps/drone-sonar-plugin", variables)
+		}
 		if processedTools.AntPresent {
 			clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "ant", "ant", "harnesscommunitytest/ant-plugin:latest", variables)
 		}
@@ -569,7 +569,7 @@ func handleTool(currentNode jenkinsjson.Node, processedTools *ProcessedTools) {
 	}
 }
 
-func recursiveHandleSonarCube(currentNode jenkinsjson.Node, steps *[]*harness.Step, processedTools *ProcessedTools, toolType string, pluginName string, pluginImage string, variables map[string]string) (*harness.CloneStage, *harness.Repository) {
+func recursiveHandleSonarCube(currentNode jenkinsjson.Node, stepWithIDList *[]StepWithID, processedTools *ProcessedTools, toolType string, pluginName string, pluginImage string, variables map[string]string) (*harness.CloneStage, *harness.Repository) {
 	var clone *harness.CloneStage
 	var repo *harness.Repository
 
@@ -592,11 +592,22 @@ func recursiveHandleSonarCube(currentNode jenkinsjson.Node, steps *[]*harness.St
 						With:      map[string]interface{}{"sonar_token": "<+input>", "sonar_host": "<+input>"},
 					},
 				}
+
+				stepId := currentNode.AttributesMap["jenkins.pipeline.step.id"]
+				var id int
+				if stepId != "" {
+					var err error
+					id, err = strconv.Atoi(stepId)
+					if err != nil {
+						fmt.Println("Error converting step ID to integer:", err)
+					}
+				}
+
 				if len(variables) > 0 {
 					toolStep.Spec.(*harness.StepPlugin).Envs = variables
 				}
 
-				*steps = append(*steps, toolStep)
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: toolStep, ID: id})
 
 				// Mark the tool as processed
 				processedTools.SonarCubeProcessed = true
@@ -610,7 +621,7 @@ func recursiveHandleSonarCube(currentNode jenkinsjson.Node, steps *[]*harness.St
 
 	// Recursively handle other child nodes
 	for _, child := range currentNode.Children {
-		clone, repo = recursiveHandleSonarCube(child, steps, processedTools, toolType, pluginName, pluginImage, variables)
+		clone, repo = recursiveHandleSonarCube(child, stepWithIDList, processedTools, toolType, pluginName, pluginImage, variables)
 		if clone != nil || repo != nil {
 			// If we found and processed the step, return
 			return clone, repo
