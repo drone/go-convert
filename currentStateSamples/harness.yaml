@@ -1,0 +1,157 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: build
+      name: build
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - stepGroup:
+              identifier: Stage_nullf2a391
+              name: Blackduck
+              steps:
+              - step:
+                  identifier: synopsysdetecta18d3f
+                  name: synopsys_detect
+                  spec:
+                    image: harnesscommunitytest/synopsys-detect:latest
+                    settings:
+                      blackduck_project: jenkinstestFinal
+                      blackduck_properties: --detect.project.version.name=v1.0
+                      blackduck_token: MzRkNDVkOWMtM2UzZS00OTgzLWE5ZmItOWNlOGI3NTlhZDZjOjVmNWE3NTE2LTdmYjYtNGNmMy05YmQyLWFkODRmNDNjYzhlMw==
+                      blackduck_url: https://harness.app.blackduck.com/
+                  timeout: ""
+                  type: Plugin
+              timeout: ""
+          - stepGroup:
+              identifier: Stage_null8b26ff
+              name: DeleteDirStep
+              steps:
+              - step:
+                  identifier: stagenull793f97
+                  name: Deletingdir
+                  spec:
+                    command: rm -rf target
+                    shell: Sh
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: sh87e10e
+                  name: sh
+                  spec:
+                    command: "\n                      mkdir -p target\n                      touch
+                      target/file4.txt\n                      touch target/file5.txt\n
+                      \                     touch target/file6.txt\n                    "
+                    shell: Sh
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: sh5eab50
+                  name: sh
+                  spec:
+                    command: ls
+                    shell: Sh
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: shd7aa43
+                  name: sh
+                  spec:
+                    command: ls
+                    shell: Sh
+                  timeout: ""
+                  type: Run
+              timeout: ""
+          - stepGroup:
+              identifier: Stage_null65fe59
+              name: Plugin Build
+              steps:
+              - step:
+                  identifier: checkoutgithubcomanshika2203combinedallbuilds022d7d
+                  name: GitClone
+                  spec:
+                    build: <+input>
+                    cloneDirectory: '*/main'
+                    repoName: https://github.com/Anshika2203/CombinedAllBuilds.git
+                  timeout: ""
+                  type: GitClone
+              - step:
+                  identifier: stagenulldfb97a
+                  name: ant
+                  spec:
+                    image: harnesscommunitytest/ant-plugin:latest
+                    settings:
+                      Goals: build
+                  timeout: ""
+                  type: Plugin
+              - step:
+                  identifier: stagenull465ec0
+                  name: maven
+                  spec:
+                    image: harnesscommunitytest/maven-plugin:latest
+                    settings:
+                      Goals: clean install package
+                  timeout: ""
+                  type: Plugin
+              - step:
+                  identifier: stagenulld14916
+                  name: gradle
+                  spec:
+                    image: harnesscommunitytest/gradle-plugin:latest
+                    settings:
+                      Goals: build
+                  timeout: ""
+                  type: Plugin
+              timeout: ""
+          - stepGroup:
+              identifier: Stage_null2caea2
+              name: Code Analysis
+              steps:
+              - step:
+                  identifier: stagenull6d86e2
+                  name: sonarCube
+                  spec:
+                    image: aosapps/drone-sonar-plugin
+                    settings:
+                      sonar_host: <+input>
+                      sonar_token: <+input>
+                  timeout: ""
+                  type: Plugin
+              timeout: ""
+          - stepGroup:
+              identifier: Stage_null7f7b1c
+              name: ReadWriteFile
+              steps:
+              - step:
+                  identifier: writefile6df2b8
+                  name: writeFile
+                  spec:
+                    command: "printf 'line1 \n\nline2\n\nline3' > output1.txt"
+                    shell: Sh
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: readfile196e9d
+                  name: readFile
+                  spec:
+                    command: cat output1.txt
+                    shell: Sh
+                  timeout: ""
+                  type: Run
+              timeout: ""
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI
