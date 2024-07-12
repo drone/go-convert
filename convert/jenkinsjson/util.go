@@ -17,6 +17,8 @@ package jenkinsjson
 import "regexp"
 
 func SanitizeForId(spanName string, spanId string) string {
+	spanName = regexp.MustCompile(`[: ]`).ReplaceAllString(spanName, "_")
+
 	// Replace invalid characters with underscores
 	invalidCharRegex := regexp.MustCompile("[^a-zA-Z0-9.-_]+")
 	sanitized := invalidCharRegex.ReplaceAllString(spanName, "_")
