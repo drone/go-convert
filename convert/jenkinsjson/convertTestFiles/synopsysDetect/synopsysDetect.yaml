@@ -2,6 +2,7 @@
     identifier: synopsysdetect66bb05
     name: synopsys_detect
     spec:
+      connectorRef: account.docker
       image: harnesscommunitytest/synopsys-detect:latest
       settings:
         blackduck_project: jenkinstest
