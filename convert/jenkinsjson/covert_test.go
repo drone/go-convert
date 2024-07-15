@@ -2,10 +2,12 @@ package jenkinsjson
 
 import (
 	"encoding/json"
+	harness "github.com/drone/spec/dist/go"
 	jenkinsjson "github.com/jamie-harness/go-convert/convert/jenkinsjson/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -340,5 +342,164 @@ func TestConvertSonarqube(t *testing.T) {
 			t.Errorf("Unexpected parsing results for test %v", i)
 			t.Log(diff)
 		}
+	}
+}
+
+func TestNewConverter_Defaults(t *testing.T) {
+	converter := New()
+	if converter.kubeNamespace != "default" {
+		t.Errorf("Expected default namespace to be 'default', got '%s'", converter.kubeNamespace)
+	}
+	if converter.kubeEnabled {
+		t.Error("Expected kubeEnabled to be false by default")
+	}
+}
+
+//func TestConvert_ValidJenkinsJSON(t *testing.T) {
+//	converter := New()
+//	inputJSON := `{"some": "valid", "jenkins": "json"}`
+//	expectedYAML := `version: 1
+//kind: pipeline
+//spec:
+//  stages: [...]` // Replace with expected output
+//
+//	output, err := converter.ConvertString(inputJSON)
+//	if err != nil {
+//		t.Fatalf("Expected no error, got %v", err)
+//	}
+//	if string(output) != expectedYAML {
+//		t.Errorf("Expected output to be '%s', got '%s'", expectedYAML, string(output))
+//	}
+//}
+
+func TestConvert_EmptyJenkinsJSON(t *testing.T) {
+	converter := New()
+	inputJSON := `{}`
+	expectedYAML := `version: 1
+kind: pipeline
+type: ""
+name: ""
+spec:
+  stages:
+  - desc: ""
+    id: build
+	name: build
+	strategy: null
+	delegate: []
+	status: null
+	type: ci
+	when: null
+	failure: null
+	inputs: {}
+	spec:
+      cache: null
+      clone: null
+      platform: null
+      runtime: null
+      steps: []
+      envs: {}
+      volumes: []
+  inputs: {}
+  options: null
+`
+
+	output, err := converter.ConvertString(inputJSON)
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	normalize := func(s string) string {
+		return strings.Join(strings.Fields(s), " ")
+	}
+
+	normalizedExpectedYAML := normalize(expectedYAML)
+	normalizedOutput := normalize(string(output))
+
+	if normalizedOutput != normalizedExpectedYAML {
+		t.Errorf("Expected output to be '%s', got '%s'", normalizedExpectedYAML, normalizedOutput)
+	}
+}
+
+func TestRecursiveParseJsonToStages(t *testing.T) {
+	mockNode := jenkinsjson.Node{
+		Name:   string("MockName"),
+		Parent: string("MockParent"),
+	}
+	dst := &harness.Pipeline{}
+	processedTools := &ProcessedTools{}
+	variables := map[string]string{}
+
+	recursiveParseJsonToStages(&mockNode, dst, processedTools, variables)
+
+	if len(dst.Stages) == 0 {
+		t.Error("Expected stages to be populated, got none")
+	}
+}
+
+func TestHandleTool_ValidToolNodeMaven(t *testing.T) {
+	toolNode := jenkinsjson.Node{
+		AttributesMap: map[string]string{
+			"jenkins.pipeline.step.type": "tool",
+			"harness-attribute":          `{"type": "$MavenInstallation"}`,
+		},
+	}
+	processedTools := &ProcessedTools{}
+	handleTool(toolNode, processedTools)
+
+	if !processedTools.MavenPresent {
+		t.Error("Expected Maven to be marked as present")
+	}
+}
+
+func TestHandleTool_ValidToolNodeGradle(t *testing.T) {
+	toolNode := jenkinsjson.Node{
+		AttributesMap: map[string]string{
+			"jenkins.pipeline.step.type": "tool",
+			"harness-attribute":          `{"type": "$GradleInstallation"}`,
+		},
+	}
+	processedTools := &ProcessedTools{}
+	handleTool(toolNode, processedTools)
+
+	if !processedTools.GradlePresent {
+		t.Error("Expected Gradle to be marked as present")
+	}
+}
+
+func TestHandleTool_ValidToolNodeAnt(t *testing.T) {
+	toolNode := jenkinsjson.Node{
+		AttributesMap: map[string]string{
+			"jenkins.pipeline.step.type": "tool",
+			"harness-attribute":          `{"type": "$AntInstallation"}`,
+		},
+	}
+	processedTools := &ProcessedTools{}
+	handleTool(toolNode, processedTools)
+
+	if !processedTools.AntPresent {
+		t.Error("Expected Ant to be marked as present")
+	}
+}
+
+func TestExtractEnvironmentVariables(t *testing.T) {
+	node := jenkinsjson.Node{
+		ParameterMap: map[string]interface{}{
+			"overrides": []interface{}{"KEY=value"},
+		},
+	}
+
+	envVars := ExtractEnvironmentVariables(node)
+	if len(envVars) == 0 || envVars["KEY"] != "value" {
+		t.Error("Expected environment variable KEY to have value 'value'")
+	}
+}
+
+func TestMergeMaps(t *testing.T) {
+	a := map[string]string{"key1": "value1"}
+	b := map[string]string{"key2": "value2", "key1": "value2"}
+
+	merged := mergeMaps(a, b)
+	if len(merged) != 2 || merged["key1"] != "value2" || merged["key2"] != "value2" {
+		t.Error("Expected merged map to contain key1=value2 and key2=value2")
 	}
 }
