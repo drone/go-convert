@@ -2,43 +2,37 @@ package json
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 )
 
 func TestConvertWriteFile(t *testing.T) {
+	workingDir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get current working directory: %v", err)
+	}
+
+	filePath := filepath.Join(workingDir, "../convertTestFiles/writefile/writefileSnippet.json")
+	jsonData, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		t.Fatalf("failed to read JSON file: %v", err)
+	}
+
+	var node1 Node
+	if err := json.Unmarshal(jsonData, &node1); err != nil {
+		t.Fatalf("failed to decode JSON: %v", err)
+	}
+
 	tests := []struct {
-		json string
+		json Node
 		want Node
 	}{
 		{
-			json: `
-{
-  "spanId": "705399e59b21cf47",
-  "traceId": "900da4b8783a6df372c284b2fbdcf8a8",
-  "parent": "writefile",
-  "all-info": "span(name: writeFile, spanId: 705399e59b21cf47, parentSpanId: ffaea7a0704eaf64, traceId: 900da4b8783a6df372c284b2fbdcf8a8, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"file\" : \"output1.txt\",\n  \"text\" : \"line1 \\n\\nline2\\n\\nline3\"\n};harness-others:;jenkins.pipeline.step.id:7;jenkins.pipeline.step.name:Write file to workspace;jenkins.pipeline.step.plugin.name:workflow-basic-steps;jenkins.pipeline.step.plugin.version:1058.vcb_fc1e3a_21a_9;jenkins.pipeline.step.type:writeFile;)",
-  "name": "writefile #1",
-  "attributesMap": {
-    "harness-others": "",
-    "jenkins.pipeline.step.name": "Write file to workspace",
-    "ci.pipeline.run.user": "SYSTEM",
-    "jenkins.pipeline.step.id": "7",
-    "jenkins.pipeline.step.type": "writeFile",
-    "harness-attribute": "{\n  \"file\" : \"output1.txt\",\n  \"text\" : \"line1 \\n\\nline2\\n\\nline3\"\n}",
-    "jenkins.pipeline.step.plugin.name": "workflow-basic-steps",
-    "jenkins.pipeline.step.plugin.version": "1058.vcb_fc1e3a_21a_9"
-  },
-  "type": "Run Phase Span",
-  "parentSpanId": "ffaea7a0704eaf64",
-  "parameterMap": {
-    "file": "output1.txt",
-    "text": "line1 \n\nline2\n\nline3"
-  },
-  "spanName": "writeFile"
-}
-			`,
+			json: node1,
 			want: Node{
 				AttributesMap: map[string]string{
 					"ci.pipeline.run.user":                 "SYSTEM",
@@ -62,12 +56,8 @@ func TestConvertWriteFile(t *testing.T) {
 		},
 	}
 	for i, test := range tests {
-		got := new(Node)
-		if err := json.Unmarshal([]byte(test.json), got); err != nil {
-			t.Error(err)
-			return
-		}
-		if diff := cmp.Diff(got, &test.want); diff != "" {
+		got := test.json
+		if diff := cmp.Diff(got, test.want); diff != "" {
 			t.Errorf("Unexpected parsing results for test %v", i)
 			t.Log(diff)
 		}

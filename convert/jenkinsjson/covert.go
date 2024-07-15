@@ -350,20 +350,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "sh":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables), ID: id})
 	case "checkout":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: &harness.Step{
-			Name: currentNode.SpanName,
-			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
-			Type: "plugin",
-			Spec: &harness.StepPlugin{
-				Image: "checkout_plugin",
-				With: map[string]interface{}{
-					"platform": currentNode.AttributesMap["peer.service"],
-					"git_url":  currentNode.AttributesMap["http.url"],
-					"branch":   currentNode.AttributesMap["git.branch"],
-					"depth":    currentNode.AttributesMap["git.clone.depth"],
-				},
-			},
-		}, ID: id})
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertCheckout(currentNode, variables), ID: id})
 	case "archiveArtifacts":
 		archiveSteps := jenkinsjson.ConvertArchive(currentNode)
 		for _, step := range archiveSteps {
@@ -375,30 +362,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "sleep":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSleep(currentNode, variables), ID: id})
 	case "dir":
-		dirPath := currentNode.ParameterMap["path"].(string)
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: &harness.Step{
-			Name: "Deletingdir",
-			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
-			Type: "script",
-			Spec: &harness.StepExec{
-				Shell: "sh",
-				Run:   fmt.Sprintf("rm -rf %s", dirPath),
-			},
-		}, ID: id})
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDir(currentNode, variables), ID: id})
 	case "deleteDir":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: &harness.Step{
-			Name: "Deletingdir",
-			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
-			Type: "script",
-			Spec: &harness.StepExec{
-				Shell: "sh",
-				Run: `
-				dir_to_delete=$(pwd)
-				cd ..
-				rm -rf $dir_to_delete
-				`,
-			},
-		}, ID: id})
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDeleteDir(currentNode, variables), ID: id})
 	case "writeFile":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertWriteFile(currentNode, variables), ID: id})
 	case "readFile":

@@ -1,0 +1,8 @@
+- step:
+    identifier: sha16c2c
+    name: sh
+    spec:
+      command: exit 1
+      shell: Sh
+    timeout: ""
+    type: Run
