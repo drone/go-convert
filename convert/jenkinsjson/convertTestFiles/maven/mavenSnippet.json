@@ -1,0 +1,51 @@
+{
+  "spanId": "615aa9215d575030",
+  "traceId": "473b5dc91e544902871080a25554e963",
+  "parent": "CombinedPipeline",
+  "all-info": "span(name: Stage: null, spanId: 615aa9215d575030, parentSpanId: ee2544e3979cb300, traceId: 473b5dc91e544902871080a25554e963, attr: harness-others:;jenkins.pipeline.step.type:withMaven;)",
+  "children": [
+    {
+      "spanId": "f73b459b535f48e5",
+      "traceId": "473b5dc91e544902871080a25554e963",
+      "parent": "CombinedPipeline",
+      "all-info": "span(name: sh, spanId: f73b459b535f48e5, parentSpanId: 615aa9215d575030, traceId: 473b5dc91e544902871080a25554e963, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"script\" : \"mvn clean install                        package\"\n};harness-others:-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long;jenkins.pipeline.step.id:32;jenkins.pipeline.step.name:Shell Script;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1336.v768003e07199;jenkins.pipeline.step.type:sh;)",
+      "name": "CombinedPipeline #9",
+      "attributesMap": {
+        "harness-others": "-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long",
+        "jenkins.pipeline.step.name": "Shell Script",
+        "ci.pipeline.run.user": "SYSTEM",
+        "jenkins.pipeline.step.id": "32",
+        "jenkins.pipeline.step.type": "sh",
+        "harness-attribute": "{\n  \"script\" : \"mvn clean install                        package\"\n}",
+        "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
+        "jenkins.pipeline.step.plugin.version": "1336.v768003e07199"
+      },
+      "type": "Run Phase Span",
+      "parentSpanId": "615aa9215d575030",
+      "parameterMap": {"script": "mvn clean install                        package"},
+      "spanName": "sh"
+    },
+    {
+      "spanId": "42c1f9cc515bf008",
+      "traceId": "473b5dc91e544902871080a25554e963",
+      "parent": "CombinedPipeline",
+      "all-info": "span(name: Stage: null, spanId: 42c1f9cc515bf008, parentSpanId: 615aa9215d575030, traceId: 473b5dc91e544902871080a25554e963, attr: harness-others:;jenkins.pipeline.step.type:withMaven;)",
+      "name": "CombinedPipeline #9",
+      "attributesMap": {
+        "harness-others": "",
+        "jenkins.pipeline.step.type": "withMaven"
+      },
+      "type": "Run Phase Span",
+      "parentSpanId": "615aa9215d575030",
+      "spanName": "Stage: null"
+    }
+  ],
+  "name": "CombinedPipeline #9",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.type": "withMaven"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "ee2544e3979cb300",
+  "spanName": "Stage: null"
+}

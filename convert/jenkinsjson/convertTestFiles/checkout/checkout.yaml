@@ -1,0 +1,9 @@
+- step:
+    identifier: checkoutgithubcomanshika2203combinedallbuildsdbdf4b
+    name: GitClone
+    spec:
+      build: <+input>
+      cloneDirectory: "*/main"
+      repoName: https://github.com/Anshika2203/CombinedAllBuilds.git
+    timeout: ""
+    type: GitClone

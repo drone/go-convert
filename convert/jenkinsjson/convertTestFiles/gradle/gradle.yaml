@@ -1,0 +1,10 @@
+- step:
+    identifier: stagenulle4af45
+    name: gradle
+    spec:
+      connectorRef: account.docker
+      image: harnesscommunitytest/gradle-plugin:latest
+      settings:
+        Goals: build
+    timeout: ""
+    type: Plugin

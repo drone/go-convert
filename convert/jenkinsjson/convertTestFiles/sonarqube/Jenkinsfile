@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+    stages {
+        stage('Fetch Code') {
+            steps {
+                git 'https://github.com/PranitRout07/django-student-management-system.git'
+            }
+        }
+        stage('Code Analysis') {
+            environment {
+                scannerHome = tool 'sonar_cube'
+            }
+            steps {
+                script {
+                    withSonarQubeEnv('Sonar') {
+                        sh "${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=jenkins-SonarCube \
+                            -Dsonar.projectName=jenkins-SonarCube \
+                            -Dsonar.sources=."
+                    }
+                }
+            }
+        }
+    }
+}

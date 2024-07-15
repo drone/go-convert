@@ -1,0 +1,24 @@
+{
+  "spanId": "705399e59b21cf47",
+  "traceId": "900da4b8783a6df372c284b2fbdcf8a8",
+  "parent": "writefile",
+  "all-info": "span(name: writeFile, spanId: 705399e59b21cf47, parentSpanId: ffaea7a0704eaf64, traceId: 900da4b8783a6df372c284b2fbdcf8a8, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"file\" : \"output1.txt\",\n  \"text\" : \"line1 \\n\\nline2\\n\\nline3\"\n};harness-others:;jenkins.pipeline.step.id:7;jenkins.pipeline.step.name:Write file to workspace;jenkins.pipeline.step.plugin.name:workflow-basic-steps;jenkins.pipeline.step.plugin.version:1058.vcb_fc1e3a_21a_9;jenkins.pipeline.step.type:writeFile;)",
+  "name": "writefile #1",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Write file to workspace",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "7",
+    "jenkins.pipeline.step.type": "writeFile",
+    "harness-attribute": "{\n  \"file\" : \"output1.txt\",\n  \"text\" : \"line1 \\n\\nline2\\n\\nline3\"\n}",
+    "jenkins.pipeline.step.plugin.name": "workflow-basic-steps",
+    "jenkins.pipeline.step.plugin.version": "1058.vcb_fc1e3a_21a_9"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "ffaea7a0704eaf64",
+  "parameterMap": {
+    "file": "output1.txt",
+    "text": "line1 \n\nline2\n\nline3"
+  },
+  "spanName": "writeFile"
+}

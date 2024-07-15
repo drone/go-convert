@@ -1,0 +1,16 @@
+{
+  "spanId": "fd7dfe5971c096aa",
+  "traceId": "473b5dc91e544902871080a25554e963",
+  "parent": "Dir",
+  "all-info": "span(name: Stage: null, spanId: fd7dfe5971c096aa, parentSpanId: 9c5d0bbf29308002, traceId: 473b5dc91e544902871080a25554e963, attr: harness-attribute:{\n  \"path\" : \"target\"\n};harness-others:;jenkins.pipeline.step.type:dir;)",
+  "name": "Dir #1",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.type": "dir",
+    "harness-attribute": "{\n  \"path\" : \"target\"\n}"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "9c5d0bbf29308002",
+  "parameterMap": {"path": "target"},
+  "spanName": "Stage: null"
+}
