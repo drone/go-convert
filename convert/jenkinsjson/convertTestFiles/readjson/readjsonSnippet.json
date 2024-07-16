@@ -1,0 +1,21 @@
+{
+    "spanId": "b7793f5483304f58",
+    "traceId": "97a084b8b9fbac2ccadc2e31e648c395",
+    "parent": "ag-readJSON",
+    "all-info": "span(name: readJSON, spanId: b7793f5483304f58, parentSpanId: f07a51df3222232e, traceId: 97a084b8b9fbac2ccadc2e31e648c395, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"file\" : \"input.json\"\n};harness-others:;jenkins.pipeline.step.id:9;jenkins.pipeline.step.name:Read JSON from files in the workspace.;jenkins.pipeline.step.plugin.name:pipeline-utility-steps;jenkins.pipeline.step.plugin.version:2.17.0;jenkins.pipeline.step.type:readJSON;)",
+    "name": "ag-readJSON #18",
+    "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Read JSON from files in the workspace.",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "9",
+    "jenkins.pipeline.step.type": "readJSON",
+    "harness-attribute": "{\n  \"file\" : \"input.json\"\n}",
+    "jenkins.pipeline.step.plugin.name": "pipeline-utility-steps",
+    "jenkins.pipeline.step.plugin.version": "2.17.0"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "f07a51df3222232e",
+    "parameterMap": {"file": "input.json"},
+    "spanName": "readJSON"
+}
