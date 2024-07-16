@@ -1,0 +1,8 @@
+- step:
+    identifier: stagenullfd7dfe
+    name: Deletingdir
+    spec:
+      command: rm -rf target
+      shell: Sh
+    timeout: ""
+    type: Run

@@ -1,0 +1,10 @@
+pipeline {
+    agent any
+    stages {
+        stage('Blackduck') {
+            steps {
+                synopsys_detect "--blackduck.url=https://harness.app.blackduck.com/ --blackduck.api.token=MzRkNDVkOWMtM2UzZS00OTgzLWE5ZmItOWNlOGI3NTlhZDZjOjVmNWE3NTE2LTdmYjYtNGNmMy05YmQyLWFkODRmNDNjYzhlMw== --detect.project.name=jenkinstestFinal --detect.project.version.name=v1.0"
+            }
+        }
+    }
+}

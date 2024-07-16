@@ -1,0 +1,14 @@
+pipeline {
+    agent any
+    stages {
+        stage ('Write File') {
+            steps {
+                writeFile file: 'output1.txt', text: '''line1
+
+line2
+
+line3'''
+            }
+        }
+    }
+}

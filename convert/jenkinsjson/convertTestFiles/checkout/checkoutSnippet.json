@@ -1,0 +1,39 @@
+{
+  "spanId": "dbdf4b330ba1e0d7",
+  "traceId": "473b5dc91e544902871080a25554e963",
+  "parent": "CombinedPipeline",
+  "all-info": "span(name: checkout: github.com/Anshika2203/CombinedAllBuilds, spanId: dbdf4b330ba1e0d7, parentSpanId: da753c3c600edc4d, traceId: 473b5dc91e544902871080a25554e963, attr: ci.pipeline.run.user:SYSTEM;git.branch:*/main;git.clone.depth:0;git.clone.shallow:false;git.repository:Anshika2203/CombinedAllBuilds;harness-attribute:{\n  \"scm\" : {\n    \"$class\" : \"GitSCM\",\n    \"branches\" : [ {\n      \"name\" : \"*/main\"\n    } ],\n    \"doGenerateSubmoduleConfigurations\" : false,\n    \"extensions\" : [ ],\n    \"submoduleCfg\" : [ ],\n    \"userRemoteConfigs\" : [ {\n      \"url\" : \"https://github.com/Anshika2203/CombinedAllBuilds.git\"\n    } ]\n  }\n};harness-others:;http.method:POST;http.url:https://github.com/Anshika2203/CombinedAllBuilds.git;jenkins.pipeline.step.id:29;jenkins.pipeline.step.name:Check out from version control;jenkins.pipeline.step.plugin.name:workflow-scm-step;jenkins.pipeline.step.plugin.version:427.v4ca_6512e7df1;jenkins.pipeline.step.type:checkout;net.peer.name:github.com;peer.service:github.com;rpc.method:checkout;rpc.service:git;rpc.system:https;)",
+  "name": "CombinedPipeline #9",
+  "attributesMap": {
+    "jenkins.pipeline.step.name": "Check out from version control",
+    "rpc.service": "git",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "29",
+    "http.url": "https://github.com/Anshika2203/CombinedAllBuilds.git",
+    "git.branch": "*/main",
+    "git.clone.shallow": false,
+    "harness-attribute": "{\n  \"scm\" : {\n    \"$class\" : \"GitSCM\",\n    \"branches\" : [ {\n      \"name\" : \"*/main\"\n    } ],\n    \"doGenerateSubmoduleConfigurations\" : false,\n    \"extensions\" : [ ],\n    \"submoduleCfg\" : [ ],\n    \"userRemoteConfigs\" : [ {\n      \"url\" : \"https://github.com/Anshika2203/CombinedAllBuilds.git\"\n    } ]\n  }\n}",
+    "rpc.system": "https",
+    "git.repository": "Anshika2203/CombinedAllBuilds",
+    "net.peer.name": "github.com",
+    "harness-others": "",
+    "peer.service": "github.com",
+    "jenkins.pipeline.step.type": "checkout",
+    "rpc.method": "checkout",
+    "jenkins.pipeline.step.plugin.name": "workflow-scm-step",
+    "http.method": "POST",
+    "jenkins.pipeline.step.plugin.version": "427.v4ca_6512e7df1",
+    "git.clone.depth": 0
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "da753c3c600edc4d",
+  "parameterMap": {"scm": {
+    "$class": "GitSCM",
+    "extensions": [],
+    "submoduleCfg": [],
+    "userRemoteConfigs": [{"url": "https://github.com/Anshika2203/CombinedAllBuilds.git"}],
+    "doGenerateSubmoduleConfigurations": false,
+    "branches": [{"name": "*/main"}]
+  }},
+  "spanName": "checkout: github.com/Anshika2203/CombinedAllBuilds"
+}

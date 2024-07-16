@@ -1,0 +1,13 @@
+- step:
+    identifier: synopsysdetect66bb05
+    name: synopsys_detect
+    spec:
+      connectorRef: account.docker
+      image: harnesscommunitytest/synopsys-detect:latest
+      settings:
+        blackduck_project: jenkinstest
+        blackduck_properties: "--detect.project.version.name=v1.0"
+        blackduck_token: <sometoken>
+        blackduck_url: https://abc.blackduck.com/
+    timeout: ""
+    type: Plugin

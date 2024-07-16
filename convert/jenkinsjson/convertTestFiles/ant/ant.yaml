@@ -1,0 +1,10 @@
+- step:
+    identifier: stagenull70802f
+    name: ant
+    spec:
+      connectorRef: account.docker
+      image: harnesscommunitytest/ant-plugin:latest
+      settings:
+        Goals: build
+    timeout: ""
+    type: Plugin

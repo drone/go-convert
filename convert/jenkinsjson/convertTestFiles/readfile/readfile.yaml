@@ -1,0 +1,8 @@
+- step:
+    identifier: readFile
+    name: readFile
+    spec:
+        command: cat output1.txt
+        shell: Sh
+    timeout: ""
+    type: Run

@@ -1,0 +1,8 @@
+- step:
+    identifier: readFile
+    name: readFile
+    spec:
+      command: sleep 5
+      shell: Sh
+    timeout: ""
+    type: Run
