@@ -1,0 +1,8 @@
+- step:
+    identifier: readjson2edc62
+    name: readJSON
+    spec:
+      command: cat input.json
+      shell: Sh
+    timeout: ""
+    type: Run

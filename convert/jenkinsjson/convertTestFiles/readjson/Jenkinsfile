@@ -1,0 +1,14 @@
+pipeline {
+    agent any
+    stages {
+        stage("readfile") {
+            steps {
+                script
+                {
+                    def props = readJSON file: 'input.json'
+                }
+                
+            }
+        }
+    }
+}
