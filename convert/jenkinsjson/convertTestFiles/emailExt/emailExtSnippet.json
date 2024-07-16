@@ -1,0 +1,25 @@
+{
+    "spanId": "2b1b55f61141729a",
+    "traceId": "56848b8bebfec347bea6a32469b7306a",
+    "parent": "Email",
+    "all-info": "span(name: emailext, spanId: 2b1b55f61141729a, parentSpanId: ebcdc317572db2e1, traceId: 56848b8bebfec347bea6a32469b7306a, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"body\" : \"Email ${BUILD_NUMBER}\",\n  \"subject\" : \"Email ${BUILD_STATUS}\",\n  \"to\" : \"first@example.com second@example.com\"\n};harness-others:-subject-field hudson.plugins.emailext.EmailExtStep subject-hudson.plugins.emailext.EmailExtStep.subject-class java.lang.String-body-field hudson.plugins.emailext.EmailExtStep body-hudson.plugins.emailext.EmailExtStep.body-class java.lang.String;jenkins.pipeline.step.id:12;jenkins.pipeline.step.name:Extended Email;jenkins.pipeline.step.plugin.name:email-ext;jenkins.pipeline.step.plugin.version:1814.v404722f34263;jenkins.pipeline.step.type:emailext;)",
+    "name": "Email #26",
+    "attributesMap": {
+      "harness-others": "-subject-field hudson.plugins.emailext.EmailExtStep subject-hudson.plugins.emailext.EmailExtStep.subject-class java.lang.String-body-field hudson.plugins.emailext.EmailExtStep body-hudson.plugins.emailext.EmailExtStep.body-class java.lang.String",
+      "jenkins.pipeline.step.name": "Extended Email",
+      "ci.pipeline.run.user": "SYSTEM",
+      "jenkins.pipeline.step.id": "12",
+      "jenkins.pipeline.step.type": "emailext",
+      "harness-attribute": "{\n  \"body\" : \"Email ${BUILD_NUMBER}\",\n  \"subject\" : \"Email ${BUILD_STATUS}\",\n  \"to\" : \"first@example.com second@example.com\"\n}",
+      "jenkins.pipeline.step.plugin.name": "email-ext",
+      "jenkins.pipeline.step.plugin.version": "1814.v404722f34263"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "ebcdc317572db2e1",
+    "parameterMap": {
+      "subject": "Email ${BUILD_STATUS}",
+      "to": "first@example.com second@example.com",
+      "body": "Email ${BUILD_NUMBER}"
+    },
+    "spanName": "emailext"
+}
