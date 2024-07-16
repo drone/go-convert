@@ -1,0 +1,15 @@
+- step:
+    identifier: emailext2b1b55
+    name: emailext
+    spec:
+      image: plugins/email
+      settings:
+        body: Email <+pipeline.sequenceId>
+        from: ""
+        host: <+input>
+        replyTo: ""
+        subject: Email <+pipeline.status>
+        to: first@example.com second@example.com
+      timeout: ""
+    type: Plugin
+    timeout: ""
