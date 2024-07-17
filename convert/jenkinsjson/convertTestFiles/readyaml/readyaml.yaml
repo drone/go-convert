@@ -1,0 +1,8 @@
+- step:
+  identifier: readyaml89f1da
+  name: readYaml
+  spec:
+    command: cat abc.yml
+    shell: Sh
+  timeout: ""
+  type: Run
