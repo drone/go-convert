@@ -45,7 +45,7 @@ func ConvertEmailext(node Node, variables map[string]string) *harness.Step {
 		},
 	}
 	if len(variables) > 0 {
-		step.Spec.(*harness.StepExec).Envs = variables
+		step.Spec.(*harness.StepPlugin).Envs = variables
 	}
 	return step
 }
