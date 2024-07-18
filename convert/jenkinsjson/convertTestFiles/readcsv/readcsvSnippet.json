@@ -1,0 +1,21 @@
+{
+    "spanId": "a48446f1eccfe72e",
+    "traceId": "3ef97a9c6004ba651d9e4c35e9649ba3",
+    "parent": "ag-readcsv",
+    "all-info": "span(name: readFile, spanId: a48446f1eccfe72e, parentSpanId: b5e4d8633a9f3810, traceId: 3ef97a9c6004ba651d9e4c35e9649ba3, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"file\" : \"ex.csv\"\n};harness-others:;jenkins.pipeline.step.id:9;jenkins.pipeline.step.name:Read file from workspace;jenkins.pipeline.step.plugin.name:workflow-basic-steps;jenkins.pipeline.step.plugin.version:1058.vcb_fc1e3a_21a_9;jenkins.pipeline.step.type:readFile;)",
+    "name": "ag-readcsv #1",
+    "attributesMap": {
+        "harness-others": "",
+        "jenkins.pipeline.step.name": "Read file from workspace",
+        "ci.pipeline.run.user": "SYSTEM",
+        "jenkins.pipeline.step.id": "9",
+        "jenkins.pipeline.step.type": "readFile",
+        "harness-attribute": "{\n  \"file\" : \"ex.csv\"\n}",
+        "jenkins.pipeline.step.plugin.name": "workflow-basic-steps",
+        "jenkins.pipeline.step.plugin.version": "1058.vcb_fc1e3a_21a_9"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "b5e4d8633a9f3810",
+    "parameterMap": {"file": "ex.csv"},
+    "spanName": "readFile"
+}
