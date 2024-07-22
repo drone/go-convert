@@ -50,7 +50,10 @@ type (
 	//
 
 	StepArtifactoryUpload struct {
-		// TODO
+		ConnRef    string `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
+		Target     string `json:"target,omitempty"       yaml:"target,omitempty"`
+		SourcePath string `json:"sourcePath,omitempty"   yaml:"sourcePath,omitempty"`
+		RunAsUser  string `json:"runAsUser,omitempty"    yaml:"runAsUser,omitempty"`
 	}
 
 	StepBarrier struct {
