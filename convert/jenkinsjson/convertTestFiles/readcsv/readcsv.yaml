@@ -1,0 +1,9 @@
+- step:
+    identifier: readfilea48446
+    name: readFile
+    spec:
+      command: cat ex.csv
+      shell: Sh
+    timeout: ""
+    type: Run
+timeout: ""
