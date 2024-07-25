@@ -1,6 +1,7 @@
 package json
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -12,10 +13,20 @@ func ConvertArchive(node Node) []*harness.Step {
 	var steps []*harness.Step
 
 	var artifacts string
-	fmt.Print(node.ParameterMap)
-	if artifactsValue, ok := node.ParameterMap["delegate"].(map[string]interface{})["arguments"].(map[string]interface{})["artifacts"].(string); ok {
+	var delegateMap = node.ParameterMap["delegate"]
+	if (delegateMap == nil) {
+		attr := node.AttributesMap["harness-attribute"]
+		var attrMap map[string]interface{}
+		if err := json.Unmarshal([]byte(attr), &attrMap); err != nil {
+			fmt.Println(err)
+			return nil
+		}
+		delegateMap = attrMap["delegate"]
+	}
+
+	if artifactsValue, ok := delegateMap.(map[string]interface{})["arguments"].(map[string]interface{})["artifacts"].(string); ok {
 		artifacts = artifactsValue
-	} else if anonymousValue, ok := node.ParameterMap["delegate"].(map[string]interface{})["arguments"].(map[string]interface{})["<anonymous>"].(string); ok {
+	} else if anonymousValue, ok := delegateMap.(map[string]interface{})["arguments"].(map[string]interface{})["<anonymous>"].(string); ok {
 		artifacts = anonymousValue
 	} else {
 		fmt.Println("Neither 'artifacts' nor '<anonymous>' key found or both have non-string values.")
@@ -25,15 +36,15 @@ func ConvertArchive(node Node) []*harness.Step {
 
 	
 	var excludes string
-	if excludesValue, ok := node.ParameterMap["delegate"].(map[string]interface{})["arguments"].(map[string]interface{})["excludes"].(string); ok {
+	if excludesValue, ok :=delegateMap.(map[string]interface{})["arguments"].(map[string]interface{})["excludes"].(string); ok {
 		excludes = excludesValue
 	}
 
 
 	for i, artifact := range artifactsArray {
 		step := &harness.Step{
-			Name: node.SpanName+fmt.Sprintf("_%d", i),
-			Id:   SanitizeForId(node.SpanName, node.SpanId)+fmt.Sprintf("_%d", i),
+			Name: node.SpanName,
+			Id:   SanitizeForId(node.SpanName, node.SpanId),
 			Type: "plugin",
 			Spec: &harness.StepPlugin{
 				Image: "plugins/s3",
@@ -52,7 +63,6 @@ func ConvertArchive(node Node) []*harness.Step {
 		}
 		steps = append(steps, step)
 	}
-
 	return steps
 
 }
