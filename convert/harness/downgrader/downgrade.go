@@ -543,8 +543,9 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 	if src.Name == "" {
 		src.Name = id
 	}
-	if spec_.Image == "checkout_plugin" {
-		fmt.Println("Found the checkout plugin")
+
+	switch spec_.Image {
+	case "checkout_plugin":
 		setting := convertSettings(spec_.With)
 		return &v0.Step{
 			ID:   id,
@@ -558,7 +559,20 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 			},
 			When: convertStepWhen(src.When, id),
 		}
-	} else {
+	case "artifactJfrog_plugin":
+		setting := convertSettings(spec_.With)
+		return &v0.Step{
+			ID:   id,
+			Name: "ArtifactoryUpload",
+			Type: v0.StepTypeArtifactoryUpdload,
+
+			Spec: &v0.StepArtifactoryUpload{
+				Target:     setting["target"].(string),
+				SourcePath: setting["sourcePath"].(string),
+			},
+			When: convertStepWhen(src.When, id),
+		}
+	default:
 		return &v0.Step{
 			ID:      id,
 			Name:    src.Name,

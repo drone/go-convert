@@ -1,0 +1,8 @@
+- step:
+    type: ArtifactoryUpload
+    name: ArtifactoryUpload_1
+    identifier: ArtifactoryUpload_1
+    spec:
+      connectorRef: ArtifactConn
+      target: /generic-local/
+      sourcePath: sample2.txt

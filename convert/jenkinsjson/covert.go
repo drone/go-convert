@@ -377,7 +377,26 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertReadYaml(currentNode, variables), ID: id})
 	case "synopsys_detect":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSynopsysDetect(currentNode, variables), ID: id})
+	case "artifactoryUpload":
+		attr, ok := currentNode.AttributesMap["harness-attribute"]
+		if !ok {
+			return nil, nil
+		}
+		fileSpecs, err := jenkinsjson.ParseHarnessAttribute(attr)
+		if err != nil {
+			return nil, nil
+		}
+		for _, fileSpec := range fileSpecs {
+			newNode := currentNode
+			newNode.AttributesMap = map[string]string{
+				"pattern": fileSpec.Pattern,
+				"target":  fileSpec.Target,
+			}
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertArtifactUploadJfrog(newNode, variables), ID: id})
+		}
 
+	case "newBuildInfo", "getArtifactoryServer":
+		return nil, nil
 	case "":
 	case "withAnt", "tool", "envVarsForTool":
 	case "withMaven":
