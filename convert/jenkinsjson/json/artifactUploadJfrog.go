@@ -3,6 +3,7 @@ package json
 import (
 	"encoding/json"
 	"fmt"
+
 	harness "github.com/drone/spec/dist/go"
 	"github.com/tidwall/gjson"
 )
@@ -12,11 +13,12 @@ type FileSpec struct {
 	Target  string `json:"target"`
 }
 
-func ConvertArtifactUploadJfrog(node Node, variables map[string]string) *harness.Step {
+func ConvertArtifactUploadJfrog(node Node, variables map[string]string, timeout string) *harness.Step {
 	step := &harness.Step{
-		Name: node.SpanName,
-		Id:   SanitizeForId(node.SpanName, node.SpanId),
-		Type: "plugin",
+		Name:    node.SpanName,
+		Timeout: timeout,
+		Id:      SanitizeForId(node.SpanName, node.SpanId),
+		Type:    "plugin",
 		Spec: &harness.StepPlugin{
 			Image: "artifactJfrog_plugin",
 			With: map[string]interface{}{

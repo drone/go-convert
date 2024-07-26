@@ -6,7 +6,7 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
-func ConvertEmailext(node Node, variables map[string]string) *harness.Step {
+func ConvertEmailext(node Node, variables map[string]string, timeout string) *harness.Step {
 	tokenReplacements := map[string]string{
 		"${BUILD_NUMBER}": "<+pipeline.sequenceId>",
 		"${BUILD_STATUS}": "<+pipeline.status>",
@@ -29,9 +29,10 @@ func ConvertEmailext(node Node, variables map[string]string) *harness.Step {
 	}
 
 	step := &harness.Step{
-		Name: node.SpanName,
-		Id:   SanitizeForId(node.SpanName, node.SpanId),
-		Type: "plugin",
+		Name:    node.SpanName,
+		Timeout: timeout,
+		Id:      SanitizeForId(node.SpanName, node.SpanId),
+		Type:    "plugin",
 		Spec: &harness.StepPlugin{
 			Image: "plugins/email",
 			With: map[string]interface{}{
