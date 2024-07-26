@@ -1,0 +1,24 @@
+pipeline {
+    agent any
+    stages {stage('upload') {
+           steps {
+              script {
+                 def server = Artifactory.server 'harness'
+                 def uploadSpec = """{
+                    "files": [{
+                        "pattern": "output1.txt",
+                        "target": "/artifactory/"
+                    },{
+                        "pattern": "output2.txt",
+                        "target": "/artifactory/"
+                    },{
+                        "pattern": "output3.txt",
+                        "target": "/artifactory/"
+                    }]
+                 }"""
+                 server.upload(uploadSpec)
+               }
+            }
+        }
+    }
+}

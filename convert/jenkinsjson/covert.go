@@ -192,7 +192,7 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 			id, err := strconv.Atoi(stepId)
 			if err != nil {
 				fmt.Println("Error converting stage ID to integer:", err)
-				continue
+				id = 0
 			}
 
 			*stepGroupWithId = append(*stepGroupWithId, StepGroupWithID{Step: dstStep, ID: id})
@@ -375,9 +375,30 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertReadJson(currentNode, variables), ID: id})
 	case "readYaml":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertReadYaml(currentNode, variables), ID: id})
+	case "readCSV":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertReadCsv(currentNode, variables), ID: id})
 	case "synopsys_detect":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSynopsysDetect(currentNode, variables), ID: id})
+	case "artifactoryUpload":
+		attr, ok := currentNode.AttributesMap["harness-attribute"]
+		if !ok {
+			return nil, nil
+		}
+		fileSpecs, err := jenkinsjson.ParseHarnessAttribute(attr)
+		if err != nil {
+			return nil, nil
+		}
+		for _, fileSpec := range fileSpecs {
+			newNode := currentNode
+			newNode.AttributesMap = map[string]string{
+				"pattern": fileSpec.Pattern,
+				"target":  fileSpec.Target,
+			}
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertArtifactUploadJfrog(newNode, variables), ID: id})
+		}
 
+	case "newBuildInfo", "getArtifactoryServer":
+		return nil, nil
 	case "":
 	case "withAnt", "tool", "envVarsForTool":
 	case "withMaven":
