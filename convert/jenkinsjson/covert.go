@@ -192,7 +192,7 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 			id, err := strconv.Atoi(stepId)
 			if err != nil {
 				fmt.Println("Error converting stage ID to integer:", err)
-				continue
+				id = 0
 			}
 
 			*stepGroupWithId = append(*stepGroupWithId, StepGroupWithID{Step: dstStep, ID: id})
