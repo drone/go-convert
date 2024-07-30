@@ -263,8 +263,9 @@ func extractToolType(fullToolType string) string {
 func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.Step, processedTools *ProcessedTools, variables map[string]string) (*harness.CloneStage, *harness.Repository) {
 	stepWithIDList := make([]StepWithID, 0)
 
+	var timeout string
 	// Collect all steps with their IDs
-	collectStepsWithID(currentNode, &stepWithIDList, processedTools, variables)
+	collectStepsWithID(currentNode, &stepWithIDList, processedTools, variables, timeout)
 
 	// Sort the steps based on their IDs
 	sort.Slice(stepWithIDList, func(i, j int) bool {
@@ -281,13 +282,13 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	return nil, nil
 }
 
-func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWithID, processedTools *ProcessedTools, variables map[string]string) (*harness.CloneStage, *harness.Repository) {
+func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWithID, processedTools *ProcessedTools, variables map[string]string, timeout string) (*harness.CloneStage, *harness.Repository) {
 	var clone *harness.CloneStage
 	var repo *harness.Repository
 
 	if len(currentNode.AttributesMap) == 0 {
 		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables)
+			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout)
 		}
 	}
 
@@ -309,14 +310,14 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		// node, parallel, withEnv, and withMaven are wrapper layers to hold actual steps
 		// parallel should be handled at its parent
 		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables)
+			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout)
 		}
 	case "withEnv":
 		var1 := ExtractEnvironmentVariables(currentNode)
 		combinedVariables := mergeMaps(variables, var1)
 
 		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, combinedVariables)
+			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, combinedVariables, timeout)
 		}
 
 	case "stage":
@@ -326,7 +327,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			if currentNode.Children[0].AttributesMap["jenkins.pipeline.step.type"] == "parallel" {
 				parallelStepItems := make([]*harness.Step, 0)
 				for _, child := range currentNode.Children {
-					clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables)
+					clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout)
 				}
 				parallelStep := &harness.Step{
 					Name: currentNode.SpanName,
@@ -339,16 +340,72 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: parallelStep, ID: id})
 			} else {
 				for _, child := range currentNode.Children {
-					clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables)
+					clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout)
 				}
 			}
 		} else {
 			for _, child := range currentNode.Children {
-				clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables)
+				clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout)
 			}
 		}
 	case "sh":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables), ID: id})
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout), ID: id})
+	case "timeout":
+		if len(currentNode.ParameterMap) > 0 {
+			var unit string
+			unitExists := false
+
+			// Extract unit safely
+			if val, ok := currentNode.ParameterMap["unit"]; ok {
+				if unitStr, ok := val.(string); ok {
+					unit = unitStr
+					unitExists = true
+				}
+			}
+
+			// Extract and handle time safely
+			var time int
+			timeExists := false
+			if val, ok := currentNode.ParameterMap["time"]; ok {
+				switch v := val.(type) {
+				case int:
+					time = v
+					timeExists = true
+				case float64:
+					time = int(v)
+					timeExists = true
+				default:
+					fmt.Println("time is of a type I don't know how to handle")
+				}
+			}
+
+			if timeExists {
+				if unit == "SECONDS" && time  < 10 {
+					time  = 10
+				}
+				if !unitExists {
+					unit = "MINUTES"
+				}
+				switch unit {
+				case "MINUTES":
+					timeout = strconv.Itoa(time) + "m"
+				case "SECONDS":
+					timeout = strconv.Itoa(time) + "s"
+				case "HOURS":
+					timeout = strconv.Itoa(time) + "h"
+				case "DAYS":
+					timeout = strconv.Itoa(time) + "d"
+				default:
+					timeout = strconv.Itoa(time) + unit
+				}
+
+			} else {
+				fmt.Println("Time key does not exist in ParameterMap or its value is not a recognized type.")
+			}
+		}
+		for _, child := range currentNode.Children {
+			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout)
+		}
 	case "checkout":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertCheckout(currentNode, variables), ID: id})
 	case "archiveArtifacts":
@@ -357,7 +414,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: step, ID: id})
 		}
 	case "emailext":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertEmailext(currentNode, variables), ID: id})
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertEmailext(currentNode, variables, timeout), ID: id})
 	case "junit":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJunit(currentNode, variables), ID: id})
 	case "git":
@@ -394,7 +451,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 				"pattern": fileSpec.Pattern,
 				"target":  fileSpec.Target,
 			}
-			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertArtifactUploadJfrog(newNode, variables), ID: id})
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertArtifactUploadJfrog(newNode, variables, timeout), ID: id})
 		}
 
 	case "newBuildInfo", "getArtifactoryServer":
@@ -402,15 +459,15 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "":
 	case "withAnt", "tool", "envVarsForTool":
 	case "withMaven":
-		clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "maven", "maven", "harnesscommunitytest/maven-plugin:latest", variables)
+		clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "maven", "maven", "harnesscommunitytest/maven-plugin:latest", variables, timeout)
 	case "withGradle":
-		clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "gradle", "gradle", "harnesscommunitytest/gradle-plugin:latest", variables)
+		clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "gradle", "gradle", "harnesscommunitytest/gradle-plugin:latest", variables, timeout)
 	case "wrap":
 		if !processedTools.SonarCubeProcessed && !processedTools.SonarCubePresent {
-			clone, repo = recursiveHandleSonarCube(currentNode, stepWithIDList, processedTools, "sonarCube", "sonarCube", "aosapps/drone-sonar-plugin", variables)
+			clone, repo = recursiveHandleSonarCube(currentNode, stepWithIDList, processedTools, "sonarCube", "sonarCube", "aosapps/drone-sonar-plugin", variables, timeout)
 		}
 		if processedTools.AntPresent {
-			clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "ant", "ant", "harnesscommunitytest/ant-plugin:latest", variables)
+			clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "ant", "ant", "harnesscommunitytest/ant-plugin:latest", variables, timeout)
 		}
 
 	default:
@@ -454,7 +511,7 @@ func ExtractEnvironmentVariables(node jenkinsjson.Node) map[string]string {
 	return envVars
 }
 
-func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]StepWithID, processedTools *ProcessedTools, toolType string, pluginName string, pluginImage string, variables map[string]string) (*harness.CloneStage, *harness.Repository) {
+func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]StepWithID, processedTools *ProcessedTools, toolType string, pluginName string, pluginImage string, variables map[string]string, timeout string) (*harness.CloneStage, *harness.Repository) {
 	var clone *harness.CloneStage
 	var repo *harness.Repository
 	for _, child := range currentNode.Children {
@@ -495,6 +552,7 @@ func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]Ste
 
 				toolStep := &harness.Step{
 					Name: pluginName,
+					Timeout: timeout,
 					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 					Type: "plugin",
 					Spec: &harness.StepPlugin{
@@ -522,7 +580,7 @@ func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]Ste
 				return clone, repo
 			}
 		}
-		clone, repo = recursiveHandleWithTool(child, stepWithIDList, processedTools, toolType, pluginName, pluginImage, variables)
+		clone, repo = recursiveHandleWithTool(child, stepWithIDList, processedTools, toolType, pluginName, pluginImage, variables,timeout)
 	}
 	return clone, repo
 }
@@ -561,7 +619,7 @@ func handleTool(currentNode jenkinsjson.Node, processedTools *ProcessedTools) {
 	}
 }
 
-func recursiveHandleSonarCube(currentNode jenkinsjson.Node, stepWithIDList *[]StepWithID, processedTools *ProcessedTools, toolType string, pluginName string, pluginImage string, variables map[string]string) (*harness.CloneStage, *harness.Repository) {
+func recursiveHandleSonarCube(currentNode jenkinsjson.Node, stepWithIDList *[]StepWithID, processedTools *ProcessedTools, toolType string, pluginName string, pluginImage string, variables map[string]string, timeout string) (*harness.CloneStage, *harness.Repository) {
 	var clone *harness.CloneStage
 	var repo *harness.Repository
 
@@ -576,6 +634,7 @@ func recursiveHandleSonarCube(currentNode jenkinsjson.Node, stepWithIDList *[]St
 				// Handle withSonarQubeEnv step
 				toolStep := &harness.Step{
 					Name: pluginName,
+					Timeout: timeout,
 					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 					Type: "plugin",
 					Spec: &harness.StepPlugin{
@@ -613,7 +672,7 @@ func recursiveHandleSonarCube(currentNode jenkinsjson.Node, stepWithIDList *[]St
 
 	// Recursively handle other child nodes
 	for _, child := range currentNode.Children {
-		clone, repo = recursiveHandleSonarCube(child, stepWithIDList, processedTools, toolType, pluginName, pluginImage, variables)
+		clone, repo = recursiveHandleSonarCube(child, stepWithIDList, processedTools, toolType, pluginName, pluginImage, variables,timeout)
 		if clone != nil || repo != nil {
 			// If we found and processed the step, return
 			return clone, repo
