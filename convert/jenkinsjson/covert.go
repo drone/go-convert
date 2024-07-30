@@ -380,14 +380,15 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			}
 
 			if timeExists {
+				if unit == "SECONDS" && time  < 10 {
+					time  = 10
+				}
 				if !unitExists {
 					unit = "MINUTES"
 				}
 				switch unit {
 				case "MINUTES":
 					timeout = strconv.Itoa(time) + "m"
-				case "MILLISECONDS":
-					timeout = strconv.Itoa(time) + "ms"
 				case "SECONDS":
 					timeout = strconv.Itoa(time) + "s"
 				case "HOURS":
