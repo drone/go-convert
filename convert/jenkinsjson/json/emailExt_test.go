@@ -87,7 +87,7 @@ func TestConvertEmailext(t *testing.T) {
 
 	for i, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got := ConvertEmailext(test.json, test.vars)
+			got := ConvertEmailext(test.json, test.vars, test.want.Timeout)
 			if diff := cmp.Diff(got, test.want); diff != "" {
 				t.Errorf("Unexpected conversion results for test %v", i)
 				t.Log(diff)
