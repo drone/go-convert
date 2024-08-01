@@ -26,5 +26,9 @@ func SanitizeForId(spanName string, spanId string) string {
 	// Trim leading and trailing underscores
 	sanitized = regexp.MustCompile("^_+|_+$").ReplaceAllString(sanitized, "")
 
+	if sanitized == "" {
+		sanitized = "unamed"
+	}
+
 	return sanitized + spanId[:6]
 }
