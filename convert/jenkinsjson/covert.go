@@ -337,7 +337,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 				for i, step := range parallelStepItemsWithID {
 					sortedParallelSteps[i] = step.Step
 				}
-				fmt.Println("Making the Parallel steps")
 				parallelStep := &harness.Step{
 					Name: currentNode.SpanName,
 					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
