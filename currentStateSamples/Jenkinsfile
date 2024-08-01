@@ -2,24 +2,21 @@ pipeline {
     agent any
     
     tools {
-        ant 'Ant Old'
+        ant 'AntNew'
         gradle 'GradleNew'
         maven 'MavenNew'
     }
     
     stages {
+        stage('Checkout') {
+            steps {
+                git url: "https://github.com/Anshika2203/CombinedAllBuilds", branch: 'main'
+            }
+        }
         stage('Plugin Build') {
             steps {
                 script {
                     // Perform the checkout
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: '*/main']],
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions: [],
-                        submoduleCfg: [],
-                        userRemoteConfigs: [[url: 'https://github.com/Anshika2203/CombinedAllBuilds.git']]
-                    ])
                     
                     // Use Maven to build
                     withMaven {
@@ -50,6 +47,20 @@ line2
 line3'''
                     readFile file: 'output1.txt'
                 }
+            }
+        }
+        stage('Artifact upload') {
+           steps {
+              script {
+                 def server = Artifactory.server 'harness'
+                 def uploadSpec = """{
+                    "files": [{
+                        "pattern": "target/output1.txt",
+                        "target": "/artifactory/generic-local/op-ci/"
+                    }]
+                 }"""
+                 server.upload(uploadSpec)
+               }
             }
         }
 
@@ -85,18 +96,40 @@ line3'''
         }
         stage('Code Analysis') {
             environment {
-                scannerHome = tool 'sonar_cube'
+                scannerHome = tool 'Sonar'
             }
             steps {
                 script {
                     withSonarQubeEnv('Sonar') {
                         sh "${scannerHome}/bin/sonar-scanner \
                             -Dsonar.projectKey=jenkins-SonarCube \
-                            -Dsonar.projectName=jenkins-SonarCube \
-                            -Dsonar.sources=."
+                            -Dsonar.projectName=jenkins-SonarCube"
                     }
                 }
             }
+        }
+        stage('TimeOut Step') {
+            steps {
+                timeout(time: 9, unit: 'SECONDS') {
+                    sh('echo this step must complete in less than nine seconds')
+                }
+                timeout(time: 1, unit: 'MINUTES') {
+                    sh('echo this step must complete in less than one minute')
+                }
+                timeout(time: 1, unit: 'HOURS') {
+                    sh('echo this step must complete in less than one hour')
+                }
+            }
+        }
+        stage('Sleep Step') {
+            steps {
+                sleep(time: 1, unit: 'MINUTES')
+            }
+        }
+    }
+    post {
+        always {
+            emailext subject: 'Email ${BUILD_STATUS}', body: 'Email ${BUILD_NUMBER}', to: 'first@example.com second@example.com'
         }
     }
 }

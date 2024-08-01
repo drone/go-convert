@@ -134,7 +134,6 @@ func recursiveParseJsonToStages(jsonNode *jenkinsjson.Node, dst *harness.Pipelin
 	stepGroupWithID := make([]StepGroupWithID, 0)
 	// Collect all stages with their IDs
 	collectStagesWithID(jsonNode, processedTools, &stepGroupWithID, variables)
-
 	// Sort the stages based on their IDs
 	sort.Slice(stepGroupWithID, func(i, j int) bool {
 		return stepGroupWithID[i].ID < stepGroupWithID[j].ID
@@ -173,12 +172,12 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 				continue
 			}
 
-			stepId := searchChildNodesForStageId(&childNode, stageName)
+			stageID := searchChildNodesForStageId(&childNode, stageName)
 
 			stepsInStage := make([]*harness.Step, 0)
 			recursiveParseJsonToSteps(childNode, &stepsInStage, processedTools, variables)
 
-			// Create the harness stage for each Jenkins stage
+			// Create the stepGroup for the new stage
 			dstStep := &harness.Step{
 				Name: stageName,
 				Id:   SanitizeForId(childNode.SpanName, childNode.SpanId),
@@ -189,7 +188,7 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 			}
 
 			// Convert stageID to integer and store it with the stage
-			id, err := strconv.Atoi(stepId)
+			id, err := strconv.Atoi(stageID)
 			if err != nil {
 				fmt.Println("Error converting stage ID to integer:", err)
 				id = 0
@@ -325,16 +324,26 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		if len(currentNode.Children) > 1 {
 			// handle parallel from parent
 			if currentNode.Children[0].AttributesMap["jenkins.pipeline.step.type"] == "parallel" {
-				parallelStepItems := make([]*harness.Step, 0)
+				parallelStepItemsWithID := make([]StepWithID, 0)
 				for _, child := range currentNode.Children {
-					clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout)
+					clone, repo = collectStepsWithID(child, &parallelStepItemsWithID, processedTools, variables, timeout)
 				}
+				// Storing the Parallel Steps
+				sort.Slice(parallelStepItemsWithID, func(i, j int) bool {
+					return parallelStepItemsWithID[i].ID < parallelStepItemsWithID[j].ID
+				})
+
+				sortedParallelSteps := make([]*harness.Step, len(parallelStepItemsWithID))
+				for i, step := range parallelStepItemsWithID {
+					sortedParallelSteps[i] = step.Step
+				}
+				fmt.Println("Making the Parallel steps")
 				parallelStep := &harness.Step{
 					Name: currentNode.SpanName,
 					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 					Type: "parallel",
 					Spec: &harness.StepParallel{
-						Steps: parallelStepItems,
+						Steps: sortedParallelSteps,
 					},
 				}
 				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: parallelStep, ID: id})
@@ -672,7 +681,7 @@ func recursiveHandleSonarCube(currentNode jenkinsjson.Node, stepWithIDList *[]St
 
 	// Recursively handle other child nodes
 	for _, child := range currentNode.Children {
-		clone, repo = recursiveHandleSonarCube(child, stepWithIDList, processedTools, toolType, pluginName, pluginImage, variables,timeout)
+		clone, repo = recursiveHandleSonarCube(child, stepWithIDList, processedTools, toolType, pluginName, pluginImage, variables, timeout)
 		if clone != nil || repo != nil {
 			// If we found and processed the step, return
 			return clone, repo
