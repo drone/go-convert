@@ -406,7 +406,7 @@ func (d *Downgrader) convertStepGroup(src *v1.Step) *v0.StepGroup {
 	var steps []*v0.Steps
 	for _, step := range spec_.Steps {
 		dst := d.convertStep(step)
-		steps = append(steps, &v0.Steps{Step: dst.Step})
+		steps = append(steps, dst)
 	}
 	return &v0.StepGroup{
 		ID:      src.Id,
