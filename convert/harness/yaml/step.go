@@ -181,7 +181,7 @@ type (
 		ConnRef         string            `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
 		Image           string            `json:"image,omitempty"           yaml:"image,omitempty"`
 		ImagePullPolicy string            `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
-		Outputs         []string          `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty"`
+		Outputs         []*Output          `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty"`
 		Privileged      bool              `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
 		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`

@@ -118,6 +118,12 @@ type (
 		Spec *ServiceSpec `json:"spec,omitempty"         yaml:"spec,omitempty"`
 	}
 
+	Output struct {
+		Name  string `json:"name,omitempty"      yaml:"name,omitempty"`
+		Type  string `json:"type,omitempty" yaml:"type,omitempty"`
+		Value string `json:"value,omitempty" yaml:"value,omitempty"`
+	}
+
 	ServiceSpec struct {
 		Env        map[string]string `json:"envVariables,omitempty"   yaml:"envVariables,omitempty"`
 		Entrypoint []string          `json:"entrypoint,omitempty"     yaml:"entrypoint,omitempty"`
