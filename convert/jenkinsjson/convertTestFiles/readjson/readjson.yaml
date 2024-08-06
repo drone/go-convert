@@ -1,8 +1,10 @@
-- step:
-    identifier: readjson2edc62
-    name: readJSON
-    spec:
-      command: cat input.json
-      shell: Sh
-    timeout: ""
+ - step:
     type: Run
+    name: readjson
+    identifier: readjson
+    spec:
+      shell: Sh
+      image: alpine
+      command: jsonObj=\'$(cat dir/input.json | tr -d '\n')\'
+      outputVariables:
+        - name: jsonObj
