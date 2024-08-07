@@ -285,6 +285,18 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	var clone *harness.CloneStage
 	var repo *harness.Repository
 
+	if len(currentNode.ParameterMap) == 0 {
+		if harnessAttr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
+			var paramMap map[string]interface{}
+			err := json.Unmarshal([]byte(harnessAttr), &paramMap)
+			if err == nil {
+				currentNode.ParameterMap = paramMap
+			} else {
+				fmt.Println("Error parsing harness-attribute:", err)
+			}
+		}
+	}
+
 	if len(currentNode.AttributesMap) == 0 {
 		for _, child := range currentNode.Children {
 			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout)
@@ -388,8 +400,8 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			}
 
 			if timeExists {
-				if unit == "SECONDS" && time  < 10 {
-					time  = 10
+				if unit == "SECONDS" && time < 10 {
+					time = 10
 				}
 				if !unitExists {
 					unit = "MINUTES"
@@ -559,10 +571,10 @@ func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]Ste
 				goals = strings.Join(words[1:], " ")
 
 				toolStep := &harness.Step{
-					Name: pluginName,
+					Name:    pluginName,
 					Timeout: timeout,
-					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
-					Type: "plugin",
+					Id:      SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Type:    "plugin",
 					Spec: &harness.StepPlugin{
 						Connector: "c.docker",
 						Image:     pluginImage,
@@ -588,7 +600,7 @@ func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]Ste
 				return clone, repo
 			}
 		}
-		clone, repo = recursiveHandleWithTool(child, stepWithIDList, processedTools, toolType, pluginName, pluginImage, variables,timeout)
+		clone, repo = recursiveHandleWithTool(child, stepWithIDList, processedTools, toolType, pluginName, pluginImage, variables, timeout)
 	}
 	return clone, repo
 }
@@ -641,10 +653,10 @@ func recursiveHandleSonarCube(currentNode jenkinsjson.Node, stepWithIDList *[]St
 			if symbolOk && symbol == "withSonarQubeEnv" {
 				// Handle withSonarQubeEnv step
 				toolStep := &harness.Step{
-					Name: pluginName,
+					Name:    pluginName,
 					Timeout: timeout,
-					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
-					Type: "plugin",
+					Id:      SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Type:    "plugin",
 					Spec: &harness.StepPlugin{
 						Connector: "c.docker",
 						Image:     pluginImage,
