@@ -1,13 +1,10 @@
 pipeline {
     agent any
+
     stages {
-        stage("readfile") {
+        stage('read file') {
             steps {
-                script
-                {
-                    def props = readJSON file: 'input.json'
-                }
-                
+                readJSON file: '/Users/rakshith/Downloads/IntermediateJson/BasicPipe.json'
             }
         }
     }

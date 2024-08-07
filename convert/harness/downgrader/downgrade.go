@@ -444,6 +444,13 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 	if src.Name == "" {
 		src.Name = id
 	}
+
+	// Convert outputs
+	var outputs []*v0.Output
+	for _, output := range spec_.Outputs {
+		outputs = append(outputs, convertOutput(output))
+	}
+
 	return &v0.Step{
 		ID:      id,
 		Name:    convertName(src.Name),
@@ -455,6 +462,7 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 			ConnRef:         d.dockerhubConn,
 			Image:           spec_.Image,
 			ImagePullPolicy: convertImagePull(spec_.Pull),
+			Outputs:         outputs, // Add this line
 			Privileged:      spec_.Privileged,
 			RunAsUser:       spec_.User,
 			Reports:         convertReports(spec_.Reports),
@@ -890,6 +898,12 @@ func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 	}
 
 	return newWhen
+}
+
+func convertOutput(output string) *v0.Output {
+	return &v0.Output{
+		Name:  output,
+	}
 }
 
 func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {

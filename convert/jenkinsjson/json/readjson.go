@@ -28,9 +28,9 @@ func ConvertReadJson(node Node, variables map[string]string) *harness.Step {
 
 	var runCommand string
 	if file != "" {
-		runCommand = fmt.Sprintf("cat %s", file)
+		runCommand = fmt.Sprintf("jsonObj='$(cat %s | tr -d '\\n')'", file)
 	} else if text != "" {
-		runCommand = fmt.Sprintf("echo '%s'", text)
+		runCommand = fmt.Sprintf("jsonObj='%s'", text)
 	} else {
 		log.Printf("no valid attribute found for node %s", node.SpanName)
 		return nil
@@ -41,8 +41,10 @@ func ConvertReadJson(node Node, variables map[string]string) *harness.Step {
 		Id:   SanitizeForId(node.SpanName, node.SpanId),
 		Type: "script",
 		Spec: &harness.StepExec{
-			Shell: "sh",
-			Run:   runCommand,
+			Image: "alpine",
+			Shell:   "sh",
+			Run:     runCommand,
+			Outputs: []string{"jsonObj"},
 		},
 	}
 
