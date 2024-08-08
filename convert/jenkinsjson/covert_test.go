@@ -3,7 +3,7 @@ package jenkinsjson
 import (
 	"encoding/json"
 	harness "github.com/drone/spec/dist/go"
-	jenkinsjson "github.com/jamie-harness/go-convert/convert/jenkinsjson/json"
+	jenkinsjson "github.com/drone/go-convert/convert/jenkinsjson/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"

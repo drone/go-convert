@@ -25,8 +25,8 @@ import (
 	"strings"
 
 	harness "github.com/drone/spec/dist/go"
-	gitlab "github.com/jamie-harness/go-convert/convert/gitlab/yaml"
-	"github.com/jamie-harness/go-convert/internal/store"
+	gitlab "github.com/drone/go-convert/convert/gitlab/yaml"
+	"github.com/drone/go-convert/internal/store"
 
 	"dario.cat/mergo"
 	"github.com/ghodss/yaml"

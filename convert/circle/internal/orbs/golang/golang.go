@@ -19,7 +19,7 @@ import (
 	"strings"
 
 	harness "github.com/drone/spec/dist/go"
-	circle "github.com/jamie-harness/go-convert/convert/circle/yaml"
+	circle "github.com/drone/go-convert/convert/circle/yaml"
 )
 
 //

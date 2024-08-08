@@ -24,10 +24,10 @@ import (
 	"strings"
 
 	v2 "github.com/drone/spec/dist/go"
-	v1 "github.com/jamie-harness/go-convert/convert/drone/yaml"
+	v1 "github.com/drone/go-convert/convert/drone/yaml"
 
 	"github.com/ghodss/yaml"
-	"github.com/jamie-harness/go-convert/internal/store"
+	"github.com/drone/go-convert/internal/store"
 )
 
 // conversion context

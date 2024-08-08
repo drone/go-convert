@@ -17,7 +17,7 @@ package bitbucket
 import (
 	"sort"
 
-	bitbucket "github.com/jamie-harness/go-convert/convert/bitbucket/yaml"
+	bitbucket "github.com/drone/go-convert/convert/bitbucket/yaml"
 )
 
 //
