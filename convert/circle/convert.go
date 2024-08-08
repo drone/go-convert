@@ -23,12 +23,12 @@ import (
 	"os"
 	"strings"
 
-	harness "github.com/drone/spec/dist/go"
 	"github.com/drone/go-convert/convert/circle/internal/orbs"
 	circle "github.com/drone/go-convert/convert/circle/yaml"
+	harness "github.com/drone/spec/dist/go"
 
-	"github.com/ghodss/yaml"
 	"github.com/drone/go-convert/internal/store"
+	"github.com/ghodss/yaml"
 )
 
 // Converter converts a Circle pipeline to a harness

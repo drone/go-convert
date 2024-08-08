@@ -15,10 +15,10 @@
 package orbs
 
 import (
-	harness "github.com/drone/spec/dist/go"
 	browser_tools "github.com/drone/go-convert/convert/circle/internal/orbs/browser-tools"
 	"github.com/drone/go-convert/convert/circle/internal/orbs/datadog"
 	circle "github.com/drone/go-convert/convert/circle/yaml"
+	harness "github.com/drone/spec/dist/go"
 
 	"github.com/drone/go-convert/convert/circle/internal/orbs/codecov"
 	"github.com/drone/go-convert/convert/circle/internal/orbs/coveralls"

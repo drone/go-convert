@@ -15,8 +15,8 @@
 package circle
 
 import (
-	harness "github.com/drone/spec/dist/go"
 	circle "github.com/drone/go-convert/convert/circle/yaml"
+	harness "github.com/drone/spec/dist/go"
 )
 
 // this is a poor attempt at an optimization to remove

@@ -25,10 +25,10 @@ import (
 	"github.com/drone/go-convert/internal/slug"
 	"github.com/drone/go-convert/internal/store"
 
-	v1 "github.com/drone/spec/dist/go"
-	"github.com/ghodss/yaml"
 	harness "github.com/drone/go-convert/convert/harness/downgrader/yaml"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	v1 "github.com/drone/spec/dist/go"
+	"github.com/ghodss/yaml"
 )
 
 // Downgrader downgrades pipelines from the v0 harness
@@ -971,7 +971,7 @@ func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 
 func convertOutput(output string) *v0.Output {
 	return &v0.Output{
-		Name:  output,
+		Name: output,
 	}
 }
 

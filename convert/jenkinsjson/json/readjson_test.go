@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
 	harness "github.com/drone/spec/dist/go"
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestConvertReadJson(t *testing.T) {
@@ -45,7 +45,7 @@ func TestConvertReadJson(t *testing.T) {
 				Spec: &harness.StepExec{
 					Image:   "alpine",
 					Shell:   "sh",
-					Run:     "jsonObj='$(cat /Users/rakshith/Downloads/IntermediateJson/BasicPipe.json | tr -d '\\n')'", 
+					Run:     "jsonObj='$(cat /Users/rakshith/Downloads/IntermediateJson/BasicPipe.json | tr -d '\\n')'",
 					Outputs: []string{"jsonObj"},
 				},
 			},

@@ -21,11 +21,11 @@ import (
 	"os"
 	"strings"
 
-	harness "github.com/drone/spec/dist/go"
 	bitbucket "github.com/drone/go-convert/convert/bitbucket/yaml"
+	harness "github.com/drone/spec/dist/go"
 
-	"github.com/ghodss/yaml"
 	"github.com/drone/go-convert/internal/store"
+	"github.com/ghodss/yaml"
 )
 
 // Converter converts a Bitbucket pipeline to a harness

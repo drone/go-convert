@@ -23,8 +23,8 @@ import (
 
 	harness "github.com/drone/spec/dist/go"
 
-	"github.com/ghodss/yaml"
 	"github.com/drone/go-convert/internal/store"
+	"github.com/ghodss/yaml"
 )
 
 // Converter converts a Azure Devops pipeline to a Harness

@@ -41,7 +41,7 @@ func ConvertReadJson(node Node, variables map[string]string) *harness.Step {
 		Id:   SanitizeForId(node.SpanName, node.SpanId),
 		Type: "script",
 		Spec: &harness.StepExec{
-			Image: "alpine",
+			Image:   "alpine",
 			Shell:   "sh",
 			Run:     runCommand,
 			Outputs: []string{"jsonObj"},

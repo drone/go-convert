@@ -18,8 +18,8 @@ import (
 	"strings"
 	"testing"
 
-	harness "github.com/drone/spec/dist/go"
 	circle "github.com/drone/go-convert/convert/circle/yaml"
+	harness "github.com/drone/spec/dist/go"
 
 	"github.com/google/go-cmp/cmp"
 )
