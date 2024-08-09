@@ -31,6 +31,7 @@ func TestConvert(t *testing.T) {
 	}
 
 	for _, test := range tests {
+
 		t.Run(test, func(t *testing.T) {
 			// convert the yaml file from cloudbuild to harness
 			converter := New()

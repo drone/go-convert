@@ -1,57 +1,49 @@
-kind: pipeline
-spec:
-  options:
-    envs:
-      BRANCH_NAME: <+trigger.branch>
-      BUILD_ID: <+pipeline.sequenceId>
-      COMMIT_SHA: <+trigger.commitSha>
-      PROJECT_ID: <+project.name>
-      PROJECT_NUMBER: <+pipeline.sequenceId>
-      REPO_NAME: <+trigger.payload.repository.name>
-      REVISION_ID: <+trigger.commitSha>
-      SHORT_SHA: <+codebase.shortCommitSha>
-      TAG_NAME: <+trigger.commitSha>
+version: 1
+pipeline:
+  env:
+    BRANCH_NAME: <+trigger.branch>
+    BUILD_ID: <+pipeline.sequenceId>
+    COMMIT_SHA: <+trigger.commitSha>
+    PROJECT_ID: <+project.name>
+    PROJECT_NUMBER: <+pipeline.sequenceId>
+    REPO_NAME: <+trigger.payload.repository.name>
+    REVISION_ID: <+trigger.commitSha>
+    SHORT_SHA: <+codebase.shortCommitSha>
+    TAG_NAME: <+trigger.commitSha>
   stages:
-  - desc: converted from google cloud build
-    name: pipeline
-    spec:
-      platform:
-        arch: amd64
-        os: linux
-      runtime:
-        spec: {}
-        type: cloud
-      steps:
-      - failure:
-          action:
-            spec: {}
-            type: ignore
-          errors:
-          - all
-        name: ubuntu
-        spec:
+  - platform:
+      arch: amd64
+      os: linux
+    runtime:
+      cloud: {}
+    steps:
+    - name: ubuntu
+      run:
+        container:
           args:
           - -c
           - exit 1
           image: ubuntu
-          mount:
-          - name: dockersock
-            path: /var/run/docker.sock
-        type: script
-      - name: ubuntu1
-        spec:
+          volumes:
+          - source: dockersock
+            target: /var/run/docker.sock
+      on-failure:
+        action:
+          ignore: true
+        errors:
+        - all
+    - name: ubuntu1
+      run:
+        container:
           args:
           - echo
           - Hello World
           image: ubuntu
-          mount:
-          - name: dockersock
-            path: /var/run/docker.sock
-        type: script
-      volumes:
-      - name: dockersock
-        spec:
-          path: /var/run/docker.sock
-        type: host
-    type: ci
-version: 1
+          volumes:
+          - source: dockersock
+            target: /var/run/docker.sock
+    volumes:
+    - name: dockersock
+      uses: bind
+      with:
+        path: /var/run/docker.sock

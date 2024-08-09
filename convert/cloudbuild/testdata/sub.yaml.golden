@@ -1,45 +1,38 @@
-kind: pipeline
-spec:
+version: 1
+pipeline:
   inputs:
     _SUB_VALUE:
       default: world
       type: string
-  options:
-    envs:
-      BRANCH_NAME: <+trigger.branch>
-      BUILD_ID: <+pipeline.sequenceId>
-      COMMIT_SHA: <+trigger.commitSha>
-      PROJECT_ID: <+project.name>
-      PROJECT_NUMBER: <+pipeline.sequenceId>
-      REPO_NAME: <+trigger.payload.repository.name>
-      REVISION_ID: <+trigger.commitSha>
-      SHORT_SHA: <+codebase.shortCommitSha>
-      TAG_NAME: <+trigger.commitSha>
+  env:
+    BRANCH_NAME: <+trigger.branch>
+    BUILD_ID: <+pipeline.sequenceId>
+    COMMIT_SHA: <+trigger.commitSha>
+    PROJECT_ID: <+project.name>
+    PROJECT_NUMBER: <+pipeline.sequenceId>
+    REPO_NAME: <+trigger.payload.repository.name>
+    REVISION_ID: <+trigger.commitSha>
+    SHORT_SHA: <+codebase.shortCommitSha>
+    TAG_NAME: <+trigger.commitSha>
   stages:
-  - desc: converted from google cloud build
-    name: pipeline
-    spec:
-      platform:
-        arch: amd64
-        os: linux
-      runtime:
-        spec: {}
-        type: cloud
-      steps:
-      - name: ubuntu
-        spec:
-          args:
-          - echo
-          - hello <+inputs._SUB_VALUE>
-          image: ubuntu
-          mount:
-          - name: dockersock
-            path: /var/run/docker.sock
-        type: script
-      volumes:
+  - platform:
+      arch: amd64
+      os: linux
+    runtime:
+      cloud: {}
+    volumes:
       - name: dockersock
-        spec:
+        uses: bind
+        with:
           path: /var/run/docker.sock
-        type: host
-    type: ci
-version: 1
+    steps:
+      - name: ubuntu
+        run:
+          container:
+            args:
+            - echo
+            - hello <+inputs._SUB_VALUE>
+            image: ubuntu
+            volumes:
+            - source: dockersock
+              target: /var/run/docker.sock

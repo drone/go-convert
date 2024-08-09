@@ -23,9 +23,9 @@ import (
 	"strings"
 	"time"
 
+	harness "github.com/bradrydzewski/spec/yaml"
 	cloudbuild "github.com/drone/go-convert/convert/cloudbuild/yaml"
 	"github.com/drone/go-convert/internal/store"
-	harness "github.com/drone/spec/dist/go"
 
 	"github.com/ghodss/yaml"
 )
@@ -106,16 +106,7 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 
 	// create the harness pipeline spec
-	pipeline := &harness.Pipeline{
-		Options: new(harness.Default),
-	}
-
-	// create the harness pipeline
-	config := &harness.Config{
-		Version: 1,
-		Kind:    "pipeline",
-		Spec:    pipeline,
-	}
+	pipeline := &harness.Pipeline{}
 
 	// convert subsitutions to inputs
 	if v := src.Substitutions; len(v) != 0 {
@@ -130,37 +121,42 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 
 	// convert pipeline timeout
 	if v := src.Timeout; v != 0 {
-		pipeline.Options.Timeout = convertTimeout(v)
+		// TODO add pipeline.timeout
+		// pipeline.Timeout = convertTimeout(v)
 	}
 
-	spec := &harness.StageCI{
-		Cache: nil, // No Google equivalent
-		Envs:  nil,
+	stage := &harness.Stage{
+		Cache: nil,
+		Env:   nil,
 		Platform: &harness.Platform{
-			Os:   harness.OSLinux.String(),
-			Arch: harness.ArchAmd64.String(),
+			Os:   "linux",
+			Arch: "amd64",
 		},
 		Runtime: d.convertRuntime(src),
 		Steps:   d.convertSteps(src),
 	}
 
-	// add global environment variables
+	// track unique volume names (why?)
 	uniqueVols := map[string]struct{}{}
+
+	// add global options
 	if opts := src.Options; opts != nil {
-		spec.Envs = convertEnv(opts.Env)
+		// add global env variables
+		pipeline.Env = convertEnv(opts.Env)
 
 		// add global volumes
 		if vols := opts.Volumes; len(vols) > 0 {
 			for _, vol := range vols {
 				uniqueVols[vol.Name] = struct{}{}
-				spec.Volumes = append(spec.Volumes, &harness.Volume{
+				stage.Volumes = append(stage.Volumes, &harness.Volume{
 					Name: vol.Name,
-					Type: "temp",
-					Spec: &harness.VolumeTemp{},
+					Uses: "temp",
+					With: &harness.VolumeTemp{},
 				})
 			}
 		}
 	}
+
 	// add step volumes
 	for _, step := range src.Steps {
 		for _, vol := range step.Volumes {
@@ -169,25 +165,25 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 				continue
 			}
 			uniqueVols[vol.Name] = struct{}{}
-			spec.Volumes = append(spec.Volumes, &harness.Volume{
+			stage.Volumes = append(stage.Volumes, &harness.Volume{
 				Name: vol.Name,
-				Type: "temp",
-				Spec: &harness.VolumeTemp{},
+				Uses: "temp",
+				With: &harness.VolumeTemp{},
 			})
 		}
 	}
 
 	if d.kubeEnabled {
-		spec.Volumes = append(spec.Volumes, &harness.Volume{
+		stage.Volumes = append(stage.Volumes, &harness.Volume{
 			Name: "dockersock",
-			Type: "temp",
-			Spec: &harness.VolumeTemp{},
+			Uses: "temp",
+			With: &harness.VolumeTemp{},
 		})
 	} else {
-		spec.Volumes = append(spec.Volumes, &harness.Volume{
+		stage.Volumes = append(stage.Volumes, &harness.Volume{
 			Name: "dockersock",
-			Type: "host",
-			Spec: &harness.VolumeHost{
+			Uses: "bind",
+			With: &harness.VolumeBind{
 				Path: "/var/run/docker.sock",
 			},
 		})
@@ -211,21 +207,16 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 		// https://cloud.google.com/build/docs/build-config-file-schema#images
 	}
 
-	// conver pipeilne stages
-	pipeline.Stages = append(pipeline.Stages, &harness.Stage{
-		Name:     "pipeline",
-		Desc:     "converted from google cloud build",
-		Type:     "ci",
-		Delegate: nil, // No Google equivalent
-		Failure:  nil, // No Google equivalent
-		When:     nil, // No Google equivalent
-		Spec:     spec,
-	})
+	// convert pipeilne stages
+	pipeline.Stages = append(pipeline.Stages, stage)
 
 	// replace google cloud build substitution variable
 	// with harness jexl expressions
 	config, err := replaceAll(
-		config,
+		&harness.Schema{
+			Version:  1,
+			Pipeline: pipeline,
+		},
 		combineEnv(
 			envMappingJexl,
 			mapInputsToExpr(src.Substitutions),
@@ -237,7 +228,12 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 
 	// map cloud build environment variables to harness
 	// environment variables using jexl.
-	config.Spec.(*harness.Pipeline).Options.Envs = envMappingJexl
+	if config.Pipeline.Env == nil {
+		config.Pipeline.Env = map[string]string{}
+	}
+	for k, v := range envMappingJexl {
+		config.Pipeline.Env[k] = v
+	}
 
 	// marshal the harness yaml
 	out, err := yaml.Marshal(config)
@@ -251,20 +247,18 @@ func (d *Converter) convert(src *cloudbuild.Config) ([]byte, error) {
 func (d *Converter) convertRuntime(src *cloudbuild.Config) *harness.Runtime {
 	if d.kubeEnabled {
 		return &harness.Runtime{
-			Type: "kubernetes",
-			Spec: &harness.RuntimeKube{
+			Kubernetes: &harness.RuntimeKubernetes{
 				Namespace: d.kubeNamespace,
 				Connector: d.kubeConnector,
 			},
 		}
 	}
-	spec := new(harness.RuntimeCloud)
+	cloud := new(harness.RuntimeCloud)
 	if src.Options != nil {
-		spec.Size = convertMachine(src.Options.Machinetype)
+		cloud.Size = convertMachine(src.Options.Machinetype)
 	}
 	return &harness.Runtime{
-		Type: "cloud",
-		Spec: spec,
+		Cloud: cloud,
 	}
 }
 
@@ -281,7 +275,6 @@ func (d *Converter) convertSteps(src *cloudbuild.Config) []*harness.Step {
 }
 
 func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step) *harness.Step {
-
 	return &harness.Step{
 		Name: d.identifiers.Generate(
 			srcstep.ID,
@@ -289,27 +282,27 @@ func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step
 			// name and use as the base name.
 			path.Base(srcstep.Name),
 		),
-		Desc:    "",  // No Google equivalent
-		When:    nil, // No Google equivalent
-		Failure: createFailurestrategy(srcstep),
-		Type:    "script",
-		Timeout: convertTimeout(srcstep.Timeout),
-		Spec: &harness.StepExec{
-			Image:      srcstep.Name,
-			Connector:  d.dockerhubConn,
-			Privileged: false, // No Google Equivalent
-			Pull:       "",    // No Google equivalent
-			Shell:      "",    // No Google equivalent
-			User:       "",    // No Google equivalent
-			Group:      "",    // No Google equivalent
-			Network:    "",    // No Google equivalent
-			Entrypoint: srcstep.Entrypoint,
-			Args:       srcstep.Args,
-			Run:        srcstep.Script,
-			Envs:       convertEnv(srcstep.Env),
-			Resources:  nil, // No Google equivalent
-			Reports:    nil, // No Google equivalent
-			Mount:      createMounts(src, srcstep),
+		If:        "", // No Google equivalent
+		OnFailure: createFailurestrategy(srcstep),
+		// Timeout:   convertTimeout(srcstep.Timeout),
+		Run: &harness.StepRun{
+			Container: &harness.Container{
+				Image:      srcstep.Name,
+				Connector:  d.dockerhubConn,
+				Privileged: false, // No Google Equivalent
+				Pull:       "",    // No Google equivalent
+				User:       0,     // No Google equivalent
+				Group:      0,     // No Google equivalent
+				Network:    "",    // No Google equivalent
+				// Resources: nil, // No Google equivalent
+				Entrypoint: convertStringSlice(srcstep.Entrypoint),
+				Args:       srcstep.Args,
+				Volumes:    createMounts(src, srcstep),
+			},
+			Shell:  "", // No Google equivalent
+			Script: convertStringSlice(srcstep.Script),
+			Env:    convertEnv(srcstep.Env),
+			Report: nil, // No Google equivalent
 
 			// TODO support step.dir
 			// TODO support step.secretEnv
@@ -317,21 +310,16 @@ func (d *Converter) convertStep(src *cloudbuild.Config, srcstep *cloudbuild.Step
 	}
 }
 
-func createFailurestrategy(src *cloudbuild.Step) *harness.FailureList {
+func createFailurestrategy(src *cloudbuild.Step) *harness.FailureStrategy {
 	if src.Allowfailure == false && len(src.Allowexitcodes) == 0 {
 		return nil
 	}
-	return &harness.FailureList{
-		Items: []*harness.Failure{
-			{
-				Errors: []string{"all"},
-				Action: &harness.FailureAction{
-					Type: "ignore",
-					Spec: &harness.Ignore{},
-					// TODO exit_codes needs to be re-added to spec
-					// ExitCodes: src.Allowexitcodes,
-				},
-			},
+	return &harness.FailureStrategy{
+		Errors: []string{"all"},
+		Action: &harness.Action{
+			Ignore: true,
+			// TODO exit_codes needs to be re-added to spec
+			// ExitCodes: src.Allowexitcodes,
 		},
 	}
 }
@@ -339,21 +327,21 @@ func createFailurestrategy(src *cloudbuild.Step) *harness.FailureList {
 func createMounts(src *cloudbuild.Config, srcstep *cloudbuild.Step) []*harness.Mount {
 	var mounts = []*harness.Mount{
 		{
-			Name: "dockersock",
-			Path: "/var/run/docker.sock",
+			Source: "dockersock",
+			Target: "/var/run/docker.sock",
 		},
 	}
 	for _, vol := range srcstep.Volumes {
 		mounts = append(mounts, &harness.Mount{
-			Name: vol.Name,
-			Path: vol.Path,
+			Source: vol.Name,
+			Target: vol.Path,
 		})
 	}
 	if src.Options != nil {
 		for _, vol := range src.Options.Volumes {
 			mounts = append(mounts, &harness.Mount{
-				Name: vol.Name,
-				Path: vol.Path,
+				Source: vol.Name,
+				Target: vol.Path,
 			})
 		}
 	}
@@ -370,16 +358,27 @@ func convertTimeout(src time.Duration) string {
 	}
 }
 
+// helper function converts a string to a
+// string slice.
+func convertStringSlice(s string) []string {
+	switch {
+	case s == "":
+		return nil
+	default:
+		return []string{s}
+	}
+}
+
 // helper function returns a machine size that corresponds
 // to the google cloud machine type.
-func convertMachine(src string) string {
+func convertMachine(src string) harness.MachineSize {
 	switch src {
 	case "N1_HIGHCPU_8", "E2_HIGHCPU_8":
-		return "standard"
+		return harness.MachineSizeMedium
 	case "N1_HIGHCPU_32", "E2_HIGHCPU_32":
-		return "" // TODO convert 32 core machines
+		return harness.MachineSizeXlarge
 	default:
-		return ""
+		return harness.MachineSizeNone
 	}
 }
 
@@ -424,7 +423,7 @@ func mapInputsToExpr(envs map[string]string) map[string]string {
 	return out
 }
 
-func replaceAll(in *harness.Config, envs map[string]string) (*harness.Config, error) {
+func replaceAll(in *harness.Schema, envs map[string]string) (*harness.Schema, error) {
 	// marshal the harness yaml
 	b, err := yaml.Marshal(in)
 	if err != nil {

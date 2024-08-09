@@ -1,58 +1,53 @@
-kind: pipeline
-spec:
-  options:
-    envs:
-      BRANCH_NAME: <+trigger.branch>
-      BUILD_ID: <+pipeline.sequenceId>
-      COMMIT_SHA: <+trigger.commitSha>
-      PROJECT_ID: <+project.name>
-      PROJECT_NUMBER: <+pipeline.sequenceId>
-      REPO_NAME: <+trigger.payload.repository.name>
-      REVISION_ID: <+trigger.commitSha>
-      SHORT_SHA: <+codebase.shortCommitSha>
-      TAG_NAME: <+trigger.commitSha>
+version: 1
+pipeline:
+  env:
+    BRANCH_NAME: <+trigger.branch>
+    BUILD_ID: <+pipeline.sequenceId>
+    COMMIT_SHA: <+trigger.commitSha>
+    PROJECT_ID: <+project.name>
+    PROJECT_NUMBER: <+pipeline.sequenceId>
+    REPO_NAME: <+trigger.payload.repository.name>
+    REVISION_ID: <+trigger.commitSha>
+    SHORT_SHA: <+codebase.shortCommitSha>
+    TAG_NAME: <+trigger.commitSha>
   stages:
-  - desc: converted from google cloud build
-    name: pipeline
-    spec:
-      platform:
-        arch: amd64
-        os: linux
-      runtime:
-        spec: {}
-        type: cloud
-      steps:
+  - platform:
+      arch: amd64
+      os: linux
+    runtime:
+      cloud: {}
+    volumes:
+      - name: dockersock
+        uses: bind
+        with:
+          path: /var/run/docker.sock
+    steps:
       - name: docker
-        spec:
-          args:
-          - build
-          - -t
-          - gcr.io/myproject/myimage
-          - .
-          image: gcr.io/cloud-builders/docker
-          mount:
-          - name: dockersock
-            path: /var/run/docker.sock
-        type: script
+        run:
+          container:
+            args:
+            - build
+            - -t
+            - gcr.io/myproject/myimage
+            - .
+            image: gcr.io/cloud-builders/docker
+            volumes:
+            - source: dockersock
+              target: /var/run/docker.sock
+
       - name: kubectl
-        spec:
-          args:
-          - set
-          - image
-          - deployment/myimage
-          - frontend=gcr.io/myproject/myimage
-          envs:
+        run:
+          container:
+            args:
+            - set
+            - image
+            - deployment/myimage
+            - frontend=gcr.io/myproject/myimage
+            image: gcr.io/cloud-builders/kubectl
+            volumes:
+            - source: dockersock
+              target: /var/run/docker.sock
+          env:
             CLOUDSDK_COMPUTE_ZONE: us-east1-b
             CLOUDSDK_CONTAINER_CLUSTER: node-example-cluster
-          image: gcr.io/cloud-builders/kubectl
-          mount:
-          - name: dockersock
-            path: /var/run/docker.sock
-        type: script
-      volumes:
-      - name: dockersock
-        spec:
-          path: /var/run/docker.sock
-        type: host
-    type: ci
-version: 1
+

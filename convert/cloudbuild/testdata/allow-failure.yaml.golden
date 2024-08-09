@@ -1,57 +1,52 @@
-kind: pipeline
-spec:
-  options:
-    envs:
-      BRANCH_NAME: <+trigger.branch>
-      BUILD_ID: <+pipeline.sequenceId>
-      COMMIT_SHA: <+trigger.commitSha>
-      PROJECT_ID: <+project.name>
-      PROJECT_NUMBER: <+pipeline.sequenceId>
-      REPO_NAME: <+trigger.payload.repository.name>
-      REVISION_ID: <+trigger.commitSha>
-      SHORT_SHA: <+codebase.shortCommitSha>
-      TAG_NAME: <+trigger.commitSha>
+version: 1
+pipeline:
+  env:
+    BRANCH_NAME: <+trigger.branch>
+    BUILD_ID: <+pipeline.sequenceId>
+    COMMIT_SHA: <+trigger.commitSha>
+    PROJECT_ID: <+project.name>
+    PROJECT_NUMBER: <+pipeline.sequenceId>
+    REPO_NAME: <+trigger.payload.repository.name>
+    REVISION_ID: <+trigger.commitSha>
+    SHORT_SHA: <+codebase.shortCommitSha>
+    TAG_NAME: <+trigger.commitSha>
   stages:
-  - desc: converted from google cloud build
-    name: pipeline
-    spec:
-      platform:
-        arch: amd64
-        os: linux
-      runtime:
-        spec: {}
-        type: cloud
-      steps:
-      - failure:
+  - platform:
+      arch: amd64
+      os: linux
+    runtime:
+      cloud: {}
+    volumes:
+      - name: dockersock
+        uses: bind
+        with:
+          path: /var/run/docker.sock
+    steps:
+      - on-failure:
           action:
-            spec: {}
-            type: ignore
+            ignore: true
           errors:
           - all
         name: ubuntu
-        spec:
-          args:
-          - -c
-          - exit 1
-          image: ubuntu
-          mount:
-          - name: dockersock
-            path: /var/run/docker.sock
-        type: script
+        run:
+          container:
+            args:
+            - -c
+            - exit 1
+            image: ubuntu
+            volumes:
+            - source: dockersock
+              target: /var/run/docker.sock
       - name: ubuntu1
-        spec:
-          args:
-          - echo
-          - Hello World
-          image: ubuntu
-          mount:
-          - name: dockersock
-            path: /var/run/docker.sock
-        type: script
-      volumes:
-      - name: dockersock
-        spec:
-          path: /var/run/docker.sock
-        type: host
-    type: ci
-version: 1
+        run:
+          container:
+            args:
+            - echo
+            - Hello World
+            image: ubuntu
+            volumes:
+            - source: dockersock
+              target: /var/run/docker.sock
+
+
+
