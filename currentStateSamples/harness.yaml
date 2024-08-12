@@ -1,0 +1,339 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: build
+      name: build
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - stepGroup:
+              identifier: Stage__nullbcc555
+              name: Checkout
+              timeout: ""
+          - stepGroup:
+              identifier: Stage__null392ee0
+              name: Plugin Build
+              steps:
+              - step:
+                  identifier: stagenullc831ea
+                  name: maven
+                  spec:
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                    image: harnesscommunitytest/maven-plugin:latest
+                    settings:
+                      Goals: clean install package
+                  timeout: ""
+                  type: Plugin
+              - step:
+                  identifier: stagenull5569bc
+                  name: ant
+                  spec:
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                    image: harnesscommunitytest/ant-plugin:latest
+                    settings:
+                      Goals: build
+                  timeout: ""
+                  type: Plugin
+              - step:
+                  identifier: stagenullf4aa89
+                  name: gradle
+                  spec:
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                    image: harnesscommunitytest/gradle-plugin:latest
+                    settings:
+                      Goals: build
+                  timeout: ""
+                  type: Plugin
+              timeout: ""
+          - stepGroup:
+              identifier: Stage__null363364
+              name: ReadWriteFile
+              steps:
+              - step:
+                  identifier: writefile351314
+                  name: writeFile
+                  spec:
+                    command: "printf 'line1 \n\nline2\n\nline3' > output1.txt"
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                    shell: Sh
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: readfile1cb1cc
+                  name: readFile
+                  spec:
+                    command: cat output1.txt
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                    shell: Sh
+                  timeout: ""
+                  type: Run
+              timeout: ""
+          - stepGroup:
+              identifier: Stage__nulle8e7f7
+              name: Artifact upload
+              steps:
+              - step:
+                  identifier: artifactoryupload7e7b65
+                  name: ArtifactoryUpload
+                  spec:
+                    sourcePath: target/output1.txt
+                    target: /artifactory/generic-local/op-ci/
+                  timeout: ""
+                  type: ArtifactoryUpload
+              timeout: ""
+          - stepGroup:
+              identifier: Stage__nullae0cf1
+              name: DeleteDirStep
+              steps:
+              - step:
+                  identifier: stagenull3d8b11
+                  name: Deletingdir
+                  spec:
+                    command: rm -rf target
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                    shell: Sh
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: sh184e4d
+                  name: sh
+                  spec:
+                    command: "\n                      mkdir -p target\n                      touch
+                      target/file4.txt\n                      touch target/file5.txt\n
+                      \                     touch target/file6.txt\n                    "
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                    image: alpine
+                    shell: Sh
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: sh2bc556
+                  name: sh
+                  spec:
+                    command: ls
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                    image: alpine
+                    shell: Sh
+                  timeout: ""
+                  type: Run
+              - step:
+                  identifier: sh6d646d
+                  name: sh
+                  spec:
+                    command: ls
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                    image: alpine
+                    shell: Sh
+                  timeout: ""
+                  type: Run
+              timeout: ""
+          - stepGroup:
+              identifier: Stage__nulle5ceed
+              name: Blackduck
+              steps:
+              - step:
+                  identifier: synopsysdetect60f778
+                  name: synopsys_detect
+                  spec:
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                    image: harnesscommunitytest/synopsys-detect:latest
+                    settings:
+                      blackduck_project: jenkinstestFinal
+                      blackduck_properties: --detect.project.version.name=v1.0
+                      blackduck_token: MzRkNDVkOWMtM2UzZS00OTgzLWE5ZmItOWNlOGI3NTlhZDZjOjVmNWE3NTE2LTdmYjYtNGNmMy05YmQyLWFkODRmNDNjYzhlMw==
+                      blackduck_url: https://harness.app.blackduck.com/
+                  timeout: ""
+                  type: Plugin
+              timeout: ""
+          - stepGroup:
+              identifier: Stage__null57782b
+              name: Code Analysis
+              steps:
+              - step:
+                  identifier: stagenulld57098
+                  name: sonarCube
+                  spec:
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                      scannerHome: /Users/rakshith/.jenkins/tools/hudson.plugins.sonar.SonarRunnerInstallation/Sonar
+                    image: aosapps/drone-sonar-plugin
+                    settings:
+                      sonar_host: <+input>
+                      sonar_token: <+input>
+                  timeout: ""
+                  type: Plugin
+              timeout: ""
+          - stepGroup:
+              identifier: Stage__null104060
+              name: TimeOut Step
+              steps:
+              - step:
+                  identifier: she2e91f
+                  name: sh
+                  spec:
+                    command: echo this step must complete in less than nine seconds
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                    image: alpine
+                    shell: Sh
+                  timeout: 10s
+                  type: Run
+              - step:
+                  identifier: she2af86
+                  name: sh
+                  spec:
+                    command: echo this step must complete in less than one minute
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                    image: alpine
+                    shell: Sh
+                  timeout: 1m0s
+                  type: Run
+              - step:
+                  identifier: shb4d082
+                  name: sh
+                  spec:
+                    command: echo this step must complete in less than one hour
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                    image: alpine
+                    shell: Sh
+                  timeout: 1h0m0s
+                  type: Run
+              timeout: ""
+          - stepGroup:
+              identifier: Stage__nullaf451b
+              name: Sleep Step
+              steps:
+              - step:
+                  identifier: sleep59f29b
+                  name: sleep
+                  spec:
+                    command: sleep 1m
+                    envVariables:
+                      ANT_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew
+                      M2_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      MAVEN_HOME: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew
+                      PATH+ANT: /Users/rakshith/.jenkins/tools/hudson.tasks.Ant_AntInstallation/AntNew/bin
+                      PATH+GRADLE: /Users/rakshith/.jenkins/tools/hudson.plugins.gradle.GradleInstallation/GradleNew/bin
+                      PATH+MAVEN: /Users/rakshith/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/MavenNew/bin
+                    image: busybox
+                    shell: Sh
+                  timeout: ""
+                  type: Run
+              timeout: ""
+          - stepGroup:
+              identifier: Stage__nulla0150a
+              name: Declarative Post Actions
+              steps:
+              - step:
+                  identifier: emailextd05c63
+                  name: emailext
+                  spec:
+                    image: plugins/email
+                    settings:
+                      body: Email <+pipeline.sequenceId>
+                      from: <nil>
+                      host: <+input>
+                      replyTo: <nil>
+                      subject: Email <+pipeline.status>
+                      to: first@example.com second@example.com
+                  timeout: ""
+                  type: Plugin
+              timeout: ""
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI

@@ -35,6 +35,7 @@ func main() {
 	subcommands.Register(new(command.Jenkins), "")
 	subcommands.Register(new(command.Travis), "")
 	subcommands.Register(new(command.Downgrade), "")
+	subcommands.Register(new(command.JenkinsJson), "")
 
 	flag.Parse()
 	ctx := context.Background()

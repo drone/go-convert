@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+
+    tools {
+        gradle 'gradle1'
+    }
+
+    stages {
+        stage('Plugin Build') {
+            steps {
+                script {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '*/main']],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [],
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[url: 'https://github.com/Anshika2203/CombinedAllBuilds.git']]
+                    ])
+
+                    withGradle {
+                        sh 'gradle build'
+                    }
+                }
+            }
+        }
+    }
+}

@@ -225,20 +225,7 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 	var steps []*v0.Steps
 	// convert each drone step to a harness step.
 	for _, v := range spec.Steps {
-		// the v0 yaml does not have the concept of
-		// a group step, so we append all steps in
-		// the group directly to the stage to emulate
-		// this behavior.
-		if _, ok := v.Spec.(*v1.StepGroup); ok {
-			steps = append(steps, d.convertStepGroup(v, 10)...)
-
-		} else {
-			// else convert the step and append to
-			// the stage.
-			if step := d.convertStep(v); step != nil {
-				steps = append(steps, step)
-			}
-		}
+		steps = append(steps, d.convertStep(v))
 	}
 
 	// enable clone by default
@@ -401,6 +388,8 @@ func (d *Downgrader) convertStep(src *v1.Step) *v0.Steps {
 		return &v0.Steps{Step: d.convertStepBitrise(src)}
 	case *v1.StepParallel:
 		return &v0.Steps{Parallel: d.convertStepParallel(src)}
+	case *v1.StepGroup:
+		return &v0.Steps{StepGroup: d.convertStepGroup(src)}
 	case *v1.StepBackground:
 		return &v0.Steps{Step: d.convertStepBackground(src)}
 	default:
@@ -411,25 +400,20 @@ func (d *Downgrader) convertStep(src *v1.Step) *v0.Steps {
 // helper function to convert a Group step from the v1
 // structure to a list of steps. The v0 yaml does not have
 // an equivalent to the group step.
-func (d *Downgrader) convertStepGroup(src *v1.Step, depth int) []*v0.Steps {
-	if depth > MaxDepth {
-		return nil // Reached maximum depth. Stop recursion to prevent stack overflow
-	}
+func (d *Downgrader) convertStepGroup(src *v1.Step) *v0.StepGroup {
 	spec_ := src.Spec.(*v1.StepGroup)
 
 	var steps []*v0.Steps
 	for _, step := range spec_.Steps {
-		// If this step is a step group, recursively convert it
-		if _, ok := step.Spec.(*v1.StepGroup); ok {
-			steps = append(steps, d.convertStepGroup(step, depth+1)...)
-		} else {
-			// Else, convert the step
-			if dst := d.convertStep(step); dst != nil {
-				steps = append(steps, &v0.Steps{Step: dst.Step})
-			}
-		}
+		dst := d.convertStep(step)
+		steps = append(steps, dst)
 	}
-	return steps
+	return &v0.StepGroup{
+		ID:      src.Id,
+		Name:    convertName(src.Name),
+		Timeout: convertTimeout(src.Timeout),
+		Steps:   steps,
+	}
 }
 
 // helper function to convert a Parallel step from the v1
@@ -461,6 +445,13 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 	if src.Name == "" {
 		src.Name = id
 	}
+
+	// Convert outputs
+	var outputs []*v0.Output
+	for _, output := range spec_.Outputs {
+		outputs = append(outputs, convertOutput(output))
+	}
+
 	return &v0.Step{
 		ID:      id,
 		Name:    convertName(src.Name),
@@ -472,6 +463,7 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 			ConnRef:         d.dockerhubConn,
 			Image:           spec_.Image,
 			ImagePullPolicy: convertImagePull(spec_.Pull),
+			Outputs:         outputs, // Add this line
 			Privileged:      spec_.Privileged,
 			RunAsUser:       spec_.User,
 			Reports:         convertReports(spec_.Reports),
@@ -565,21 +557,52 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 	if src.Name == "" {
 		src.Name = id
 	}
-	return &v0.Step{
-		ID:      id,
-		Name:    src.Name,
-		Type:    v0.StepTypePlugin,
-		Timeout: convertTimeout(src.Timeout),
-		Spec: &v0.StepPlugin{
-			Env:             spec_.Envs,
-			ConnRef:         d.dockerhubConn,
-			Image:           spec_.Image,
-			ImagePullPolicy: convertImagePull(spec_.Pull),
-			Settings:        convertSettings(spec_.With),
-			Privileged:      spec_.Privileged,
-			RunAsUser:       spec_.User,
-		},
-		When: convertStepWhen(src.When, id),
+
+	switch spec_.Image {
+	case "checkout_plugin":
+		setting := convertSettings(spec_.With)
+		return &v0.Step{
+			ID:   id,
+			Name: "GitClone",
+			Type: v0.StepTypeGitClone,
+
+			Spec: &v0.StepGitClone{
+				Repository:     setting["git_url"].(string),
+				BuildType:      "<+input>",
+				CloneDirectory: setting["branch"].(string),
+			},
+			When: convertStepWhen(src.When, id),
+		}
+	case "artifactJfrog_plugin":
+		setting := convertSettings(spec_.With)
+		return &v0.Step{
+			ID:   id,
+			Name: "ArtifactoryUpload",
+			Type: v0.StepTypeArtifactoryUpdload,
+
+			Spec: &v0.StepArtifactoryUpload{
+				Target:     setting["target"].(string),
+				SourcePath: setting["sourcePath"].(string),
+			},
+			When: convertStepWhen(src.When, id),
+		}
+	default:
+		return &v0.Step{
+			ID:      id,
+			Name:    src.Name,
+			Type:    v0.StepTypePlugin,
+			Timeout: convertTimeout(src.Timeout),
+			Spec: &v0.StepPlugin{
+				Env:             spec_.Envs,
+				ConnRef:         d.dockerhubConn,
+				Image:           spec_.Image,
+				ImagePullPolicy: convertImagePull(spec_.Pull),
+				Settings:        convertSettings(spec_.With),
+				Privileged:      spec_.Privileged,
+				RunAsUser:       spec_.User,
+			},
+			When: convertStepWhen(src.When, id),
+		}
 	}
 }
 
@@ -944,6 +967,12 @@ func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 	}
 
 	return newWhen
+}
+
+func convertOutput(output string) *v0.Output {
+	return &v0.Output{
+		Name: output,
+	}
 }
 
 func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {

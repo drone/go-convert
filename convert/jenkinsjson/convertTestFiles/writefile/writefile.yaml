@@ -1,0 +1,13 @@
+- step:
+    identifier: writefilede5601
+    name: writeFile
+    spec:
+        command: |-
+            printf 'line1 
+            
+                line2
+            
+                line3' > output1.txt
+        shell: Sh
+    timeout: ""
+    type: Run

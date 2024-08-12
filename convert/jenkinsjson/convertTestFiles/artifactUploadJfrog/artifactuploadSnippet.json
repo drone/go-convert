@@ -1,0 +1,26 @@
+{
+  "spanId": "c722199b42be60f3",
+  "traceId": "f01a23a1d020b2a9c7434cbd060f8835",
+  "parent": "artifactuploadjfrog",
+  "all-info": "span(name: artifactoryUpload, spanId: c722199b42be60f3, parentSpanId: d4a2b65115153102, traceId: f01a23a1d020b2a9c7434cbd060f8835, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"failNoOp\" : false,\n  \"server\" : \"UNSERIALIZABLE\",\n  \"buildInfo\" : \"UNSERIALIZABLE\",\n  \"spec\" : \"{\\n                    \\\"files\\\": [{\\n                        \\\"pattern\\\": \\\"output1.txt\\\",\\n                        \\\"target\\\": \\\"/artifactory/generic-local/op-ci/\\\"\\n                    },{\\n                        \\\"pattern\\\": \\\"output2.txt\\\",\\n                        \\\"target\\\": \\\"/artifactory/generic-local/op-ci2/\\\"\\n                    },{\\n                        \\\"pattern\\\": \\\"output3.txt\\\",\\n                        \\\"target\\\": \\\"/artifactory/generic-local/op-ci3/\\\"\\n                    }]\\n                 }\"\n};harness-others:;jenkins.pipeline.step.id:23;jenkins.pipeline.step.name:Upload artifacts;jenkins.pipeline.step.plugin.name:artifactory;jenkins.pipeline.step.plugin.version:4.0.8;jenkins.pipeline.step.type:artifactoryUpload;)",
+  "name": "artifactuploadjfrog #8",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Upload artifacts",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "23",
+    "jenkins.pipeline.step.type": "artifactoryUpload",
+    "harness-attribute": "{\n  \"failNoOp\" : false,\n  \"server\" : \"UNSERIALIZABLE\",\n  \"buildInfo\" : \"UNSERIALIZABLE\",\n  \"spec\" : \"{\\n                    \\\"files\\\": [{\\n                        \\\"pattern\\\": \\\"output1.txt\\\",\\n                        \\\"target\\\": \\\"/artifactory/generic-local/op-ci/\\\"\\n                    },{\\n                        \\\"pattern\\\": \\\"output2.txt\\\",\\n                        \\\"target\\\": \\\"/artifactory/generic-local/op-ci2/\\\"\\n                    },{\\n                        \\\"pattern\\\": \\\"output3.txt\\\",\\n                        \\\"target\\\": \\\"/artifactory/generic-local/op-ci3/\\\"\\n                    }]\\n                 }\"\n}",
+    "jenkins.pipeline.step.plugin.name": "artifactory",
+    "jenkins.pipeline.step.plugin.version": "4.0.8"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "d4a2b65115153102",
+  "parameterMap": {
+    "server": "UNSERIALIZABLE",
+    "buildInfo": "UNSERIALIZABLE",
+    "failNoOp": false,
+    "spec": "{\n                    \"files\": [{\n                        \"pattern\": \"output1.txt\",\n                        \"target\": \"/artifactory/generic-local/\"\n                    },{\n                        \"pattern\": \"output2.txt\",\n                        \"target\": \"/artifactory/generic-local/\"\n                    },{\n                        \"pattern\": \"output3.txt\",\n                        \"target\": \"/artifactory/generic-local/\"\n                    }]\n                 }"
+  },
+  "spanName": "artifactoryUpload"
+}

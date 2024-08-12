@@ -1,0 +1,51 @@
+{
+  "spanId": "e4af455880389160",
+  "traceId": "473b5dc91e544902871080a25554e963",
+  "parent": "CombinedPipeline",
+  "all-info": "span(name: Stage: null, spanId: e4af455880389160, parentSpanId: e67f7aa85a834c2e, traceId: 473b5dc91e544902871080a25554e963, attr: harness-others:;jenkins.pipeline.step.type:withGradle;)",
+  "children": [
+    {
+      "spanId": "0c6722682d8efbae",
+      "traceId": "473b5dc91e544902871080a25554e963",
+      "parent": "CombinedPipeline",
+      "all-info": "span(name: Stage: null, spanId: 0c6722682d8efbae, parentSpanId: e4af455880389160, traceId: 473b5dc91e544902871080a25554e963, attr: harness-others:;jenkins.pipeline.step.type:withGradle;)",
+      "name": "CombinedPipeline #9",
+      "attributesMap": {
+        "harness-others": "",
+        "jenkins.pipeline.step.type": "withGradle"
+      },
+      "type": "Run Phase Span",
+      "parentSpanId": "e4af455880389160",
+      "spanName": "Stage: null"
+    },
+    {
+      "spanId": "7dc539f24df8acc2",
+      "traceId": "473b5dc91e544902871080a25554e963",
+      "parent": "CombinedPipeline",
+      "all-info": "span(name: sh, spanId: 7dc539f24df8acc2, parentSpanId: e4af455880389160, traceId: 473b5dc91e544902871080a25554e963, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"script\" : \"gradle build\"\n};harness-others:-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long;jenkins.pipeline.step.id:42;jenkins.pipeline.step.name:Shell Script;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1336.v768003e07199;jenkins.pipeline.step.type:sh;)",
+      "name": "CombinedPipeline #9",
+      "attributesMap": {
+        "harness-others": "-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long",
+        "jenkins.pipeline.step.name": "Shell Script",
+        "ci.pipeline.run.user": "SYSTEM",
+        "jenkins.pipeline.step.id": "42",
+        "jenkins.pipeline.step.type": "sh",
+        "harness-attribute": "{\n  \"script\" : \"gradle build\"\n}",
+        "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
+        "jenkins.pipeline.step.plugin.version": "1336.v768003e07199"
+      },
+      "type": "Run Phase Span",
+      "parentSpanId": "e4af455880389160",
+      "parameterMap": {"script": "gradle build"},
+      "spanName": "sh"
+    }
+  ],
+  "name": "CombinedPipeline #9",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.type": "withGradle"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "e67f7aa85a834c2e",
+  "spanName": "Stage: null"
+}

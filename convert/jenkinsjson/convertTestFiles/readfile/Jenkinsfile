@@ -1,0 +1,12 @@
+pipeline {
+    agent any
+    stages {
+        stage ('Read File') {
+            steps {
+                script {
+                    readFile file: 'output1.txt'
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+    stages {
+        stage('DeleteDirStep') {
+            steps {
+                script {
+                    // Create files in target directory
+                    sh '''
+                      mkdir -p target
+                      touch target/file4.txt
+                      touch target/file5.txt
+                      touch target/file6.txt
+                    '''
+
+                    // List files before deletion
+                    sh 'ls'
+
+                    // Delete the target directory
+                    dir('target') {
+                        deleteDir()
+                    }
+
+                    // List files after deletion
+                    sh 'ls'
+                }
+            }
+        }
+    }
+}

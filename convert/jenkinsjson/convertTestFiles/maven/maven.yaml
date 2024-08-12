@@ -1,0 +1,10 @@
+- step:
+    identifier: stagenull615aa9
+    name: maven
+    spec:
+      connectorRef: account.docker
+      image: harnesscommunitytest/maven-plugin:latest
+      settings:
+        Goals: clean install package
+    timeout: ""
+    type: Plugin

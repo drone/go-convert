@@ -1,0 +1,18 @@
+pipeline {
+    agent any
+    stages {
+        stage("readfile") {
+            steps {
+                script
+                {
+                    def csvContent = readFile(file: "ex.csv")
+                    def lines = csvContent.split('\n')
+                    lines.each { line ->
+                        echo "CSV Line: ${line}"
+                    }
+                }
+                
+            }
+        }
+    }
+}

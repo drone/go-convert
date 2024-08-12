@@ -33,12 +33,27 @@ type (
 		Strategy    *Strategy         `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
 	}
 
+	StepGroup struct { // TODO missing failure strategies
+		ID          string            `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
+		Description string            `json:"description,omitempty"       yaml:"description,omitempty"`
+		Name        string            `json:"name,omitempty"              yaml:"name,omitempty"`
+		Skip        string            `json:"skipCondition,omitempty"     yaml:"skipCondition,omitempty"`
+		Steps       []*Steps          `json:"steps,omitempty"              yaml:"steps,omitempty"`
+		Timeout     Duration          `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
+		When        *StepWhen         `json:"when,omitempty"              yaml:"when,omitempty"`
+		Env         map[string]string `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
+		Strategy    *Strategy         `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
+	}
+
 	//
 	// Step specifications
 	//
 
 	StepArtifactoryUpload struct {
-		// TODO
+		ConnRef    string `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
+		Target     string `json:"target,omitempty"       yaml:"target,omitempty"`
+		SourcePath string `json:"sourcePath,omitempty"   yaml:"sourcePath,omitempty"`
+		RunAsUser  string `json:"runAsUser,omitempty"    yaml:"runAsUser,omitempty"`
 	}
 
 	StepBarrier struct {
@@ -136,6 +151,19 @@ type (
 		Settings        map[string]interface{} `json:"settings,omitempty"        yaml:"settings,omitempty"`
 	}
 
+	StepGitClone struct {
+		Repository     string     `json:"repoName,omitempty"    yaml:"repoNama,omitempty"`
+		ConnRef        string     `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
+		BuildType      string     `json:"build,omitempty"    yaml:"build,omitempty"`
+		CloneDirectory string     `json:"cloneDirectory,omitempty"    yaml:"cloneDirectory,omitempty"`
+		Privileged     bool       `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
+		Depth          string     `json:"depth,omitempty"    yaml:"cloneDirectory,omitempty"`
+		Resources      *Resources `json:"resources,omitempty"       yaml:"resources,omitempty"`
+		SSLVerify      string     `json:"sslVerify,omitempty"    yaml:"cloneDirectory,omitempty"`
+		RunAsUser      string     `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
+		Timeout        string     `json:"timeout,omitempty"    yaml:"cloneDirectory,omitempty"`
+	}
+
 	StepAction struct {
 		Uses string                 `json:"uses,omitempty"            yaml:"uses,omitempty"`
 		With map[string]interface{} `json:"with,omitempty"            yaml:"with,omitempty"`
@@ -154,7 +182,7 @@ type (
 		ConnRef         string            `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
 		Image           string            `json:"image,omitempty"           yaml:"image,omitempty"`
 		ImagePullPolicy string            `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
-		Outputs         []string          `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty"`
+		Outputs         []*Output         `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty"`
 		Privileged      bool              `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
 		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`

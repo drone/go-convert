@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'maven1'
+    }
+
+    stages {
+        stage('Plugin Build') {
+            steps {
+                script {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '*/main']],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [],
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[url: 'https://github.com/Anshika2203/CombinedAllBuilds.git']]
+                    ])
+
+                    withMaven {
+                    sh "mvn clean install\
+                        package"
+                    }
+                }
+            }
+        }
+    }
+}

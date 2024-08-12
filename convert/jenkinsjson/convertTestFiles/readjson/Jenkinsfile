@@ -1,0 +1,11 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('read file') {
+            steps {
+                readJSON file: '/Users/rakshith/Downloads/IntermediateJson/BasicPipe.json'
+            }
+        }
+    }
+}

@@ -96,8 +96,9 @@ type (
 	}
 
 	Steps struct {
-		Step     *Step    `json:"step,omitempty" yaml:"step,omitempty"` // Un-necessary
-		Parallel []*Steps `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+		Step      *Step      `json:"step,omitempty" yaml:"step,omitempty"` // Un-necessary
+		Parallel  []*Steps   `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+		StepGroup *StepGroup `json:"stepGroup,omitempty" yaml:"stepGroup,omitempty"`
 	}
 
 	Report struct {
@@ -115,6 +116,12 @@ type (
 		Type string       `json:"type,omitempty"         yaml:"type,omitempty"` // Service
 		Desc string       `json:"description,omitempty"  yaml:"description,omitempty"`
 		Spec *ServiceSpec `json:"spec,omitempty"         yaml:"spec,omitempty"`
+	}
+
+	Output struct {
+		Name  string `json:"name,omitempty"      yaml:"name,omitempty"`
+		Type  string `json:"type,omitempty" yaml:"type,omitempty"`
+		Value string `json:"value,omitempty" yaml:"value,omitempty"`
 	}
 
 	ServiceSpec struct {

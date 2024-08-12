@@ -1,0 +1,21 @@
+{
+    "spanId": "721ffef24f1daf94",
+    "traceId": "e30372c2a224c86a4bb0efd4f14f4931",
+    "parent": "Readjson",
+    "all-info": "span(name: readJSON, spanId: 721ffef24f1daf94, parentSpanId: 8f21edbe983fbfbb, traceId: e30372c2a224c86a4bb0efd4f14f4931, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"file\" : \"/Users/rakshith/Downloads/IntermediateJson/BasicPipe.json\"\n};harness-others:;jenkins.pipeline.step.id:7;jenkins.pipeline.step.name:Read JSON from files in the workspace.;jenkins.pipeline.step.plugin.name:pipeline-utility-steps;jenkins.pipeline.step.plugin.version:2.17.0;jenkins.pipeline.step.type:readJSON;)",
+    "name": "Readjson #2",
+    "attributesMap": {
+      "harness-others": "",
+      "jenkins.pipeline.step.name": "Read JSON from files in the workspace.",
+      "ci.pipeline.run.user": "SYSTEM",
+      "jenkins.pipeline.step.id": "7",
+      "jenkins.pipeline.step.type": "readJSON",
+      "harness-attribute": "{\n  \"file\" : \"/Users/rakshith/Downloads/IntermediateJson/BasicPipe.json\"\n}",
+      "jenkins.pipeline.step.plugin.name": "pipeline-utility-steps",
+      "jenkins.pipeline.step.plugin.version": "2.17.0"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "8f21edbe983fbfbb",
+    "parameterMap": {"file": "/Users/rakshith/Downloads/IntermediateJson/BasicPipe.json"},
+    "spanName": "readJSON"
+}

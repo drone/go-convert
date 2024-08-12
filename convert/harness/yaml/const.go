@@ -67,6 +67,7 @@ const (
 	StepTypeS3Upload                   = "S3Upload"
 	StepTypeSaveCacheGCS               = "SaveCacheGCS"
 	StepTypeSaveCacheS3                = "SaveCacheS3"
+	StepTypeGitClone                   = "GitClone"
 
 	// Feature Flags
 	StepTypeHTTP               = "Http"
