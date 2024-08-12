@@ -18,7 +18,7 @@ func TestConvertEmailext(t *testing.T) {
 		t.Fatalf("failed to get current working directory: %v", err)
 	}
 
-	filePath := filepath.Join(workingDir, "../convertTestFiles/emailext/emailextSnippet.json")
+	filePath := filepath.Join(workingDir, "../convertTestFiles/emailExt/emailExtSnippet.json")
 	jsonData, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		t.Fatalf("failed to read JSON file: %v", err)
