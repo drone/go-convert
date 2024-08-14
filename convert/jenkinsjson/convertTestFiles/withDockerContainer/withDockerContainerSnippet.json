@@ -1,0 +1,25 @@
+{
+  "spanId": "77809b66e716b761",
+  "traceId": "9a3549687043a2c1f88c2796a279a7b7",
+  "parent": "docker declarative",
+  "all-info": "span(name: Stage: null, spanId: 77809b66e716b761, parentSpanId: 3dbf046c2e8a9822, traceId: 9a3549687043a2c1f88c2796a279a7b7, attr: harness-attribute:{\n  \"args\" : \"\",\n  \"image\" : \"node:20.16.0-alpine3.20\",\n  \"toolName\" : null\n};harness-others:;jenkins.pipeline.step.type:withDockerContainer;)",
+  "name": "docker declarative #4",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "agent.allocate",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "3",
+    "jenkins.pipeline.step.type": "withDockerContainer",
+    "harness-attribute": "{\n  \"args\" : \"\",\n  \"image\" : \"node:20.16.0-alpine3.20\",\n  \"toolName\" : null\n}",
+    "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
+    "jenkins.pipeline.step.plugin.version": "1360.v82d13453da_a_f"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "3dbf046c2e8a9822",
+  "parameterMap": {
+    "args": "",
+    "image": "node:20.16.0-alpine3.20",
+    "toolName": ""
+  },
+  "spanName": "Stage: null"
+}

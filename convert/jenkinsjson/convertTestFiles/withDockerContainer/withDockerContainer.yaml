@@ -1,0 +1,10 @@
+- step:
+    identifier: sh1c4794
+    name: sh
+    spec:
+      command: node --version
+      image: node:20.16.0-alpine3.20
+      shell: Sh
+    timeout: ""
+    type: Run
+timeout: ""
