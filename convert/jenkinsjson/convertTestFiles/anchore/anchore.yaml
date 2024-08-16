@@ -1,0 +1,20 @@
+- step:
+    identifier: anchore31ac6c
+    name: anchore
+    spec:
+      command: |-
+        curl -sSfL https://anchorectl-releases.anchore.io/anchorectl/install.sh | sh -s -- -b ${HOME}/.local/bin
+                          export PATH="${HOME}/.local/bin/:${PATH}"
+                          anchorectl --version
+                          ANCHORE_IMAGE=$(cat $ANCHORE_FILE_NAME)
+                          anchorectl image add --wait $ANCHORE_IMAGE
+                          anchorectl image vulnerabilities $ANCHORE_IMAGE
+                          anchorectl image check --detail $ANCHORE_IMAGE
+      envVariables:
+        ANCHORE_FILE_NAME: anchore_images
+        ANCHORECTL_FAIL_BASED_ON_RESULTS: "false"
+        ANCHORECTL_FORCE: "false"
+        ANCHORECTL_POLICY: 77fff4af-3bfb-421a-87ab-3ee4dd520b76
+      shell: Sh
+    timeout: ""
+    type: Run
