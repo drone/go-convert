@@ -6,7 +6,7 @@ __Sample Usage__
 Sample code to convert a Bitbucket pipeline to a Harness pipeline:
 
 ```Go
-import "github.com/jamie-harness/go-convert/convert/bitbucket"
+import "github.com/drone/go-convert/convert/bitbucket"
 ```
 
 ```Go
@@ -27,7 +27,7 @@ This package provides command line tools for local development and debugging pur
 Compile the binary:
 
 ```
-git clone https://github.com/jamie-harness/go-convert.git
+git clone https://github.com/drone/go-convert.git
 cd go-convert
 go build
 ```

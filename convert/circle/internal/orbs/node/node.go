@@ -17,8 +17,8 @@ package node
 import (
 	"fmt"
 
+	circle "github.com/drone/go-convert/convert/circle/yaml"
 	harness "github.com/drone/spec/dist/go"
-	circle "github.com/jamie-harness/go-convert/convert/circle/yaml"
 )
 
 // Convert converts an Orb to a Harness step.

@@ -25,11 +25,11 @@ import (
 	"strings"
 	"time"
 
+	github "github.com/drone/go-convert/convert/github/yaml"
 	harness "github.com/drone/spec/dist/go"
-	github "github.com/jamie-harness/go-convert/convert/github/yaml"
 
+	"github.com/drone/go-convert/internal/store"
 	"github.com/ghodss/yaml"
-	"github.com/jamie-harness/go-convert/internal/store"
 )
 
 // conversion context

@@ -14,7 +14,7 @@ func ConvertArchive(node Node) []*harness.Step {
 
 	var artifacts string
 	var delegateMap = node.ParameterMap["delegate"]
-	if (delegateMap == nil) {
+	if delegateMap == nil {
 		attr := node.AttributesMap["harness-attribute"]
 		var attrMap map[string]interface{}
 		if err := json.Unmarshal([]byte(attr), &attrMap); err != nil {
@@ -34,12 +34,10 @@ func ConvertArchive(node Node) []*harness.Step {
 	}
 	artifactsArray := strings.Split(artifacts, ",")
 
-	
 	var excludes string
-	if excludesValue, ok :=delegateMap.(map[string]interface{})["arguments"].(map[string]interface{})["excludes"].(string); ok {
+	if excludesValue, ok := delegateMap.(map[string]interface{})["arguments"].(map[string]interface{})["excludes"].(string); ok {
 		excludes = excludesValue
 	}
-
 
 	for i, artifact := range artifactsArray {
 		step := &harness.Step{
@@ -47,8 +45,8 @@ func ConvertArchive(node Node) []*harness.Step {
 			Id:   SanitizeForId(node.SpanName, node.SpanId),
 			Type: "plugin",
 			Spec: &harness.StepPlugin{
-				Image: "plugins/s3",
-				Name: node.SpanName+fmt.Sprintf("_%d", i),
+				Image:     "plugins/s3",
+				Name:      node.SpanName + fmt.Sprintf("_%d", i),
 				Connector: "harnessImage",
 				With: map[string]interface{}{
 					"source":     artifact,

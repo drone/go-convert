@@ -1,0 +1,63 @@
+pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+  stages:
+  - stage:
+      identifier: default
+      name: default
+      spec:
+        cloneCodebase: true
+        execution:
+          steps:
+          - step:
+              identifier: build
+              name: build
+              spec:
+                command: |-
+                  go build
+                  go test
+                image: golang:1.16
+              timeout: ""
+              type: Run
+          - step:
+              type: BuildAndPushDockerRegistry
+              name: publish
+              identifier: publish
+              spec:
+                repo: octocat/hello-world
+                caching: true
+                connectorRef: <+input>
+                tags:
+                  - latest
+                  - "1"
+                  - "1.1"
+                  - "1.1.1"
+                dockerfile: DockerFile
+                context: context
+                labels:
+                  latest: asd
+                buildArgs:
+                  GITHUB_ACCESS_TOKEN: token
+                  GITHUB_ACCESS_TOKEN2: token2
+                  GITHUB_ACCESS_TOKEN3: token3
+                  GITHUB_ACCESS_TOKEN4: token4
+                target: target
+              timeout: ""
+              when:
+                condition: (<+trigger.event> == "PUSH" || <+trigger.payload.ref> =^
+                  "refs/tags/")
+                stageStatus: Success
+        platform:
+          arch: Amd64
+          os: Linux
+        runtime:
+          spec: {}
+          type: Cloud
+      type: CI
+

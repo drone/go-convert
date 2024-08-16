@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"time"
 
+	bitbucket "github.com/drone/go-convert/convert/bitbucket/yaml"
 	harness "github.com/drone/spec/dist/go"
-	bitbucket "github.com/jamie-harness/go-convert/convert/bitbucket/yaml"
 
 	"github.com/gotidy/ptr"
 )

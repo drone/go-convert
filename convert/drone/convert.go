@@ -23,11 +23,11 @@ import (
 	"regexp"
 	"strings"
 
+	v1 "github.com/drone/go-convert/convert/drone/yaml"
 	v2 "github.com/drone/spec/dist/go"
-	v1 "github.com/jamie-harness/go-convert/convert/drone/yaml"
 
+	"github.com/drone/go-convert/internal/store"
 	"github.com/ghodss/yaml"
-	"github.com/jamie-harness/go-convert/internal/store"
 )
 
 // conversion context

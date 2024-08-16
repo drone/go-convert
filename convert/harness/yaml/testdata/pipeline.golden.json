@@ -88,8 +88,12 @@
                                                 "key2": "val2"
                                             },
                                             "outputVariables": [
-                                                "var1",
-                                                "var2"
+                                                {
+                                                    "name": "var1"
+                                                },
+                                                {
+                                                    "name": "var2"
+                                                }
                                             ],
                                             "command": "some command or commands",
                                             "connectorRef": "gcrConnector",

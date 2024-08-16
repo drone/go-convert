@@ -75,9 +75,9 @@ pipeline:
                     envVariables:
                       key: value1
                       key2: val2   
-                    outputVariables: 
-                      - var1
-                      - var2
+                    outputVariables:
+                      - name: var1
+                      - name: var2
                     resources:
                       limits:
                         memory: 64Mi

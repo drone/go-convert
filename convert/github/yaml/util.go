@@ -25,14 +25,13 @@ import (
 // of the yaml. The github parser allows a key witout a
 // trailing semi-colon, like this:
 //
-//     on:
-//       push
+//	on:
+//	  push
 //
 // this function converts to this:
 //
-//     on:
-//       push: {}
-//
+//	on:
+//	  push: {}
 func repairOn(in io.Reader) bytes.Buffer {
 	var out bytes.Buffer
 
