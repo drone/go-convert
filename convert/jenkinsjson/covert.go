@@ -461,6 +461,8 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDir(currentNode, variables), ID: id})
 	case "deleteDir":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDeleteDir(currentNode, variables), ID: id})
+	case "writeYaml":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertWriteYaml(currentNode, variables), ID: id})
 	case "writeFile":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertWriteFile(currentNode, variables), ID: id})
 	case "readFile":
