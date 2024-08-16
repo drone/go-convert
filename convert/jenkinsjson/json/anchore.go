@@ -59,6 +59,64 @@ func ConvertAnchore(node Node, variables map[string]string) *harness.Step {
 			return nil
 		}
 
+		args := anchoreAttr.Delegate.Arguments
+
+		baseCmd := "anchorectl"
+		if args.Engineurl != "" {
+			baseCmd += fmt.Sprintf(" --url %s", args.Engineurl)
+		}
+		if args.EngineCredentialsId != "" {
+			baseCmd += fmt.Sprintf(" --username %s", args.EngineCredentialsId)
+		}
+		if args.EngineRetries != "" {
+			baseCmd += fmt.Sprintf(" --max-retries %s", args.EngineRetries)
+		}
+		if args.Engineverify {
+			baseCmd += " --insecure-skip-verify"
+		}
+		if args.Engineaccount != "" {
+			baseCmd += fmt.Sprintf(" --account %s", args.Engineaccount)
+		}
+
+		cmd := fmt.Sprintf(`
+set -e
+curl -sSfL https://anchorectl-releases.anchore.io/anchorectl/install.sh | sh -s -- -b ${HOME}/.local/bin
+export PATH="${HOME}/.local/bin/:${PATH}"
+anchorectl --version
+
+ANCHORE_IMAGE=$(cat $ANCHORE_FILE_NAME)
+
+%s image add --wait $ANCHORE_IMAGE
+
+%s image vulnerabilities`, baseCmd, baseCmd)
+
+		if args.ExcludeFromBaseImage {
+			cmd += " --exclude-from-base"
+		}
+		cmd += " $ANCHORE_IMAGE\n\n"
+
+		cmd += baseCmd + " image check --detail"
+		if args.PolicyBundleId != "" {
+			cmd += fmt.Sprintf(" --policy %s", args.PolicyBundleId)
+		}
+		if args.ForceAnalyze {
+			cmd += " --force"
+		}
+		if args.BailOnPluginFail {
+			cmd += " --fail-on-plugin-error"
+		}
+		cmd += " $ANCHORE_IMAGE\n\n"
+
+		if args.AutoSubscribeTagUpdates {
+			cmd += baseCmd + " subscription activate $ANCHORE_IMAGE\n\n"
+		}
+
+		if args.BailOnFail == "true" {
+			cmd += "exit $?\n"
+		} else {
+			cmd += "exit 0\n"
+		}
+
 		envs := map[string]string{
 			"ANCHORECTL_FAIL_BASED_ON_RESULTS":   anchoreAttr.Delegate.Arguments.BailOnFail,
 			"ANCHORECTL_FORCE":                   strconv.FormatBool(anchoreAttr.Delegate.Arguments.ForceAnalyze),
@@ -84,7 +142,7 @@ func ConvertAnchore(node Node, variables map[string]string) *harness.Step {
 			envs[k] = v
 		}
 
-		runCommand := fmt.Sprintf("curl -sSfL https://anchorectl-releases.anchore.io/anchorectl/install.sh | sh -s -- -b ${HOME}/.local/bin\nexport PATH=\"${HOME}/.local/bin/:${PATH}\"\nanchorectl --version\n\nANCHORE_IMAGE=$(cat $ANCHORE_FILE_NAME)\n\nANCHORE_CMD=\"anchorectl\"\n[ -n \"$ANCHORECTL_URL\" ] && ANCHORE_CMD+=\" --url $ANCHORECTL_URL\"\n[ -n \"$ANCHORECTL_ENGINECREDENTIALS\" ] && ANCHORE_CMD+=\" --username $ANCHORECTL_ENGINECREDENTIALS\"\n[ -n \"$ANCHORECTL_ENGINERETRIES\" ] && ANCHORE_CMD+=\" --max-retries $ANCHORECTL_ENGINERETRIES\"\n[ \"$ANCHORECTL_ENGINEVERIFY\" = \"true\" ] && ANCHORE_CMD+=\" --insecure-skip-verify\"\n[ -n \"$ANCHORECTL_ENGINEACCOUNT\" ] && ANCHORE_CMD+=\" --account $ANCHORECTL_ENGINEACCOUNT\"\n\n$ANCHORE_CMD image add --wait $ANCHORE_IMAGE\n\nVULN_CMD=\"$ANCHORE_CMD image vulnerabilities\"\n[ \"$ANCHORECTL_EXCLUDEFROMBASEIMAGE\" = \"true\" ] && VULN_CMD+=\" --exclude-from-base\"\n$VULN_CMD $ANCHORE_IMAGE\n\nCHECK_CMD=\"$ANCHORE_CMD image check --detail\"\n[ -n \"$ANCHORECTL_POLICY\" ] && CHECK_CMD+=\" --policy $ANCHORECTL_POLICY\"\n[ \"$ANCHORECTL_FORCE\" = \"true\" ] && CHECK_CMD+=\" --force\"\n[ \"$ANCHORECTL_BAILONPLUGINFAIL\" = \"true\" ] && CHECK_CMD+=\" --fail-on-plugin-error\"\n$CHECK_CMD $ANCHORE_IMAGE\n\n[ \"$ANCHORECTL_AUTOSUBSCRIBETAGUPDATES\" = \"true\" ] && $ANCHORE_CMD subscription activate $ANCHORE_IMAGE\n\nexit_code=$?\n[ \"$ANCHORECTL_FAIL_BASED_ON_RESULTS\" = \"true\" ] && exit $exit_code || exit 0")
+		//runCommand := fmt.Sprintf("curl -sSfL https://anchorectl-releases.anchore.io/anchorectl/install.sh | sh -s -- -b ${HOME}/.local/bin\nexport PATH=\"${HOME}/.local/bin/:${PATH}\"\nanchorectl --version\n\nANCHORE_IMAGE=$(cat $ANCHORE_FILE_NAME)\n\nANCHORE_CMD=\"anchorectl\"\n[ -n \"$ANCHORECTL_URL\" ] && ANCHORE_CMD+=\" --url $ANCHORECTL_URL\"\n[ -n \"$ANCHORECTL_ENGINECREDENTIALS\" ] && ANCHORE_CMD+=\" --username $ANCHORECTL_ENGINECREDENTIALS\"\n[ -n \"$ANCHORECTL_ENGINERETRIES\" ] && ANCHORE_CMD+=\" --max-retries $ANCHORECTL_ENGINERETRIES\"\n[ \"$ANCHORECTL_ENGINEVERIFY\" = \"true\" ] && ANCHORE_CMD+=\" --insecure-skip-verify\"\n[ -n \"$ANCHORECTL_ENGINEACCOUNT\" ] && ANCHORE_CMD+=\" --account $ANCHORECTL_ENGINEACCOUNT\"\n\n$ANCHORE_CMD image add --wait $ANCHORE_IMAGE\n\nVULN_CMD=\"$ANCHORE_CMD image vulnerabilities\"\n[ \"$ANCHORECTL_EXCLUDEFROMBASEIMAGE\" = \"true\" ] && VULN_CMD+=\" --exclude-from-base\"\n$VULN_CMD $ANCHORE_IMAGE\n\nCHECK_CMD=\"$ANCHORE_CMD image check --detail\"\n[ -n \"$ANCHORECTL_POLICY\" ] && CHECK_CMD+=\" --policy $ANCHORECTL_POLICY\"\n[ \"$ANCHORECTL_FORCE\" = \"true\" ] && CHECK_CMD+=\" --force\"\n[ \"$ANCHORECTL_BAILONPLUGINFAIL\" = \"true\" ] && CHECK_CMD+=\" --fail-on-plugin-error\"\n$CHECK_CMD $ANCHORE_IMAGE\n\n[ \"$ANCHORECTL_AUTOSUBSCRIBETAGUPDATES\" = \"true\" ] && $ANCHORE_CMD subscription activate $ANCHORE_IMAGE\n\nexit_code=$?\n[ \"$ANCHORECTL_FAIL_BASED_ON_RESULTS\" = \"true\" ] && exit $exit_code || exit 0")
 
 		step := &harness.Step{
 			Name: node.SpanName,
@@ -92,7 +150,7 @@ func ConvertAnchore(node Node, variables map[string]string) *harness.Step {
 			Type: "script",
 			Spec: &harness.StepExec{
 				Shell: "sh",
-				Run:   runCommand,
+				Run:   cmd,
 				Envs:  envs,
 			},
 		}
