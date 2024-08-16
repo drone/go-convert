@@ -142,8 +142,6 @@ ANCHORE_IMAGE=$(cat $ANCHORE_FILE_NAME)
 			envs[k] = v
 		}
 
-		//runCommand := fmt.Sprintf("curl -sSfL https://anchorectl-releases.anchore.io/anchorectl/install.sh | sh -s -- -b ${HOME}/.local/bin\nexport PATH=\"${HOME}/.local/bin/:${PATH}\"\nanchorectl --version\n\nANCHORE_IMAGE=$(cat $ANCHORE_FILE_NAME)\n\nANCHORE_CMD=\"anchorectl\"\n[ -n \"$ANCHORECTL_URL\" ] && ANCHORE_CMD+=\" --url $ANCHORECTL_URL\"\n[ -n \"$ANCHORECTL_ENGINECREDENTIALS\" ] && ANCHORE_CMD+=\" --username $ANCHORECTL_ENGINECREDENTIALS\"\n[ -n \"$ANCHORECTL_ENGINERETRIES\" ] && ANCHORE_CMD+=\" --max-retries $ANCHORECTL_ENGINERETRIES\"\n[ \"$ANCHORECTL_ENGINEVERIFY\" = \"true\" ] && ANCHORE_CMD+=\" --insecure-skip-verify\"\n[ -n \"$ANCHORECTL_ENGINEACCOUNT\" ] && ANCHORE_CMD+=\" --account $ANCHORECTL_ENGINEACCOUNT\"\n\n$ANCHORE_CMD image add --wait $ANCHORE_IMAGE\n\nVULN_CMD=\"$ANCHORE_CMD image vulnerabilities\"\n[ \"$ANCHORECTL_EXCLUDEFROMBASEIMAGE\" = \"true\" ] && VULN_CMD+=\" --exclude-from-base\"\n$VULN_CMD $ANCHORE_IMAGE\n\nCHECK_CMD=\"$ANCHORE_CMD image check --detail\"\n[ -n \"$ANCHORECTL_POLICY\" ] && CHECK_CMD+=\" --policy $ANCHORECTL_POLICY\"\n[ \"$ANCHORECTL_FORCE\" = \"true\" ] && CHECK_CMD+=\" --force\"\n[ \"$ANCHORECTL_BAILONPLUGINFAIL\" = \"true\" ] && CHECK_CMD+=\" --fail-on-plugin-error\"\n$CHECK_CMD $ANCHORE_IMAGE\n\n[ \"$ANCHORECTL_AUTOSUBSCRIBETAGUPDATES\" = \"true\" ] && $ANCHORE_CMD subscription activate $ANCHORE_IMAGE\n\nexit_code=$?\n[ \"$ANCHORECTL_FAIL_BASED_ON_RESULTS\" = \"true\" ] && exit $exit_code || exit 0")
-
 		step := &harness.Step{
 			Name: node.SpanName,
 			Id:   SanitizeForId(node.SpanName, node.SpanId),
