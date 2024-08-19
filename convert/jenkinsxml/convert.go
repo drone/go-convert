@@ -32,7 +32,7 @@ type context struct {
 	config *jenkinsxml.Project
 }
 
-// Converter converts a Gitlab pipeline to a Harness
+// Converter converts a Jenkins XML file to a Harness
 // v1 pipeline.
 type Converter struct {
 	kubeEnabled   bool
@@ -104,7 +104,7 @@ func (d *Converter) ConvertFile(p string) ([]byte, error) {
 	return d.Convert(f)
 }
 
-// converts converts a GitLab pipeline to a Harness pipeline.
+// converts converts a Jenkins XML pipeline to a Harness pipeline.
 func (d *Converter) convert(ctx *context) ([]byte, error) {
 
 	// create the harness pipeline spec

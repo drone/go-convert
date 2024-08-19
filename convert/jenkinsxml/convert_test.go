@@ -24,7 +24,7 @@ import (
 
 // TODO: add more teste in subdirectories, as we have for other providers
 func TestConvert(t *testing.T) {
-	// convert the yaml file from gitlab to harness
+	// convert the XML file from Jenkins to harness
 	converter := New()
 	tmp1, err := converter.ConvertFile("testdata/hello.xml")
 	if err != nil {
