@@ -1,0 +1,10 @@
+<!-- TODO: golang only supports XML 1.0, Jenkins uses 1.1 -->
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>echo hello</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+  </builders>
+</project>

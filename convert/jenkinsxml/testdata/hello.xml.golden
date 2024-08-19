@@ -1,0 +1,15 @@
+kind: pipeline
+spec:
+  stages:
+  - spec:
+      steps:
+      - name: shell
+        spec:
+          run: echo hello
+        type: script
+      - name: shell
+        spec:
+          run: echo hello again
+        type: script
+    type: ci
+version: 1
