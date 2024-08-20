@@ -17,10 +17,14 @@
       <command>echo hello</command>
       <configuredLocalRules/>
     </hudson.tasks.Shell>
+    <hudson.tasks.Ant plugin="ant@497.v94e7d9fffa_b_9">
+      <targets>one/two/three</targets>
+    </hudson.tasks.Ant>
     <hudson.tasks.Shell>
       <command>echo hello again</command>
       <configuredLocalRules/>
     </hudson.tasks.Shell>
+    <hudson.tasks.Unknown/>
   </builders>
   <publishers/>
   <buildWrappers/>

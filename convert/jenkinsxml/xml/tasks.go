@@ -14,17 +14,14 @@
 
 package xml
 
-import "encoding/xml"
-
 type (
-	Builders struct {
-		Tasks []Task `xml:",any"`
-		/* 		HudsonShellTasks []*HudsonShellTask `xml:"hudson.tasks.Shell"`
-		   		HudsonAntTasks   []*HudsonAntTask   `xml:"hudson.tasks.Ant"` */
+	HudsonShellTask struct {
+		Command              string `xml:"command"`
+		ConfiguredLocalRules string `xml:"configuredLocalRules,omitempty"`
 	}
 
-	Task struct {
-		XMLName xml.Name
-		Content string `xml:",innerxml"`
+	HudsonAntTask struct {
+		Plugin  string `xml:"plugin,attr"`
+		Targets string `xml:"targets"`
 	}
 )

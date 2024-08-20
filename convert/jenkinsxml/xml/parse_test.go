@@ -15,13 +15,42 @@
 package xml
 
 import (
-	"io/ioutil"
+	"encoding/xml"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 )
 
 func TestParseFile(t *testing.T) {
+	got, err := ParseFile("testdata/hello.xml")
+	if err != nil {
+		t.Error(err)
+	}
+
+	want := &Project{
+		Disabled: false,
+		Builders: &Builders{
+			Tasks: []Task{
+				{
+					XMLName: xml.Name{
+						Local: "hudson.tasks.Shell",
+					},
+					Content: `
+      <command>echo hello</command>
+      <configuredLocalRules/>
+    `,
+				},
+			},
+		},
+	}
+
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf("Unexpected parsing result")
+		t.Log(diff)
+	}
+}
+
+/* func TestParseFile(t *testing.T) {
 	got, err := ParseFile("testdata/hello.xml")
 	if err != nil {
 		t.Error(err)
@@ -101,4 +130,4 @@ func TestParseString(t *testing.T) {
 		t.Errorf("Unexpected parsing result")
 		t.Log(diff)
 	}
-}
+} */

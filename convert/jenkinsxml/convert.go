@@ -17,6 +17,7 @@ package jenkinsxml
 
 import (
 	"bytes"
+	"encoding/xml"
 	"io"
 	"os"
 
@@ -134,10 +135,31 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	dst.Stages = append(dst.Stages, dstStage)
 	stageSteps := make([]*harness.Step, 0)
 
-	// TODO: support more than just Shell tasks, such as Ant
-	tasks := ctx.config.Builders.HudsonShellTasks
+	tasks := ctx.config.Builders.Tasks
 	for _, task := range tasks {
-		step := convertShellTaskToStep(task.Command)
+		shellTask := &jenkinsxml.HudsonShellTask{}
+		antTask := &jenkinsxml.HudsonAntTask{}
+		step := &harness.Step{}
+		switch xmlname := task.XMLName.Local; xmlname {
+		case "hudson.tasks.Shell":
+			// TODO: wrapping Content with the 'builders' tag is ugly
+			err := xml.Unmarshal([]byte("<builders>"+task.Content+"</builders>"), shellTask)
+			if err != nil {
+				return nil, err
+			}
+			step = convertShellTaskToStep(shellTask.Command)
+		case "hudson.tasks.Ant":
+			// TODO: wrapping Content with the 'builders' tag is ugly
+			err := xml.Unmarshal([]byte("<builders>"+task.Content+"</builders>"), antTask)
+			if err != nil {
+				return nil, err
+			}
+			step = convertAntTaskToStep(antTask.Targets)
+		default:
+			commandMessage := "echo Unsupported field " + xmlname
+			step = convertShellTaskToStep(commandMessage)
+		}
+
 		stageSteps = append(stageSteps, step)
 	}
 	dstStage.Spec.(*harness.StageCI).Steps = stageSteps
@@ -151,7 +173,23 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	return out, nil
 }
 
-// convertShellTaskToStep converts a Jenkins shell task to a Harness step.
+// convertAntTaskToStep converts a Jenkins Ant task to a Harness step.
+func convertAntTaskToStep(targets string) *harness.Step {
+	spec := new(harness.StepPlugin)
+	spec.Image = "harnesscommunitytest/ant-plugin"
+	spec.Inputs = map[string]interface{}{
+		"goals": targets,
+	}
+	step := &harness.Step{
+		Name: "ant",
+		Type: "plugin",
+		Spec: spec,
+	}
+
+	return step
+}
+
+// convertShellTaskToStep converts a Jenkins Shell task to a Harness step.
 func convertShellTaskToStep(command string) *harness.Step {
 	spec := new(harness.StepExec)
 	spec.Run = command

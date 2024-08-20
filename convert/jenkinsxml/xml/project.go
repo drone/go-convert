@@ -21,6 +21,6 @@ type (
 		ConcurrentBuild bool `xml:"concurrentBuild,omitempty"`
 		Disabled        bool `xml:"disabled,omitempty"`
 
-		Builders Builders `xml:"builders"`
+		Builders *Builders `xml:"builders"`
 	}
 )
