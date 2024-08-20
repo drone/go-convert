@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"strings"
 
 	"encoding/xml"
 )
@@ -25,7 +26,15 @@ import (
 // Parse parses the configuration from io.Reader r.
 func Parse(r io.Reader) (*Project, error) {
 	out := new(Project)
-	dec := xml.NewDecoder(r)
+
+	// see https://github.com/golang/go/issues/25755
+	// encoding/xml does not support XML 1.1, which jenkins uses
+	//
+	// TODO: this approach is likely brittle and will need to be revisited
+	data, _ := io.ReadAll(r)
+	res := strings.Replace(string(data), "<?xml version='1.1", "<?xml version='1.0", 1)
+
+	dec := xml.NewDecoder(strings.NewReader(res))
 	err := dec.Decode(out)
 	return out, err
 }
