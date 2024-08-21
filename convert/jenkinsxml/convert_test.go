@@ -15,8 +15,12 @@
 package jenkinsxml
 
 import (
+	"encoding/xml"
 	"io/ioutil"
 	"testing"
+
+	jenkinsxml "github.com/drone/go-convert/convert/jenkinsxml/xml"
+	harness "github.com/drone/spec/dist/go"
 
 	"github.com/google/go-cmp/cmp"
 	"gopkg.in/yaml.v3"
@@ -32,7 +36,7 @@ func TestConvert(t *testing.T) {
 		return
 	}
 
-	// unmarshal the converted yaml file to a map
+	// unmarshal the yaml to a map
 	got := map[string]interface{}{}
 	if err := yaml.Unmarshal(tmp1, &got); err != nil {
 		t.Error(err)
@@ -54,6 +58,82 @@ func TestConvert(t *testing.T) {
 	}
 
 	// compare the converted yaml to the golden file
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf("Unexpected conversion result")
+		t.Log(diff)
+	}
+}
+
+func TestConvertAntTaskToStep(t *testing.T) {
+	// task struct to test
+	task := &jenkinsxml.Task{
+		XMLName: xml.Name{
+			Local: "hudson.tasks.Ant",
+			Space: "",
+		},
+		Content: "<targets>one/two/three</targets>",
+	}
+
+	got := convertAntTaskToStep(task)
+
+	want := &harness.Step{
+		Name: "ant",
+		Type: "plugin",
+		Spec: &harness.StepPlugin{
+			Image: "harnesscommunitytest/ant-plugin",
+			Inputs: map[string]interface{}{
+				"goals": "one/two/three",
+			},
+		},
+	}
+
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf("Unexpected conversion result")
+		t.Log(diff)
+	}
+}
+
+func TestConvertShellTaskToStep(t *testing.T) {
+	// task struct to test
+	task := &jenkinsxml.Task{
+		XMLName: xml.Name{
+			Local: "hudson.tasks.Shell",
+			Space: "",
+		},
+		Content: `
+      <command>echo hello</command>
+      <configuredLocalRules/>
+	`,
+	}
+
+	got := convertShellTaskToStep(task)
+
+	want := &harness.Step{
+		Name: "shell",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Run: "echo hello",
+		},
+	}
+
+	if diff := cmp.Diff(got, want); diff != "" {
+		t.Errorf("Unexpected conversion result")
+		t.Log(diff)
+	}
+}
+
+func TestUnsupportedTaskToStep(t *testing.T) {
+	task := "hudson.tasks.Unknown"
+
+	got := unsupportedTaskToStep(task)
+
+	want := &harness.Step{
+		Name: "shell",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Run: "echo Unsupported field hudson.tasks.Unknown",
+		},
+	}
 	if diff := cmp.Diff(got, want); diff != "" {
 		t.Errorf("Unexpected conversion result")
 		t.Log(diff)
