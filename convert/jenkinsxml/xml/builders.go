@@ -19,8 +19,6 @@ import "encoding/xml"
 type (
 	Builders struct {
 		Tasks []Task `xml:",any"`
-		/* 		HudsonShellTasks []*HudsonShellTask `xml:"hudson.tasks.Shell"`
-		   		HudsonAntTasks   []*HudsonAntTask   `xml:"hudson.tasks.Ant"` */
 	}
 
 	Task struct {

@@ -137,27 +137,15 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 
 	tasks := ctx.config.Builders.Tasks
 	for _, task := range tasks {
-		shellTask := &jenkinsxml.HudsonShellTask{}
-		antTask := &jenkinsxml.HudsonAntTask{}
 		step := &harness.Step{}
-		switch xmlname := task.XMLName.Local; xmlname {
+
+		switch taskname := task.XMLName.Local; taskname {
 		case "hudson.tasks.Shell":
-			// TODO: wrapping Content with the 'builders' tag is ugly
-			err := xml.Unmarshal([]byte("<builders>"+task.Content+"</builders>"), shellTask)
-			if err != nil {
-				return nil, err
-			}
-			step = convertShellTaskToStep(shellTask.Command)
+			step = convertShellTaskToStep(&task)
 		case "hudson.tasks.Ant":
-			// TODO: wrapping Content with the 'builders' tag is ugly
-			err := xml.Unmarshal([]byte("<builders>"+task.Content+"</builders>"), antTask)
-			if err != nil {
-				return nil, err
-			}
-			step = convertAntTaskToStep(antTask.Targets)
+			step = convertAntTaskToStep(&task)
 		default:
-			commandMessage := "echo Unsupported field " + xmlname
-			step = convertShellTaskToStep(commandMessage)
+			step = unsupportedTaskToStep(taskname)
 		}
 
 		stageSteps = append(stageSteps, step)
@@ -174,11 +162,18 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 }
 
 // convertAntTaskToStep converts a Jenkins Ant task to a Harness step.
-func convertAntTaskToStep(targets string) *harness.Step {
+func convertAntTaskToStep(task *jenkinsxml.Task) *harness.Step {
+	antTask := &jenkinsxml.HudsonAntTask{}
+	// TODO: wrapping task.Content with 'builders' tags is ugly.
+	err := xml.Unmarshal([]byte("<builders>"+task.Content+"</builders>"), antTask)
+	if err != nil {
+		return nil
+	}
+
 	spec := new(harness.StepPlugin)
 	spec.Image = "harnesscommunitytest/ant-plugin"
 	spec.Inputs = map[string]interface{}{
-		"goals": targets,
+		"goals": antTask.Targets,
 	}
 	step := &harness.Step{
 		Name: "ant",
@@ -190,9 +185,30 @@ func convertAntTaskToStep(targets string) *harness.Step {
 }
 
 // convertShellTaskToStep converts a Jenkins Shell task to a Harness step.
-func convertShellTaskToStep(command string) *harness.Step {
+func convertShellTaskToStep(task *jenkinsxml.Task) *harness.Step {
+	shellTask := &jenkinsxml.HudsonShellTask{}
+	// TODO: wrapping task.Content with 'builders' tags is ugly.
+	err := xml.Unmarshal([]byte("<builders>"+task.Content+"</builders>"), shellTask)
+	if err != nil {
+		return nil
+	}
+
 	spec := new(harness.StepExec)
-	spec.Run = command
+	spec.Run = shellTask.Command
+	step := &harness.Step{
+		Name: "shell",
+		Type: "script",
+		Spec: spec,
+	}
+
+	return step
+}
+
+// unsupportedTaskToStep converts an unsupported Jenkins Task to a placeholder
+// Harness step.
+func unsupportedTaskToStep(task string) *harness.Step {
+	spec := new(harness.StepExec)
+	spec.Run = "echo Unsupported field " + task
 	step := &harness.Step{
 		Name: "shell",
 		Type: "script",

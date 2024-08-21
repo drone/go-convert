@@ -16,6 +16,7 @@ package xml
 
 import (
 	"encoding/xml"
+	"io/ioutil"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -48,28 +49,6 @@ func TestParseFile(t *testing.T) {
 		t.Errorf("Unexpected parsing result")
 		t.Log(diff)
 	}
-}
-
-/* func TestParseFile(t *testing.T) {
-	got, err := ParseFile("testdata/hello.xml")
-	if err != nil {
-		t.Error(err)
-	}
-
-	want := &Project{
-		Builders: Builders{
-			HudsonShellTasks: []HudsonShellTask{
-				{
-					Command: "echo hello",
-				},
-			},
-		},
-	}
-
-	if diff := cmp.Diff(got, want); diff != "" {
-		t.Errorf("Unexpected parsing result")
-		t.Log(diff)
-	}
 
 	got, err = ParseFile("testdata/shell-and-ant.xml")
 	if err != nil {
@@ -77,20 +56,34 @@ func TestParseFile(t *testing.T) {
 	}
 
 	want = &Project{
-		Builders: Builders{
-			// TODO: these tasks are out of order, the Ant task should come second
-			HudsonShellTasks: []HudsonShellTask{
+		Disabled: false,
+		Builders: &Builders{
+			Tasks: []Task{
 				{
-					Command: "echo hello",
+					XMLName: xml.Name{
+						Local: "hudson.tasks.Shell",
+					},
+					Content: `
+      <command>echo hello</command>
+      <configuredLocalRules/>
+    `,
 				},
 				{
-					Command: "echo hello again",
+					XMLName: xml.Name{
+						Local: "hudson.tasks.Ant",
+					},
+					Content: `
+      <targets>one/two/three</targets>
+    `,
 				},
-			},
-			HudsonAntTasks: []HudsonAntTask{
 				{
-					Plugin:  "ant@497.v94e7d9fffa_b_9",
-					Targets: "one/two/three",
+					XMLName: xml.Name{
+						Local: "hudson.tasks.Shell",
+					},
+					Content: `
+      <command>echo hello again</command>
+      <configuredLocalRules/>
+    `,
 				},
 			},
 		},
@@ -117,10 +110,17 @@ func TestParseString(t *testing.T) {
 	}
 
 	want := &Project{
-		Builders: Builders{
-			HudsonShellTasks: []HudsonShellTask{
+		Disabled: false,
+		Builders: &Builders{
+			Tasks: []Task{
 				{
-					Command: "echo hello",
+					XMLName: xml.Name{
+						Local: "hudson.tasks.Shell",
+					},
+					Content: `
+      <command>echo hello</command>
+      <configuredLocalRules/>
+    `,
 				},
 			},
 		},
@@ -130,4 +130,4 @@ func TestParseString(t *testing.T) {
 		t.Errorf("Unexpected parsing result")
 		t.Log(diff)
 	}
-} */
+}
