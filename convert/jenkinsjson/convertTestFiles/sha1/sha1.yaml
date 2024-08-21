@@ -1,0 +1,11 @@
+- step:
+  identifier: sha1ca82f0
+  name: sha1
+  spec:
+    command: checksum=$(sha1sum file.txt | awk '{print $1}')
+    image: alpine
+    outputVariables:
+    - name: checksum
+    shell: Sh
+  timeout: ""
+  type: Run
