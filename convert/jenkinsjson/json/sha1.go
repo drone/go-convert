@@ -23,9 +23,9 @@ func ConvertSHA1(node Node, variables map[string]string, dockerImage string) *ha
 		Id:   SanitizeForId(node.SpanName, node.SpanId),
 		Type: "script",
 		Spec: &harness.StepExec{
-			Image: dockerImage,
-			Shell: "sh",
-			Run:   runCommand,
+			Image:   dockerImage,
+			Shell:   "sh",
+			Run:     runCommand,
 			Outputs: []string{"checksum"},
 		},
 	}

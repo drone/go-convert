@@ -341,13 +341,13 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 
 	case "withDockerContainer":
 		if img, ok := currentNode.ParameterMap["image"].(string); ok {
-			dockerImage = img 
+			dockerImage = img
 			// fmt.Println(dockerImage1)
 		}
 		for _, child := range currentNode.Children {
 			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout, dockerImage)
 		}
-	
+
 	case "stage":
 		// this is technically a step group, we treat it as just steps for now
 		if len(currentNode.Children) > 1 {
@@ -472,7 +472,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "readCSV":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertReadCsv(currentNode, variables), ID: id})
 	case "sha1":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSHA1(currentNode, variables,dockerImage), ID: id})
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSHA1(currentNode, variables, dockerImage), ID: id})
 	case "synopsys_detect":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSynopsysDetect(currentNode, variables), ID: id})
 	case "artifactoryUpload":
