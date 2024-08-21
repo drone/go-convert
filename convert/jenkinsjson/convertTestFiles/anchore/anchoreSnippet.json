@@ -1,0 +1,31 @@
+{
+  "spanId": "31ac6cc6db919edc",
+  "traceId": "9ce8e6e532bea908b06be25432621f33",
+  "parent": "anchoretest",
+  "all-info": "span(name: anchore, spanId: 31ac6cc6db919edc, parentSpanId: b55ad86a016ca66c, traceId: 9ce8e6e532bea908b06be25432621f33, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"delegate\" : {\n    \"symbol\" : \"anchore\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"bailOnFail\" : \"false\",\n      \"forceAnalyze\" : \"false\",\n      \"name\" : \"anchore_images\",\n      \"policyBundleId\" : \"77fff4af-3bfb-421a-87ab-3ee4dd520b76\"\n    },\n    \"model\" : null\n  }\n};harness-others:-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep;jenkins.pipeline.step.id:9;jenkins.pipeline.step.name:Anchore Container Image Scanner;jenkins.pipeline.step.plugin.name:anchore-container-scanner;jenkins.pipeline.step.plugin.version:3.1.0;jenkins.pipeline.step.type:anchore;)",
+  "name": "anchoretest #1",
+  "attributesMap": {
+    "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+    "jenkins.pipeline.step.name": "Anchore Container Image Scanner",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "9",
+    "jenkins.pipeline.step.type": "anchore",
+    "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"anchore\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"bailOnFail\" : \"true\",\n      \"forceAnalyze\" : \"false\",\n      \"name\" : \"anchore_images\",\n      \"policyBundleId\" : \"77fff4af-3bfb-421a-87ab-3ee4dd520b76\"\n    },\n    \"model\" : null\n  }\n}",
+    "jenkins.pipeline.step.plugin.name": "anchore-container-scanner",
+    "jenkins.pipeline.step.plugin.version": "3.1.0"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "b55ad86a016ca66c",
+  "parameterMap": {"delegate": {
+    "symbol": "anchore",
+    "klass": null,
+    "arguments": {
+      "forceAnalyze": "false",
+      "name": "anchore_images",
+      "bailOnFail": "false",
+      "policyBundleId": "77fff4af-3bfb-421a-87ab-3ee4dd520b76"
+    },
+    "model": null
+  }},
+  "spanName": "anchore"
+}
