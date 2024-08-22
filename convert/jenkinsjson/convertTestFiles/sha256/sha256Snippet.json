@@ -1,0 +1,21 @@
+{
+  "spanId": "26ddc5646a8cb2cb",
+  "traceId": "08c9f3723e35ccb071d6133d58586108",
+  "parent": "ag-readJSON",
+  "all-info": "span(name: sha256, spanId: 26ddc5646a8cb2cb, parentSpanId: 985d8e69cd9ec723, traceId: 08c9f3723e35ccb071d6133d58586108, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"file\" : \"file.txt\"\n};harness-others:;jenkins.pipeline.step.id:9;jenkins.pipeline.step.name:Compute the SHA256 of a given file;jenkins.pipeline.step.plugin.name:pipeline-utility-steps;jenkins.pipeline.step.plugin.version:2.17.0;jenkins.pipeline.step.type:sha256;)",
+  "name": "ag-readJSON #73",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Compute the SHA256 of a given file",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "9",
+    "jenkins.pipeline.step.type": "sha256",
+    "harness-attribute": "{\n  \"file\" : \"file.txt\"\n}",
+    "jenkins.pipeline.step.plugin.name": "pipeline-utility-steps",
+    "jenkins.pipeline.step.plugin.version": "2.17.0"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "985d8e69cd9ec723",
+  "parameterMap": {"file": "file.txt"},
+  "spanName": "sha256"
+}
