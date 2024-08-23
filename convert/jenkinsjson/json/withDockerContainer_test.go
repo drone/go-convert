@@ -52,8 +52,8 @@ func TestConvertWithDockerContainer(t *testing.T) {
 				TraceId:      "9a3549687043a2c1f88c2796a279a7b7",
 				Type:         "Run Phase Span",
 				ParameterMap: map[string]any{
-					"args": "",
-					"image": "node:20.16.0-alpine3.20",
+					"args":     "",
+					"image":    "node:20.16.0-alpine3.20",
 					"toolName": ""},
 			},
 		},
