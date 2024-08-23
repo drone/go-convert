@@ -1,0 +1,12 @@
+pipeline {
+    agent any
+    stages {
+        stage("file checksum") {
+            steps {
+                script {
+                    checksum = sha256('file.txt')
+                }
+            }
+        }
+    }
+} 

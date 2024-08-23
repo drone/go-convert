@@ -1,0 +1,29 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>echo hello</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Ant plugin="ant@497.v94e7d9fffa_b_9">
+      <targets>one/two/three</targets>
+    </hudson.tasks.Ant>
+    <hudson.tasks.Shell>
+      <command>echo hello again</command>
+      <configuredLocalRules/>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

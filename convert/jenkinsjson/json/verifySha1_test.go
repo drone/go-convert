@@ -10,13 +10,13 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestConvertWithDockerContainer(t *testing.T) {
+func TestConvertVerifySha1(t *testing.T) {
 	workingDir, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("failed to get current working directory: %v", err)
 	}
 
-	filePath := filepath.Join(workingDir, "../convertTestFiles/withDockerContainer/withDockerContainerSnippet.json")
+	filePath := filepath.Join(workingDir, "../convertTestFiles/verifySha1/verifySha1Snippet.json")
 	jsonData, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		t.Fatalf("failed to read JSON file: %v", err)
@@ -36,25 +36,24 @@ func TestConvertWithDockerContainer(t *testing.T) {
 			want: Node{
 				AttributesMap: map[string]string{
 					"ci.pipeline.run.user":                 "SYSTEM",
-					"jenkins.pipeline.step.id":             "3",
-					"jenkins.pipeline.step.name":           "agent.allocate",
-					"jenkins.pipeline.step.plugin.name":    "workflow-durable-task-step",
-					"jenkins.pipeline.step.plugin.version": "1360.v82d13453da_a_f",
-					"jenkins.pipeline.step.type":           "withDockerContainer",
-					"harness-attribute":                    "{\n  \"args\" : \"\",\n  \"image\" : \"node:20.16.0-alpine3.20\",\n  \"toolName\" : null\n}",
+					"jenkins.pipeline.step.id":             "9",
+					"jenkins.pipeline.step.name":           "Verify the SHA1 of a given file",
+					"jenkins.pipeline.step.plugin.name":    "pipeline-utility-steps",
+					"jenkins.pipeline.step.plugin.version": "2.17.0",
+					"jenkins.pipeline.step.type":           "verifySha1",
+					"harness-attribute":                    "{\n  \"hash\" : \"22596363b3de40b06f981fb85d82312e8c0ed511\",\n  \"file\" : \"file.txt\"\n}",
 					"harness-others":                       "",
 				},
-				Name:         "docker declarative #4",
-				Parent:       "docker declarative",
-				ParentSpanId: "3dbf046c2e8a9822",
-				SpanId:       "77809b66e716b761",
-				SpanName:     "Stage: null",
-				TraceId:      "9a3549687043a2c1f88c2796a279a7b7",
+				Name:         "ag-readJSON #75",
+				Parent:       "ag-readJSON",
+				ParentSpanId: "4906ee7f321b135e",
+				SpanId:       "98c85f37933c3250",
+				SpanName:     "verifySha1",
+				TraceId:      "6efe56554a7922b3e92c099fc96cccc4",
 				Type:         "Run Phase Span",
 				ParameterMap: map[string]any{
-					"args":     "",
-					"image":    "node:20.16.0-alpine3.20",
-					"toolName": ""},
+					"file": "file.txt",
+					"hash": "22596363b3de40b06f981fb85d82312e8c0ed511"},
 			},
 		},
 	}

@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+    stages {
+        stage('test') {
+            steps {
+                script {
+                    anchore (
+                        name: "anchore_images",
+                        bailOnFail: "false",
+                        forceAnalyze: "false",
+                        policyBundleId: "77fff4af-3bfb-421a-87ab-3ee4dd520b76",
+                    )
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,25 @@
+kind: pipeline
+spec:
+  stages:
+  - spec:
+      steps:
+      - name: shell
+        spec:
+          run: echo hello
+        type: script
+      - name: ant
+        spec:
+          image: harnesscommunitytest/ant-plugin
+          inputs:
+            goals: "one/two/three"
+        type: plugin
+      - name: shell
+        spec:
+          run: echo hello again
+        type: script
+      - name: shell
+        spec:
+          run: echo Unsupported field hudson.tasks.Unknown
+        type: script
+    type: ci
+version: 1
