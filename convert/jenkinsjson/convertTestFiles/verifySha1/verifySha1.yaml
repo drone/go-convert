@@ -1,0 +1,9 @@
+- step:
+    identifier: verifysha198c85f
+    name: verifySha1
+    spec:
+      command: echo 22596363b3de40b06f981fb85d82312e8c0ed511 file.txt | sha1sum -c
+      image: alpine
+      shell: Sh
+    timeout: ""
+    type: Run
