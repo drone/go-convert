@@ -1,0 +1,10 @@
+- step:
+    identifier: verifysha256b2b368
+    name: verifySha256
+    spec:
+      command: echo a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
+        file.txt | sha256sum -c
+      image: alpine
+      shell: Sh
+    timeout: ""
+    type: Run

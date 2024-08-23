@@ -1,0 +1,24 @@
+{
+  "spanId": "b2b3687b5cc73816",
+  "traceId": "7808bb3531a5d71e8e4468b16911eb96",
+  "parent": "ag-readJSON",
+  "all-info": "span(name: verifySha256, spanId: b2b3687b5cc73816, parentSpanId: 5fba4997f08f9cf7, traceId: 7808bb3531a5d71e8e4468b16911eb96, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"hash\" : \"a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447\",\n  \"file\" : \"file.txt\"\n};harness-others:;jenkins.pipeline.step.id:9;jenkins.pipeline.step.name:Verify the SHA256 of a given file;jenkins.pipeline.step.plugin.name:pipeline-utility-steps;jenkins.pipeline.step.plugin.version:2.17.0;jenkins.pipeline.step.type:verifySha256;)",
+  "name": "ag-readJSON #77",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Verify the SHA256 of a given file",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "9",
+    "jenkins.pipeline.step.type": "verifySha256",
+    "harness-attribute": "{\n  \"hash\" : \"a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447\",\n  \"file\" : \"file.txt\"\n}",
+    "jenkins.pipeline.step.plugin.name": "pipeline-utility-steps",
+    "jenkins.pipeline.step.plugin.version": "2.17.0"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "5fba4997f08f9cf7",
+  "parameterMap": {
+    "file": "file.txt",
+    "hash": "a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447"
+  },
+  "spanName": "verifySha256"
+}
