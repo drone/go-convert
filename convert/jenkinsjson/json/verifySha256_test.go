@@ -10,7 +10,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestConvertVerifySha1(t *testing.T) {
+func TestConvertVerifySha256(t *testing.T) {
 	workingDir, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("failed to get current working directory: %v", err)
