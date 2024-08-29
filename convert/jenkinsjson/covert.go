@@ -560,7 +560,7 @@ func prependCommentHashToLines(input string) string {
         lines[i] = "# " + line
     }
 
-    return "# Here is the parameterMap for this function:\n" + strings.Join(lines, "\n")
+    return "\n# Here is the parameterMap for this function:\n" + strings.Join(lines, "\n")
 }
 
 func ExtractEnvironmentVariables(node jenkinsjson.Node) map[string]string {
