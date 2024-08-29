@@ -523,13 +523,19 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		}
 
 	default:
+		placeholderStr :=  fmt.Sprintf("echo %q", "This is a place holder for: " + currentNode.AttributesMap["jenkins.pipeline.step.type"]) 
+		b, err := json.MarshalIndent(currentNode.ParameterMap, "", "  ")
+		if err != nil {
+			fmt.Println("error:", err)
+		}
+		placeholderStr += "\n" + prependCommentHashToLines(string(b))
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: &harness.Step{
 			Name: currentNode.SpanName,
 			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 			Type: "script",
 			Spec: &harness.StepExec{
 				Shell: "sh",
-				Run:   fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"]),
+				Run:   placeholderStr,
 			},
 			Desc: "This is a place holder for: " + currentNode.AttributesMap["jenkins.pipeline.step.type"],
 		}, ID: id})
@@ -545,6 +551,16 @@ func mergeMaps(dest, src map[string]string) map[string]string {
 		result[key] = value
 	}
 	return result
+}
+
+func prependCommentHashToLines(input string) string {
+    lines := strings.Split(input, "\n")
+    
+    for i, line := range lines {
+        lines[i] = "# " + line
+    }
+
+    return "# Here is the parameterMap for this function:\n" + strings.Join(lines, "\n")
 }
 
 func ExtractEnvironmentVariables(node jenkinsjson.Node) map[string]string {
