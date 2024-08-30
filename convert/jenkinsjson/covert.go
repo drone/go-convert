@@ -506,6 +506,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "anchore":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertAnchore(currentNode, variables), ID: id})
 
+	case "dockerPushStep", "rtDockerPush":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDockerPushStep(currentNode, variables, timeout), ID: id})
+
 	case "newBuildInfo", "getArtifactoryServer":
 		return nil, nil
 	case "":
