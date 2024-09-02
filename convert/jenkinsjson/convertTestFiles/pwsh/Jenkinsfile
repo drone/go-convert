@@ -1,0 +1,10 @@
+pipeline {
+    agent any
+    stages {
+        stage('example') {
+            steps {
+                pwsh(script: 'Write-Output "Hello from powershell"')
+            }
+        }
+    }
+}

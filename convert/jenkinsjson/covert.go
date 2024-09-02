@@ -387,6 +387,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		}
 	case "sh":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage), ID: id})
+	case "pwsh":
+		dockerImage = "mcr.microsoft.com/powershell"
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPwsh(currentNode, variables, timeout, dockerImage), ID: id})
 	case "timeout":
 		if len(currentNode.ParameterMap) > 0 {
 			var unit string
