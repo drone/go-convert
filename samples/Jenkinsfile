@@ -55,7 +55,7 @@ pipeline {
                         doGenerateSubmoduleConfigurations: false,
                         extensions: [],
                         submoduleCfg: [],
-                        userRemoteConfigs: [[url: 'https://github.com/Anshika2203/CombinedAllBuilds.git']]
+                        userRemoteConfigs: [[url: 'https://github.com/harness-community/test-jenkins-to-harness.git']]
                     ])
                     
                     // Use Maven to build
