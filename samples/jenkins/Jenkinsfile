@@ -1,0 +1,135 @@
+pipeline {
+    agent any
+    
+    tools {
+        ant 'AntNew'
+        gradle 'GradleNew'
+        maven 'M3'
+    }
+    
+    stages {
+        stage('Plugin Build') {
+            steps {
+                script {
+                    // Perform the checkout
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '*/main']],
+                        doGenerateSubmoduleConfigurations: false,
+                        extensions: [],
+                        submoduleCfg: [],
+                        userRemoteConfigs: [[url: 'https://github.com/harness-community/test-jenkins-to-harness.git']]
+                    ])
+                    
+                    // Use Maven to build
+                    withMaven {
+                    sh "mvn clean install\
+                        package"
+                    }
+                    
+                    // Use Ant to build
+                    withAnt {
+                        sh 'ant build'
+                    }
+                    
+                    // Use Gradle to build
+                    withGradle {
+                        sh 'gradle build'
+                    }
+                }
+            }
+        }
+        
+        stage('ReadWriteFile') {
+            steps {
+                script {
+                    writeFile file: 'output1.txt', text: '''line1 
+
+line2
+
+line3'''
+                    readFile file: 'output1.txt'
+                }
+            }
+        }
+
+        stage('DeleteDirStep') {
+            steps {
+                script {
+                    // Create files in target directory
+                    sh '''
+                      mkdir -p target
+                      touch target/file4.txt
+                      touch target/file5.txt
+                      touch target/file6.txt
+                    '''
+                    
+                    // List files before deletion
+                    sh 'ls'
+                    
+                    // Delete the target directory
+                    dir('target') {
+                        deleteDir()
+                    }
+                    
+                    // List files after deletion
+                    sh 'ls'
+                }
+            }
+        }
+        stage('Read json step') {
+            steps {
+                script {
+                    def oldJson = '''{
+            "branch":{
+                "type-0.2":{"version":"0.2","rc":"1","rel":"1","extras":"1"},
+                "type-0.3":{"version":"0.3","rc":"1","rel":"1","extras":"1"}
+                }
+            }'''
+                    def props = readJSON text: oldJson
+                    def keyList = props['branch'].keySet()
+                    echo "${keyList}"
+                }
+            }
+        }
+        
+        stage('Read yaml step') {
+            steps {
+                script {
+                    writeFile file: 'test1.yaml', text: '''pipeline:
+  identifier: default
+  name: default
+  orgIdentifier: default
+  projectIdentifier: default
+  properties:
+    ci:
+      codebase:false'''
+                        
+                    datas = readYaml (file: 'test1.yaml')
+                }
+            }
+        }
+	
+        stage('Code Analysis') {
+            environment {
+                scannerHome = tool 'Sonar'
+            }
+            steps {
+                script {
+                    withSonarQubeEnv('Sonar') {
+                        sh "${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=Jenkins-Sonar \
+                            -Dsonar.projectName=Jenkins-Sonar "
+                    }
+                }
+            }
+        }
+        // SETTINGS DO NOT MATCH CORRECTLY TO IMPLEMENT.
+        stage('Blackduck') {
+            steps {
+                synopsys_detect "--blackduck.url=https://harness.app.blackduck.com/ --blackduck.api.token=<BLACKDUCK_TOKEN> --detect.project.name=jenkinstestFinal --detect.project.version.name=v1.0"
+            }
+        }
+        
+    }
+}
