@@ -1,0 +1,20 @@
+{
+  "spanId": "48add07c4c323c37",
+  "traceId": "c7ae9b130161e9586c66041e8022c888",
+  "parent": "pwsh-test",
+  "name": "pwsh-test #4",
+  "attributesMap": {
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "7",
+    "jenkins.pipeline.step.name": "PowerShell Core Script",
+    "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
+    "jenkins.pipeline.step.plugin.version": "1353.v1891a_b_01da_18",
+    "jenkins.pipeline.step.type": "pwsh",
+    "harness-attribute": "{\n  \"script\" : \"Write-Output \\\"Hello from powershell\\\"\"\n}",
+    "harness-others": "-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "ae814e400d403a68",
+  "spanName": "pwsh",
+  "parameterMap": { "script": "Write-Output \"Hello from powershell\"" }
+}

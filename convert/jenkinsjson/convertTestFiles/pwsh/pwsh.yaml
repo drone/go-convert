@@ -1,0 +1,9 @@
+- step:
+    identifier: pwsh48add0
+    name: pwsh
+    spec:
+      command: Write-Output "Hello from powershell"
+      image: mcr.microsoft.com/powershell
+      shell: Pwsh
+    timeout: ""
+    type: Run
