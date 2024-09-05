@@ -1,0 +1,23 @@
+{
+    "spanId": "1d32816af9f2af91",
+    "traceId": "6fd7fe143b5d6e801f2b18a64a389586",
+    "parent": "powershell",
+    "all-info": "span(name: powershell, spanId: 1d32816af9f2af91, parentSpanId: 55c676aee68fe432, traceId: 6fd7fe143b5d6e801f2b18a64a389586, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"script\" : \"\\n                Write-Output \\\"Running a PowerShell command\\\"\\n                \"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3e271725:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3e271725;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@5ecf0fef:org.jenkinsci.plugins.workflow.actions.TimingAction@5ecf0fef;harness-others:-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long;jenkins.pipeline.step.id:7;jenkins.pipeline.step.name:Windows PowerShell Script;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1371.vb_7cec8f3b_95e;jenkins.pipeline.step.type:powershell;)",
+    "name": "powershell #1",
+    "attributesMap": {
+      "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3e271725": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3e271725",
+      "harness-others": "-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long",
+      "jenkins.pipeline.step.name": "Windows PowerShell Script",
+      "ci.pipeline.run.user": "SYSTEM",
+      "jenkins.pipeline.step.id": "7",
+      "jenkins.pipeline.step.type": "powershell",
+      "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@5ecf0fef": "org.jenkinsci.plugins.workflow.actions.TimingAction@5ecf0fef",
+      "harness-attribute": "{\n  \"script\" : \"\\n                Write-Output \\\"Running a PowerShell command\\\"\\n                \"\n}",
+      "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
+      "jenkins.pipeline.step.plugin.version": "1371.vb_7cec8f3b_95e"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "55c676aee68fe432",
+    "parameterMap": {"script": "\n                Write-Output \"Running a PowerShell command\"\n                "},
+    "spanName": "powershell"
+  }

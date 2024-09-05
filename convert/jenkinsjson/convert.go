@@ -527,9 +527,11 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		if processedTools.AntPresent {
 			clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "ant", "ant", "harnesscommunitytest/ant-plugin:latest", variables, timeout)
 		}
+	case "powershell":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPowerShell(currentNode, variables, timeout), ID: id})
 
 	default:
-		placeholderStr :=  fmt.Sprintf("echo %q", "This is a place holder for: " + currentNode.AttributesMap["jenkins.pipeline.step.type"]) 
+		placeholderStr := fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"])
 		b, err := json.MarshalIndent(currentNode.ParameterMap, "", "  ")
 		if err != nil {
 			fmt.Println("error:", err)
@@ -560,13 +562,13 @@ func mergeMaps(dest, src map[string]string) map[string]string {
 }
 
 func prependCommentHashToLines(input string) string {
-    lines := strings.Split(input, "\n")
-    
-    for i, line := range lines {
-        lines[i] = "# " + line
-    }
+	lines := strings.Split(input, "\n")
 
-    return "\n# Here is the parameterMap for this function:\n" + strings.Join(lines, "\n")
+	for i, line := range lines {
+		lines[i] = "# " + line
+	}
+
+	return "\n# Here is the parameterMap for this function:\n" + strings.Join(lines, "\n")
 }
 
 func ExtractEnvironmentVariables(node jenkinsjson.Node) map[string]string {

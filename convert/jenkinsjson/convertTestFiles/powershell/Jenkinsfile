@@ -1,0 +1,12 @@
+pipeline {
+    agent any
+    stages {
+        stage('Run PowerShell') {
+            steps {
+                powershell '''
+                Write-Output "Running a PowerShell command"
+                '''
+            }
+        }
+    }
+}

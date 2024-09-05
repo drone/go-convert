@@ -1,0 +1,21 @@
+pipeline {
+    agent any
+    
+    tools {
+        ant 'AntNew'
+        gradle 'GradleNew'
+        maven 'M3'
+    }
+    
+    stages {
+
+        stage('Run PowerShell') {
+            steps {
+                powershell '''
+                Write-Output "Running a PowerShell command"
+                '''
+            }
+        }           
+        
+    }
+}
