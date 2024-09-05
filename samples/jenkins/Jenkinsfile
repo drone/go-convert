@@ -129,15 +129,7 @@ line3'''
             steps {
                 synopsys_detect "--blackduck.url=https://harness.app.blackduck.com/ --blackduck.api.token=<BLACKDUCK_TOKEN> --detect.project.name=jenkinstestFinal --detect.project.version.name=v1.0"
             }
-        }
-
-        stage('Run PowerShell') {
-            steps {
-                powershell '''
-                Write-Output "Running a PowerShell command"
-                '''
-            }
-        }           
+        }          
         
     }
 }
