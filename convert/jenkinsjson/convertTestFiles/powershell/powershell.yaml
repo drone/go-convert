@@ -1,0 +1,11 @@
+- step:
+    identifier: powershell1d3281
+    name: powershell
+    spec:
+      command: |2-
+
+                        Write-Output "Running a PowerShell command"
+                        
+      shell: Powershell
+    timeout: ""
+    type: Run
