@@ -546,6 +546,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			Desc: "This is a place holder for: " + currentNode.AttributesMap["jenkins.pipeline.step.type"],
 		}, ID: id})
 	}
+	mergeRunSteps(stepWithIDList)
 	return clone, repo
 }
 func mergeMaps(dest, src map[string]string) map[string]string {
@@ -754,4 +755,82 @@ func recursiveHandleSonarCube(currentNode jenkinsjson.Node, stepWithIDList *[]St
 	}
 
 	return clone, repo
+}
+
+func mergeRunSteps(steps *[]StepWithID) {
+	if len(*steps) < 2 {
+		return
+	}
+
+	merged := []StepWithID{}
+	cursor := (*steps)[0]
+	pushed := false
+	for i := 1; i < len(*steps); i++ {
+		current := (*steps)[i]
+		// if can merge, store all current content in cursor
+
+		if canMergeSteps(cursor.Step, current.Step) {
+			previousExec := cursor.Step.Spec.(*harness.StepExec)
+			currentExec := current.Step.Spec.(*harness.StepExec)
+			previousExec.Run += "\n" + currentExec.Run
+			cursor.Step.Name += "_" + current.Step.Name
+			pushed = false
+		} else {
+			// if not able to merge, push cursor and reset cursor to current one
+			merged = append(merged, cursor)
+			cursor = current
+			pushed = true
+		}
+	}
+
+	if !pushed {
+		merged = append(merged, cursor)
+	}
+	*steps = merged
+}
+
+func canMergeSteps(step1, step2 *harness.Step) bool {
+	if step1.Type != "script" || step2.Type != "script" {
+		return false
+	}
+
+	exec1, ok1 := step1.Spec.(*harness.StepExec)
+	exec2, ok2 := step2.Spec.(*harness.StepExec)
+
+	if !ok1 || !ok2 {
+		return false
+	}
+
+	return exec1.Image == exec2.Image &&
+		exec1.Connector == exec2.Connector &&
+		exec1.Shell == exec2.Shell &&
+		ENVmapsEqual(exec1.Envs, exec2.Envs) &&
+		exec1.Entrypoint == exec2.Entrypoint &&
+		ARGSslicesEqual(exec1.Args, exec2.Args) &&
+		exec1.Privileged == exec2.Privileged &&
+		exec1.Network == exec2.Network
+}
+
+func ENVmapsEqual(m1, m2 map[string]string) bool {
+	if len(m1) != len(m2) {
+		return false
+	}
+	for k, v1 := range m1 {
+		if v2, ok := m2[k]; !ok || v1 != v2 {
+			return false
+		}
+	}
+	return true
+}
+
+func ARGSslicesEqual(s1, s2 []string) bool {
+	if len(s1) != len(s2) {
+		return false
+	}
+	for i := range s1 {
+		if s1[i] != s2[i] {
+			return false
+		}
+	}
+	return true
 }
