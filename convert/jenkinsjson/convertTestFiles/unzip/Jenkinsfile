@@ -1,0 +1,19 @@
+pipeline {
+    agent any
+    stages {
+        stage ('push artifact') {
+            steps {
+                sh 'mkdir archive2'
+                sh 'echo test > archive2/test.txt'
+                zip zipFile: 'test.zip', archive: false, dir: 'archive2', overwrite: true
+            }
+        }
+
+        stage('pull artifact') {
+            steps {
+                unzip zipFile: 'test.zip', dir: './archive_new2'
+                sh 'cat archive_new/test.txt'
+            }
+        }
+    }
+}

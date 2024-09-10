@@ -1,0 +1,26 @@
+{
+  "spanId": "676ac85e93fab9f5",
+  "traceId": "72fe400263268c3df17b540caddd5387",
+  "parent": "zipTest",
+  "all-info": "span(name: zip, spanId: 676ac85e93fab9f5, parentSpanId: 388e6ddc602e0eb3, traceId: 72fe400263268c3df17b540caddd5387, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"archive\" : false,\n  \"dir\" : \"archive2\",\n  \"zipFile\" : \"test.zip\",\n  \"overwrite\" : true\n};harness-others:;jenkins.pipeline.step.id:9;jenkins.pipeline.step.name:Create Zip file;jenkins.pipeline.step.plugin.name:pipeline-utility-steps;jenkins.pipeline.step.plugin.version:2.17.0;jenkins.pipeline.step.type:zip;)",
+  "name": "zipTest #6",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Create Zip file",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "9",
+    "jenkins.pipeline.step.type": "zip",
+    "harness-attribute": "{\n  \"archive\" : false,\n  \"dir\" : \"archive2\",\n  \"zipFile\" : \"test.zip\",\n  \"overwrite\" : true\n}",
+    "jenkins.pipeline.step.plugin.name": "pipeline-utility-steps",
+    "jenkins.pipeline.step.plugin.version": "2.17.0"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "388e6ddc602e0eb3",
+  "parameterMap": {
+    "archive": false,
+    "dir": "archive2",
+    "zipFile": "test.zip",
+    "overwrite": true
+  },
+  "spanName": "zip"
+}
