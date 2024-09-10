@@ -554,7 +554,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			Desc: "This is a place holder for: " + currentNode.AttributesMap["jenkins.pipeline.step.type"],
 		}, ID: id})
 	}
-	//mergeRunSteps(stepWithIDList)
+	mergeRunSteps(stepWithIDList)
 	return clone, repo
 }
 func mergeMaps(dest, src map[string]string) map[string]string {
