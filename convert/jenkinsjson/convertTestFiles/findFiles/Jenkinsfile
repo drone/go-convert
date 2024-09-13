@@ -1,0 +1,18 @@
+pipeline {
+    agent any
+    stages {
+        stage('Find Files') {
+            steps {
+                script {
+                    // Find all .txt files in the workspace
+                    def files = findFiles(glob: '**/*.txt')
+                    
+                    // Loop through the found files and print their paths
+                    for (file in files) {
+                        echo "Found file: ${file.path}"
+                    }
+                }
+            }
+        }
+    }
+}
