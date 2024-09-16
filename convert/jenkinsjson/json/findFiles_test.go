@@ -6,62 +6,73 @@ import (
 	"path/filepath"
 	"testing"
 
+	harness "github.com/drone/spec/dist/go"
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestConvertFindFiles(t *testing.T) {
+type runner struct {
+	name  string
+	input Node
+	want  *harness.Step
+}
+
+func prepare(t *testing.T, filename string, step *harness.Step) runner {
+
 	workingDir, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("failed to get current working directory: %v", err)
 	}
 
-	filePath := filepath.Join(workingDir, "../convertTestFiles/findFiles/findFilesSnippet.json")
-
-	jsonData, err := os.ReadFile(filePath)
+	jsonData, err := os.ReadFile(filepath.Join(workingDir, "../convertTestFiles/findFiles", filename+".json"))
 	if err != nil {
 		t.Fatalf("failed to read JSON file: %v", err)
 	}
 
-	var node Node
-	if err := json.Unmarshal(jsonData, &node); err != nil {
+	var inputNode Node
+	if err := json.Unmarshal(jsonData, &inputNode); err != nil {
 		t.Fatalf("failed to decode JSON: %v", err)
 	}
 
-	tests := []struct {
-		json Node
-		want Node
-	}{
-		{
-			json: node,
-			want: Node{
-				AttributesMap: map[string]string{
-					"ci.pipeline.run.user":                 "SYSTEM",
-					"harness-attribute":                    "{\n  \"glob\" : \"**/*.txt\"\n}",
-					"harness-others":                       "",
-					"jenkins.pipeline.step.name":           "Find files in the workspace",
-					"jenkins.pipeline.step.id":             "9",
-					"jenkins.pipeline.step.type":           "findFiles",
-					"jenkins.pipeline.step.plugin.name":    "pipeline-utility-steps",
-					"jenkins.pipeline.step.plugin.version": "2.17.0",
-				},
-				Name:         "Find Files #16",
-				Parent:       "Find Files",
-				ParentSpanId: "3e4d10779bd33fa0",
-				SpanId:       "4d4efecbe310473f",
-				SpanName:     "findFiles",
-				TraceId:      "d46fda25e54d4691bf39cbb5712a3225",
-				Type:         "Run Phase Span",
-				ParameterMap: map[string]any{
-					"glob": "**/*.txt",
-				},
+	return runner{
+		name:  filename,
+		input: inputNode,
+		want:  step,
+	}
+}
+
+func TestConvertFindFiles(t *testing.T) {
+
+	var tests []runner
+	tests = append(tests, prepare(t, "findFiles_GlobOnly", &harness.Step{
+		Id:   "findFiles4d4efe",
+		Name: "findFiles",
+		Type: "plugin",
+		Spec: &harness.StepPlugin{
+			Image: "harness-community/drone-findfiles:latest",
+			With: map[string]interface{}{
+				"glob": string("**/*.txt"),
 			},
 		},
-	}
-	for i, test := range tests {
-		got := test.json
-		if diff := cmp.Diff(got, test.want); diff != "" {
-			t.Errorf("Unexpected parsing results for test %v", i)
-			t.Log(diff)
-		}
+	}))
+	tests = append(tests, prepare(t, "findFiles_Excludes", &harness.Step{
+		Id:   "findFilescc58db",
+		Name: "findFiles",
+		Type: "plugin",
+		Spec: &harness.StepPlugin{
+			Image: "harness-community/drone-findfiles:latest",
+			With: map[string]interface{}{
+				"glob":     string("**/*.txt"),
+				"excludes": string("**/1.txt"),
+			},
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ConvertFindFiles(tt.input)
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFindFiles() mismatch (-want +got):\n%s", diff)
+			}
+		})
 	}
 }

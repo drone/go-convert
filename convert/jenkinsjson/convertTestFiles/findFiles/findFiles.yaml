@@ -1,9 +1,0 @@
-- step:
-    identifier: findfiles4d4efe
-    name: findFiles
-    spec:
-      image: harness-community/drone-findfiles:latest
-      settings:
-        filter: "**/*.txt"
-    timeout: ""
-    type: Plugin
