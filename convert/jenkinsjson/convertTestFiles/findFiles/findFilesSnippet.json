@@ -5,14 +5,12 @@
     "all-info": "span(name: findFiles, spanId: 4d4efecbe310473f, parentSpanId: 3e4d10779bd33fa0, traceId: d46fda25e54d4691bf39cbb5712a3225, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"glob\" : \"**/*.txt\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@9506f36:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@9506f36;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@6a4532d6:org.jenkinsci.plugins.workflow.actions.TimingAction@6a4532d6;harness-others:;jenkins.pipeline.step.id:9;jenkins.pipeline.step.name:Find files in the workspace;jenkins.pipeline.step.plugin.name:pipeline-utility-steps;jenkins.pipeline.step.plugin.version:2.17.0;jenkins.pipeline.step.type:findFiles;)",
     "name": "Find Files #16",
     "attributesMap": {
-        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@9506f36": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@9506f36",
-        "harness-others": "",
-        "jenkins.pipeline.step.name": "Find files in the workspace",
         "ci.pipeline.run.user": "SYSTEM",
+        "harness-others": "",
+        "harness-attribute": "{\n  \"glob\" : \"**/*.txt\"\n}",
+        "jenkins.pipeline.step.name": "Find files in the workspace",
         "jenkins.pipeline.step.id": "9",
         "jenkins.pipeline.step.type": "findFiles",
-        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@6a4532d6": "org.jenkinsci.plugins.workflow.actions.TimingAction@6a4532d6",
-        "harness-attribute": "{\n  \"glob\" : \"**/*.txt\"\n}",
         "jenkins.pipeline.step.plugin.name": "pipeline-utility-steps",
         "jenkins.pipeline.step.plugin.version": "2.17.0"
     },
