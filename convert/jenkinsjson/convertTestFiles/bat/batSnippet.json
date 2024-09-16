@@ -1,0 +1,23 @@
+{
+    "spanId": "3b5f74c9f63038e8",
+    "traceId": "43b33edbd2a74b689ad41277bafb9651",
+    "parent": "bat",
+    "all-info": "span(name: bat, spanId: 3b5f74c9f63038e8, parentSpanId: 0f65d00f06e49e29, traceId: 43b33edbd2a74b689ad41277bafb9651, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"script\" : \"echo hello world\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5e2b6f0d:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5e2b6f0d;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@138cf5f6:org.jenkinsci.plugins.workflow.actions.TimingAction@138cf5f6;harness-others:-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long;jenkins.pipeline.step.id:7;jenkins.pipeline.step.name:Windows Batch Script;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1371.vb_7cec8f3b_95e;jenkins.pipeline.step.type:bat;)",
+    "name": "bat #1",
+    "attributesMap": {
+      "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5e2b6f0d": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5e2b6f0d",
+      "harness-others": "-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long",
+      "jenkins.pipeline.step.name": "Windows Batch Script",
+      "ci.pipeline.run.user": "SYSTEM",
+      "jenkins.pipeline.step.id": "7",
+      "jenkins.pipeline.step.type": "bat",
+      "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@138cf5f6": "org.jenkinsci.plugins.workflow.actions.TimingAction@138cf5f6",
+      "harness-attribute": "{\n  \"script\" : \"echo hello world\"\n}",
+      "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
+      "jenkins.pipeline.step.plugin.version": "1371.vb_7cec8f3b_95e"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "0f65d00f06e49e29",
+    "parameterMap": {"script": "echo hello world"},
+    "spanName": "bat"
+}
