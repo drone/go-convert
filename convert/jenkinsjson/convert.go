@@ -536,6 +536,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "unzip":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertUnzip(currentNode, variables), ID: id})
 
+	case "findFiles":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFindFiles(currentNode), ID: id})
+
 	case "bat":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertBat(currentNode, variables, timeout), ID: id})
 

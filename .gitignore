@@ -1,5 +1,6 @@
 .DS_Store
 .env
+.vscode/
 _NOTES*
 go-convert
 convert/circle/reference/**
