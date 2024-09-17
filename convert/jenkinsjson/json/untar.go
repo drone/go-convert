@@ -7,8 +7,8 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
-func ConvertUnzip(node Node, variables map[string]string) *harness.Step {
-	var dir, zipFile string
+func ConvertUntar(node Node, variables map[string]string) *harness.Step {
+	var dir, file string
 	var glob string
 
 	if attr, ok := node.AttributesMap["harness-attribute"]; ok {
@@ -17,8 +17,8 @@ func ConvertUnzip(node Node, variables map[string]string) *harness.Step {
 			if d, ok := attrMap["dir"].(string); ok {
 				dir = d
 			}
-			if zf, ok := attrMap["zipFile"].(string); ok {
-				zipFile = zf
+			if f, ok := attrMap["file"].(string); ok {
+				file = f
 			}
 			if gl, ok := attrMap["glob"].(string); ok {
 				glob = gl
@@ -31,13 +31,13 @@ func ConvertUnzip(node Node, variables map[string]string) *harness.Step {
 	}
 
 	withProperties := make(map[string]interface{})
-	withProperties["format"] = "zip"
+	withProperties["format"] = "tar"
 	withProperties["action"] = "extract"
 	if dir != "" {
 		withProperties["target"] = dir
 	}
-	if zipFile != "" {
-		withProperties["source"] = zipFile
+	if file != "" {
+		withProperties["source"] = file
 	}
 	if glob != "" {
 		withProperties["glob"] = glob

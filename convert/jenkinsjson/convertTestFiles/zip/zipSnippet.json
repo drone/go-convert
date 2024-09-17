@@ -1,23 +1,25 @@
 {
-  "spanId": "676ac85e93fab9f5",
-  "traceId": "72fe400263268c3df17b540caddd5387",
-  "parent": "zipTest",
-  "all-info": "span(name: zip, spanId: 676ac85e93fab9f5, parentSpanId: 388e6ddc602e0eb3, traceId: 72fe400263268c3df17b540caddd5387, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"archive\" : false,\n  \"dir\" : \"archive2\",\n  \"zipFile\" : \"test.zip\",\n  \"overwrite\" : true\n};harness-others:;jenkins.pipeline.step.id:9;jenkins.pipeline.step.name:Create Zip file;jenkins.pipeline.step.plugin.name:pipeline-utility-steps;jenkins.pipeline.step.plugin.version:2.17.0;jenkins.pipeline.step.type:zip;)",
-  "name": "zipTest #6",
+  "spanId": "9c3d42c66f7baf72",
+  "traceId": "fb302d811edeb970820eee05e1ae3d08",
+  "parent": "zipTest_AntStyle",
+  "all-info": "span(name: zip, spanId: 9c3d42c66f7baf72, parentSpanId: 31a6abaa61043dd0, traceId: fb302d811edeb970820eee05e1ae3d08, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"glob\" : \"**/test?.txt\",\n  \"archive\" : false,\n  \"exclude\" : \"**/another.txt\",\n  \"dir\" : \"archive2\",\n  \"zipFile\" : \"test.zip\",\n  \"overwrite\" : true\n};harness-others:;jenkins.pipeline.step.id:12;jenkins.pipeline.step.name:Create Zip file;jenkins.pipeline.step.plugin.name:pipeline-utility-steps;jenkins.pipeline.step.plugin.version:2.17.0;jenkins.pipeline.step.type:zip;)",
+  "name": "zipTest_AntStyle #1",
   "attributesMap": {
     "harness-others": "",
     "jenkins.pipeline.step.name": "Create Zip file",
     "ci.pipeline.run.user": "SYSTEM",
-    "jenkins.pipeline.step.id": "9",
+    "jenkins.pipeline.step.id": "12",
     "jenkins.pipeline.step.type": "zip",
-    "harness-attribute": "{\n  \"archive\" : false,\n  \"dir\" : \"archive2\",\n  \"zipFile\" : \"test.zip\",\n  \"overwrite\" : true\n}",
+    "harness-attribute": "{\n  \"glob\" : \"**/test?.txt\",\n  \"archive\" : false,\n  \"exclude\" : \"**/another.txt\",\n  \"dir\" : \"archive2\",\n  \"zipFile\" : \"test.zip\",\n  \"overwrite\" : true\n}",
     "jenkins.pipeline.step.plugin.name": "pipeline-utility-steps",
     "jenkins.pipeline.step.plugin.version": "2.17.0"
   },
   "type": "Run Phase Span",
-  "parentSpanId": "388e6ddc602e0eb3",
+  "parentSpanId": "31a6abaa61043dd0",
   "parameterMap": {
+    "glob": "**/test?.txt",
     "archive": false,
+    "exclude": "**/another.txt",
     "dir": "archive2",
     "zipFile": "test.zip",
     "overwrite": true

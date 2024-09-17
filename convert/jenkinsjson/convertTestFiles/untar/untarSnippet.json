@@ -1,0 +1,21 @@
+{
+  "spanId": "36640f879c780e34",
+  "traceId": "4a4e917f696fb16e60967bba7bfc05e6",
+  "parent": "tarTest_AntStyle",
+  "all-info": "span(name: untar, spanId: 36640f879c780e34, parentSpanId: 6f5b865e9e5b447c, traceId: 4a4e917f696fb16e60967bba7bfc05e6, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"file\" : \"hello3.tar\"\n};harness-others:;jenkins.pipeline.step.id:15;jenkins.pipeline.step.name:Extract Tar file;jenkins.pipeline.step.plugin.name:pipeline-utility-steps;jenkins.pipeline.step.plugin.version:2.17.0;jenkins.pipeline.step.type:untar;)",
+  "name": "tarTest_AntStyle #1",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Extract Tar file",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "15",
+    "jenkins.pipeline.step.type": "untar",
+    "harness-attribute": "{\n  \"file\" : \"hello3.tar\"\n}",
+    "jenkins.pipeline.step.plugin.name": "pipeline-utility-steps",
+    "jenkins.pipeline.step.plugin.version": "2.17.0"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "6f5b865e9e5b447c",
+  "parameterMap": {"file": "hello3.tar"},
+  "spanName": "untar"
+}
