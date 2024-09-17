@@ -15,6 +15,12 @@ pipeline {
                 Write-Output "Running a PowerShell command"
                 '''
             }
+        }
+        
+        stage('Run Bat') {
+            steps {
+                bat(script: "echo hello world")
+            }
         }           
         
     }

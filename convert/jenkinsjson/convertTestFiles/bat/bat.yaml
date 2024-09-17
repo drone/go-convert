@@ -1,0 +1,12 @@
+- step:
+    identifier: bat3b5f74
+    name: bat
+    spec:
+      command: |-
+        echo @"
+        dir
+        "@ > bat3b5f74.bat
+        ./bat3b5f74.bat
+      shell: Pwsh
+    timeout: ""
+    type: Run
