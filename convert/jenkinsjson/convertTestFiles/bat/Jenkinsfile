@@ -1,0 +1,10 @@
+pipeline {
+    agent any
+    stages {
+        stage('Run Bat') {
+            steps {
+                bat(script: "echo hello world")
+            }
+        }
+    }
+}
