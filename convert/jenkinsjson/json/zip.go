@@ -62,7 +62,7 @@ func ConvertZip(node Node, variables map[string]string) *harness.Step {
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
 			Connector: "c.docker",
-			Image:     "harnesscommunitytest/archive-plugin:latest",
+			Image:     "plugins/archive:latest",
 			With:      withProperties,
 		},
 	}
