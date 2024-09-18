@@ -762,31 +762,23 @@ func mergeRunSteps(steps *[]StepWithID) {
 		return
 	}
 
-	merged := []StepWithID{}
-	cursor := (*steps)[0]
-	pushed := false
-	for i := 1; i < len(*steps); i++ {
-		current := (*steps)[i]
-		// if can merge, store all current content in cursor
+	merged := []StepWithID{(*steps)[0]}
 
-		if canMergeSteps(cursor.Step, current.Step) {
-			previousExec := cursor.Step.Spec.(*harness.StepExec)
-			currentExec := current.Step.Spec.(*harness.StepExec)
-			previousExec.Run += "\n" + currentExec.Run
-			cursor.Step.Name += "_" + current.Step.Name
-			pushed = false
-		} else {
-			// if not able to merge, push cursor and reset cursor to current one
-			merged = append(merged, cursor)
-			cursor = current
-			pushed = true
-		}
-	}
+    for i := 1; i < len(*steps); i++ {
+        current := (*steps)[i]
+        previous := &merged[len(merged)-1]
 
-	if !pushed {
-		merged = append(merged, cursor)
-	}
-	*steps = merged
+        if canMergeSteps(previous.Step, current.Step) {
+            previousExec := previous.Step.Spec.(*harness.StepExec)
+            currentExec := current.Step.Spec.(*harness.StepExec)
+            previousExec.Run += "\n" + currentExec.Run
+            previous.Step.Name += "_" + current.Step.Name
+        } else {
+            merged = append(merged, current)
+        }
+    }
+
+    *steps = merged
 }
 
 func canMergeSteps(step1, step2 *harness.Step) bool {
