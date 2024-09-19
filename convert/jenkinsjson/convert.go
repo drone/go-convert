@@ -542,6 +542,12 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "bat":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertBat(currentNode, variables, timeout), ID: id})
 
+	case "tar":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertTar(currentNode, variables), ID: id})
+
+	case "untar":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertUntar(currentNode, variables), ID: id})
+
 	default:
 		placeholderStr := fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"])
 		b, err := json.MarshalIndent(currentNode.ParameterMap, "", "  ")

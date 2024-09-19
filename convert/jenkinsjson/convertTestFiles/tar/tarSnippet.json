@@ -1,0 +1,28 @@
+{
+  "spanId": "7d1af0394d19d9b9",
+  "traceId": "4a4e917f696fb16e60967bba7bfc05e6",
+  "parent": "tarTest_AntStyle",
+  "all-info": "span(name: tar, spanId: 7d1af0394d19d9b9, parentSpanId: 6f5b865e9e5b447c, traceId: 4a4e917f696fb16e60967bba7bfc05e6, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"glob\" : \"**/*.txt\",\n  \"archive\" : true,\n  \"exclude\" : \"**/another.txt\",\n  \"file\" : \"hello3.tar\",\n  \"dir\" : \"hello\",\n  \"compress\" : false\n};harness-others:;jenkins.pipeline.step.id:14;jenkins.pipeline.step.name:Create Tar file;jenkins.pipeline.step.plugin.name:pipeline-utility-steps;jenkins.pipeline.step.plugin.version:2.17.0;jenkins.pipeline.step.type:tar;)",
+  "name": "tarTest_AntStyle #1",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Create Tar file",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "14",
+    "jenkins.pipeline.step.type": "tar",
+    "harness-attribute": "{\n  \"glob\" : \"**/*.txt\",\n  \"archive\" : true,\n  \"exclude\" : \"**/another.txt\",\n  \"file\" : \"hello3.tar\",\n  \"dir\" : \"hello\",\n  \"compress\" : false\n}",
+    "jenkins.pipeline.step.plugin.name": "pipeline-utility-steps",
+    "jenkins.pipeline.step.plugin.version": "2.17.0"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "6f5b865e9e5b447c",
+  "parameterMap": {
+    "file": "hello3.tar",
+    "compress": false,
+    "glob": "**/*.txt",
+    "archive": true,
+    "exclude": "**/another.txt",
+    "dir": "hello"
+  },
+  "spanName": "tar"
+}

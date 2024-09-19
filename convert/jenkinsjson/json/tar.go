@@ -7,10 +7,10 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
-func ConvertZip(node Node, variables map[string]string) *harness.Step {
-	var dir, zipFile string
+func ConvertTar(node Node, variables map[string]string) *harness.Step {
+	var dir, file string
 	var exclude, glob string
-	var overwrite bool
+	var overwrite, tarcompress bool
 
 	if attr, ok := node.AttributesMap["harness-attribute"]; ok {
 		var attrMap map[string]interface{}
@@ -18,8 +18,8 @@ func ConvertZip(node Node, variables map[string]string) *harness.Step {
 			if d, ok := attrMap["dir"].(string); ok {
 				dir = d
 			}
-			if zf, ok := attrMap["zipFile"].(string); ok {
-				zipFile = zf
+			if f, ok := attrMap["file"].(string); ok {
+				file = f
 			}
 			if e, ok := attrMap["exclude"].(string); ok {
 				exclude = e
@@ -30,6 +30,9 @@ func ConvertZip(node Node, variables map[string]string) *harness.Step {
 			if ow, ok := attrMap["overwrite"].(bool); ok {
 				overwrite = ow
 			}
+			if tc, ok := attrMap["compress"].(bool); ok {
+				tarcompress = tc
+			}
 		} else {
 			log.Printf("failed to unmarshal harness-attribute for node %s: %v", node.SpanName, err)
 		}
@@ -38,13 +41,13 @@ func ConvertZip(node Node, variables map[string]string) *harness.Step {
 	}
 
 	withProperties := make(map[string]interface{})
-	withProperties["format"] = "zip"
+	withProperties["format"] = "tar"
 	withProperties["action"] = "archive"
 	if dir != "" {
-		withProperties["target"] = dir
+		withProperties["source"] = dir
 	}
-	if zipFile != "" {
-		withProperties["source"] = zipFile
+	if file != "" {
+		withProperties["target"] = file
 	}
 	if exclude != "" {
 		withProperties["exclude"] = exclude
@@ -54,6 +57,9 @@ func ConvertZip(node Node, variables map[string]string) *harness.Step {
 	}
 	if overwrite != false {
 		withProperties["overwrite"] = overwrite
+	}
+	if tarcompress != false {
+		withProperties["tarcompress"] = tarcompress
 	}
 
 	step := &harness.Step{

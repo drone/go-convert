@@ -1,12 +1,11 @@
 - step:
-    identifier: unzipc9e2eb
-    name: unzip
+    identifier: untar36640f
+    name: untar
     spec:
       image: harnesscommunitytest/archive-plugin:latest
       settings:
         action: extract
-        format: zip
-        source: test.zip
-        target: ./archive_new2
+        format: tar
+        source: hello3.tar
     timeout: ""
     type: Plugin
