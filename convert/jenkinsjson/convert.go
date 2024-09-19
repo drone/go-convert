@@ -278,8 +278,10 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	sort.Slice(stepWithIDList, func(i, j int) bool {
 		return stepWithIDList[i].ID < stepWithIDList[j].ID
 	})
+	mergeRunSteps(&stepWithIDList)
 
 	sortedSteps := make([]*harness.Step, len(stepWithIDList))
+
 	for i, step := range stepWithIDList {
 		sortedSteps[i] = step.Step
 	}
@@ -566,7 +568,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			Desc: "This is a place holder for: " + currentNode.AttributesMap["jenkins.pipeline.step.type"],
 		}, ID: id})
 	}
-	mergeRunSteps(stepWithIDList)
 	return clone, repo
 }
 func mergeMaps(dest, src map[string]string) map[string]string {
