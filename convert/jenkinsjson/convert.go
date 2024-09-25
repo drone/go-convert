@@ -549,6 +549,52 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 
 	case "untar":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertUntar(currentNode, variables), ID: id})
+	case "fileOperations":
+		// Step 1: Extract the 'delegate' map from the 'parameterMap'
+		delegate, ok := currentNode.ParameterMap["delegate"].(map[string]interface{})
+		if !ok {
+			fmt.Println("Missing 'delegate' in parameterMap")
+			break
+		}
+
+		// Step 2: Extract the 'arguments' map from the 'delegate'
+		arguments, ok := delegate["arguments"].(map[string]interface{})
+		if !ok {
+			fmt.Println("Missing 'arguments' in delegate map")
+			break
+		}
+
+		// Step 3: Extract the list of anonymous operations
+		anonymousOps, ok := arguments["<anonymous>"].([]interface{})
+		if !ok {
+			fmt.Println("No anonymous operations found in arguments")
+			break
+		}
+
+		// Step 4: Iterate over each operation and handle based on the 'symbol' type
+		for _, op := range anonymousOps {
+			// Convert the operation to a map for easy access
+			operation, ok := op.(map[string]interface{})
+			if !ok {
+				fmt.Println("Invalid operation format")
+				continue
+			}
+
+			// Extract the 'symbol' to determine the type of file operation
+			symbol, ok := operation["symbol"].(string)
+			if !ok {
+				fmt.Println("Operation symbol not found or not a string")
+				continue
+			}
+
+			// Step 5: Process each operation based on its 'symbol'
+			switch symbol {
+			case "fileCopyOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileCopy(currentNode, operation), ID: id})
+			default:
+				fmt.Println("Unsupported file operation:", symbol)
+			}
+		}
 
 	default:
 		placeholderStr := fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"])
@@ -786,6 +832,7 @@ func mergeRunSteps(steps *[]StepWithID) {
 	merged := []StepWithID{}
 	cursor := (*steps)[0]
 	pushed := false
+	isLastStep := false
 	for i := 1; i < len(*steps); i++ {
 		current := (*steps)[i]
 		// if can merge, store all current content in cursor
@@ -801,10 +848,19 @@ func mergeRunSteps(steps *[]StepWithID) {
 			merged = append(merged, cursor)
 			cursor = current
 			pushed = true
+
+			if len(*steps) == i+1 {
+				fmt.Println("Inside if line 875")
+				isLastStep = true
+			}
 		}
 	}
 
 	if !pushed {
+		merged = append(merged, cursor)
+	}
+
+	if pushed && isLastStep {
 		merged = append(merged, cursor)
 	}
 	*steps = merged
