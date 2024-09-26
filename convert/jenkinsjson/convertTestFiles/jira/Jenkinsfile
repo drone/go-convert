@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+
+    stages {
+        // Build Stage
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+            }
+            post {
+                always {
+                    // Send build info to Jira, associating it with the SCRUM-1 issue
+                    jiraSendBuildInfo site: 'fossops.atlassian.net', branch: 'main'
+                }
+            }
+        }
+
+        // Deployment Stage: Staging
+        stage('Deploy to Staging') {
+            steps {
+                echo 'Deploying to Staging...'
+            }
+            post {
+                always {
+                    // Send deployment info for the Staging environment
+                    jiraSendDeploymentInfo(
+                        environmentId: 'stg-env-1',
+                        environmentName: 'staging',
+                        environmentType: 'staging',
+                        issueKeys: ['SCRUM-1','SCRUM-2','SCRUM-3'],
+                        state: 'successful'
+                    )
+                }
+            }
+        }
+
+        // Deployment Stage: Production
+        stage('Deploy to Production') {
+            steps {
+                echo 'Deploying to Production...'
+            }
+            post {
+                always {
+                    // Send deployment info for the Production environment
+                    jiraSendDeploymentInfo(
+                        environmentId: 'prod-env-1',
+                        environmentName: 'production',
+                        environmentType: 'production',
+                        issueKeys: ['SCRUM-1','SCRUM-2','SCRUM-3'],
+                        state: 'successful'
+                    )
+                }
+            }
+        }
+    }
+}
