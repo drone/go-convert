@@ -1,0 +1,8 @@
+- step:
+    identifier: fileoperations128b17
+    name: fileDeleteOperation
+    spec:
+      command: rm -rf **/old-files/*.log
+      image: alpine
+    timeout: ''
+    type: Run
