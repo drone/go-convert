@@ -832,7 +832,6 @@ func mergeRunSteps(steps *[]StepWithID) {
 	merged := []StepWithID{}
 	cursor := (*steps)[0]
 	pushed := false
-	//	isLastStep := false
 	for i := 1; i < len(*steps); i++ {
 		current := (*steps)[i]
 		// if can merge, store all current content in cursor
