@@ -1,0 +1,16 @@
+steps:
+  - step:
+      type: Plugin
+      name: Plugin_1
+      identifier: Plugin_1
+      spec:
+        connectorRef: Public_Docker_Hub
+        image: plugins/s3
+        settings:
+          bucket: bucket-1
+          region: us-west-1
+          access_key: <+input>
+          secret_key: <+input>
+          source: *.txt
+          target: <+input>
+          exclude: 2.txt
