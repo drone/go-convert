@@ -832,7 +832,7 @@ func mergeRunSteps(steps *[]StepWithID) {
 	merged := []StepWithID{}
 	cursor := (*steps)[0]
 	pushed := false
-	isLastStep := false
+	//	isLastStep := false
 	for i := 1; i < len(*steps); i++ {
 		current := (*steps)[i]
 		// if can merge, store all current content in cursor
@@ -848,19 +848,10 @@ func mergeRunSteps(steps *[]StepWithID) {
 			merged = append(merged, cursor)
 			cursor = current
 			pushed = true
-
-			if len(*steps) == i+1 {
-				fmt.Println("Inside if line 875")
-				isLastStep = true
-			}
 		}
 	}
 
 	if !pushed {
-		merged = append(merged, cursor)
-	}
-
-	if pushed && isLastStep {
 		merged = append(merged, cursor)
 	}
 	*steps = merged
