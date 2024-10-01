@@ -22,7 +22,7 @@ func ConvertToStepWithProperties(node *Node, variables map[string]string,
 
 	attr, ok := node.AttributesMap[HarnessAttribute]
 	if !ok {
-		log.Printf("harness-attribute missing for node %s", node.SpanName)
+		log.Printf("harness-attribute missing for spanName %s", node.SpanName)
 		return nil, ""
 	}
 
@@ -44,6 +44,7 @@ func ConvertToStepWithProperties(node *Node, variables map[string]string,
 		Spec: &harness.StepPlugin{
 			Image:  imageName,
 			Inputs: withProperties,
+			With:   withProperties,
 		},
 	}
 
@@ -51,12 +52,12 @@ func ConvertToStepWithProperties(node *Node, variables map[string]string,
 		step.Spec.(*harness.StepPlugin).Envs = variables
 	}
 
-	yamlStr, err := ToJsonStringFromStruct[harness.Step](*step)
+	jsonStr, err := ToJsonStringFromStruct[harness.Step](*step)
 	if err != nil {
 		log.Fatalf("error marshaling to yaml: %v", err)
 	}
 
-	return step, yamlStr
+	return step, jsonStr
 }
 
 func SafeAssignWithPropertiesTyped(node *Node, withProperties *map[string]interface{},
@@ -68,7 +69,7 @@ func SafeAssignWithPropertiesTyped(node *Node, withProperties *map[string]interf
 	if paramTransformFunc != nil { // paramTransformFunc overrides the default behavior
 		retVal, err := paramTransformFunc(node, attrMap, jenkinsKey)
 		if err != nil {
-			log.Printf("jenkins param %s is not a string for node %s", droneKey, droneKey)
+			// log.Printf("jenkins parameter %s is not a string for node %s", droneKey, droneKey)
 			return
 		}
 		(*withProperties)[droneKey] = retVal
@@ -77,7 +78,8 @@ func SafeAssignWithPropertiesTyped(node *Node, withProperties *map[string]interf
 
 	val, found := attrMap[jenkinsKey]
 	if !found {
-		log.Printf("jenkins param %s missing for node %s", jenkinsKey, droneKey)
+		log.Printf("jenkins param -- %s missing for node %s", jenkinsKey, droneKey)
+		return
 	}
 
 	switch jenkinsParamType {
@@ -92,7 +94,7 @@ func SafeAssignWithPropertiesTyped(node *Node, withProperties *map[string]interf
 	}
 
 	if !valOk {
-		log.Printf("jenkins param %s is not a %s for node %s", droneKey, jenkinsParamType, droneKey)
+		//log.Printf("jenkins param %s is not a %s for node %s", droneKey, jenkinsParamType, droneKey)
 		return
 	}
 

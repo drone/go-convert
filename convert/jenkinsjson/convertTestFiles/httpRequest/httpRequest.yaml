@@ -1,0 +1,20 @@
+- step:
+    type: Plugin
+    name: HTTP Request
+    identifier: http_request
+    spec:
+      image: plugins/httprequest
+      settings:
+        url: "https://api.example.com/endpoint"
+        http_method: "POST"
+        headers: "Authorization:Bearer <token>,X-Custom-Header:example-header"
+        request_body: '{"title": "foo", "body": "bar", "userId": 1}'
+        auth_basic: "user:password"
+        valid_response_codes: "200:299"
+        valid_response_body: '"id":'
+        timeout: 60
+        ignore_ssl: true
+        output_file: "response.json"
+        log_response: true
+        quiet: false
+        proxy: "http://myproxy.com:8080"
