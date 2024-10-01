@@ -48,12 +48,6 @@ func ConvertJiraBuildInfo(node Node, variables map[string]string) *harness.Step 
 	if len(variables) > 0 {
 		step.Spec.(*harness.StepPlugin).Envs = variables
 	}
-	/*yamlData, err := yaml.Marshal(step)
-	if err != nil {
-		log.Fatalf("error marshaling to yaml: %v", err)
-	}
-	log.Printf("YAML Build Output: %s", string(yamlData))*/
-
 	return step
 }
 
@@ -118,8 +112,6 @@ func ConvertJiraDeploymentInfo(node Node, variables map[string]string) *harness.
 		withProperties["state"] = state
 	}
 	if len(issueKeys) > 0 {
-		fmt.Println("Inside Issue Keys")
-		fmt.Println(issueKeys)
 		withProperties["issuekeys"] = issueKeys
 	}
 	step := &harness.Step{
