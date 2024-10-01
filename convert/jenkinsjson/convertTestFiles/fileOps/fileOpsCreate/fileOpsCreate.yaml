@@ -1,0 +1,8 @@
+- step:
+    identifier: fileoperations9b3c55
+    name: fileCreateOperation
+    spec:
+      command: 'echo ''Hello, World!'' > newfile.txt'
+      image: alpine
+    timeout: ''
+    type: Run
