@@ -1,20 +1,23 @@
 - step:
-    type: Plugin
-    name: HTTP Request
-    identifier: http_request
+    identifier: httprequestbf3ce3
+    name: httpRequest
     spec:
-      image: plugins/httprequest
+      image: plugins/httpRequest
       settings:
-        url: "https://api.example.com/endpoint"
-        http_method: "POST"
-        headers: "Authorization:Bearer <token>,X-Custom-Header:example-header"
+        accept_type: APPLICATION_JSON
+        auth_basic: httprequest
+        content_type: APPLICATION_JSON
+        headers: 'Authorization:Bearer <token>,X-Custom-Header:example-header'
+        http_method: POST
+        ignore_ssl: 'true'
+        log_response: 'true'
+        output_file: response.json
+        quiet: 'false'
         request_body: '{"title": "foo", "body": "bar", "userId": 1}'
-        auth_basic: "user:password"
-        valid_response_codes: "200:299"
+        timeout: '60'
+        url: 'https://jsonplaceholder.typicode.com/posts'
         valid_response_body: '"id":'
-        timeout: 60
-        ignore_ssl: true
-        output_file: "response.json"
-        log_response: true
-        quiet: false
-        proxy: "http://myproxy.com:8080"
+        valid_response_codes: '200:299'
+        wrap_as_multipart: 'false'
+    timeout: ''
+    type: Plugin
