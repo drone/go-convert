@@ -1,0 +1,12 @@
+pipeline {
+    agent any
+    stages {
+        stage('Create File') {
+            steps {
+                fileOperations([
+                    fileCreateOperation(fileName: 'newfile.txt', fileContent: 'Hello, World!')
+                ])
+            }
+        }
+    }
+}
