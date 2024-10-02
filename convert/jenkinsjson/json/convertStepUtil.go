@@ -18,6 +18,18 @@ type JenkinsToDroneParamMapper struct {
 func ConvertToStepWithProperties(node *Node, variables map[string]string,
 	tmpJenkinsToDroneParamMapperList []JenkinsToDroneParamMapper, imageName string) (*harness.Step, string) {
 
+	step, jsonStr := GetStepWithProperties(node, tmpJenkinsToDroneParamMapperList, imageName)
+
+	if len(variables) > 0 {
+		step.Spec.(*harness.StepPlugin).Envs = variables
+	}
+
+	return step, jsonStr
+}
+
+func GetStepWithProperties(node *Node,
+	tmpJenkinsToDroneParamMapperList []JenkinsToDroneParamMapper, imageName string) (*harness.Step, string) {
+
 	withProperties := map[string]interface{}{}
 
 	attr, ok := node.AttributesMap[HarnessAttribute]
@@ -46,10 +58,6 @@ func ConvertToStepWithProperties(node *Node, variables map[string]string,
 			Inputs: withProperties,
 			With:   withProperties,
 		},
-	}
-
-	if len(variables) > 0 {
-		step.Spec.(*harness.StepPlugin).Envs = variables
 	}
 
 	jsonStr, err := ToJsonStringFromStruct[harness.Step](*step)
@@ -119,14 +127,6 @@ func ToJsonStringFromStruct[T any](v T) (string, error) {
 		return string(jsonBytes), nil
 	}
 
-	return "", err
-}
-
-func ToJsonStringFromMap[T any](m T) (string, error) {
-	outBytes, err := json.Marshal(m)
-	if err == nil {
-		return string(outBytes), nil
-	}
 	return "", err
 }
 

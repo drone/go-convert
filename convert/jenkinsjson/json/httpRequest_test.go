@@ -2,6 +2,7 @@ package json
 
 import (
 	"encoding/json"
+	harness "github.com/drone/spec/dist/go"
 	"github.com/google/go-cmp/cmp"
 	"os"
 	"path/filepath"
@@ -22,22 +23,19 @@ func TestHttpRequest(t *testing.T) {
 		t.Fatalf("failed to read JSON file: %v", err)
 	}
 
-	var node1 Node
-	if err := json.Unmarshal(jsonData, &node1); err != nil {
+	var node Node
+	if err := json.Unmarshal(jsonData, &node); err != nil {
 		t.Fatalf("failed to decode JSON: %v", err)
 	}
 
-	pmStr, err := ToJsonStringFromMap[map[string]interface{}](node1.ParameterMap)
+	tmpTestStep, _ := GetStepWithProperties(&node, JenkinsToDroneParamMapperList, HttpRequestPluginImage)
+
+	wantStep, err := ToStructFromJsonString[harness.Step](expectedStepJSON)
 	if err != nil {
-		t.Fatalf("failed to unmarshal harness-attribute for node %s: %v", node1.SpanName, err)
+		t.Fatalf("want step : %v", err)
 	}
 
-	toTestParameterMap, err := ToStructFromJsonString[ParameterMap](pmStr)
-	if err != nil {
-		t.Fatalf("failed to unmarshal harness-attribute for node %s: %v", node1.SpanName, err)
-	}
-
-	diffs := cmp.Diff(toTestParameterMap, want)
+	diffs := cmp.Diff(wantStep, *tmpTestStep)
 
 	if len(diffs) != 0 {
 		t.Fatalf("failed to convert JSON to struct: %v", diffs)
@@ -45,57 +43,49 @@ func TestHttpRequest(t *testing.T) {
 
 }
 
-var want = ParameterMap{
-	ValidResponseCodes:     "200:299",
-	HttpMode:               "POST",
-	WrapAsMultipart:        false,
-	Url:                    "https://jsonplaceholder.typicode.com/posts",
-	Timeout:                60,
-	ValidResponseContent:   "\"id\":",
-	OutputFile:             "response.json",
-	IgnoreSslErrors:        true,
-	RequestBody:            "{\"title\": \"foo\", \"body\": \"bar\", \"userId\": 1}",
-	ConsoleLogResponseBody: true,
-	Quiet:                  false,
-	ContentType:            "APPLICATION_JSON",
-	CustomHeaders: []struct {
-		Name  string `json:"name"`
-		Value string `json:"value"`
-	}{
-		{
-			Name:  "Authorization",
-			Value: "Bearer <token>",
-		},
-		{
-			Name:  "X-Custom-Header",
-			Value: "example-header",
-		},
-	},
-	Authentication: "httprequest",
-	AcceptType:     "APPLICATION_JSON",
-	UploadFile:     "/tmp/sample_file.txt",
-	MultipartName:  "sample_upload_file",
-}
-
-type ParameterMap struct {
-	ValidResponseCodes     string `json:"validResponseCodes"`
-	HttpMode               string `json:"httpMode"`
-	WrapAsMultipart        bool   `json:"wrapAsMultipart"`
-	Url                    string `json:"url"`
-	Timeout                int    `json:"timeout"`
-	ValidResponseContent   string `json:"validResponseContent"`
-	OutputFile             string `json:"outputFile"`
-	IgnoreSslErrors        bool   `json:"ignoreSslErrors"`
-	RequestBody            string `json:"requestBody"`
-	ConsoleLogResponseBody bool   `json:"consoleLogResponseBody"`
-	Quiet                  bool   `json:"quiet"`
-	ContentType            string `json:"contentType"`
-	CustomHeaders          []struct {
-		Name  string `json:"name"`
-		Value string `json:"value"`
-	} `json:"customHeaders"`
-	Authentication string `json:"authentication"`
-	AcceptType     string `json:"acceptType"`
-	UploadFile     string `json:"uploadFile"`
-	MultipartName  string `json:"multipartName"`
-}
+var expectedStepJSON = `{
+    "id": "httpRequestbf3ce3",
+    "name": "httpRequest",
+    "type": "plugin",
+    "spec": {
+        "image": "plugins/httpRequest",
+        "with": {
+            "accept_type": "APPLICATION_JSON",
+            "auth_basic": "httprequest",
+            "content_type": "APPLICATION_JSON",
+            "headers": "Authorization:Bearer \u003ctoken\u003e,X-Custom-Header:example-header",
+            "http_method": "POST",
+            "ignore_ssl": true,
+            "log_response": true,
+            "multipart_name": "sample_upload_file",
+            "output_file": "response.json",
+            "quiet": false,
+            "request_body": "{\"title\": \"foo\", \"body\": \"bar\", \"userId\": 1}",
+            "timeout": 60,
+            "upload_file": "sample_file.txt",
+            "url": "https://jsonplaceholder.typicode.com/posts",
+            "valid_response_body": "\"id\":",
+            "valid_response_codes": "200:299",
+            "wrap_as_multipart": false
+        },
+        "inputs": {
+            "accept_type": "APPLICATION_JSON",
+            "auth_basic": "httprequest",
+            "content_type": "APPLICATION_JSON",
+            "headers": "Authorization:Bearer \u003ctoken\u003e,X-Custom-Header:example-header",
+            "http_method": "POST",
+            "ignore_ssl": true,
+            "log_response": true,
+            "multipart_name": "sample_upload_file",
+            "output_file": "response.json",
+            "quiet": false,
+            "request_body": "{\"title\": \"foo\", \"body\": \"bar\", \"userId\": 1}",
+            "timeout": 60,
+            "upload_file": "sample_file.txt",
+            "url": "https://jsonplaceholder.typicode.com/posts",
+            "valid_response_body": "\"id\":",
+            "valid_response_codes": "200:299",
+            "wrap_as_multipart": false
+        }
+    }
+}`
