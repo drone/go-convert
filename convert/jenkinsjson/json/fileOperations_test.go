@@ -104,7 +104,7 @@ func TestConvertFileOpsCopyTrace(t *testing.T) {
 	}
 }
 
-func prepareFileOpsTest(t *testing.T, filename string, folderName string, step *harness.Step) runner {
+func prepareFileOpsTest(t *testing.T, filename string, folderName string, step *harness.Step) testRunner {
 
 	workingDir, err := os.Getwd()
 	if err != nil {
@@ -121,7 +121,7 @@ func prepareFileOpsTest(t *testing.T, filename string, folderName string, step *
 		t.Fatalf("failed to decode JSON: %v", err)
 	}
 
-	return runner{
+	return testRunner{
 		name:  filename,
 		input: inputNode,
 		want:  step,
@@ -130,7 +130,7 @@ func prepareFileOpsTest(t *testing.T, filename string, folderName string, step *
 
 func TestConvertFileOpsCopyFunction(t *testing.T) {
 
-	var tests []runner
+	var tests []testRunner
 	tests = append(tests, prepareFileOpsTest(t, "fileOpsCopy_snippet", "fileOpsCopy", &harness.Step{
 		Id:   "fileOperationsa39de5",
 		Name: "fileCopyOperation",
