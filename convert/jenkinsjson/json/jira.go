@@ -2,7 +2,6 @@ package json
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 
 	harness "github.com/drone/spec/dist/go"
@@ -69,7 +68,6 @@ func ConvertJiraDeploymentInfo(node Node, variables map[string]string) *harness.
 				}
 			}
 			if br, ok := attrMap["environmentId"].(string); ok {
-				fmt.Println("AM I here")
 				envId = br
 			}
 			if eType, ok := attrMap["environmentType"].(string); ok {

@@ -73,7 +73,7 @@ func TestConvertJiraDeploymentInfo(t *testing.T) {
 	// Define test cases for ConvertJiraDeploymentInfo
 	var tests []jirarunner
 
-	tests = append(tests, jiraprepare(t, "jira_deploy/jiradeploy_snippet", &harness.Step{
+	tests = append(tests, jiraprepare(t, "jira_deploy/jiradeploy_IssueKeys_snippet", &harness.Step{
 		Id:   "jiraSendDeploymentInfod3f478",
 		Name: "jiraSendDeploymentInfo",
 		Type: "plugin",
@@ -88,6 +88,23 @@ func TestConvertJiraDeploymentInfo(t *testing.T) {
 				"environment_name": "production",
 				"state":            "successful",
 				"issuekeys":        []string{"SCRUM-1", "SCRUM-2", "SCRUM-3"},
+			},
+		},
+	}))
+	tests = append(tests, jiraprepare(t, "jira_deploy/jiradeploy_snippet", &harness.Step{
+		Id:   "jiraSendDeploymentInfod3f478",
+		Name: "jiraSendDeploymentInfo",
+		Type: "plugin",
+		Spec: &harness.StepPlugin{
+			Image: "plugins/jira",
+			With: map[string]interface{}{
+				"connect_key":      "<+secrets.getValue(\"JIRA_CONNECT_KEY\")>",
+				"project":          "$JIRA_PROJECT",
+				"instance":         "$JIRA_SITE_ID",
+				"environment_id":   "prod-env-1",
+				"environment_type": "production",
+				"environment_name": "production",
+				"state":            "successful",
 			},
 		},
 	}))
