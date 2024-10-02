@@ -31,9 +31,8 @@ var JenkinsToDroneParamMapperList = []JenkinsToDroneParamMapper{
 }
 
 func ConvertHttpRequest(node Node, variables map[string]string) *harness.Step {
-	step, jsonStr := ConvertToStepWithProperties(&node, variables, JenkinsToDroneParamMapperList,
+	step := ConvertToStepWithProperties(&node, variables, JenkinsToDroneParamMapperList,
 		HttpRequestPluginImage)
-	_ = jsonStr
 
 	return step
 }

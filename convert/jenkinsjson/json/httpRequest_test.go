@@ -28,7 +28,7 @@ func TestHttpRequest(t *testing.T) {
 		t.Fatalf("failed to decode JSON: %v", err)
 	}
 
-	tmpTestStep, _ := GetStepWithProperties(&node, JenkinsToDroneParamMapperList, HttpRequestPluginImage)
+	tmpTestStep := GetStepWithProperties(&node, JenkinsToDroneParamMapperList, HttpRequestPluginImage)
 
 	wantStep, err := ToStructFromJsonString[harness.Step](expectedStepJSON)
 	if err != nil {

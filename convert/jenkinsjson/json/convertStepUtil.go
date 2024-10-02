@@ -16,32 +16,32 @@ type JenkinsToDroneParamMapper struct {
 }
 
 func ConvertToStepWithProperties(node *Node, variables map[string]string,
-	tmpJenkinsToDroneParamMapperList []JenkinsToDroneParamMapper, imageName string) (*harness.Step, string) {
+	tmpJenkinsToDroneParamMapperList []JenkinsToDroneParamMapper, imageName string) *harness.Step {
 
-	step, jsonStr := GetStepWithProperties(node, tmpJenkinsToDroneParamMapperList, imageName)
+	step := GetStepWithProperties(node, tmpJenkinsToDroneParamMapperList, imageName)
 
 	if len(variables) > 0 {
 		step.Spec.(*harness.StepPlugin).Envs = variables
 	}
 
-	return step, jsonStr
+	return step
 }
 
 func GetStepWithProperties(node *Node,
-	tmpJenkinsToDroneParamMapperList []JenkinsToDroneParamMapper, imageName string) (*harness.Step, string) {
+	tmpJenkinsToDroneParamMapperList []JenkinsToDroneParamMapper, imageName string) *harness.Step {
 
 	withProperties := map[string]interface{}{}
 
 	attr, ok := node.AttributesMap[HarnessAttribute]
 	if !ok {
 		log.Printf("harness-attribute missing for spanName %s", node.SpanName)
-		return nil, ""
+		return nil
 	}
 
 	attrMap, err := ToMapFromJsonString[map[string]interface{}](attr)
 	if err != nil {
 		log.Printf("failed to unmarshal harness-attribute for node %s: %v", node.SpanName, err)
-		return nil, ""
+		return nil
 	}
 
 	for _, val := range tmpJenkinsToDroneParamMapperList {
@@ -60,12 +60,7 @@ func GetStepWithProperties(node *Node,
 		},
 	}
 
-	jsonStr, err := ToJsonStringFromStruct[harness.Step](*step)
-	if err != nil {
-		log.Fatalf("error marshaling to yaml: %v", err)
-	}
-
-	return step, jsonStr
+	return step
 }
 
 func SafeAssignWithPropertiesTyped(node *Node, withProperties *map[string]interface{},
