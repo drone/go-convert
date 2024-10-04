@@ -4,9 +4,9 @@
     spec:
       caching: true
       connectorRef: <+input>
-      repo: docker-snapshot.cbp.dhs.gov/cbp/cloud/warren-testing-konvoy/w-state
+      repo: docker-snapshot/testing/state:DEV
       tags:
-        - DEV.3.20240724
+        - DEV
       target: docker-snapshot
     timeout: ""
     type: BuildAndPushDockerRegistry

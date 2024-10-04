@@ -10,7 +10,7 @@ func ConvertCheckout(node Node, variables map[string]string) *harness.Step {
 		Id:   SanitizeForId(node.SpanName, node.SpanId),
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
-			Image: "checkout_plugin",
+			Image: "plugins/drone-git",
 			With: map[string]interface{}{
 				"platform": node.AttributesMap["peer.service"],
 				"git_url":  node.AttributesMap["http.url"],

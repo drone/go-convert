@@ -546,7 +546,7 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 	spec_ := src.Spec.(*v1.StepPlugin)
 
-	if strings.Contains(spec_.Image, "kaniko-docker") {
+	if strings.Contains(spec_.Image, "plugins/kaniko") {
 		return d.convertStepPluginToDocker(src)
 	}
 
@@ -559,7 +559,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 	}
 
 	switch spec_.Image {
-	case "checkout_plugin":
+	case "plugins/drone-git":
 		setting := convertSettings(spec_.With)
 		return &v0.Step{
 			ID:   id,
@@ -573,7 +573,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 			},
 			When: convertStepWhen(src.When, id),
 		}
-	case "artifactJfrog_plugin":
+	case "plugins/artifactory":
 		setting := convertSettings(spec_.With)
 		return &v0.Step{
 			ID:   id,
@@ -582,7 +582,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 
 			Spec: &v0.StepArtifactoryUpload{
 				Target:     setting["target"].(string),
-				SourcePath: setting["sourcePath"].(string),
+				SourcePath: setting["pattern"].(string),
 			},
 			When: convertStepWhen(src.When, id),
 		}
