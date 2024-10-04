@@ -4,9 +4,9 @@
     spec:
       caching: true
       connectorRef: <+input>
-      repo: docker-snapshot/testing/state:DEV
+      repo: anshika/testimage
       tags:
-        - DEV
-      target: docker-snapshot
+        - latest
+      target: testimage
     timeout: ""
     type: BuildAndPushDockerRegistry
