@@ -1,0 +1,26 @@
+pipeline {
+    agent any
+    stages {
+        stage('Create Source Folder') {
+            steps {
+                script {
+                    // Create a source folder with some sample files
+                    sh '''
+                    mkdir -p src
+                    echo "Sample content" > src/file.txt
+                    '''
+                }
+            }
+        }
+        stage('Rename Folder') {
+            steps {
+                fileOperations([
+                    folderRenameOperation(
+                        source: 'src/', 
+                        destination: 'dest/'
+                    )
+                ])
+            }
+        }
+    }
+}

@@ -1,0 +1,23 @@
+pipeline {
+    agent any
+    stages {
+        stage('Prepare Directory') {
+            steps {
+                sh 'mkdir -p downloads' // Ensure the downloads directory exists
+            }
+        }
+        stage('Download File') {
+            steps {
+                fileOperations([
+                    fileDownloadOperation(
+                        url: 'https://github.com/git/git/archive/refs/heads/master.zip',
+                        targetLocation: 'downloads/',
+                        targetFileName: 'git-master.zip',
+                        userName: '', // Explicitly setting to an empty string
+                        password: ''  // Explicitly setting to an empty string
+                    )
+                ])
+            }
+        }
+    }
+}

@@ -148,6 +148,322 @@ func TestConvertFileOpsCreateFunction(t *testing.T) {
 	}
 }
 
+func TestConvertFileOpsDownlaodFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsDownload_snippet", "fileOpsDownload", &harness.Step{
+		Id:   "fileOperationsd6f89b",
+		Name: "fileDownloadOperation",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Image: "alpine/curl",
+			Run:   string("wget -P downloads/ https://github.com/git/git/archive/refs/heads/master.zip"),
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFileDownload(tt.input, operation)
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFileDownload() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestConvertFileOpsJoinFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsJoin_snippet", "fileOpsJoin", &harness.Step{
+		Id:   "fileOperationsc8844b",
+		Name: "fileJoinOperation",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Image: "alpine",
+			Run:   string("cat file1.txt >> file2.txt"),
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFileJoin(tt.input, operation)
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFileJoin() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestConvertFileOpsJsonFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsJson_snippet", "fileOpsJson", &harness.Step{
+		Id:   "fileOperations9397c0",
+		Name: "filePropertiesToJsonOperation",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Image: "alpine",
+			Run:   string("stat -c '{\"size\": %s, \"permissions\": \"%A\", \"owner\": %U, \"group\": %G, \"last_modified\": \"%y\"}' newfile.properties > property.json"),
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFileJson(tt.input, operation)
+			fmt.Sprintln(got)
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFileJson() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestConvertFileOpsRenameFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsRename_snippet", "fileOpsRename", &harness.Step{
+		Id:   "fileOperationse0b0a3",
+		Name: "fileRenameOperation",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Image: "alpine",
+			Run:   string("mv newfile.txt renamedfile.txt"),
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFileRename(tt.input, operation)
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFileRename() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestConvertFileOpsTransformFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsTransform_snippet", "fileOpsTransform", &harness.Step{
+		Id:   "fileOperationsc8fb57",
+		Name: "fileTransformOperation",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Image: "alpine",
+			Run:   string("find . -type f -name 'newfile*.txt' ! -name 'newfile2.txt' -exec sh -c 'iconv -f <source_encoding> -t UTF-8 \"$0\" -o \"${0%.txt}.utf8\"' {} \\;"),
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFileTranform(tt.input, operation)
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFileTranform() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestConvertFileOpsFolderCopyFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsFolderCopy_snippet", "fileOpsFolderCopy", &harness.Step{
+		Id:   "fileOperations8a2e5a",
+		Name: "folderCopyOperation",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Image: "alpine",
+			Run:   string("cp -r src/ dest"),
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFolderCopy(tt.input, operation)
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFolderCopy() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestConvertFileOpsFolderCreateFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsFolderCreate_snippet", "fileOpsFolderCreate", &harness.Step{
+		Id:   "fileOperations7d2ecf",
+		Name: "folderCreateOperation",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Image: "alpine",
+			Run:   string("mkdir -p src/create"),
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFolderCreate(tt.input, operation)
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFolderCreate() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestConvertFileOpsFolderDeleteFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsFolderDelete_snippet", "fileOpsFolderDelete", &harness.Step{
+		Id:   "fileOperations978830",
+		Name: "folderDeleteOperation",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Image: "alpine",
+			Run:   string("rm -rf src/create"),
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFolderDelete(tt.input, operation)
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFolderDelete() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestConvertFileOpsFolderRenameFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsFolderRename_snippet", "fileOpsFolderRename", &harness.Step{
+		Id:   "fileOperations12ada0",
+		Name: "folderRenameOperation",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Image: "alpine",
+			Run:   string("mv src/ dest/"),
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFolderRename(tt.input, operation)
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFolderRename() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestConvertFileOpsUntarFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsUntar_snippet", "fileOpsUnTar", &harness.Step{
+		Id:   "fileOperationsbf0ce1",
+		Name: "fileUnTarOperation",
+		Type: "plugin",
+		Spec: &harness.StepPlugin{
+			Image: "plugins/archive:latest",
+			With: map[string]interface{}{
+				"action": "extract",
+				"format": "gzip",
+				"source": "src.tar.gz",
+				"target": "dest/",
+			},
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFileUntar(tt.input, operation)
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFileUntar() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestConvertFileOpsUnZipFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsUnZip_snippet", "fileOpsUnZip", &harness.Step{
+		Id:   "fileOperations0d571f",
+		Name: "fileUnZipOperation",
+		Type: "plugin",
+		Spec: &harness.StepPlugin{
+			Image: "plugins/archive:latest",
+			With: map[string]interface{}{
+				"action": "extract",
+				"format": "zip",
+				"source": "src.zip",
+				"target": "dest/",
+			},
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFileUnzip(tt.input, operation)
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFileUnzip() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestConvertFileOpsZipFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsZip_snippet", "fileOpsZip", &harness.Step{
+		Id:   "fileOperations4ca6ab",
+		Name: "fileZipOperation",
+		Type: "plugin",
+		Spec: &harness.StepPlugin{
+			Image: "plugins/archive:latest",
+			With: map[string]interface{}{
+				"action":    "archive",
+				"format":    "zip",
+				"overwrite": "true",
+				"source":    "src/",
+				"target":    "dest/",
+			},
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFileZip(tt.input, operation)
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFileZip() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
 func extractAnanymousOperation(currentNode Node) map[string]interface{} {
 	// Step 1: Extract the 'delegate' map from the 'parameterMap'
 	delegate, ok := currentNode.ParameterMap["delegate"].(map[string]interface{})

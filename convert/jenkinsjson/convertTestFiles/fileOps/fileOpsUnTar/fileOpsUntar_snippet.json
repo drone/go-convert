@@ -1,0 +1,45 @@
+{
+    "spanId": "bf0ce1e25548781f",
+    "traceId": "6015523e3174842044a38fea4a761afe",
+    "parent": "op-fileuntaroperation",
+    "all-info": "span(name: fileOperations, spanId: bf0ce1e25548781f, parentSpanId: c7d6d5871ca8a9f7, traceId: 6015523e3174842044a38fea4a761afe, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"fileUnTarOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"filePath\" : \"src.tar.gz\",\n          \"targetLocation\" : \"dest/\",\n          \"isGZIP\" : true\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@4aaeb225:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@4aaeb225;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1b3372f0:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1b3372f0;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2ba0e552:org.jenkinsci.plugins.workflow.actions.TimingAction@2ba0e552;harness-others:-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep;jenkins.pipeline.step.id:16;jenkins.pipeline.step.name:File Operations;jenkins.pipeline.step.plugin.name:file-operations;jenkins.pipeline.step.plugin.version:266.v9d4e1eb_235b_a_;jenkins.pipeline.step.type:fileOperations;)",
+    "name": "op-fileuntaroperation #1",
+    "attributesMap": {
+        "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2ba0e552": "org.jenkinsci.plugins.workflow.actions.TimingAction@2ba0e552",
+        "jenkins.pipeline.step.name": "File Operations",
+        "ci.pipeline.run.user": "SYSTEM",
+        "jenkins.pipeline.step.id": "16",
+        "jenkins.pipeline.step.type": "fileOperations",
+        "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@4aaeb225": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@4aaeb225",
+        "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"fileUnTarOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"filePath\" : \"src.tar.gz\",\n          \"targetLocation\" : \"dest/\",\n          \"isGZIP\" : true\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n}",
+        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1b3372f0": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1b3372f0",
+        "jenkins.pipeline.step.plugin.name": "file-operations",
+        "jenkins.pipeline.step.plugin.version": "266.v9d4e1eb_235b_a_"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "c7d6d5871ca8a9f7",
+    "parameterMap": {
+        "delegate": {
+            "symbol": "fileOperations",
+            "klass": null,
+            "arguments": {
+                "<anonymous>": [
+                    {
+                        "symbol": "fileUnTarOperation",
+                        "klass": null,
+                        "interpolatedStrings": [],
+                        "arguments": {
+                            "filePath": "src.tar.gz",
+                            "isGZIP": true,
+                            "targetLocation": "dest/"
+                        },
+                        "model": null
+                    }
+                ]
+            },
+            "model": null
+        }
+    },
+    "spanName": "fileOperations"
+}

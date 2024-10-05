@@ -1,0 +1,8 @@
+- step:
+    identifier: fileoperations12ada0
+    name: folderRenameOperation
+    spec:
+      command: mv src/ dest/
+      image: alpine
+    timeout: ''
+    type: Run

@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+    stages {
+        stage('Create Source Folder') {
+            steps {
+                script {
+                    // Create a sample folder with files to zip
+                    sh '''
+                    mkdir -p src
+                    echo "Sample content" > src/file1.txt
+                    echo "Another sample content" > src/file2.txt
+                    '''
+                }
+            }
+        }
+        stage('Zip Folder') {
+            steps {
+                fileOperations([
+                    fileZipOperation(
+                        folderPath: 'src/', 
+                        outputFolderPath: 'dest/'
+                    )
+                ])
+            }
+        }
+    }
+}

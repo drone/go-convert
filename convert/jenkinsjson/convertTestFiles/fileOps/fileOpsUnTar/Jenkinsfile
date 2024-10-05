@@ -1,0 +1,29 @@
+pipeline {
+    agent any
+    stages {
+        stage('Create TAR File') {
+            steps {
+                script {
+                    // Create a sample tar file for the untar operation
+                    sh '''
+                    mkdir -p src
+                    echo "Sample content" > src/file1.txt
+                    echo "Another sample content" > src/file2.txt
+                    tar -czf src.tar.gz src
+                    '''
+                }
+            }
+        }
+        stage('UnTar File') {
+            steps {
+                fileOperations([
+                    fileUnTarOperation(
+                        filePath: 'src.tar.gz', 
+                        targetLocation: 'dest/', 
+                        isGZIP: true
+                    )
+                ])
+            }
+        }
+    }
+}

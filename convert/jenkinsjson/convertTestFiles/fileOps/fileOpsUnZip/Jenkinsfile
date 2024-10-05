@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+    stages {
+        stage('Create ZIP File') {
+            steps {
+                script {
+                    // Create a sample zip file for the unzip operation
+                    sh '''
+                    mkdir -p src
+                    echo "Sample content" > src/file1.txt
+                    echo "Another sample content" > src/file2.txt
+                    zip -r src.zip src
+                    '''
+                }
+            }
+        }
+        stage('UnZip File') {
+            steps {
+                fileOperations([
+                    fileUnZipOperation(
+                        filePath: 'src.zip', 
+                        targetLocation: 'dest/'
+                    )
+                ])
+            }
+        }
+    }
+}

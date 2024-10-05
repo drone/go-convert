@@ -1,0 +1,8 @@
+- step:
+    identifier: fileoperationsd6f89b
+    name: fileDownloadOperation
+    spec:
+      command: wget -P downloads/ https://github.com/git/git/archive/refs/heads/master.zip
+      image: alpine/curl
+    timeout: ""
+    type: Run

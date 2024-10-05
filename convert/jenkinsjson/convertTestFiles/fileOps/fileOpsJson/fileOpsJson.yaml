@@ -1,0 +1,10 @@
+- step:
+    identifier: fileoperations9397c0
+    name: filePropertiesToJsonOperation
+    spec:
+      command: |-
+        stat -c '{"size": %s, "permissions": "%A", "owner": %U, "group": %G,
+        "last_modified": "%y"}' newfile.properties > property.json
+      image: alpine
+    timeout: ''
+    type: Run

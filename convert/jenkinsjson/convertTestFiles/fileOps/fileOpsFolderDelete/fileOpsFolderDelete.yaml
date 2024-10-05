@@ -1,0 +1,8 @@
+- step:
+    identifier: fileoperations978830
+    name: folderDeleteOperation
+    spec:
+      command: rm -rf src/create
+      image: alpine
+    timeout: ''
+    type: Run

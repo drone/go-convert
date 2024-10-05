@@ -1,0 +1,26 @@
+pipeline {
+    agent any
+    stages {
+        stage('Prepare Files') {
+            steps {
+                script {
+                    // Create source files for the join operation
+                    sh '''
+                    echo "Content of File 1" > file1.txt
+                    echo "Content of File 2" > file2.txt
+                    '''
+                }
+            }
+        }
+        stage('Join Files') {
+            steps {
+                fileOperations([
+                    fileJoinOperation(
+                        sourceFile: 'file1.txt', 
+                        targetFile: 'file2.txt'
+                    )
+                ])
+            }
+        }
+    }
+}
