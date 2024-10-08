@@ -148,6 +148,56 @@ func TestConvertFileOpsCreateFunction(t *testing.T) {
 	}
 }
 
+func TestConvertFileOpsCopyFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsCopy_snippet", "fileOpsCopy", &harness.Step{
+		Id:   "fileOperationsa39de5",
+		Name: "fileCopyOperation",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Image: "alpine",
+			Run:   string("cp -r src/*.txt dest/"),
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFileCopy(tt.input, operation)
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFileCopy() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestConvertFileOpsDeleteFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsDelete_snippet", "fileOpsDelete", &harness.Step{
+		Id:   "fileOperations128b17",
+		Name: "fileDeleteOperation",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Image: "alpine",
+			Run:   string("rm -rf **/old-files/*.log"),
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFileDelete(tt.input, operation)
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFileDelete() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
 func TestConvertFileOpsDownlaodFunction(t *testing.T) {
 
 	var tests []testRunner

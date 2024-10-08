@@ -591,6 +591,10 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			switch symbol {
 			case "fileCreateOperation":
 				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileCreate(currentNode, operation), ID: id})
+			case "fileCopyOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileCopy(currentNode, operation), ID: id})
+			case "fileDeleteOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileDelete(currentNode, operation), ID: id})
 			case "fileDownloadOperation":
 				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileDownload(currentNode, operation), ID: id})
 			case "fileRenameOperation":

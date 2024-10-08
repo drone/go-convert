@@ -23,6 +23,39 @@ func ConvertFileCreate(node Node, operation map[string]interface{}) *harness.Ste
 	return createFileStep
 }
 
+// createFileCopyStep creates a Harness step for file copy operations.
+func ConvertFileCopy(node Node, operation map[string]interface{}) *harness.Step {
+	args := operation["arguments"].(map[string]interface{})
+	includes, _ := args["includes"].(string)
+	targetLocation, _ := args["targetLocation"].(string)
+	copyFileStep := &harness.Step{
+		Name: operation["symbol"].(string),
+		Type: "script",
+		Id:   SanitizeForId(node.SpanName, node.SpanId),
+		Spec: &harness.StepExec{
+			Image: "alpine",
+			Run:   fmt.Sprintf("cp -r %s %s", includes, targetLocation),
+		},
+	}
+	return copyFileStep
+}
+
+// createFileDeleteStep creates a Harness step for file Delete operations.
+func ConvertFileDelete(node Node, operation map[string]interface{}) *harness.Step {
+	args := operation["arguments"].(map[string]interface{})
+	includes, _ := args["includes"].(string)
+	deleteFileStep := &harness.Step{
+		Name: operation["symbol"].(string),
+		Type: "script",
+		Id:   SanitizeForId(node.SpanName, node.SpanId),
+		Spec: &harness.StepExec{
+			Image: "alpine",
+			Run:   fmt.Sprintf("rm -rf %s", includes),
+		},
+	}
+	return deleteFileStep
+}
+
 // createFileDownloadStep creates a Harness step for file Download operations.
 func ConvertFileDownload(node Node, operation map[string]interface{}) *harness.Step {
 	args := operation["arguments"].(map[string]interface{})

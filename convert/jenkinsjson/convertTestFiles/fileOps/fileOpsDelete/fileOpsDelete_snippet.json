@@ -1,0 +1,43 @@
+{
+    "spanId": "128b1701d569ef2b",
+    "traceId": "a9082386e210d442a5c28f7693d5a695",
+    "parent": "op-filedeleteoperations",
+    "name": "op-filedeleteoperations #3",
+    "attributesMap": {
+        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a202719": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a202719",
+        "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+        "jenkins.pipeline.step.name": "File Operations",
+        "ci.pipeline.run.user": "SYSTEM",
+        "jenkins.pipeline.step.id": "16",
+        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@d4d078e": "org.jenkinsci.plugins.workflow.actions.TimingAction@d4d078e",
+        "jenkins.pipeline.step.type": "fileOperations",
+        "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@65a1849c": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@65a1849c",
+        "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"fileDeleteOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"includes\" : \"**/old-files/*.log\",\n          \"excludes\" : \"\"\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n}",
+        "jenkins.pipeline.step.plugin.name": "file-operations",
+        "jenkins.pipeline.step.plugin.version": "266.v9d4e1eb_235b_a_"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "65cb4661ced5c4fe",
+    "parameterMap": {
+        "delegate": {
+            "symbol": "fileOperations",
+            "klass": null,
+            "arguments": {
+                "<anonymous>": [
+                    {
+                        "symbol": "fileDeleteOperation",
+                        "klass": null,
+                        "interpolatedStrings": [],
+                        "arguments": {
+                            "excludes": "",
+                            "includes": "**/old-files/*.log"
+                        },
+                        "model": null
+                    }
+                ]
+            },
+            "model": null
+        }
+    },
+    "spanName": "fileOperations"
+}
