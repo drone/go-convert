@@ -1,26 +1,24 @@
 pipeline {
     agent any
+
     environment {
-        DOCKER_REGISTRY = 'your-registry-url'
-        DOCKER_IMAGE = 'your-image-name'
+        DOCKER_IMAGE = 'anshika/testimage'
         DOCKER_TAG = 'latest'
+        ARTIFACTORY_SERVER = 'artifactory-id'
     }
 
     stages {
-        stage('Build Docker Image') {
+        stage('Push to Artifactory') {
             steps {
                 script {
-                    docker.build("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}")
-                }
-            }
-        }
+                    def server = Artifactory.server ARTIFACTORY_SERVER
 
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    docker.withRegistry("https://${DOCKER_REGISTRY}", 'docker-credentials-id') {
-                        dockerPushStep("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}")
-                    }
+                    def dockerPush = server.docker.push(
+                        "${DOCKER_IMAGE}:${DOCKER_TAG}",
+                        'testimage'
+                    )
+
+                    dockerPush.execute()
                 }
             }
         }

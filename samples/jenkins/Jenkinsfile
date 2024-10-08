@@ -6,6 +6,12 @@ pipeline {
         gradle 'GradleNew'
         maven 'M3'
     }
+
+    environment {
+        DOCKER_IMAGE = 'user1/testimage'
+        DOCKER_TAG = 'latest'
+        ARTIFACTORY_SERVER = 'artifactory-id'
+    }
     
     stages {
         stage('Plugin Build') {
@@ -140,6 +146,21 @@ line3'''
                     for(int i = 0; i < files.length; i++) {
                         echo "${files[i].name} -- ${files[i].path}"
                     }
+                }
+            }
+        }
+
+        stage('Push to Artifactory') {
+            steps {
+                script {
+                    def server = Artifactory.server ARTIFACTORY_SERVER
+
+                    def dockerPush = server.docker.push(
+                        "${DOCKER_IMAGE}:${DOCKER_TAG}",
+                        'testimage'
+                    )
+
+                    dockerPush.execute()
                 }
             }
         }

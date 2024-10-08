@@ -18,7 +18,7 @@ type testRunner struct {
 	want  *harness.Step
 }
 
-func TestConvertFileOpsDelete(t *testing.T) {
+func TestConvertFileOpsCreate(t *testing.T) {
 	// Get the working directory
 	workingDir, err := os.Getwd()
 	if err != nil {
@@ -26,7 +26,7 @@ func TestConvertFileOpsDelete(t *testing.T) {
 	}
 
 	// Update file path according to the location of fileOps_test.json
-	filePath := filepath.Join(workingDir, "../convertTestFiles/fileOps/fileOpsDelete/fileOpsDelete_snippet.json")
+	filePath := filepath.Join(workingDir, "../convertTestFiles/fileOps/fileOpsCreate/fileOpsCreate_snippet.json")
 	jsonData, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		t.Fatalf("failed to read JSON file: %v", err)
@@ -45,24 +45,24 @@ func TestConvertFileOpsDelete(t *testing.T) {
 		{
 			json: node1,
 			want: Node{
-				SpanId:  "128b1701d569ef2b",
-				TraceId: "a9082386e210d442a5c28f7693d5a695",
-				Parent:  "op-filedeleteoperations",
-				Name:    "op-filedeleteoperations #3",
+				SpanId:  "9b3c555cf009005f",
+				TraceId: "5c4a042d6d48afeba2d56a38cb497c1e",
+				Parent:  "op-filecreateoperations",
+				Name:    "op-filecreateoperations #2",
 				AttributesMap: map[string]string{
-					"harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a202719": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a202719",
 					"harness-others":             "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
 					"jenkins.pipeline.step.name": "File Operations",
 					"ci.pipeline.run.user":       "SYSTEM",
-					"jenkins.pipeline.step.id":   "16",
-					"harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@d4d078e": "org.jenkinsci.plugins.workflow.actions.TimingAction@d4d078e",
+					"jenkins.pipeline.step.id":   "7",
+					"harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5fad4a0b": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5fad4a0b",
+					"harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1e9f64fb":           "org.jenkinsci.plugins.workflow.actions.TimingAction@1e9f64fb",
 					"jenkins.pipeline.step.type": "fileOperations",
-					"harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@65a1849c": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@65a1849c",
-					"harness-attribute":                    "{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"fileDeleteOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"includes\" : \"**/old-files/*.log\",\n          \"excludes\" : \"\"\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n}",
+					"harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@bd3676d": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@bd3676d",
+					"harness-attribute":                    "{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"fileCreateOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"fileName\" : \"newfile.txt\",\n          \"fileContent\" : \"Hello, World!\"\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n}",
 					"jenkins.pipeline.step.plugin.name":    "file-operations",
 					"jenkins.pipeline.step.plugin.version": "266.v9d4e1eb_235b_a_",
 				},
-				ParentSpanId: "65cb4661ced5c4fe",
+				ParentSpanId: "5fc14ef50c3e4cda",
 				SpanName:     "fileOperations",
 				Type:         "Run Phase Span",
 				ParameterMap: map[string]interface{}{
@@ -72,12 +72,12 @@ func TestConvertFileOpsDelete(t *testing.T) {
 						"arguments": map[string]interface{}{
 							"<anonymous>": []interface{}{
 								map[string]interface{}{
-									"symbol":              "fileDeleteOperation",
+									"symbol":              "fileCreateOperation",
 									"klass":               nil,
 									"interpolatedStrings": []interface{}{},
 									"arguments": map[string]interface{}{
-										"excludes": "",
-										"includes": "**/old-files/*.log",
+										"fileName":    "newfile.txt",
+										"fileContent": "Hello, World!",
 									},
 									"model": nil,
 								},
@@ -123,6 +123,30 @@ func prepareFileOpsTest(t *testing.T, filename string, folderName string, step *
 	}
 }
 
+func TestConvertFileOpsCreateFunction(t *testing.T) {
+
+	var tests []testRunner
+	tests = append(tests, prepareFileOpsTest(t, "fileOpsCreate_snippet", "fileOpsCreate", &harness.Step{
+		Id:   "fileOperations9b3c55",
+		Name: "fileCreateOperation",
+		Type: "script",
+		Spec: &harness.StepExec{
+			Image: "alpine",
+			Run:   string("echo 'Hello, World!' > newfile.txt"),
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			operation := extractAnanymousOperation(tt.input)
+			got := ConvertFileCreate(tt.input, operation)
+
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ConvertFileCreate() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
 func TestConvertFileOpsDeleteFunction(t *testing.T) {
 
 	var tests []testRunner
