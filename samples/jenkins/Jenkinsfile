@@ -164,5 +164,341 @@ line3'''
                 }
             }
         }
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+            }
+            post {
+                always {
+                    // Send build info to Jira, associating it with the SCRUM-1 issue
+                    jiraSendBuildInfo site: 'fossops.atlassian.net', branch: 'main'
+                }
+            }
+        }
+        // Deployment Stage: Staging
+        stage('Deploy to Staging') {
+            steps {
+                echo 'Deploying to Staging...'
+            }
+            post {
+                always {
+                    // Send deployment info for the Staging environment
+                    jiraSendDeploymentInfo(
+                        environmentId: 'stg-env-1',
+                        environmentName: 'staging',
+                        environmentType: 'staging',
+                        issueKeys: ['SCRUM-1','SCRUM-2','SCRUM-3'],
+                        state: 'successful'
+                    )
+                }
+            }
+        }
+        // Deployment Stage: Production
+        stage('Deploy to Production') {
+            steps {
+                echo 'Deploying to Production...'
+            }
+            post {
+                always {
+                    // Send deployment info for the Production environment
+                    jiraSendDeploymentInfo(
+                        environmentId: 'prod-env-1',
+                        environmentName: 'production',
+                        environmentType: 'production',
+                        issueKeys: ['SCRUM-1','SCRUM-2','SCRUM-3'],
+                        state: 'successful'
+                    )
+                }
+            }
+        }
+        stage('Prepare Workspace') {
+            steps {
+                script {
+                    // Create source and destination directories if they don't exist
+                    bat 'if not exist src mkdir src'
+                    bat 'if not exist dest mkdir dest'
+                }
+            }
+        }
+        stage('Create Files') {
+            steps {
+                script {
+                    // Create sample .txt files in the src directory
+                    bat 'echo Sample text 1 > src\\sample1.txt'
+                    bat 'echo Sample text 2 > src\\sample2.txt'
+                }
+            }
+        }
+        stage('Copy Files') {
+            steps {
+                fileOperations([
+                    fileCopyOperation(
+                        includes: 'src/*.txt',  // Correct parameter for source files
+                        excludes: '',           // No files to exclude
+                        targetLocation: 'dest/',// Destination directory
+                        flattenFiles: false,    // Keep directory structure
+                        renameFiles: false,     // Do not rename files
+                        sourceCaptureExpression: '', // No regex capture
+                        targetNameExpression: '',    // No renaming pattern
+                        useDefaultExcludes: true // Use default exclusion patterns
+                    )
+                ])
+            }
+        }
+        stage('Create File') {
+            steps {
+                fileOperations([
+                    fileCreateOperation(fileName: 'newfile.txt', fileContent: 'Hello, World!')
+                ])
+            }
+        }
+        stage('Create Files') {
+            steps {
+                script {
+                    // Create a directory and files to be deleted later
+                    bat '''
+                    mkdir old-files
+                    echo. > old-files\\file1.log
+                    echo. > old-files\\file2.log
+                    echo. > old-files\\file3.txt
+                    '''
+                }
+            }
+        }
+        stage('Delete Files') {
+            steps {
+                fileOperations([
+                    fileDeleteOperation(includes: '**/old-files/*.log', excludes: '')
+                ])
+            }
+        }
+        stage('Prepare Directory') {
+            steps {
+                sh 'mkdir -p downloads' // Ensure the downloads directory exists
+            }
+        }
+        stage('Download File') {
+            steps {
+                fileOperations([
+                    fileDownloadOperation(
+                        url: 'https://github.com/git/git/archive/refs/heads/master.zip',
+                        targetLocation: 'downloads/',
+                        targetFileName: 'git-master.zip',
+                        userName: '', // Explicitly setting to an empty string
+                        password: ''  // Explicitly setting to an empty string
+                    )
+                ])
+            }
+        }
+        stage('Prepare Files') {
+            steps {
+                script {
+                    // Create source files for the join operation
+                    sh '''
+                    echo "Content of File 1" > file1.txt
+                    echo "Content of File 2" > file2.txt
+                    '''
+                }
+            }
+        }
+        stage('Join Files') {
+            steps {
+                fileOperations([
+                    fileJoinOperation(
+                        sourceFile: 'file1.txt', 
+                        targetFile: 'file2.txt'
+                    )
+                ])
+            }
+        }
+        stage('Prepare Files') {
+            steps {
+                script {
+                    // Create source files for the join operation
+                    sh '''
+                    echo "Content of File 1" > file1.txt
+                    echo "Content of File 2" > file2.txt
+                    '''
+                }
+            }
+        }
+        stage('Join Files') {
+            steps {
+                fileOperations([
+                    fileJoinOperation(
+                        sourceFile: 'file1.txt', 
+                        targetFile: 'file2.txt'
+                    )
+                ])
+            }
+        }
+        stage('Create File') {
+            steps {
+                script {
+                    // Create a sample file in the current workspace
+                    sh '''
+                    echo "This is a sample file" > newfile.txt
+                    '''
+                }
+            }
+        }
+        stage('Rename File') {
+            steps {
+                fileOperations([
+                    fileRenameOperation(
+                        source: 'newfile.txt', 
+                        destination: 'renamedfile.txt'
+                    )
+                ])
+            }
+        }
+        stage('Create Files') {
+            steps {
+                script {
+                    // Create some sample files in the workspace
+                    sh '''
+                    echo "Content of newfile1" > newfile1.txt
+                    echo "Content of newfile2" > newfile2.txt
+                    '''
+                }
+            }
+        }
+        stage('Transform Files') {
+            steps {
+                fileOperations([
+                    fileTransformOperation(
+                        includes: 'newfile*.txt', 
+                        excludes: 'newfile2.txt', 
+                        useDefaultExcludes: false
+                    )
+                ])
+            }
+        }
+        stage('Create TAR File') {
+            steps {
+                script {
+                    // Create a sample tar file for the untar operation
+                    sh '''
+                    mkdir -p src
+                    echo "Sample content" > src/file1.txt
+                    echo "Another sample content" > src/file2.txt
+                    tar -czf src.tar.gz src
+                    '''
+                }
+            }
+        }
+        stage('UnTar File') {
+            steps {
+                fileOperations([
+                    fileUnTarOperation(
+                        filePath: 'src.tar.gz', 
+                        targetLocation: 'dest/', 
+                        isGZIP: true
+                    )
+                ])
+            }
+        }
+        stage('Create ZIP File') {
+            steps {
+                script {
+                    // Create a sample zip file for the unzip operation
+                    sh '''
+                    mkdir -p src
+                    echo "Sample content" > src/file1.txt
+                    echo "Another sample content" > src/file2.txt
+                    zip -r src.zip src
+                    '''
+                }
+            }
+        }
+        stage('UnZip File') {
+            steps {
+                fileOperations([
+                    fileUnZipOperation(
+                        filePath: 'src.zip', 
+                        targetLocation: 'dest/'
+                    )
+                ])
+            }
+        }
+        stage('Create Source Folder') {
+            steps {
+                script {
+                    // Create a sample folder with files to zip
+                    sh '''
+                    mkdir -p src
+                    echo "Sample content" > src/file1.txt
+                    echo "Another sample content" > src/file2.txt
+                    '''
+                }
+            }
+        }
+        stage('Zip Folder') {
+            steps {
+                fileOperations([
+                    fileZipOperation(
+                        folderPath: 'src/', 
+                        outputFolderPath: 'dest/'
+                    )
+                ])
+            }
+        }
+        stage('Create Source Folder and Files') {
+            steps {
+                script {
+                    // Create a source folder with some sample files
+                    sh '''
+                    mkdir -p src
+                    echo "File 1 content" > src/file1.txt
+                    echo "File 2 content" > src/file2.txt
+                    '''
+                }
+            }
+        }
+        stage('Copy Folder') {
+            steps {
+                fileOperations([
+                    folderCopyOperation(
+                        sourceFolderPath: 'src/', 
+                        destinationFolderPath: 'dest'
+                    )
+                ])
+            }
+        }
+        stage('File') {
+            steps {
+                fileOperations([
+                    folderCreateOperation(folderPath: 'src/create')
+                ])
+            }
+        }
+        stage('File') {
+            steps {
+                fileOperations([
+                    folderDeleteOperation(folderPath: 'src/create')
+                ])
+            }
+        }
+        stage('Create Source Folder') {
+            steps {
+                script {
+                    // Create a source folder with some sample files
+                    sh '''
+                    mkdir -p src
+                    echo "Sample content" > src/file.txt
+                    '''
+                }
+            }
+        }
+        stage('Rename Folder') {
+            steps {
+                fileOperations([
+                    folderRenameOperation(
+                        source: 'src/', 
+                        destination: 'dest/'
+                    )
+                ])
+            }
+        }
     }
 }
