@@ -1,0 +1,8 @@
+- step:
+    identifier: fileoperations8a2e5a
+    name: folderCopyOperation
+    spec:
+      command: cp -r src/ dest
+      image: alpine
+    timeout: ''
+    type: Run

@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+    stages {
+        stage('Create File') {
+            steps {
+                script {
+                    // Create a sample file in the current workspace
+                    sh '''
+                    echo "This is a sample file" > newfile.txt
+                    '''
+                }
+            }
+        }
+        stage('Rename File') {
+            steps {
+                fileOperations([
+                    fileRenameOperation(
+                        source: 'newfile.txt', 
+                        destination: 'renamedfile.txt'
+                    )
+                ])
+            }
+        }
+    }
+}

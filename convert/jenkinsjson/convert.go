@@ -591,6 +591,34 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			switch symbol {
 			case "fileCreateOperation":
 				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileCreate(currentNode, operation), ID: id})
+			case "fileCopyOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileCopy(currentNode, operation), ID: id})
+			case "fileDeleteOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileDelete(currentNode, operation), ID: id})
+			case "fileDownloadOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileDownload(currentNode, operation), ID: id})
+			case "fileRenameOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileRename(currentNode, operation), ID: id})
+			case "filePropertiesToJsonOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileJson(currentNode, operation), ID: id})
+			case "fileJoinOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileJoin(currentNode, operation), ID: id})
+			case "fileTransformOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileTranform(currentNode, operation), ID: id})
+			case "folderCopyOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFolderCopy(currentNode, operation), ID: id})
+			case "folderCreateOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFolderCreate(currentNode, operation), ID: id})
+			case "folderDeleteOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFolderDelete(currentNode, operation), ID: id})
+			case "folderRenameOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFolderRename(currentNode, operation), ID: id})
+			case "fileUnTarOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileUntar(currentNode, operation), ID: id})
+			case "fileUnZipOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileUnzip(currentNode, operation), ID: id})
+			case "fileZipOperation":
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFileZip(currentNode, operation), ID: id})
 			default:
 				fmt.Println("Unsupported file operation:", symbol)
 			}

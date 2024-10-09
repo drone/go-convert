@@ -1,0 +1,8 @@
+- step:
+    identifier: fileoperationse0b0a3
+    name: fileRenameOperation
+    spec:
+      command: mv newfile.txt renamedfile.txt
+      image: alpine
+    timeout: ''
+    type: Run

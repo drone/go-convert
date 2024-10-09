@@ -1,0 +1,8 @@
+- step:
+    identifier: fileoperationsc8fb57
+    name: fileTransformOperation
+    spec:
+      command: find . -type f -name 'newfile*.txt' ! -name 'newfile2.txt' -exec sh -c 'iconv -f <source_encoding> -t UTF-8 "$0" -o "${0%.txt}.utf8"' {} \;
+      image: alpine
+    timeout: ''
+    type: Run

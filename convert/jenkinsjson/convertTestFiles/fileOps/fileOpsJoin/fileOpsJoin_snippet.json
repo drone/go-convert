@@ -1,0 +1,44 @@
+{
+    "spanId": "c8844b4b4e40e98c",
+    "traceId": "529f9b9eabcb1bf395aae79732a894ba",
+    "parent": "op-filejoinoperations",
+    "all-info": "span(name: fileOperations, spanId: c8844b4b4e40e98c, parentSpanId: 455c44a416e5a1cb, traceId: 529f9b9eabcb1bf395aae79732a894ba, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"fileJoinOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"sourceFile\" : \"file1.txt\",\n          \"targetFile\" : \"file2.txt\"\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3b7e7b27:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3b7e7b27;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@74672708:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@74672708;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@5279e4ac:org.jenkinsci.plugins.workflow.actions.TimingAction@5279e4ac;harness-others:-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep;jenkins.pipeline.step.id:16;jenkins.pipeline.step.name:File Operations;jenkins.pipeline.step.plugin.name:file-operations;jenkins.pipeline.step.plugin.version:266.v9d4e1eb_235b_a_;jenkins.pipeline.step.type:fileOperations;)",
+    "name": "op-filejoinoperations #2",
+    "attributesMap": {
+        "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@5279e4ac": "org.jenkinsci.plugins.workflow.actions.TimingAction@5279e4ac",
+        "jenkins.pipeline.step.name": "File Operations",
+        "ci.pipeline.run.user": "SYSTEM",
+        "jenkins.pipeline.step.id": "16",
+        "jenkins.pipeline.step.type": "fileOperations",
+        "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3b7e7b27": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3b7e7b27",
+        "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"fileJoinOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"sourceFile\" : \"file1.txt\",\n          \"targetFile\" : \"file2.txt\"\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n}",
+        "jenkins.pipeline.step.plugin.name": "file-operations",
+        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@74672708": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@74672708",
+        "jenkins.pipeline.step.plugin.version": "266.v9d4e1eb_235b_a_"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "455c44a416e5a1cb",
+    "parameterMap": {
+        "delegate": {
+            "symbol": "fileOperations",
+            "klass": null,
+            "arguments": {
+                "<anonymous>": [
+                    {
+                        "symbol": "fileJoinOperation",
+                        "klass": null,
+                        "interpolatedStrings": [],
+                        "arguments": {
+                            "targetFile": "file2.txt",
+                            "sourceFile": "file1.txt"
+                        },
+                        "model": null
+                    }
+                ]
+            },
+            "model": null
+        }
+    },
+    "spanName": "fileOperations"
+}

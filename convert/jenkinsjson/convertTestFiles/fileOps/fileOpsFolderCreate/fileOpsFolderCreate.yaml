@@ -1,0 +1,8 @@
+- step:
+    identifier: fileoperations7d2ecf
+    name: folderCreateOperation
+    spec:
+      command: mkdir -p src/create
+      image: alpine
+    timeout: ''
+    type: Run
