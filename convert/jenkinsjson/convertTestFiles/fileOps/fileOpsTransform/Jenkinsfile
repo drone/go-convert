@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+    stages {
+        stage('Create Files') {
+            steps {
+                script {
+                    // Create some sample files in the workspace
+                    sh '''
+                    echo "Content of newfile1" > newfile1.txt
+                    echo "Content of newfile2" > newfile2.txt
+                    '''
+                }
+            }
+        }
+        stage('Transform Files') {
+            steps {
+                fileOperations([
+                    fileTransformOperation(
+                        includes: 'newfile*.txt', 
+                        excludes: 'newfile2.txt', 
+                        useDefaultExcludes: false
+                    )
+                ])
+            }
+        }
+    }
+}

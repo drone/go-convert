@@ -1,0 +1,10 @@
+- step:
+    identifier: fileoperations0d571f
+    name: fileUnZipOperation
+    spec:
+      image: 'plugins/archive:latest'
+      settings:
+        action: extract
+        format: zip
+        source: src.zip
+        target: dest/

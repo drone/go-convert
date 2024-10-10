@@ -1,0 +1,26 @@
+{
+  "spanId": "dba869e5a94c6aa2",
+  "traceId": "9df67eabac7871cc66120d0402b63706",
+  "parent": "jira-plugin-pipeline",
+  "all-info": "span(name: jiraSendBuildInfo, spanId: dba869e5a94c6aa2, parentSpanId: 0191118758698812, traceId: 9df67eabac7871cc66120d0402b63706, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\r\n  \"branch\" : \"main\",\r\n  \"site\" : \"fossops.atlassian.net\"\r\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@22b5e87c:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@22b5e87c;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@45b0b6d0:org.jenkinsci.plugins.workflow.actions.TimingAction@45b0b6d0;harness-others:;jenkins.pipeline.step.id:8;jenkins.pipeline.step.name:Atlassian Jira Software Cloud Jenkins Integration (Build);jenkins.pipeline.step.plugin.name:atlassian-jira-software-cloud;jenkins.pipeline.step.plugin.version:2.0.15;jenkins.pipeline.step.type:jiraSendBuildInfo;)",
+  "name": "jira-plugin-pipeline #3",
+  "attributesMap": {
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@45b0b6d0": "org.jenkinsci.plugins.workflow.actions.TimingAction@45b0b6d0",
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Atlassian Jira Software Cloud Jenkins Integration (Build)",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "8",
+    "jenkins.pipeline.step.type": "jiraSendBuildInfo",
+    "harness-attribute": "{\r\n  \"branch\" : \"main\",\r\n  \"site\" : \"fossops.atlassian.net\"\r\n}",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@22b5e87c": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@22b5e87c",
+    "jenkins.pipeline.step.plugin.name": "atlassian-jira-software-cloud",
+    "jenkins.pipeline.step.plugin.version": "2.0.15"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "0191118758698812",
+  "parameterMap": {
+    "site": "fossops.atlassian.net",
+    "branch": "main"
+  },
+  "spanName": "jiraSendBuildInfo"
+}

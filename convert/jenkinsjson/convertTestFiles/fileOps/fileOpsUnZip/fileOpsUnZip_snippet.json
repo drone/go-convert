@@ -1,0 +1,44 @@
+{
+    "spanId": "0d571f2f463eccbe",
+    "traceId": "bc443463427b106ccf5a5f881bec65d5",
+    "parent": "op-fileunzipoperation",
+    "all-info": "span(name: fileOperations, spanId: 0d571f2f463eccbe, parentSpanId: 7679353b60e570d3, traceId: bc443463427b106ccf5a5f881bec65d5, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"fileUnZipOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"filePath\" : \"src.zip\",\n          \"targetLocation\" : \"dest/\"\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@efc54a1:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@efc54a1;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6c8c18d4:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6c8c18d4;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@d773c29:org.jenkinsci.plugins.workflow.actions.TimingAction@d773c29;harness-others:-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep;jenkins.pipeline.step.id:16;jenkins.pipeline.step.name:File Operations;jenkins.pipeline.step.plugin.name:file-operations;jenkins.pipeline.step.plugin.version:266.v9d4e1eb_235b_a_;jenkins.pipeline.step.type:fileOperations;)",
+    "name": "op-fileunzipoperation #3",
+    "attributesMap": {
+        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6c8c18d4": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6c8c18d4",
+        "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+        "jenkins.pipeline.step.name": "File Operations",
+        "ci.pipeline.run.user": "SYSTEM",
+        "jenkins.pipeline.step.id": "16",
+        "jenkins.pipeline.step.type": "fileOperations",
+        "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@efc54a1": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@efc54a1",
+        "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"fileUnZipOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"filePath\" : \"src.zip\",\n          \"targetLocation\" : \"dest/\"\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n}",
+        "jenkins.pipeline.step.plugin.name": "file-operations",
+        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@d773c29": "org.jenkinsci.plugins.workflow.actions.TimingAction@d773c29",
+        "jenkins.pipeline.step.plugin.version": "266.v9d4e1eb_235b_a_"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "7679353b60e570d3",
+    "parameterMap": {
+        "delegate": {
+            "symbol": "fileOperations",
+            "klass": null,
+            "arguments": {
+                "<anonymous>": [
+                    {
+                        "symbol": "fileUnZipOperation",
+                        "klass": null,
+                        "interpolatedStrings": [],
+                        "arguments": {
+                            "filePath": "src.zip",
+                            "targetLocation": "dest/"
+                        },
+                        "model": null
+                    }
+                ]
+            },
+            "model": null
+        }
+    },
+    "spanName": "fileOperations"
+}

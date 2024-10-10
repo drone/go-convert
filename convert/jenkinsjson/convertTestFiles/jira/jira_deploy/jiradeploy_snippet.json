@@ -1,0 +1,28 @@
+{
+  "spanId": "d3f4788be1429db2",
+  "traceId": "9df67eabac7871cc66120d0402b63706",
+  "parent": "jira-plugin-pipeline",
+  "all-info": "span(name: jiraSendDeploymentInfo, spanId: d3f4788be1429db2, parentSpanId: ff029e3e25d645ef, traceId: 9df67eabac7871cc66120d0402b63706, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\r\n  \"environmentId\" : \"prod-env-1\",\r\n  \"state\" : \"successful\",\r\n  \"environmentName\" : \"production\",\r\n  \"environmentType\" : \"production\"\r\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@43706be5:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@43706be5;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@7e77f4ff:org.jenkinsci.plugins.workflow.actions.TimingAction@7e77f4ff;harness-others:;jenkins.pipeline.step.id:20;jenkins.pipeline.step.name:Atlassian Jira Software Cloud Jenkins Integration (Deployment);jenkins.pipeline.step.plugin.name:atlassian-jira-software-cloud;jenkins.pipeline.step.plugin.version:2.0.15;jenkins.pipeline.step.type:jiraSendDeploymentInfo;)",
+  "name": "jira-plugin-pipeline #3",
+  "attributesMap": {
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@43706be5": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@43706be5",
+    "harness-others": "",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@7e77f4ff": "org.jenkinsci.plugins.workflow.actions.TimingAction@7e77f4ff",
+    "jenkins.pipeline.step.name": "Atlassian Jira Software Cloud Jenkins Integration (Deployment)",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "20",
+    "jenkins.pipeline.step.type": "jiraSendDeploymentInfo",
+    "harness-attribute": "{\r\n  \"environmentId\" : \"prod-env-1\",\r\n  \"state\" : \"successful\",\r\n  \"environmentName\" : \"production\",\r\n  \"environmentType\" : \"production\"\r\n}",
+    "jenkins.pipeline.step.plugin.name": "atlassian-jira-software-cloud",
+    "jenkins.pipeline.step.plugin.version": "2.0.15"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "ff029e3e25d645ef",
+  "parameterMap": {
+    "environmentId": "prod-env-1",
+    "environmentName": "production",
+    "environmentType": "production",
+    "state": "successful"
+  },
+  "spanName": "jiraSendDeploymentInfo"
+}

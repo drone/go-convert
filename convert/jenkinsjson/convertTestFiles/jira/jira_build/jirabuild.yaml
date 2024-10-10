@@ -1,0 +1,12 @@
+- step:
+    identifier: jirasendbuildinfodba869
+    name: jiraSendBuildInfo
+    spec:
+      image: plugins/jira
+      settings:
+        branch: main
+        connect_key: <+secrets.getValue("JIRA_CONNECT_KEY")>
+        instance: fossops.atlassian.net
+        project: $JIRA_PROJECT
+    timeout: ""
+    type: Plugin

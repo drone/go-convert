@@ -30,7 +30,7 @@ func ConvertDockerPushStep(node Node, variables map[string]string, timeout strin
 		Id:      SanitizeForId(node.SpanName, node.SpanId),
 		Type:    "plugin",
 		Spec: &harness.StepPlugin{
-			Image: "kaniko-docker",
+			Image: "plugins/kaniko:latest",
 			With: map[string]interface{}{
 				"repo":   image,
 				"target": targetRepo,

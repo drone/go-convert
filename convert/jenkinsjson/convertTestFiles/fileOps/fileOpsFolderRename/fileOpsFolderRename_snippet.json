@@ -1,0 +1,38 @@
+{
+    "spanId": "12ada0ca4d388457",
+    "traceId": "7b72bc78302c40b72d656502001c07e7",
+    "parent": "op-folderrenameoperation",
+    "all-info": "span(name: fileOperations, spanId: 12ada0ca4d388457, parentSpanId: de0891a9520090f8, traceId: 7b72bc78302c40b72d656502001c07e7, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"folderRenameOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"source\" : \"src/\",\n          \"destination\" : \"dest/\"\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@34763213:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@34763213;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@49204dc1:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@49204dc1;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@45cbfc74:org.jenkinsci.plugins.workflow.actions.TimingAction@45cbfc74;harness-others:-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep;jenkins.pipeline.step.id:16;jenkins.pipeline.step.name:File Operations;jenkins.pipeline.step.plugin.name:file-operations;jenkins.pipeline.step.plugin.version:266.v9d4e1eb_235b_a_;jenkins.pipeline.step.type:fileOperations;)",
+    "name": "op-folderrenameoperation #2",
+    "attributesMap": {
+      "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@49204dc1": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@49204dc1",
+      "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+      "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@45cbfc74": "org.jenkinsci.plugins.workflow.actions.TimingAction@45cbfc74",
+      "jenkins.pipeline.step.name": "File Operations",
+      "ci.pipeline.run.user": "SYSTEM",
+      "jenkins.pipeline.step.id": "16",
+      "jenkins.pipeline.step.type": "fileOperations",
+      "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"folderRenameOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"source\" : \"src/\",\n          \"destination\" : \"dest/\"\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n}",
+      "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@34763213": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@34763213",
+      "jenkins.pipeline.step.plugin.name": "file-operations",
+      "jenkins.pipeline.step.plugin.version": "266.v9d4e1eb_235b_a_"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "de0891a9520090f8",
+    "parameterMap": {"delegate": {
+      "symbol": "fileOperations",
+      "klass": null,
+      "arguments": {"<anonymous>": [{
+        "symbol": "folderRenameOperation",
+        "klass": null,
+        "interpolatedStrings": [],
+        "arguments": {
+          "destination": "dest/",
+          "source": "src/"
+        },
+        "model": null
+      }]},
+      "model": null
+    }},
+    "spanName": "fileOperations"
+  }
