@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+    stages {
+        stage('Create Source Folder and Files') {
+            steps {
+                script {
+                    // Create a source folder with some sample files
+                    sh '''
+                    mkdir -p src
+                    echo "File 1 content" > src/file1.txt
+                    echo "File 2 content" > src/file2.txt
+                    '''
+                }
+            }
+        }
+        stage('Copy Folder') {
+            steps {
+                fileOperations([
+                    folderCopyOperation(
+                        sourceFolderPath: 'src/', 
+                        destinationFolderPath: 'dest'
+                    )
+                ])
+            }
+        }
+    }
+}

@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+    stages {
+        stage('Create Files') {
+            steps {
+                script {
+                    // Create a directory and files to be deleted later
+                    bat '''
+                    mkdir old-files
+                    echo. > old-files\\file1.log
+                    echo. > old-files\\file2.log
+                    echo. > old-files\\file3.txt
+                    '''
+                }
+            }
+        }
+        stage('Delete Files') {
+            steps {
+                fileOperations([
+                    fileDeleteOperation(includes: '**/old-files/*.log', excludes: '')
+                ])
+            }
+        }
+    }
+}

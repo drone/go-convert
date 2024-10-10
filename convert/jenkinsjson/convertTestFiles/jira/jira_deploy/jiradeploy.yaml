@@ -1,0 +1,19 @@
+- step:
+    identifier: jirasenddeploymentinfod3f478
+    name: jiraSendDeploymentInfo
+    spec:
+      image: plugins/jira
+      settings:
+        connect_key: <+secrets.getValue("JIRA_CONNECT_KEY")>
+        environment_id: prod-env-1
+        environment_name: production
+        environment_type: production
+        instance: $JIRA_SITE_ID
+        issuekeys:
+          - SCRUM-1
+          - SCRUM-2
+          - SCRUM-3
+        project: $JIRA_PROJECT
+        state: successful
+    timeout: ""
+    type: Plugin

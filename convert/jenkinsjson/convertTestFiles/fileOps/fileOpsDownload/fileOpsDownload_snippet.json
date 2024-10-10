@@ -1,0 +1,47 @@
+{
+    "spanId": "d6f89b0cfce3794a",
+    "traceId": "b222737b7b18a0191deffb5e5c15f404",
+    "parent": "op-filedownloadoperation",
+    "all-info": "span(name: fileOperations, spanId: d6f89b0cfce3794a, parentSpanId: 0a658dd00c60c10e, traceId: b222737b7b18a0191deffb5e5c15f404, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"fileDownloadOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"url\" : \"https://github.com/git/git/archive/refs/heads/master.zip\",\n          \"targetLocation\" : \"downloads/\",\n          \"targetFileName\" : \"git-master.zip\",\n          \"userName\" : \"\",\n          \"password\" : \"\"\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@16860aad:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@16860aad;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a7cf918:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a7cf918;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@5b79274d:org.jenkinsci.plugins.workflow.actions.TimingAction@5b79274d;harness-others:-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep;jenkins.pipeline.step.id:12;jenkins.pipeline.step.name:File Operations;jenkins.pipeline.step.plugin.name:file-operations;jenkins.pipeline.step.plugin.version:266.v9d4e1eb_235b_a_;jenkins.pipeline.step.type:fileOperations;)",
+    "name": "op-filedownloadoperation #3",
+    "attributesMap": {
+        "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+        "jenkins.pipeline.step.name": "File Operations",
+        "ci.pipeline.run.user": "SYSTEM",
+        "jenkins.pipeline.step.id": "12",
+        "jenkins.pipeline.step.type": "fileOperations",
+        "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"fileDownloadOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"url\" : \"https://github.com/git/git/archive/refs/heads/master.zip\",\n          \"targetLocation\" : \"downloads/\",\n          \"targetFileName\" : \"git-master.zip\",\n          \"userName\" : \"\",\n          \"password\" : \"\"\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n}",
+        "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@16860aad": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@16860aad",
+        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a7cf918": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a7cf918",
+        "jenkins.pipeline.step.plugin.name": "file-operations",
+        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@5b79274d": "org.jenkinsci.plugins.workflow.actions.TimingAction@5b79274d",
+        "jenkins.pipeline.step.plugin.version": "266.v9d4e1eb_235b_a_"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "0a658dd00c60c10e",
+    "parameterMap": {
+        "delegate": {
+            "symbol": "fileOperations",
+            "klass": null,
+            "arguments": {
+                "<anonymous>": [
+                    {
+                        "symbol": "fileDownloadOperation",
+                        "klass": null,
+                        "interpolatedStrings": [],
+                        "arguments": {
+                            "password": "",
+                            "targetFileName": "git-master.zip",
+                            "targetLocation": "downloads/",
+                            "userName": "",
+                            "url": "https://github.com/git/git/archive/refs/heads/master.zip"
+                        },
+                        "model": null
+                    }
+                ]
+            },
+            "model": null
+        }
+    },
+    "spanName": "fileOperations"
+}

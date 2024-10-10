@@ -1,0 +1,11 @@
+- step:
+    identifier: fileoperations4ca6ab
+    name: fileZipOperation
+    spec:
+      image: 'plugins/archive:latest'
+      settings:
+        action: archive
+        format: zip
+        overwrite: 'true'
+        source: src/
+        target: dest/

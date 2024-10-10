@@ -20,10 +20,10 @@ func ConvertArtifactUploadJfrog(node Node, variables map[string]string, timeout 
 		Id:      SanitizeForId(node.SpanName, node.SpanId),
 		Type:    "plugin",
 		Spec: &harness.StepPlugin{
-			Image: "artifactJfrog_plugin",
+			Image: "plugins/artifactory:latest",
 			With: map[string]interface{}{
-				"sourcePath": node.AttributesMap["pattern"],
-				"target":     node.AttributesMap["target"],
+				"source": node.AttributesMap["pattern"],
+				"target": node.AttributesMap["target"],
 			},
 		},
 	}

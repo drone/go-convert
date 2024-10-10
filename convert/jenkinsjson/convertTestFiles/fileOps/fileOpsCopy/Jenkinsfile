@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+    stages {
+        stage('Prepare Workspace') {
+            steps {
+                script {
+                    // Create source and destination directories if they don't exist
+                    bat 'if not exist src mkdir src'
+                    bat 'if not exist dest mkdir dest'
+                }
+            }
+        }
+        stage('Create Files') {
+            steps {
+                script {
+                    // Create sample .txt files in the src directory
+                    bat 'echo Sample text 1 > src\\sample1.txt'
+                    bat 'echo Sample text 2 > src\\sample2.txt'
+                }
+            }
+        }
+        stage('Copy Files') {
+            steps {
+                fileOperations([
+                    fileCopyOperation(
+                        includes: 'src/*.txt',  // Correct parameter for source files
+                        excludes: '',           // No files to exclude
+                        targetLocation: 'dest/',// Destination directory
+                        flattenFiles: false,    // Keep directory structure
+                        renameFiles: false,     // Do not rename files
+                        sourceCaptureExpression: '', // No regex capture
+                        targetNameExpression: '',    // No renaming pattern
+                        useDefaultExcludes: true // Use default exclusion patterns
+                    )
+                ])
+            }
+        }
+    }
+}

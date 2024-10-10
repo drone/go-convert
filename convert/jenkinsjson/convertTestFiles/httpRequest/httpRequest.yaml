@@ -1,0 +1,23 @@
+- step:
+    identifier: httprequestbf3ce3
+    name: httpRequest
+    spec:
+      image: plugins/httpRequest
+      settings:
+        accept_type: APPLICATION_JSON
+        auth_basic: httprequest
+        content_type: APPLICATION_JSON
+        headers: 'Authorization:Bearer <token>,X-Custom-Header:example-header'
+        http_method: POST
+        ignore_ssl: 'true'
+        log_response: 'true'
+        output_file: response.json
+        quiet: 'false'
+        request_body: '{"title": "foo", "body": "bar", "userId": 1}'
+        timeout: '60'
+        url: 'https://jsonplaceholder.typicode.com/posts'
+        valid_response_body: '"id":'
+        valid_response_codes: '200:299'
+        wrap_as_multipart: 'false'
+    timeout: ''
+    type: Plugin

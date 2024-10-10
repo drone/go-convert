@@ -1,0 +1,51 @@
+{
+  "spanId": "bf3ce3733043c22d",
+  "traceId": "171286ea6d51a9eb8a1e629a16aaecb0",
+  "parent": "op-httprequest-all-arguments",
+  "all-info": "span(name: httpRequest, spanId: bf3ce3733043c22d, parentSpanId: a211d7a02d774833, traceId: 171286ea6d51a9eb8a1e629a16aaecb0, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"validResponseCodes\" : \"200:299\",\n  \"httpMode\" : \"POST\",\n  \"wrapAsMultipart\" : false,\n  \"url\" : \"https://jsonplaceholder.typicode.com/posts\",\n  \"timeout\" : 60,\n  \"validResponseContent\" : \"\\\"id\\\":\",\n  \"outputFile\" : \"response.json\",\n  \"ignoreSslErrors\" : true,\n  \"requestBody\" : \"{\\\"title\\\": \\\"foo\\\", \\\"body\\\": \\\"bar\\\", \\\"userId\\\": 1}\",\n  \"consoleLogResponseBody\" : true,\n  \"quiet\" : false,\n  \"contentType\" : \"APPLICATION_JSON\",\n  \"customHeaders\" : [ {\n    \"name\" : \"Authorization\",\n    \"value\" : \"Bearer <token>\"\n  }, {\n    \"name\" : \"X-Custom-Header\",\n    \"value\" : \"example-header\"\n  } ],\n  \"authentication\" : \"httprequest\",\n  \"acceptType\" : \"APPLICATION_JSON\"\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@15aff068:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@15aff068;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4a420f58:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4a420f58;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@3bcc8fda:org.jenkinsci.plugins.workflow.actions.TimingAction@3bcc8fda;harness-others:;jenkins.pipeline.step.id:9;jenkins.pipeline.step.name:Perform an HTTP Request and return a response object;jenkins.pipeline.step.plugin.name:http_request;jenkins.pipeline.step.plugin.version:1.19;jenkins.pipeline.step.type:httpRequest;)",
+  "name": "op-httprequest-all-arguments #3",
+  "attributesMap": {
+    "harness-others": "",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@3bcc8fda": "org.jenkinsci.plugins.workflow.actions.TimingAction@3bcc8fda",
+    "jenkins.pipeline.step.name": "Perform an HTTP Request and return a response object",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "9",
+    "jenkins.pipeline.step.type": "httpRequest",
+    "harness-attribute": "{\n  \"validResponseCodes\" : \"200:299\",\n  \"httpMode\" : \"POST\",\n  \"uploadFile\" : \"sample_file.txt\",\n  \"multipartName\" : \"sample_upload_file\",\n  \"wrapAsMultipart\" : false,\n  \"url\" : \"https://jsonplaceholder.typicode.com/posts\",\n  \"timeout\" : 60,\n  \"validResponseContent\" : \"\\\"id\\\":\",\n  \"outputFile\" : \"response.json\",\n  \"ignoreSslErrors\" : true,\n  \"requestBody\" : \"{\\\"title\\\": \\\"foo\\\", \\\"body\\\": \\\"bar\\\", \\\"userId\\\": 1}\",\n  \"consoleLogResponseBody\" : true,\n  \"quiet\" : false,\n  \"contentType\" : \"APPLICATION_JSON\",\n  \"customHeaders\" : [ {\n    \"name\" : \"Authorization\",\n    \"value\" : \"Bearer <token>\"\n  }, {\n    \"name\" : \"X-Custom-Header\",\n    \"value\" : \"example-header\"\n  } ],\n  \"authentication\" : \"httprequest\",\n  \"acceptType\" : \"APPLICATION_JSON\"\n}",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4a420f58": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4a420f58",
+    "jenkins.pipeline.step.plugin.name": "http_request",
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@15aff068": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@15aff068",
+    "jenkins.pipeline.step.plugin.version": "1.19"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "a211d7a02d774833",
+  "parameterMap": {
+    "validResponseCodes": "200:299",
+    "httpMode": "POST",
+    "wrapAsMultipart": false,
+    "url": "https://jsonplaceholder.typicode.com/posts",
+    "timeout": 60,
+    "validResponseContent": "\"id\":",
+    "outputFile": "response.json",
+    "ignoreSslErrors": true,
+    "requestBody": "{\"title\": \"foo\", \"body\": \"bar\", \"userId\": 1}",
+    "consoleLogResponseBody": true,
+    "quiet": false,
+    "contentType": "APPLICATION_JSON",
+    "customHeaders": [
+      {
+        "name": "Authorization",
+        "value": "Bearer <token>"
+      },
+      {
+        "name": "X-Custom-Header",
+        "value": "example-header"
+      }
+    ],
+    "authentication": "httprequest",
+    "acceptType": "APPLICATION_JSON",
+    "uploadFile": "/tmp/sample_file.txt",
+    "multipartName": "sample_upload_file"
+  },
+  "spanName": "httpRequest"
+}
