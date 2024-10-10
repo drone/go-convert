@@ -13,8 +13,7 @@ import (
 type s3runner struct {
 	name      string
 	inputNode Node
-	//entryMap map[string]interface{}
-	wantStep *harness.Step
+	wantStep  *harness.Step
 }
 
 // Helper function to prepare test cases from JSON files
@@ -30,7 +29,6 @@ func s3prepare(t *testing.T, filename string, step *harness.Step) s3runner {
 	}
 
 	var inputNode Node
-	//	entryMap map[string]interface{}
 
 	if err := json.Unmarshal(jsonData, &inputNode); err != nil {
 		t.Fatalf("failed to decode JSON: %v", err)
@@ -38,9 +36,7 @@ func s3prepare(t *testing.T, filename string, step *harness.Step) s3runner {
 	return s3runner{
 		name:      filename,
 		inputNode: inputNode,
-		//entryMap map,
-
-		wantStep: step,
+		wantStep:  step,
 	}
 }
 
@@ -57,10 +53,9 @@ func TestConverts3Upload(t *testing.T) {
 			Connector: "<+input>",
 			Image:     "plugins/s3",
 			With: map[string]interface{}{
-				"region": "us-west-1",
-				"bucket": "bucket-1",
-				"source": "*.txt",
-				//"glob":       "*.txt",
+				"region":     "us-west-1",
+				"bucket":     "bucket-1",
+				"source":     "*.txt",
 				"exclude":    "2.txt",
 				"access_key": "<+input>",
 				"secret_key": "<+input>",

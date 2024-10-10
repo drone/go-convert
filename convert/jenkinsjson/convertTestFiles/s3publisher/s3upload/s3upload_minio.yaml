@@ -1,3 +1,4 @@
+---
 steps:
   - step:
       type: Run
@@ -26,15 +27,16 @@ steps:
           exclude: 2.txt
   - step:
       type: Plugin
-      name: Plugin_1
-      identifier: Plugin_1
+      name: Upload to S3
+      identifier: Upload_to_S3
       spec:
-        connectorRef: <+input>
-        image: plugins/s3
+        connectorRef: Public_Docker_Hub
+        image: plugins/s3:1.4.1
         settings:
-          bucket: bucket-1
-          region: us-west-1
-          access_key: <+input>
-          secret_key: <+input>
-          source: s3Upload.gzip
-          target: <+input>
+          bucket: jenkins-migration
+          source: "s3Upload.gzip"
+          target: <+pipeline.identifier>/
+          access_key: kYD12C6fHi9yfRKdkxzZ
+          secret_key: <+secrets.getValue("SecretKey_for_MinIO_on_FRCD")>
+          endpoint: https://minio.frcd.com.br
+          path_style: "true"
