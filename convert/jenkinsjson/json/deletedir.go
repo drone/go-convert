@@ -8,16 +8,12 @@ import (
 
 func ConvertDeleteDir(node Node, variables map[string]string) *harness.Step {
 	step := &harness.Step{
-		Name: "Deletingdir",
+		Name: "DeleteDir",
 		Id:   SanitizeForId(node.SpanName, node.SpanId),
 		Type: "script",
 		Spec: &harness.StepExec{
 			Shell: "sh",
-			Run: `
-					dir_to_delete=$(pwd)
-					cd ..
-					rm -rf $dir_to_delete
-					`,
+			Run:   "dir_to_delete=$(pwd) && cd .. && rm -rf $dir_to_delete",
 		},
 	}
 	if len(variables) > 0 {
@@ -29,12 +25,12 @@ func ConvertDeleteDir(node Node, variables map[string]string) *harness.Step {
 func ConvertDir(node Node, variables map[string]string) *harness.Step {
 	dirPath := node.ParameterMap["path"].(string)
 	step := &harness.Step{
-		Name: "Deletingdir",
+		Name: "Dir",
 		Id:   SanitizeForId(node.SpanName, node.SpanId),
 		Type: "script",
 		Spec: &harness.StepExec{
 			Shell: "sh",
-			Run:   fmt.Sprintf("rm -rf %s", dirPath),
+			Run:   fmt.Sprintf("mkdir -p %s && cd %s", dirPath, dirPath),
 		},
 	}
 	if len(variables) > 0 {
