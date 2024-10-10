@@ -500,5 +500,40 @@ line3'''
                 ])
             }
         }
+
+        // Downloading a sample POM file from the internet
+        stage('Download Sample POM') {
+            steps {
+                sh '''
+                    curl -o pom.xml https://raw.githubusercontent.com/spring-projects/spring-petclinic/main/pom.xml
+                '''
+            }
+        }
+
+        // Reading the downloaded POM file
+        stage('Read Maven POM') {
+            steps {
+                script {
+                    def pom = readMavenPom file: 'pom.xml'
+
+                    // Extracting the version from the POM file
+                    echo "Project Version: ${pom.version}"
+                }
+            }
+        }
+        stage('Publish') {
+            steps {
+                s3Upload entries: [
+                [bucket: 'bucket-1', excludedFile: '2.txxt'
+                  , flatten: false, gzipFiles: false, keepForever: false
+                  , selectedRegion: 'us-west-1', showDirectlyInBrowser: false
+                  , sourceFile: '*.txt', uploadFromSlave: false],
+                [bucket: 'bucket-1',
+                  , flatten: false, gzipFiles: true, keepForever: false
+                  , selectedRegion: 'us-west-1', showDirectlyInBrowser: false
+                  , sourceFile: '*.md', uploadFromSlave: false]
+                ], profileName: 'default'
+            }
+        }	
     }
 }
