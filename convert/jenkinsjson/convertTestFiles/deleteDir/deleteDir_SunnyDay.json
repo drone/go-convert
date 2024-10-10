@@ -1,0 +1,21 @@
+{
+    "spanId": "57d7ab2e24216fe5",
+    "traceId": "d9c6bad1d595fcbea8150983668211bd",
+    "parent": "DeleteDir-3",
+    "all-info": "span(name: deleteDir, spanId: 57d7ab2e24216fe5, parentSpanId: 9743d0bc7a68943f, traceId: d9c6bad1d595fcbea8150983668211bd, attr: ci.pipeline.run.user:SYSTEM;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@57156135:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@57156135;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@16a74389:org.jenkinsci.plugins.workflow.actions.TimingAction@16a74389;harness-others:;jenkins.pipeline.step.id:13;jenkins.pipeline.step.name:Recursively delete the current directory from the workspace;jenkins.pipeline.step.plugin.name:workflow-basic-steps;jenkins.pipeline.step.plugin.version:1058.vcb_fc1e3a_21a_9;jenkins.pipeline.step.type:deleteDir;)",
+    "name": "DeleteDir-3 #1",
+    "attributesMap": {
+        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@16a74389": "org.jenkinsci.plugins.workflow.actions.TimingAction@16a74389",
+        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@57156135": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@57156135",
+        "harness-others": "",
+        "jenkins.pipeline.step.name": "Recursively delete the current directory from the workspace",
+        "ci.pipeline.run.user": "SYSTEM",
+        "jenkins.pipeline.step.id": "13",
+        "jenkins.pipeline.step.type": "deleteDir",
+        "jenkins.pipeline.step.plugin.name": "workflow-basic-steps",
+        "jenkins.pipeline.step.plugin.version": "1058.vcb_fc1e3a_21a_9"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "9743d0bc7a68943f",
+    "spanName": "deleteDir"
+}

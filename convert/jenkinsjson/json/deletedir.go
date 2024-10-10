@@ -8,7 +8,7 @@ import (
 
 func ConvertDeleteDir(node Node, variables map[string]string) *harness.Step {
 	step := &harness.Step{
-		Name: "Deletingdir",
+		Name: "DeleteDir",
 		Id:   SanitizeForId(node.SpanName, node.SpanId),
 		Type: "script",
 		Spec: &harness.StepExec{
