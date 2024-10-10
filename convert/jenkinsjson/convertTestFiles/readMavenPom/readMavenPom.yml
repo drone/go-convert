@@ -1,0 +1,14 @@
+- stepGroup:
+    identifier: Stage__null871e47
+    name: Read Maven POM
+    steps:
+      - step:
+          identifier: readmavenpomf2e306
+          name: readMavenPom
+          spec:
+            image: harnesscommunity/drone-get-maven-version:latest
+            settings:
+              pom_path: pom.xml
+          timeout: ""
+          type: Plugin
+    timeout: ""

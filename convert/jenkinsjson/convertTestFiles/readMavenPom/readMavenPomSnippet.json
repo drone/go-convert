@@ -1,0 +1,23 @@
+{
+  "spanId": "f2e3062604e00b14",
+  "traceId": "441371f4d745184bad1e87e9af3ccabc",
+  "parent": "op-readMavenPom",
+  "name": "op-readMavenPom #1",
+  "attributesMap": {
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6ef23e7e": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6ef23e7e",
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Read a maven project file.",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "14",
+    "jenkins.pipeline.step.type": "readMavenPom",
+    "harness-attribute": "{\n  \"file\" : \"pom.xml\"\n}",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@410baae6": "org.jenkinsci.plugins.workflow.actions.TimingAction@410baae6",
+    "jenkins.pipeline.step.plugin.name": "pipeline-utility-steps",
+    "jenkins.pipeline.step.plugin.version": "2.17.0",
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@72b2f654": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@72b2f654"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "71b10ddd66a4329b",
+  "parameterMap": { "file": "pom.xml" },
+  "spanName": "readMavenPom"
+}
