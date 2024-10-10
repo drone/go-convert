@@ -500,5 +500,26 @@ line3'''
                 ])
             }
         }
+
+        // Downloading a sample POM file from the internet
+        stage('Download Sample POM') {
+            steps {
+                sh '''
+                    curl -o pom.xml https://raw.githubusercontent.com/spring-projects/spring-petclinic/main/pom.xml
+                '''
+            }
+        }
+
+        // Reading the downloaded POM file
+        stage('Read Maven POM') {
+            steps {
+                script {
+                    def pom = readMavenPom file: 'pom.xml'
+
+                    // Extracting the version from the POM file
+                    echo "Project Version: ${pom.version}"
+                }
+            }
+        }
     }
 }
