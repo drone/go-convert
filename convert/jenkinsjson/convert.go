@@ -461,7 +461,16 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "sleep":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSleep(currentNode, variables), ID: id})
 	case "dir":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDir(currentNode, variables), ID: id})
+		if len(currentNode.Children) > 0 {
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDir(currentNode, variables), ID: id})
+
+			for _, child1 := range currentNode.Children {
+				for _, child2 := range child1.Children {
+					clone, repo = collectStepsWithID(child2, stepWithIDList, processedTools, variables, timeout, dockerImage)
+				}
+			}
+		}
+
 	case "deleteDir":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDeleteDir(currentNode, variables), ID: id})
 	case "writeYaml":
@@ -557,7 +566,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			Desc: "This is a place holder for: " + currentNode.AttributesMap["jenkins.pipeline.step.type"],
 		}, ID: id})
 	}
-	mergeRunSteps(stepWithIDList)
+	// mergeRunSteps(stepWithIDList)
 	return clone, repo
 }
 func mergeMaps(dest, src map[string]string) map[string]string {
