@@ -7,10 +7,10 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
-// TODO: this logic needs to be updated according to the plugin
 func ConvertZip(node Node, variables map[string]string) *harness.Step {
 	var dir, zipFile string
-	var archive bool
+	var exclude, glob string
+	var overwrite bool
 
 	if attr, ok := node.AttributesMap["harness-attribute"]; ok {
 		var attrMap map[string]interface{}
@@ -21,8 +21,14 @@ func ConvertZip(node Node, variables map[string]string) *harness.Step {
 			if zf, ok := attrMap["zipFile"].(string); ok {
 				zipFile = zf
 			}
-			if a, ok := attrMap["archive"].(bool); ok {
-				archive = a
+			if e, ok := attrMap["exclude"].(string); ok {
+				exclude = e
+			}
+			if gl, ok := attrMap["glob"].(string); ok {
+				glob = gl
+			}
+			if ow, ok := attrMap["overwrite"].(bool); ok {
+				overwrite = ow
 			}
 		} else {
 			log.Printf("failed to unmarshal harness-attribute for node %s: %v", node.SpanName, err)
@@ -32,14 +38,22 @@ func ConvertZip(node Node, variables map[string]string) *harness.Step {
 	}
 
 	withProperties := make(map[string]interface{})
+	withProperties["format"] = "zip"
+	withProperties["action"] = "archive"
 	if dir != "" {
-		withProperties["dir"] = dir
+		withProperties["target"] = dir
 	}
 	if zipFile != "" {
-		withProperties["zipFile"] = zipFile
+		withProperties["source"] = zipFile
 	}
-	if archive != false {
-		withProperties["archive"] = archive
+	if exclude != "" {
+		withProperties["exclude"] = exclude
+	}
+	if glob != "" {
+		withProperties["glob"] = glob
+	}
+	if overwrite != false {
+		withProperties["overwrite"] = overwrite
 	}
 
 	step := &harness.Step{
@@ -48,7 +62,7 @@ func ConvertZip(node Node, variables map[string]string) *harness.Step {
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
 			Connector: "c.docker",
-			Image:     "harnesscommunitytest/archive-plugin:latest",
+			Image:     "plugins/archive:latest",
 			With:      withProperties,
 		},
 	}

@@ -1,0 +1,12 @@
+pipeline {
+    agent any
+    stages {
+        stage('File') {
+            steps {
+                fileOperations([
+                    folderCreateOperation(folderPath: 'src/create')
+                ])
+            }
+        }
+    }
+}

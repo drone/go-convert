@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+
+    stages {
+        stage ('Writefile') {
+            steps {
+                dir('hello') {
+                    writeFile file: 'hello.txt', text: 'Hello World!'
+                    writeFile file: 'sample1.txt', text: 'Sample 1'
+                    writeFile file: 'another.txt', text: 'Another file'
+                }
+                tar file: 'hello3.tar', dir: 'hello', archive: true, compress: false, exclude: '**/another.txt', glob: '**/*.txt'
+                untar file: 'hello3.tar'
+            }
+        }
+    }
+}

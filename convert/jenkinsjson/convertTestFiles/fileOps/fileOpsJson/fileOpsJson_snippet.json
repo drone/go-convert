@@ -1,0 +1,38 @@
+{
+    "spanId": "9397c015a93fde86",
+    "traceId": "ca10f8e308b0d6249a6d6afc7b2cc8b1",
+    "parent": "op-filepropertiestojsonoperations",
+    "all-info": "span(name: fileOperations, spanId: 9397c015a93fde86, parentSpanId: 66b66e8e1d4c3ef8, traceId: ca10f8e308b0d6249a6d6afc7b2cc8b1, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"filePropertiesToJsonOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"sourceFile\" : \"newfile.properties\",\n          \"targetFile\" : \"property.json\"\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@79fa876b:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@79fa876b;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@58d7387f:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@58d7387f;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@79a2f208:org.jenkinsci.plugins.workflow.actions.TimingAction@79a2f208;harness-others:-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep;jenkins.pipeline.step.id:16;jenkins.pipeline.step.name:File Operations;jenkins.pipeline.step.plugin.name:file-operations;jenkins.pipeline.step.plugin.version:266.v9d4e1eb_235b_a_;jenkins.pipeline.step.type:fileOperations;)",
+    "name": "op-filepropertiestojsonoperations #4",
+    "attributesMap": {
+      "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@79a2f208": "org.jenkinsci.plugins.workflow.actions.TimingAction@79a2f208",
+      "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+      "jenkins.pipeline.step.name": "File Operations",
+      "ci.pipeline.run.user": "SYSTEM",
+      "jenkins.pipeline.step.id": "16",
+      "jenkins.pipeline.step.type": "fileOperations",
+      "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"fileOperations\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"<anonymous>\" : [ {\n        \"symbol\" : \"filePropertiesToJsonOperation\",\n        \"klass\" : null,\n        \"arguments\" : {\n          \"sourceFile\" : \"newfile.properties\",\n          \"targetFile\" : \"property.json\"\n        },\n        \"model\" : null,\n        \"interpolatedStrings\" : [ ]\n      } ]\n    },\n    \"model\" : null\n  }\n}",
+      "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@58d7387f": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@58d7387f",
+      "jenkins.pipeline.step.plugin.name": "file-operations",
+      "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@79fa876b": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@79fa876b",
+      "jenkins.pipeline.step.plugin.version": "266.v9d4e1eb_235b_a_"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "66b66e8e1d4c3ef8",
+    "parameterMap": {"delegate": {
+      "symbol": "fileOperations",
+      "klass": null,
+      "arguments": {"<anonymous>": [{
+        "symbol": "filePropertiesToJsonOperation",
+        "klass": null,
+        "interpolatedStrings": [],
+        "arguments": {
+          "targetFile": "property.json",
+          "sourceFile": "newfile.properties"
+        },
+        "model": null
+      }]},
+      "model": null
+    }},
+    "spanName": "fileOperations"
+  }

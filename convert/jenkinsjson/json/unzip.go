@@ -7,9 +7,9 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
-// TODO: this logic needs to be updated according to the plugin
 func ConvertUnzip(node Node, variables map[string]string) *harness.Step {
 	var dir, zipFile string
+	var glob string
 
 	if attr, ok := node.AttributesMap["harness-attribute"]; ok {
 		var attrMap map[string]interface{}
@@ -20,6 +20,9 @@ func ConvertUnzip(node Node, variables map[string]string) *harness.Step {
 			if zf, ok := attrMap["zipFile"].(string); ok {
 				zipFile = zf
 			}
+			if gl, ok := attrMap["glob"].(string); ok {
+				glob = gl
+			}
 		} else {
 			log.Printf("failed to unmarshal harness-attribute for node %s: %v", node.SpanName, err)
 		}
@@ -28,11 +31,16 @@ func ConvertUnzip(node Node, variables map[string]string) *harness.Step {
 	}
 
 	withProperties := make(map[string]interface{})
+	withProperties["format"] = "zip"
+	withProperties["action"] = "extract"
 	if dir != "" {
-		withProperties["dir"] = dir
+		withProperties["target"] = dir
 	}
 	if zipFile != "" {
-		withProperties["zipFile"] = zipFile
+		withProperties["source"] = zipFile
+	}
+	if glob != "" {
+		withProperties["glob"] = glob
 	}
 
 	step := &harness.Step{
@@ -41,7 +49,7 @@ func ConvertUnzip(node Node, variables map[string]string) *harness.Step {
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
 			Connector: "c.docker",
-			Image:     "harnesscommunitytest/archive-plugin:latest",
+			Image:     "plugins/archive:latest",
 			With:      withProperties,
 		},
 	}

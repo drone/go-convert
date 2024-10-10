@@ -1,0 +1,14 @@
+- step:
+    identifier: tar7d1af0
+    name: tar
+    spec:
+      image: harnesscommunitytest/archive-plugin:latest
+      settings:
+        action: archive
+        exclude: '**/another.txt'
+        format: tar
+        glob: '**/*.txt'
+        source: hello
+        target: hello3.tar
+    timeout: ""
+    type: Plugin

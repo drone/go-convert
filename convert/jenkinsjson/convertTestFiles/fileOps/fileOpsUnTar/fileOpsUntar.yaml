@@ -1,0 +1,12 @@
+- step:
+    identifier: fileoperationsbf0ce1
+    name: fileUnTarOperation
+    spec:
+      image: 'plugins/archive:latest'
+      settings:
+        action: extract
+        format: gzip
+        source: src.tar.gz
+        target: dest/
+    timeout: ''
+    type: Plugin

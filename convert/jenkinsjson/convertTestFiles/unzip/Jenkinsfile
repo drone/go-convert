@@ -5,14 +5,16 @@ pipeline {
             steps {
                 sh 'mkdir archive2'
                 sh 'echo test > archive2/test.txt'
-                zip zipFile: 'test.zip', archive: false, dir: 'archive2', overwrite: true
+                sh 'echo another > archive2/another.txt'
+                sh 'echo test1 > archive2/test1.txt'
+                zip zipFile: 'test.zip', archive: false, dir: 'archive2', overwrite: true, exclude: '**/another.txt', glob: '**/test?.txt'
             }
         }
 
         stage('pull artifact') {
             steps {
                 unzip zipFile: 'test.zip', dir: './archive_new2'
-                sh 'cat archive_new/test.txt'
+                sh 'cat archive_new2/test1.txt'
             }
         }
     }

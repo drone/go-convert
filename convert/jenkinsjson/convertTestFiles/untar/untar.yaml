@@ -1,0 +1,11 @@
+- step:
+    identifier: untar36640f
+    name: untar
+    spec:
+      image: harnesscommunitytest/archive-plugin:latest
+      settings:
+        action: extract
+        format: tar
+        source: hello3.tar
+    timeout: ""
+    type: Plugin

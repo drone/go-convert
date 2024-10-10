@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Download Sample POM') {
+            steps {
+                // Downloading a sample POM file from the internet
+                sh '''
+                    curl -o pom.xml https://raw.githubusercontent.com/spring-projects/spring-petclinic/main/pom.xml
+                '''
+            }
+        }
+
+        stage('Read Maven POM') {
+            steps {
+                script {
+                    // Reading the downloaded POM file
+                    def pom = readMavenPom file: 'pom.xml'
+
+                    // Extracting the version from the POM file
+                    echo "Project Version: ${pom.version}"
+                    echo "Group ID: ${pom.groupId}"
+                    echo "Artifact ID: ${pom.artifactId}"
+                }
+            }
+        }
+    }
+}

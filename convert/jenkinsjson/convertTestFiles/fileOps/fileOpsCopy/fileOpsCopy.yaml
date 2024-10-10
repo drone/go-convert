@@ -1,0 +1,8 @@
+- step:
+    identifier: fileoperationsa39de5
+    name: fileCopyOperation
+    spec:
+      command: cp -r src/*.txt dest/
+      image: alpine
+    timeout: ''
+    type: Run

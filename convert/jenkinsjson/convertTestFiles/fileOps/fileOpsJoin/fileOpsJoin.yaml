@@ -1,0 +1,8 @@
+- step:
+    identifier: fileoperationsc8844b
+    name: fileJoinOperation
+    spec:
+      command: cat file1.txt >> file2.txt
+      image: alpine
+    timeout: ''
+    type: Run

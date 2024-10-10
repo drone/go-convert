@@ -1,0 +1,26 @@
+{
+  "spanId": "cc58db90f3dc718c",
+  "traceId": "2cd54b508037988311cffb65f75c1d85",
+  "parent": "Find Files",
+  "all-info": "span(name: findFiles, spanId: cc58db90f3dc718c, parentSpanId: b85a3196ab934bfb, traceId: 2cd54b508037988311cffb65f75c1d85, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"glob\" : \"**/*.txt\",\n  \"excludes\" : \"**/1.txt\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6e7cafca:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6e7cafca;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@a3ec6e9:org.jenkinsci.plugins.workflow.actions.TimingAction@a3ec6e9;harness-others:;jenkins.pipeline.step.id:9;jenkins.pipeline.step.name:Find files in the workspace;jenkins.pipeline.step.plugin.name:pipeline-utility-steps;jenkins.pipeline.step.plugin.version:2.17.0;jenkins.pipeline.step.type:findFiles;)",
+  "name": "Find Files #17",
+  "attributesMap": {
+      "harness-others": "",
+      "jenkins.pipeline.step.name": "Find files in the workspace",
+      "ci.pipeline.run.user": "SYSTEM",
+      "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6e7cafca": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6e7cafca",
+      "jenkins.pipeline.step.id": "9",
+      "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@a3ec6e9": "org.jenkinsci.plugins.workflow.actions.TimingAction@a3ec6e9",
+      "jenkins.pipeline.step.type": "findFiles",
+      "harness-attribute": "{\n  \"glob\" : \"**/*.txt\",\n  \"excludes\" : \"**/1.txt\"\n}",
+      "jenkins.pipeline.step.plugin.name": "pipeline-utility-steps",
+      "jenkins.pipeline.step.plugin.version": "2.17.0"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "b85a3196ab934bfb",
+  "parameterMap": {
+      "excludes": "**/1.txt",
+      "glob": "**/*.txt"
+  },
+  "spanName": "findFiles"
+}
