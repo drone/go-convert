@@ -500,5 +500,20 @@ line3'''
                 ])
             }
         }
+        stage('Publish') {
+            steps {
+                s3Upload entries: [
+                [bucket: 'bucket-1', excludedFile: '2.txxt'
+                  , flatten: false, gzipFiles: false, keepForever: false
+                  , selectedRegion: 'us-west-1', showDirectlyInBrowser: false
+                  , sourceFile: '*.txt', uploadFromSlave: false],
+                [bucket: 'bucket-1',
+                  , flatten: false, gzipFiles: true, keepForever: false
+                  , selectedRegion: 'us-west-1', showDirectlyInBrowser: false
+                  , sourceFile: '*.md', uploadFromSlave: false]
+                ], profileName: 'default'
+            }
+        }
+
     }
 }
