@@ -629,12 +629,34 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 
 	case "readMavenPom":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertReadMavenPom(currentNode), ID: id})
-	
+
 	case "jiraSendBuildInfo":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJiraBuildInfo(currentNode, variables), ID: id})
 
 	case "jiraSendDeploymentInfo":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJiraDeploymentInfo(currentNode, variables), ID: id})
+
+	case "s3Upload":
+		entries := jenkinsjson.ExtractEntries(currentNode)
+		if entries == nil {
+			fmt.Println("No entries exists")
+			break
+		}
+		// Iterate over each entry and handle based on the 'symbol' type
+		for _, entry := range entries {
+			gzipFlag, ok := entry["gzipFiles"].(bool)
+			if !ok {
+				fmt.Println("Operation gzipFlag not found or not a boolean")
+				continue
+			}
+
+			// Call function to handle gzip and upload logic
+			if gzipFlag {
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3Archive(currentNode, entry), ID: id})
+			}
+
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3Upload(currentNode, entry), ID: id})
+		}
 
 	default:
 		placeholderStr := fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"])

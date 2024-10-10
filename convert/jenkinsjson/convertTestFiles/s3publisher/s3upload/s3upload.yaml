@@ -1,0 +1,40 @@
+steps:
+  - step:
+      type: Run
+      name: Write File
+      identifier: Write_File
+      spec:
+        connectorRef: Public_Docker_Hub
+        image: alpine
+        shell: Sh
+        command: >-
+          echo "Pipeline Execution: <+pipeline.executionId>" >
+          pipeline-<+pipeline.executionId>.txt
+
+          echo "Sequence: <+pipeline.sequenceId>" > pipeline-<+pipeline.sequenceId>.txt
+  - step:
+      type: Plugin
+      name: Plugin_0
+      identifier: Plugin_0
+      spec:
+        connectorRef: <+input>
+        image: plugins/archive
+        settings:
+          source: .
+          target: s3Upload.gzip
+          glob: *.txt
+          exclude: 2.txt
+  - step:
+      type: Plugin
+      name: Plugin_1
+      identifier: Plugin_1
+      spec:
+        connectorRef: <+input>
+        image: plugins/s3
+        settings:
+          bucket: bucket-1
+          region: us-west-1
+          access_key: <+input>
+          secret_key: <+input>
+          source: s3Upload.gzip
+          target: <+input>
