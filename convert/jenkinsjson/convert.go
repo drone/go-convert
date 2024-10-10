@@ -629,7 +629,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 
 	case "readMavenPom":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertReadMavenPom(currentNode), ID: id})
-	
+
 	case "jiraSendBuildInfo":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJiraBuildInfo(currentNode, variables), ID: id})
 
@@ -637,43 +637,25 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJiraDeploymentInfo(currentNode, variables), ID: id})
 
 	case "s3Upload":
-		delegate, ok := currentNode.ParameterMap["delegate"].(map[string]interface{})
-		if !ok {
-			fmt.Println("Missing 'delegate' in parameterMap")
-			break
-		}
-		// Extract the 'arguments' map from the 'delegate'
-		arguments, ok := delegate["arguments"].(map[string]interface{})
-		if !ok {
-			fmt.Println("Missing 'arguments' in delegate map")
-			break
-		}
-		//Extract values from the "entries" in the parameterMap
-		entries, ok := arguments["entries"].([]interface{})
-		if !ok {
-			fmt.Println("No entries operations found in arguments")
+		entries := jenkinsjson.ExtractEntries(currentNode)
+		if entries == nil {
+			fmt.Println("No entries exists")
 			break
 		}
 		// Iterate over each entry and handle based on the 'symbol' type
 		for _, entry := range entries {
-			// Convert the entryMap to a map for easy access
-			entryMap, ok := entry.(map[string]interface{})
+			gzipFlag, ok := entry["gzipFiles"].(bool)
 			if !ok {
-				fmt.Println("Invalid entryMap format")
+				fmt.Println("Operation gzipFlag not found or not a boolean")
 				continue
-			}
-			// Extract the 'symbol' to determine the type of file operation
-			gzipFlag, ok := entryMap["gzipFiles"].(bool)
-			if !ok {
-				fmt.Println("Operation gzipFlag not found or not a string")
-				continue
-			}
-			// if gzipFlag is true call function to zip files
-			if gzipFlag {
-				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3Archive(currentNode, entryMap), ID: id})
 			}
 
-			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3Upload(currentNode, entryMap), ID: id})
+			// Call function to handle gzip and upload logic
+			if gzipFlag {
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3Archive(currentNode, entry), ID: id})
+			}
+
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3Upload(currentNode, entry), ID: id})
 		}
 
 	default:

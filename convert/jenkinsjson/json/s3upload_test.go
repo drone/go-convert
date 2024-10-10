@@ -121,3 +121,57 @@ func TestConverts3Archive(t *testing.T) {
 		})
 	}
 }
+
+type s3parserunner struct {
+	name      string
+	inputNode Node
+	want      []map[string]interface{}
+}
+
+// s3prepare helper function to prepare test cases
+func s3parse(name string, input map[string]interface{}, want []map[string]interface{}) s3parserunner {
+	return s3parserunner{
+		name:      name,
+		inputNode: Node{ParameterMap: input},
+		want:      want,
+	}
+}
+
+// Test function for ExtractEntries
+func TestExtractEntries(t *testing.T) {
+	// Define test cases for ExtractEntries
+	var tests []s3parserunner
+	tests = append(tests, s3parse("Valid entries", map[string]interface{}{
+		"delegate": map[string]interface{}{
+			"arguments": map[string]interface{}{
+				"entries": []interface{}{
+					map[string]interface{}{"key1": "value1"},
+					map[string]interface{}{"key2": "value2"},
+				},
+			},
+		},
+	}, []map[string]interface{}{
+		{"key1": "value1"},
+		{"key2": "value2"},
+	}))
+	tests = append(tests, s3parse("Missing delegate", map[string]interface{}{
+		// no "delegate" key
+	}, nil))
+	tests = append(tests, s3parse("Invalid entries format", map[string]interface{}{
+		"delegate": map[string]interface{}{
+			"arguments": map[string]interface{}{
+				"entries": "invalidFormat", // Not a slice of interface{}
+			},
+		},
+	}, nil))
+
+	// Execute each test case
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ExtractEntries(tt.inputNode)
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("ExtractEntries() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
