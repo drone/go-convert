@@ -2,101 +2,127 @@ package json
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
+	harness "github.com/drone/spec/dist/go"
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestConverts3Upload(t *testing.T) {
-	// Get the working directory
+type s3runner struct {
+	name      string
+	inputNode Node
+	//entryMap map[string]interface{}
+	wantStep *harness.Step
+}
+
+// Helper function to prepare test cases from JSON files
+func s3prepare(t *testing.T, filename string, step *harness.Step) s3runner {
 	workingDir, err := os.Getwd()
 	if err != nil {
 		t.Fatalf("failed to get current working directory: %v", err)
 	}
 
-	// Update file path according to the location of fileOps_test.json
-	filePath := filepath.Join(workingDir, "../convertTestFiles/s3publisher/s3upload/s3upload_snippet.json")
-	jsonData, err := ioutil.ReadFile(filePath)
+	jsonData, err := os.ReadFile(filepath.Join(workingDir, "../convertTestFiles/s3publisher", filename+".json"))
 	if err != nil {
 		t.Fatalf("failed to read JSON file: %v", err)
 	}
 
-	// Unmarshal the JSON into a Node struct
-	var node1 Node
-	if err := json.Unmarshal(jsonData, &node1); err != nil {
+	var inputNode Node
+	//	entryMap map[string]interface{}
+
+	if err := json.Unmarshal(jsonData, &inputNode); err != nil {
 		t.Fatalf("failed to decode JSON: %v", err)
 	}
+	return s3runner{
+		name:      filename,
+		inputNode: inputNode,
+		//entryMap map,
 
-	tests := []struct {
-		json Node
-		want Node
-	}{
-		{
-			json: node1,
-			want: Node{
-				SpanId:  "1ec902dbd864116c",
-				TraceId: "f03b61a089e2ec4d5e81778ca44190e8",
-				Parent:  "S3 Publisher-1",
-				Name:    "S3 Publisher-1 #2",
-				AttributesMap: map[string]string{
-					"harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@593f0a9": "org.jenkinsci.plugins.workflow.actions.TimingAction@593f0a9",
-					"harness-others":             "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
-					"jenkins.pipeline.step.name": "Publish artifacts to S3 Bucket",
-					"ci.pipeline.run.user":       "SYSTEM",
-					"jenkins.pipeline.step.id":   "7",
-					"harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2e8f827b": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2e8f827b",
-					"jenkins.pipeline.step.type":           "s3Upload",
-					"harness-attribute":                    "{\n  \"delegate\" : {\n    \"symbol\" : \"s3Upload\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"consoleLogLevel\" : \"INFO\",\n      \"dontSetBuildResultOnFailure\" : false,\n      \"dontWaitForConcurrentBuildCompletion\" : false,\n      \"entries\" : [ {\n        \"bucket\" : \"bucket-1\",\n        \"excludedFile\" : \"2.txxt\",\n        \"flatten\" : false,\n        \"gzipFiles\" : false,\n        \"keepForever\" : false,\n        \"managedArtifacts\" : false,\n        \"noUploadOnFailure\" : false,\n        \"selectedRegion\" : \"us-west-1\",\n        \"showDirectlyInBrowser\" : false,\n        \"sourceFile\" : \"*.txt\",\n        \"storageClass\" : \"STANDARD\",\n        \"uploadFromSlave\" : false,\n        \"useServerSideEncryption\" : false\n      } ],\n      \"pluginFailureResultConstraint\" : \"FAILURE\",\n      \"profileName\" : \"default\",\n      \"userMetadata\" : [ ]\n    },\n    \"model\" : null\n  }\n}",
-					"jenkins.pipeline.step.plugin.name":    "s3",
-					"jenkins.pipeline.step.plugin.version": "483.vcb_db_3dcee68f",
-				},
-				ParentSpanId: "31b6240c3095e9f3",
-				SpanName:     "s3Upload",
-				Type:         "Run Phase Span",
-				ParameterMap: map[string]interface{}{
-					"delegate": map[string]interface{}{
-						"symbol": "s3Upload",
-						"klass":  nil,
-						"arguments": map[string]interface{}{
-							"profileName":                          "default",
-							"dontSetBuildResultOnFailure":          false,
-							"dontWaitForConcurrentBuildCompletion": false,
-							"entries": []interface{}{
-								map[string]interface{}{
-									"excludedFile":            "2.txxt",
-									"uploadFromSlave":         false,
-									"managedArtifacts":        false,
-									"keepForever":             false,
-									"gzipFiles":               false,
-									"sourceFile":              "*.txt",
-									"bucket":                  "bucket-1",
-									"flatten":                 false,
-									"noUploadOnFailure":       false,
-									"storageClass":            "STANDARD",
-									"selectedRegion":          "us-west-1",
-									"showDirectlyInBrowser":   false,
-									"useServerSideEncryption": false,
-								},
-							},
-							"consoleLogLevel":               "INFO",
-							"pluginFailureResultConstraint": "FAILURE",
-							"userMetadata":                  []interface{}{},
-						},
-						"model": nil,
-					},
-				},
+		wantStep: step,
+	}
+}
+
+// Test function for Converts3Upload
+func TestConverts3Upload(t *testing.T) {
+	// Define test cases for Converts3Upload
+	var tests []s3runner
+
+	tests = append(tests, s3prepare(t, "s3upload/s3upload_snippet", &harness.Step{
+		Id:   "s3Upload1ec902",
+		Name: "s3Upload",
+		Type: "plugin",
+		Spec: &harness.StepPlugin{
+			Connector: "<+input>",
+			Image:     "plugins/s3",
+			With: map[string]interface{}{
+				"region": "us-west-1",
+				"bucket": "bucket-1",
+				"source": "*.txt",
+				//"glob":       "*.txt",
+				"exclude":    "2.txt",
+				"access_key": "<+input>",
+				"secret_key": "<+input>",
+				"target":     "<+input>",
 			},
 		},
-	}
+	}))
 
-	for i, test := range tests {
-		got := test.json
-		if diff := cmp.Diff(got, test.want); diff != "" {
-			t.Errorf("Unexpected parsing results for test %v", i)
-			t.Log(diff)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			delegate := tt.inputNode.ParameterMap["delegate"].(map[string]interface{})
+			// Extract the 'arguments' map from the 'delegate'
+			arguments := delegate["arguments"].(map[string]interface{})
+			//Extract values from the "entries" in the parameterMap
+			entries := arguments["entries"].([]interface{})
+			// Iterate over each entry and handle based on the 'symbol' type
+			for _, entry := range entries {
+				// Convert the entryMap to a map for easy access
+				entryMap, ok := entry.(map[string]interface{})
+				if !ok {
+					continue
+				}
+
+				got := Converts3Upload(tt.inputNode, entryMap)
+				if diff := cmp.Diff(got, tt.wantStep); diff != "" {
+					t.Errorf("Converts3Upload() mismatch (-want +got):\n%s", diff)
+				}
+			}
+		})
+	}
+}
+
+// Test function for Converts3Archive
+func TestConverts3Archive(t *testing.T) {
+	// Define test cases for Converts3Archive
+	var tests []s3runner
+
+	// Append a test case using the s3prepare helper function
+	tests = append(tests, s3prepare(t, "s3upload/s3upload_snippet", &harness.Step{
+		Id:   "Plugin_0",
+		Name: "Plugin_0",
+		Type: "plugin",
+		Spec: &harness.StepPlugin{
+			Connector: "<+input>",
+			Image:     "plugins/archive",
+			With: map[string]interface{}{
+				"source":  ".",
+				"target":  "s3Upload.gzip",
+				"glob":    "*.txt",
+				"exclude": "*.log",
+			},
+		},
+	}))
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Converts3Archive(tt.inputNode, map[string]interface{}{
+				"excludedFile": "*.log",
+			})
+			if diff := cmp.Diff(got, tt.wantStep); diff != "" {
+				t.Errorf("Converts3Archive() mismatch (-want +got):\n%s", diff)
+			}
+		})
 	}
 }
