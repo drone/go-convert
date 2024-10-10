@@ -30,7 +30,7 @@ func ConvertDir(node Node, variables map[string]string) *harness.Step {
 		Type: "script",
 		Spec: &harness.StepExec{
 			Shell: "sh",
-			Run:   fmt.Sprintf("mkdir %s && cd %s", dirPath, dirPath),
+			Run:   fmt.Sprintf("mkdir -p %s && cd %s", dirPath, dirPath),
 		},
 	}
 	if len(variables) > 0 {
