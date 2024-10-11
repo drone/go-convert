@@ -80,12 +80,12 @@ func Converts3Upload(node Node, entryMap map[string]interface{}, index int) *har
 	withProperties["secret_key"] = "<+input>"
 	withProperties["target"] = "<+input>"
 	// Generate a unique ID using SanitizeForId with SpanName and index.
-	stepID := fmt.Sprintf("Plugin_%d", index)
-	sanitizedID := SanitizeForId(node.SpanName, stepID)
+	sanitizedID := SanitizeForId(node.SpanName, node.SpanName)
+	stepID := fmt.Sprintf("%s_%d", sanitizedID, index)
 
 	step := &harness.Step{
-		Name: node.SpanName,
-		Id:   sanitizedID, // Use the sanitized ID with the index
+		Name: stepID,
+		Id:   stepID,
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
 			Connector: "<+input>", // Using input expression for the connector
@@ -108,12 +108,12 @@ func Converts3Upload(node Node, entryMap map[string]interface{}, index int) *har
 //   - harness.Step representing the configured S3 archive plugin step.
 func Converts3Archive(node Node, entryMap map[string]interface{}, index int) *harness.Step {
 	// Generate a unique ID using SanitizeForId and index
-	stepID := fmt.Sprintf("Plugin_%d", index)
-	sanitizedID := SanitizeForId(node.SpanName, stepID)
+	sanitizedID := SanitizeForId(node.SpanName, node.SpanId)
+	stepID := fmt.Sprintf("%s_%d", sanitizedID, index)
 
 	step := &harness.Step{
-		Name: "Plugin_0",
-		Id:   sanitizedID, // Use the sanitized ID
+		Name: stepID,
+		Id:   stepID, // Use the sanitized ID
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
 			Connector: "<+input>",

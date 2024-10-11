@@ -13,8 +13,8 @@ func TestConverts3Upload(t *testing.T) {
 	var tests []runner
 
 	tests = append(tests, prepare(t, "s3publisher/s3upload/s3upload_snippet", &harness.Step{
-		Id:   "s3UploadPlugin",
-		Name: "s3Upload",
+		Id:   "s3Uploads3Uplo_0",
+		Name: "s3Uploads3Uplo_0",
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
 			Connector: "<+input>",
@@ -62,8 +62,8 @@ func TestConverts3Archive(t *testing.T) {
 
 	// Append a test case using the s3prepare helper function
 	tests = append(tests, prepare(t, "s3publisher/s3upload/s3upload_snippet", &harness.Step{
-		Id:   "s3UploadPlugin",
-		Name: "Plugin_0",
+		Id:   "s3Upload1ec902_0",
+		Name: "s3Upload1ec902_0",
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
 			Connector: "<+input>",
