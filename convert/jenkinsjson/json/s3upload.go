@@ -6,6 +6,16 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
+// ExtractEntries retrieves the "entries" from the given node's ParameterMap.
+// It expects a "delegate" map containing "arguments" with an "entries" array.
+// If any of these are missing or invalid, it returns nil.
+//
+// Parameters:
+//  - node: The Node containing a ParameterMap.
+//
+// Returns:
+//  - A slice of maps representing the entries, or nil if extraction fails.
+
 func ExtractEntries(node Node) []map[string]interface{} {
 	delegate, ok := node.ParameterMap["delegate"].(map[string]interface{})
 	if !ok {
@@ -39,9 +49,17 @@ func ExtractEntries(node Node) []map[string]interface{} {
 	return entryMaps
 }
 
-func Converts3Upload(node Node, entryMap map[string]interface{}) *harness.Step {
-	var withPropertiesList []map[string]interface{}
-	// Check the "parameterMap" and extract "delegate"
+// Converts3Upload creates a Harness plugin step for uploading files to S3.
+// It uses data from the provided node and entryMap to configure the step and generates a unique ID for each step.
+//
+// Parameters:
+//   - node: The Node containing context for the step.
+//   - entryMap: A map containing key-value pairs used to customize the step.
+//   - index: An incremental value used to ensure each step has a unique ID.
+//
+// Returns:
+//   - harness.Step representing the configured S3 upload plugin step.
+func Converts3Upload(node Node, entryMap map[string]interface{}, index int) *harness.Step {
 
 	withProperties := make(map[string]interface{})
 
@@ -61,32 +79,41 @@ func Converts3Upload(node Node, entryMap map[string]interface{}) *harness.Step {
 	withProperties["access_key"] = "<+input>"
 	withProperties["secret_key"] = "<+input>"
 	withProperties["target"] = "<+input>"
-	// Add the current entry's properties to the list
-	withPropertiesList = append(withPropertiesList, withProperties)
+	// Generate a unique ID using SanitizeForId with SpanName and index.
+	stepID := fmt.Sprintf("Plugin_%d", index)
+	sanitizedID := SanitizeForId(node.SpanName, stepID)
 
-	// Create the step based on the first entry in the list
-	if len(withPropertiesList) > 0 {
-		step := &harness.Step{
-			Name: node.SpanName,
-			Id:   SanitizeForId(node.SpanName, node.SpanId),
-			Type: "plugin",
-			Spec: &harness.StepPlugin{
-				Connector: "<+input>", // Using input expression for the connector
-				Image:     "plugins/s3",
-				With:      withPropertiesList[0], // Using the current entry for the step
-			},
-		}
-		return step
+	step := &harness.Step{
+		Name: node.SpanName,
+		Id:   sanitizedID, // Use the sanitized ID with the index
+		Type: "plugin",
+		Spec: &harness.StepPlugin{
+			Connector: "<+input>", // Using input expression for the connector
+			Image:     "plugins/s3",
+			With:      withProperties, // Using the current entry for the step
+		},
 	}
-
-	return nil
+	return step
 }
 
-// creates a Harness step for S3Upload
-func Converts3Archive(node Node, entryMap map[string]interface{}) *harness.Step {
+// Converts3Archive creates a Harness plugin step for archiving files and uploading them to S3.
+// It uses data from the provided node and entryMap to configure the step, and generates a unique ID for each step.
+//
+// Parameters:
+//   - node: The Node containing context for the step.
+//   - entryMap: A map containing key-value pairs used to customize the step, such as excluded files.
+//   - index: An incremental value used to ensure each step has a unique ID.
+//
+// Returns:
+//   - harness.Step representing the configured S3 archive plugin step.
+func Converts3Archive(node Node, entryMap map[string]interface{}, index int) *harness.Step {
+	// Generate a unique ID using SanitizeForId and index
+	stepID := fmt.Sprintf("Plugin_%d", index)
+	sanitizedID := SanitizeForId(node.SpanName, stepID)
+
 	step := &harness.Step{
 		Name: "Plugin_0",
-		Id:   "Plugin_0",
+		Id:   sanitizedID, // Use the sanitized ID
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
 			Connector: "<+input>",

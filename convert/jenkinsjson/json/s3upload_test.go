@@ -46,7 +46,7 @@ func TestConverts3Upload(t *testing.T) {
 	var tests []s3runner
 
 	tests = append(tests, s3prepare(t, "s3upload/s3upload_snippet", &harness.Step{
-		Id:   "s3Upload1ec902",
+		Id:   "s3UploadPlugin",
 		Name: "s3Upload",
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
@@ -72,14 +72,14 @@ func TestConverts3Upload(t *testing.T) {
 			//Extract values from the "entries" in the parameterMap
 			entries := arguments["entries"].([]interface{})
 			// Iterate over each entry and handle based on the 'symbol' type
-			for _, entry := range entries {
+			for index, entry := range entries {
 				// Convert the entryMap to a map for easy access
 				entryMap, ok := entry.(map[string]interface{})
 				if !ok {
 					continue
 				}
 
-				got := Converts3Upload(tt.inputNode, entryMap)
+				got := Converts3Upload(tt.inputNode, entryMap, index)
 				if diff := cmp.Diff(got, tt.wantStep); diff != "" {
 					t.Errorf("Converts3Upload() mismatch (-want +got):\n%s", diff)
 				}
@@ -95,7 +95,7 @@ func TestConverts3Archive(t *testing.T) {
 
 	// Append a test case using the s3prepare helper function
 	tests = append(tests, s3prepare(t, "s3upload/s3upload_snippet", &harness.Step{
-		Id:   "Plugin_0",
+		Id:   "s3UploadPlugin",
 		Name: "Plugin_0",
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
@@ -110,11 +110,11 @@ func TestConverts3Archive(t *testing.T) {
 		},
 	}))
 
-	for _, tt := range tests {
+	for index, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := Converts3Archive(tt.inputNode, map[string]interface{}{
 				"excludedFile": "*.log",
-			})
+			}, index)
 			if diff := cmp.Diff(got, tt.wantStep); diff != "" {
 				t.Errorf("Converts3Archive() mismatch (-want +got):\n%s", diff)
 			}

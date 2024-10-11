@@ -639,23 +639,27 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "s3Upload":
 		entries := jenkinsjson.ExtractEntries(currentNode)
 		if entries == nil {
-			fmt.Println("No entries exists")
+			fmt.Println("No entries exists for s3Upload:collectStepsWithID")
 			break
 		}
-		// Iterate over each entry and handle based on the 'symbol' type
+		// Initialize an index counter
+		index := 0
+		// Iterate over each entry
 		for _, entry := range entries {
 			gzipFlag, ok := entry["gzipFiles"].(bool)
 			if !ok {
-				fmt.Println("Operation gzipFlag not found or not a boolean")
-				continue
+				// Set default value to false if the key does not exist or has an invalid value
+				gzipFlag = false
 			}
 
 			// Call function to handle gzip and upload logic
 			if gzipFlag {
-				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3Archive(currentNode, entry), ID: id})
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3Archive(currentNode, entry, index), ID: id})
 			}
 
-			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3Upload(currentNode, entry), ID: id})
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3Upload(currentNode, entry, index), ID: id})
+			// Increment the index for each entry
+			index++
 		}
 
 	default:
