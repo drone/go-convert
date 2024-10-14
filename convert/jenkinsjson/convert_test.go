@@ -2,13 +2,16 @@ package jenkinsjson
 
 import (
 	"encoding/json"
-	jenkinsjson "github.com/drone/go-convert/convert/jenkinsjson/json"
-	harness "github.com/drone/spec/dist/go"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
+
+	jenkinsjson "github.com/drone/go-convert/convert/jenkinsjson/json"
+	harness "github.com/drone/spec/dist/go"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -501,5 +504,84 @@ func TestMergeMaps(t *testing.T) {
 	merged := mergeMaps(a, b)
 	if len(merged) != 2 || merged["key1"] != "value2" || merged["key2"] != "value2" {
 		t.Error("Expected merged map to contain key1=value2 and key2=value2")
+	}
+}
+
+func TestS3Upload(t *testing.T) {
+	workingDir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get current working directory: %v", err)
+	}
+
+	filePath := filepath.Join(workingDir, "../jenkinsjson/convertTestFiles/s3publisher/s3upload/s3upload_snippet.json")
+	jsonData, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		t.Fatalf("failed to read JSON file: %v", err)
+	}
+
+	var node jenkinsjson.Node
+	if err := json.Unmarshal(jsonData, &node); err != nil {
+		t.Fatalf("failed to decode JSON: %v", err)
+	}
+
+	// Initialize StepWithID slice for collecting results
+	var teststepWithIDList []StepWithID
+
+	stepId := node.AttributesMap["jenkins.pipeline.step.id"]
+	var id int
+	if stepId != "" {
+		var err error
+		id, err = strconv.Atoi(stepId)
+		if err != nil {
+			fmt.Println("Error converting step ID to integer:", err)
+		}
+	}
+
+	entries := jenkinsjson.ExtractEntries(node)
+	if entries == nil {
+		t.Fatal("No entries exist for s3Upload")
+	}
+
+	// Initialize index counter
+	index := 0
+
+	// Iterate through entries
+	for _, entry := range entries {
+		gzipFlag, ok := entry["gzipFiles"].(bool)
+		if !ok {
+			gzipFlag = false
+		}
+
+		// Handle gzip logic and upload logic
+		if gzipFlag {
+			teststepWithIDList = append(teststepWithIDList, StepWithID{
+				Step: jenkinsjson.Converts3Archive(node, entry, index),
+				ID:   id,
+			})
+		}
+
+		teststepWithIDList = append(teststepWithIDList, StepWithID{
+			Step: jenkinsjson.Converts3Upload(node, entry, index),
+			ID:   id,
+		})
+
+		index++
+	}
+
+	// Test assertions
+	if len(teststepWithIDList) != 1 {
+		t.Fatalf("Expected 1 step, but got %d", len(teststepWithIDList))
+	}
+
+	// Validate step data
+	expectedBucket := "bucket-1"
+	expectedSource := "*.txt"
+	gotStep := teststepWithIDList[0].Step
+
+	if gotStep.Spec.(*harness.StepPlugin).With["bucket"] != expectedBucket {
+		t.Errorf("Expected bucket %s, but got %s", expectedBucket, gotStep.Spec.(*harness.StepPlugin).With["bucket"])
+	}
+	if gotStep.Spec.(*harness.StepPlugin).With["source"] != expectedSource {
+		t.Errorf("Expected source %s, but got %s", expectedSource, gotStep.Spec.(*harness.StepPlugin).With["source"])
 	}
 }
