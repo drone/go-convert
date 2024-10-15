@@ -636,6 +636,32 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "jiraSendDeploymentInfo":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJiraDeploymentInfo(currentNode, variables), ID: id})
 
+	case "s3Upload":
+		entries := jenkinsjson.ExtractEntries(currentNode)
+		if entries == nil {
+			fmt.Println("No entries exists for s3Upload:collectStepsWithID")
+			break
+		}
+		// Initialize an index counter
+		index := 0
+		// Iterate over each entry
+		for _, entry := range entries {
+			gzipFlag, ok := entry["gzipFiles"].(bool)
+			if !ok {
+				// Set default value to false if the key does not exist or has an invalid value
+				gzipFlag = false
+			}
+
+			// Call function to handle gzip and upload logic
+			if gzipFlag {
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3Archive(currentNode, entry, index), ID: id})
+			}
+
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3Upload(currentNode, entry, index), ID: id})
+			// Increment the index for each entry
+			index++
+		}
+
 	default:
 		placeholderStr := fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"])
 		b, err := json.MarshalIndent(currentNode.ParameterMap, "", "  ")
