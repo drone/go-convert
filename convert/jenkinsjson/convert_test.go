@@ -2,13 +2,14 @@ package jenkinsjson
 
 import (
 	"encoding/json"
-	jenkinsjson "github.com/drone/go-convert/convert/jenkinsjson/json"
-	harness "github.com/drone/spec/dist/go"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	jenkinsjson "github.com/drone/go-convert/convert/jenkinsjson/json"
+	harness "github.com/drone/spec/dist/go"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -501,5 +502,187 @@ func TestMergeMaps(t *testing.T) {
 	merged := mergeMaps(a, b)
 	if len(merged) != 2 || merged["key1"] != "value2" || merged["key2"] != "value2" {
 		t.Error("Expected merged map to contain key1=value2 and key2=value2")
+	}
+}
+
+// TestS3UploadWithGzipDisabled tests the s3Upload functionality with a single entry where "gzipFiles" is set to false.
+//
+// Expected Behavior:
+// - The "gzipFiles" flag is set to false, so only one step is expected:
+// - Step 1: The S3 upload step should be created without any archive (gzip) process.
+//
+// Validations Performed:
+// - Ensures only one step is created when gzip is false.
+// - Compares individual attributes like bucket, region, and source for correctness.
+//
+// Example File Structure (s3upload_snippet.json):
+// [
+//   {
+//     "gzipFiles": false,
+//     "bucket": "bucket-1",
+//     "source": "*.txt",
+//     "region": "us-west-1",
+//     ...
+//   }
+// ]
+//
+// This test ensures that the appropriate S3 upload step is created for a single S3 entry with gzip disabled.
+
+func TestS3UploadWithGzipDisabled(t *testing.T) {
+	// Step 1: Read the JSON file
+	workingDir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get current working directory: %v", err)
+	}
+
+	filePath := filepath.Join(workingDir, "../jenkinsjson/convertTestFiles/s3publisher/s3upload/s3upload_snippet.json")
+	jsonData, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		t.Fatalf("failed to read JSON file: %v", err)
+	}
+
+	// Step 2: Unmarshal the JSON into the appropriate structure
+	var node jenkinsjson.Node
+	if err := json.Unmarshal(jsonData, &node); err != nil {
+		t.Fatalf("failed to decode JSON: %v", err)
+	}
+
+	// Initialize the list to collect steps
+	stepWithIDList := []StepWithID{}
+	processedTools := &ProcessedTools{}
+	variables := make(map[string]string)
+	timeout := "10m"
+	dockerImage := "plugin/s3upload"
+
+	// Call the function collectStepsWithID to collect the steps
+	collectStepsWithID(node, &stepWithIDList, processedTools, variables, timeout, dockerImage)
+
+	// Expecting single step for s3uplaod without gzip
+	if len(stepWithIDList) != 1 {
+		t.Fatalf("Expected 1 steps, but got %d", len(stepWithIDList))
+	}
+	// Validate the first step (s3Upload without gzip for the single entry file)
+	firstStep := stepWithIDList[0].Step
+	if firstStep.Spec.(*harness.StepPlugin).With["bucket"] != "bucket-1" {
+		t.Errorf("Expected bucket 'bucket-1', but got '%s'", firstStep.Spec.(*harness.StepPlugin).With["bucket"])
+	}
+	if firstStep.Spec.(*harness.StepPlugin).With["region"] != "us-west-1" {
+		t.Errorf("Expected region 'us-west-1', but got '%s'", firstStep.Spec.(*harness.StepPlugin).With["region"])
+	}
+	if firstStep.Spec.(*harness.StepPlugin).With["target"] != "<+input>" {
+		t.Errorf("Expected target '<+input>', but got '%s'", firstStep.Spec.(*harness.StepPlugin).With["target"])
+	}
+	if firstStep.Spec.(*harness.StepPlugin).With["exclude"] != "2.txt" {
+		t.Errorf("Expected target '2.txt', but got '%s'", firstStep.Spec.(*harness.StepPlugin).With["exclude"])
+	}
+}
+
+// TestCollectStepsWithIDS3UploadMultipleEntry tests the s3Upload functionality for multiple entries.
+// It simulates two entries in the provided JSON file for S3 uploads.
+//
+// Expected Behavior: Total 3 steps:
+// - Entry 1: "gzipFiles" is set to false, so only a single upload step(0) is expected.
+// - Entry 2: "gzipFiles" is set to true, meaning two steps are expected:
+//   - Step(1): First step should be the gzip (archive) process.
+//   - Step(2): Second step should be the actual S3 upload.
+//
+// Validations Performed:
+// - Ensures correct number of steps are created based on the gzip flag.
+// - Compares individual attributes like target, bucket, source, glob, and exclude for correctness.
+//
+// Example File Structure (s3upload_multiple-entries_snippet.json):
+// [
+//
+//	{
+//	  "gzipFiles": false,
+//	  "bucket": "bucket-1",
+//	  "source": "*.txt",
+//	  "region": "us-west-1",
+//	  ...
+//	},
+//	{
+//	  "gzipFiles": true,
+//	  "bucket": "bucket-2",
+//	  "source": "*.txt",
+//	  "exclude": "2.txt",
+//	  "region": "us-east-1",
+//	  ...
+//	}
+//
+// ]
+func TestCollectStepsWithIDS3UploadMultipleEntry(t *testing.T) {
+	// Step 1: Read the JSON file
+	workingDir, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("failed to get current working directory: %v", err)
+	}
+
+	filePath := filepath.Join(workingDir, "../jenkinsjson/convertTestFiles/s3publisher/s3upload/s3upload_multiple-entries_snippet.json")
+	jsonData, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		t.Fatalf("failed to read JSON file: %v", err)
+	}
+
+	// Unmarshal the JSON into the appropriate structure
+	var node jenkinsjson.Node
+	if err := json.Unmarshal(jsonData, &node); err != nil {
+		t.Fatalf("failed to decode JSON: %v", err)
+	}
+
+	// Initialize the list to collect steps
+	stepWithIDList1 := []StepWithID{}
+	processedTools := &ProcessedTools{}
+	variables := make(map[string]string)
+	timeout := "10m"
+	dockerImage := "plugin/s3upload"
+
+	// Call the function collectStepsWithID to collect the steps
+	collectStepsWithID(node, &stepWithIDList1, processedTools, variables, timeout, dockerImage)
+
+	// Expecting 3 steps: step1: for the gzip false case (only s3upload)
+	// step2:  gzip true(Converts3Archive) and step3: s3upload .
+	if len(stepWithIDList1) != 3 {
+		t.Fatalf("Expected 3 steps, but got %d", len(stepWithIDList1))
+	}
+	// Validate the first step (s3Upload without gzip for the first step)
+	firstStep := stepWithIDList1[0].Step
+	if firstStep.Spec.(*harness.StepPlugin).With["bucket"] != "bucket-1" {
+		t.Errorf("Expected bucket 'bucket-1', but got '%s'", firstStep.Spec.(*harness.StepPlugin).With["bucket"])
+	}
+	if firstStep.Spec.(*harness.StepPlugin).With["region"] != "us-west-1" {
+		t.Errorf("Expected region 'us-west-1', but got '%s'", firstStep.Spec.(*harness.StepPlugin).With["region"])
+	}
+	if firstStep.Spec.(*harness.StepPlugin).With["target"] != "<+input>" {
+		t.Errorf("Expected target '<+input>', but got '%s'", firstStep.Spec.(*harness.StepPlugin).With["target"])
+	}
+
+	// Validate the second  step (Converts3Archive for gzipFiles true)
+	secondStep := stepWithIDList1[1].Step
+	if secondStep.Spec.(*harness.StepPlugin).With["target"] != "s3Upload.gzip" {
+		t.Errorf("Expected target 's3Upload.gzip', but got '%s'", secondStep.Spec.(*harness.StepPlugin).With["target"])
+	}
+	if secondStep.Spec.(*harness.StepPlugin).With["source"] != "." {
+		t.Errorf("Expected source '.', but got '%s'", secondStep.Spec.(*harness.StepPlugin).With["source"])
+	}
+	if secondStep.Spec.(*harness.StepPlugin).With["glob"] != "*.txt" {
+		t.Errorf("Expected glob '*.txt', but got '%s'", secondStep.Spec.(*harness.StepPlugin).With["glob"])
+	}
+	if secondStep.Spec.(*harness.StepPlugin).With["exclude"] != "2.txt" {
+		t.Errorf("Expected exclude '2.txt', but got '%s'", secondStep.Spec.(*harness.StepPlugin).With["exclude"])
+	}
+
+	// Validate the third step (s3Upload with gzip)
+	thirdStep := stepWithIDList1[2].Step
+	if thirdStep.Spec.(*harness.StepPlugin).With["bucket"] != "bucket-2" {
+		t.Errorf("Expected bucket 'bucket-2', but got '%s'", thirdStep.Spec.(*harness.StepPlugin).With["bucket"])
+	}
+	if thirdStep.Spec.(*harness.StepPlugin).With["region"] != "us-west-1" {
+		t.Errorf("Expected region 'us-west-1', but got '%s'", thirdStep.Spec.(*harness.StepPlugin).With["region"])
+	}
+	if thirdStep.Spec.(*harness.StepPlugin).With["target"] != "<+input>" {
+		t.Errorf("Expected target '<+input>', but got '%s'", thirdStep.Spec.(*harness.StepPlugin).With["target"])
+	}
+	if thirdStep.Spec.(*harness.StepPlugin).With["exclude"] != "2.txt" {
+		t.Errorf("Expected target '2.txt', but got '%s'", thirdStep.Spec.(*harness.StepPlugin).With["exclude"])
 	}
 }
