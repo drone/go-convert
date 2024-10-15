@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+    stages {
+        stage('Run NUnit') {
+            steps {
+            	writeFile(file: "TestResult.xml", text: '''
+       			<test-run id="2" duration="0.0015729000000000001" testcasecount="11" total="11" passed="11" failed="0" inconclusive="0" skipped="0" result="Passed" start-time="2024-09-18T 21:41:06Z" end-time="2024-09-18T 21:41:07Z">
+  <test-suite type="Assembly" name="PrimeService.Tests.dll" fullname="/opt/PrimeService.Tests/bin/Debug/net8.0/PrimeService.Tests.dll" total="11" passed="11" failed="0" inconclusive="0" skipped="0" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="0.0015729">
+    <test-suite type="TestSuite" name="PrimeService" fullname="PrimeService" total="11" passed="11" failed="0" inconclusive="0" skipped="0" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="0.0015729">
+      <test-suite type="TestSuite" name="Tests" fullname="PrimeService.Tests" total="11" passed="11" failed="0" inconclusive="0" skipped="0" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="0.0015729">
+        <test-suite type="TestSuite" name="PrimeService" fullname="PrimeService.Tests.PrimeService" total="11" passed="11" failed="0" inconclusive="0" skipped="0" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="0.0015729">
+          <test-suite type="TestSuite" name="Tests" fullname="PrimeService.Tests.PrimeService.Tests" total="11" passed="11" failed="0" inconclusive="0" skipped="0" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="0.0015729">
+            <test-suite type="TestFixture" name="PrimeService_IsPrimeShould" fullname="PrimeService.Tests.PrimeService.Tests.PrimeService_IsPrimeShould" total="11" passed="11" failed="0" inconclusive="0" skipped="0" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="0.0015729">
+              <test-case name="IsPrime_NonPrimesLessThan10_ReturnFalse(4)" fullname="PrimeService.Tests.PrimeService.Tests.PrimeService_IsPrimeShould.IsPrime_NonPrimesLessThan10_ReturnFalse(4)" methodname="IsPrime_NonPrimesLessThan10_ReturnFalse(4)" classname="PrimeService_IsPrimeShould" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="0.00125" asserts="0" />
+              <test-case name="IsPrime_NonPrimesLessThan10_ReturnFalse(6)" fullname="PrimeService.Tests.PrimeService.Tests.PrimeService_IsPrimeShould.IsPrime_NonPrimesLessThan10_ReturnFalse(6)" methodname="IsPrime_NonPrimesLessThan10_ReturnFalse(6)" classname="PrimeService_IsPrimeShould" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="9.3E-05" asserts="0" />
+              <test-case name="IsPrime_NonPrimesLessThan10_ReturnFalse(8)" fullname="PrimeService.Tests.PrimeService.Tests.PrimeService_IsPrimeShould.IsPrime_NonPrimesLessThan10_ReturnFalse(8)" methodname="IsPrime_NonPrimesLessThan10_ReturnFalse(8)" classname="PrimeService_IsPrimeShould" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="4E-06" asserts="0" />
+              <test-case name="IsPrime_NonPrimesLessThan10_ReturnFalse(9)" fullname="PrimeService.Tests.PrimeService.Tests.PrimeService_IsPrimeShould.IsPrime_NonPrimesLessThan10_ReturnFalse(9)" methodname="IsPrime_NonPrimesLessThan10_ReturnFalse(9)" classname="PrimeService_IsPrimeShould" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="2E-06" asserts="0" />
+              <test-case name="IsPrime_PrimesLessThan10_ReturnTrue(2)" fullname="PrimeService.Tests.PrimeService.Tests.PrimeService_IsPrimeShould.IsPrime_PrimesLessThan10_ReturnTrue(2)" methodname="IsPrime_PrimesLessThan10_ReturnTrue(2)" classname="PrimeService_IsPrimeShould" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="9.8E-05" asserts="0" />
+              <test-case name="IsPrime_PrimesLessThan10_ReturnTrue(3)" fullname="PrimeService.Tests.PrimeService.Tests.PrimeService_IsPrimeShould.IsPrime_PrimesLessThan10_ReturnTrue(3)" methodname="IsPrime_PrimesLessThan10_ReturnTrue(3)" classname="PrimeService_IsPrimeShould" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="5.2E-05" asserts="0" />
+              <test-case name="IsPrime_PrimesLessThan10_ReturnTrue(5)" fullname="PrimeService.Tests.PrimeService.Tests.PrimeService_IsPrimeShould.IsPrime_PrimesLessThan10_ReturnTrue(5)" methodname="IsPrime_PrimesLessThan10_ReturnTrue(5)" classname="PrimeService_IsPrimeShould" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="2E-06" asserts="0" />
+              <test-case name="IsPrime_PrimesLessThan10_ReturnTrue(7)" fullname="PrimeService.Tests.PrimeService.Tests.PrimeService_IsPrimeShould.IsPrime_PrimesLessThan10_ReturnTrue(7)" methodname="IsPrime_PrimesLessThan10_ReturnTrue(7)" classname="PrimeService_IsPrimeShould" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="1E-06" asserts="0" />
+              <test-case name="IsPrime_ValuesLessThan2_ReturnFalse(-1)" fullname="PrimeService.Tests.PrimeService.Tests.PrimeService_IsPrimeShould.IsPrime_ValuesLessThan2_ReturnFalse(-1)" methodname="IsPrime_ValuesLessThan2_ReturnFalse(-1)" classname="PrimeService_IsPrimeShould" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="3.49E-05" asserts="0" />
+              <test-case name="IsPrime_ValuesLessThan2_ReturnFalse(0)" fullname="PrimeService.Tests.PrimeService.Tests.PrimeService_IsPrimeShould.IsPrime_ValuesLessThan2_ReturnFalse(0)" methodname="IsPrime_ValuesLessThan2_ReturnFalse(0)" classname="PrimeService_IsPrimeShould" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="3.4E-05" asserts="0" />
+              <test-case name="IsPrime_ValuesLessThan2_ReturnFalse(1)" fullname="PrimeService.Tests.PrimeService.Tests.PrimeService_IsPrimeShould.IsPrime_ValuesLessThan2_ReturnFalse(1)" methodname="IsPrime_ValuesLessThan2_ReturnFalse(1)" classname="PrimeService_IsPrimeShould" result="Passed" start-time="2024-09-18T 21:41:07Z" end-time="2024-09-18T 21:41:07Z" duration="2E-06" asserts="0" />
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+    <errors />
+  </test-suite>
+</test-run>	
+            	'''
+            	, encoding: "UTF-8")
+                nunit testResultsPattern: 'TestResult.xml', failIfNoResults: true, skipJUnitArchiver: false, failedTestsFailBuild: true
+            }
+        }
+    }
+}
