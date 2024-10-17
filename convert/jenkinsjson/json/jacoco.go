@@ -20,8 +20,9 @@ var JacocoJenkinsToDroneParamMapperList = []JenkinsToDroneParamMapper{
 	{"minimumInstructionCoverage", "threshold_instruction", Float64Type, nil},
 	{"minimumLineCoverage", "threshold_line", Float64Type, nil},
 	{"minimumMethodCoverage", "threshold_method", Float64Type, nil},
-	// {"runAlways", "run_always", BoolType, nil},
 	{"tool", "tool", StringType, SetJacocoTool},
+	// runAlways - Missing convert logic: When: parametersMap.delegate.arguments.changeBuildStatus
+	// {"runAlways", "run_always", BoolType, nil},
 }
 
 func ConvertJacoco(node Node, variables map[string]string) *harness.Step {
