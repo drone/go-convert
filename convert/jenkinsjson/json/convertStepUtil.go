@@ -46,7 +46,63 @@ func GetStepWithProperties(node *Node,
 
 	for _, val := range tmpJenkinsToDroneParamMapperList {
 		SafeAssignWithPropertiesTyped(node, &withProperties, attrMap, val.JenkinsParam,
-			val.DroneParam, val.JenkinsParamType, val.TransformFunc)
+			val.DroneParam, val.JenkinsParamType, val.TransformFunc, false)
+	}
+
+	step := &harness.Step{
+		Name: node.SpanName,
+		Id:   SanitizeForId(node.SpanName, node.SpanId),
+		Type: "plugin",
+		Spec: &harness.StepPlugin{
+			Image:  imageName,
+			Inputs: withProperties,
+			With:   withProperties,
+		},
+	}
+
+	return step
+}
+
+func ConvertToStepUsingParameterMapDelegate(node *Node, variables map[string]string,
+	tmpJenkinsToDroneParamMapperList []JenkinsToDroneParamMapper, imageName string) *harness.Step {
+
+	step := GetStepUsingParameterMapDelegate(node, tmpJenkinsToDroneParamMapperList, imageName)
+
+	if len(variables) > 0 {
+		step.Spec.(*harness.StepPlugin).Envs = variables
+	}
+
+	return step
+}
+
+func GetStepUsingParameterMapDelegate(node *Node,
+	tmpJenkinsToDroneParamMapperList []JenkinsToDroneParamMapper, imageName string) *harness.Step {
+
+	withProperties := map[string]interface{}{}
+
+	delegateMapIfce, ok := node.ParameterMap["delegate"]
+	if !ok {
+		return &harness.Step{}
+	}
+
+	delegateMap, err := delegateMapIfce.(map[string]interface{})
+	if !err {
+		return &harness.Step{}
+	}
+
+	arguments, ok := delegateMap["arguments"]
+	if !ok {
+		return &harness.Step{}
+	}
+
+	argumentsMap, err := arguments.(map[string]interface{})
+	if !err {
+		return &harness.Step{}
+	}
+
+	for _, val := range tmpJenkinsToDroneParamMapperList {
+		SafeAssignWithPropertiesTyped(node, &withProperties, argumentsMap, val.JenkinsParam,
+			val.DroneParam, val.JenkinsParamType, val.TransformFunc, false)
 	}
 
 	step := &harness.Step{
@@ -64,7 +120,8 @@ func GetStepWithProperties(node *Node,
 }
 
 func SafeAssignWithPropertiesTyped(node *Node, withProperties *map[string]interface{},
-	attrMap map[string]interface{}, jenkinsKey, droneKey, jenkinsParamType string, paramTransformFunc ParamTransform) {
+	attrMap map[string]interface{}, jenkinsKey, droneKey, jenkinsParamType string,
+	paramTransformFunc ParamTransform, isWarn bool) {
 
 	var valOk bool
 	var newVal interface{}
@@ -72,7 +129,6 @@ func SafeAssignWithPropertiesTyped(node *Node, withProperties *map[string]interf
 	if paramTransformFunc != nil { // paramTransformFunc overrides the default behavior
 		retVal, err := paramTransformFunc(node, attrMap, jenkinsKey)
 		if err != nil {
-			// log.Printf("jenkins parameter %s is not a string for node %s", droneKey, droneKey)
 			return
 		}
 		(*withProperties)[droneKey] = retVal
@@ -81,7 +137,9 @@ func SafeAssignWithPropertiesTyped(node *Node, withProperties *map[string]interf
 
 	val, found := attrMap[jenkinsKey]
 	if !found {
-		log.Printf("jenkins param -- %s missing for node %s", jenkinsKey, droneKey)
+		if isWarn {
+			log.Printf("jenkins param -- %s missing for node %s", jenkinsKey, droneKey)
+		}
 		return
 	}
 
