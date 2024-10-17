@@ -4,7 +4,7 @@ pipeline {
         stage('Run NUnit') {
             steps {
                 script {
-                    def xmlFileUrl = 'https://raw.githubusercontent.com/harness-community/test-jenkins-to-harness/refs/heads/main/nunit-test-result.xml' // Replace with the actual URL
+                    def xmlFileUrl = 'https://raw.githubusercontent.com/harness-community/test-jenkins-to-harness/refs/heads/main/nunit-test-result.xml'
                     def outputFilePath = 'TestResult.xml'
                     
                     bat """
