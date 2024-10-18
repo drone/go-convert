@@ -1,0 +1,42 @@
+pipeline {
+	// Defined the maven docker image for maven build.
+	agent any
+	tools {
+        maven 'M3'
+        jdk 'jdk8'
+    }
+	stages {
+	stage('checkout scm') {
+		steps {
+        checkout([$class: 'GitSCM',
+		branches: [[name: "*/master"]],
+		doGenerateSubmoduleConfigurations: false,
+		extensions: [[$class: 'CleanCheckout']],
+		submoduleCfg: [],
+		userRemoteConfigs: [[ url: 'https://github.com/syamv/game-of-life.git']]])
+		}
+    }
+
+	// using the maven docker image for build
+    stage('maven build') {
+		steps {
+		sh 'mvn clean verify org.jacoco:jacoco-maven-plugin:prepare-agent package jacoco:report'
+		}
+
+    }
+	stage('Junit Testing') {
+		steps {
+		junit allowEmptyResults: true, skipPublishingChecks: true, testResults: '**/target/surefire-reports/TEST-*.xml'
+		}
+	}
+
+	stage('Jacoco reports') {
+		steps {
+		jacoco classPattern: '**/target/classes', execPattern: '**/**.exec', sourcePattern: '**/src/main'
+		//jacoco exclusionPattern: '**/*Test*.class', execPattern: '**/**.exec,**/target/*.exec', runAlways: true
+
+		}
+	}
+
+	}
+}

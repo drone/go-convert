@@ -1,0 +1,34 @@
+{
+  "Name": "jacoco #26",
+  "Parent": "jacoco",
+  "SpanName": "jacoco",
+  "SpanId": "66be31db38207c76",
+  "ParentSpanId": "c236b1a66f1d20a0",
+  "TraceId": "d7e2308fed543055fbe737e417e6b092",
+  "Children": null,
+  "Type": "Run Phase Span",
+  "ParameterMap": {
+    "delegate": {
+      "arguments": {
+        "classPattern": "**/target/classes",
+        "execPattern": "**/**.exec",
+        "sourcePattern": "**/src/main"
+      },
+      "klass": null,
+      "model": null,
+      "symbol": "jacoco"
+    }
+  },
+  "AttributesMap": {
+    "ci.pipeline.run.user": "SYSTEM",
+    "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"jacoco\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"classPattern\" : \"**/target/classes\",\n      \"execPattern\" : \"**/**.exec\",\n      \"sourcePattern\" : \"**/src/main\"\n    },\n    \"model\" : null\n  }\n}",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1fa030d3": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1fa030d3",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2573b66a": "org.jenkinsci.plugins.workflow.actions.TimingAction@2573b66a",
+    "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+    "jenkins.pipeline.step.id": "62",
+    "jenkins.pipeline.step.name": "Record JaCoCo coverage report",
+    "jenkins.pipeline.step.plugin.name": "jacoco",
+    "jenkins.pipeline.step.plugin.version": "3.3.6",
+    "jenkins.pipeline.step.type": "jacoco"
+  }
+}
