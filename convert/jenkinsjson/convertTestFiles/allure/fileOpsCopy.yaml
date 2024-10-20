@@ -1,0 +1,24 @@
+steps:
+  - step:
+      identifier: allureb46a9a
+      name: allure
+      spec:
+        command: allure generate build/allure-results --clean --output allure-report
+        image: harnesscommunity/allure:jdk21
+        shell: Sh
+      timeout: ""
+      type: Run
+  - step:
+      identifier: uploadpublishb46a9a
+      name: Upload and Publish
+      spec:
+        image: harnesscommunity/drone-s3-upload-publish
+        settings:
+          artifact_file: artifact.txt
+          aws_access_key_id: <+input>
+          aws_bucket: <+input>
+          aws_secret_access_key: <+input>
+          source: allure-report
+          target: <+pipeline.sequenceId>
+      timeout: ""
+      type: Plugin

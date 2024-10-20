@@ -273,7 +273,6 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	var timeout string
 	// Collect all steps with their IDs
 	collectStepsWithID(currentNode, &stepWithIDList, processedTools, variables, timeout, dockerImage)
-
 	// Sort the steps based on their IDs
 	sort.Slice(stepWithIDList, func(i, j int) bool {
 		return stepWithIDList[i].ID < stepWithIDList[j].ID
@@ -662,6 +661,10 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			index++
 		}
 
+	case "allure":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertAllureReport(currentNode), ID: id})
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3UploadStep(currentNode), ID: id})
+
 	default:
 		placeholderStr := fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"])
 		b, err := json.MarshalIndent(currentNode.ParameterMap, "", "  ")
@@ -901,7 +904,6 @@ func mergeRunSteps(steps *[]StepWithID) {
 	for i := 1; i < len(*steps); i++ {
 		current := (*steps)[i]
 		// if can merge, store all current content in cursor
-
 		if canMergeSteps(cursor.Step, current.Step) {
 			previousExec := cursor.Step.Spec.(*harness.StepExec)
 			currentExec := current.Step.Spec.(*harness.StepExec)
@@ -912,7 +914,9 @@ func mergeRunSteps(steps *[]StepWithID) {
 			// if not able to merge, push cursor and reset cursor to current one
 			merged = append(merged, cursor)
 			cursor = current
-			pushed = true
+			if i != len(*steps)-1 {
+				pushed = true
+			}
 		}
 	}
 
