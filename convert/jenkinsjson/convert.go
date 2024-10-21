@@ -662,8 +662,10 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		}
 
 	case "allure":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertAllureReport(currentNode), ID: id})
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3UploadStep(currentNode), ID: id})
+		steps := jenkinsjson.ConvertAllureSteps(currentNode)
+		for _, step := range steps {
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: step, ID: id})
+		}
 
 	default:
 		placeholderStr := fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"])

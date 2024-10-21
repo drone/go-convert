@@ -77,3 +77,14 @@ func buildCommaSeparatedPaths(resultPaths []interface{}) string {
 	}
 	return strings.Join(paths, ",")
 }
+
+// ConvertAllureSteps combines both Allure report generation and S3 upload into one function
+func ConvertAllureSteps(node Node) []*harness.Step {
+	// Generate Allure report step
+	allureReportStep := ConvertAllureReport(node)
+	// S3 upload step
+	s3UploadStep := Converts3UploadStep(node)
+
+	// Return both steps as a slice of steps
+	return []*harness.Step{allureReportStep, s3UploadStep}
+}
