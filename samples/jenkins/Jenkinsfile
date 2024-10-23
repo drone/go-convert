@@ -535,7 +535,28 @@ line3'''
                 ], profileName: 'default'
             }
         }
-        //Nunit Stage
+        //Allure Jenkins pipeline stages
+        stage('Checkout') {
+            steps {
+                git branch: 'master', url: 'https://github.com/eroshenkoam/allure-example.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh './gradlew clean test'
+            }
+        }
+        stage('Report') {
+            steps {
+                allure([
+                    includeProperties: false,
+                    jdk: '',
+                    properties: [],
+                    reportBuildPolicy: 'ALWAYS',
+                    results: [[path: 'build/allure-results']]
+                ])
+            }
+        }
         stage('Run NUnit') {
             steps {
                 script {
@@ -548,7 +569,6 @@ line3'''
                 }
                 nunit testResultsPattern: 'TestResult.xml', failIfNoResults: true, skipJUnitArchiver: false, failedTestsFailBuild: true
             }
-        }	
+        }
     }
-    
 }
