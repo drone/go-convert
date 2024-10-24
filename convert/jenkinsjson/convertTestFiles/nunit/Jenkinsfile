@@ -1,0 +1,18 @@
+pipeline {
+    agent any
+    stages {
+        stage('Run NUnit') {
+            steps {
+                script {
+                    def xmlFileUrl = 'https://raw.githubusercontent.com/harness-community/test-jenkins-to-harness/refs/heads/main/nunit-test-result.xml'
+                    def outputFilePath = 'TestResult.xml'
+                    
+                    bat """
+                    powershell -Command "Invoke-WebRequest -Uri '${xmlFileUrl}' -OutFile '${outputFilePath}'"
+                    """
+                }
+                nunit testResultsPattern: 'TestResult.xml', failIfNoResults: true, skipJUnitArchiver: false, failedTestsFailBuild: true
+            }
+        }
+    }
+}

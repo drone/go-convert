@@ -1,0 +1,11 @@
+- step:
+    identifier: nunit0d6d45
+    name: nunit
+    spec:
+      image: plugins/nunit
+      settings:
+        fail_if_no_results: 'true'
+        failed_tests_fail_build: 'true'
+        test_report_path: TestResult.xml
+    timeout: ''
+    type: Plugin
