@@ -1,0 +1,35 @@
+{
+    "spanId": "0d6d45a50c9f8dca",
+    "traceId": "717618b62f34567ed1c68e23f5e704c5",
+    "parent": "nunit",
+    "all-info": "span(name: nunit, spanId: 0d6d45a50c9f8dca, parentSpanId: 016f060e63807a96, traceId: 717618b62f34567ed1c68e23f5e704c5, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"delegate\" : {\n    \"symbol\" : \"nunit\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"failIfNoResults\" : true,\n      \"failedTestsFailBuild\" : true,\n      \"skipJUnitArchiver\" : false,\n      \"testResultsPattern\" : \"TestResult.xml\"\n    },\n    \"model\" : null\n  }\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3616fced:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3616fced;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@74331ca3:org.jenkinsci.plugins.workflow.actions.TimingAction@74331ca3;harness-others:-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep;jenkins.pipeline.step.id:8;jenkins.pipeline.step.name:Publish NUnit test result report;jenkins.pipeline.step.plugin.name:nunit;jenkins.pipeline.step.plugin.version:485.ve8a_85357320d;jenkins.pipeline.step.type:nunit;)",
+    "name": "nunit #8",
+    "attributesMap": {
+        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@74331ca3": "org.jenkinsci.plugins.workflow.actions.TimingAction@74331ca3",
+        "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+        "jenkins.pipeline.step.name": "Publish NUnit test result report",
+        "ci.pipeline.run.user": "SYSTEM",
+        "jenkins.pipeline.step.id": "8",
+        "jenkins.pipeline.step.type": "nunit",
+        "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"nunit\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"failIfNoResults\" : true,\n      \"failedTestsFailBuild\" : true,\n      \"skipJUnitArchiver\" : false,\n      \"testResultsPattern\" : \"TestResult.xml\"\n    },\n    \"model\" : null\n  }\n}",
+        "jenkins.pipeline.step.plugin.name": "nunit",
+        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3616fced": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3616fced",
+        "jenkins.pipeline.step.plugin.version": "485.ve8a_85357320d"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "016f060e63807a96",
+    "parameterMap": {
+        "delegate": {
+            "symbol": "nunit",
+            "klass": null,
+            "arguments": {
+                "skipJUnitArchiver": false,
+                "failIfNoResults": true,
+                "failedTestsFailBuild": true,
+                "testResultsPattern": "TestResult.xml"
+            },
+            "model": null
+        }
+    },
+    "spanName": "nunit"
+}
