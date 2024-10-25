@@ -635,6 +635,22 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "jiraSendDeploymentInfo":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJiraDeploymentInfo(currentNode, variables), ID: id})
 
+	case "nunit":
+		// Step 1: Extract the 'delegate' map from the 'parameterMap'
+		delegate, ok := currentNode.ParameterMap["delegate"].(map[string]interface{})
+		if !ok {
+			fmt.Println("Missing 'delegate' in parameterMap")
+			break
+		}
+
+		// Step 2: Extract the 'arguments' map from the 'delegate'
+		arguments, ok := delegate["arguments"].(map[string]interface{})
+		if !ok {
+			fmt.Println("Missing 'arguments' in delegate map")
+			break
+		}
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertNunit(currentNode, arguments), ID: id})
+
 	case "s3Upload":
 		entries := jenkinsjson.ExtractEntries(currentNode)
 		if entries == nil {
