@@ -534,6 +534,23 @@ line3'''
                   , sourceFile: '*.md', uploadFromSlave: false]
                 ], profileName: 'default'
             }
-        }	
+        }
+        stage('Jacoco reports') {
+          steps {
+            jacoco(
+              classPattern: '**/target/classes, **/WEB-INF/classes',
+              exclusionPattern: '**/controllers/*.class',
+              inclusionPattern: '**/*.class',
+              sourceInclusionPattern: '**/*.java',
+              sourceExclusionPattern: '**/controllers/*.java',
+              maximumBranchCoverage: '81',
+              maximumClassCoverage: '85',
+              maximumComplexityCoverage: '10',
+              maximumInstructionCoverage: '80',
+              maximumLineCoverage: '83',
+              maximumMethodCoverage: '84'
+            )
+          }
+        }
     }
 }
