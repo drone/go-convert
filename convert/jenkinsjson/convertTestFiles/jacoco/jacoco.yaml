@@ -1,0 +1,23 @@
+- step:
+    identifier: jacoco66be31
+    name: jacoco
+    spec:
+      envVariables:
+        JAVA_HOME:
+          /Users/franciscojunior/.jenkins/tools/hudson.model.JDK/jdk8/zulu8.80.0.17-ca-jdk8.0.422-macosx_aarch64
+        M2_HOME:
+          /Users/franciscojunior/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/M3
+        MAVEN_HOME:
+          /Users/franciscojunior/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/M3
+        PATH+JDK:
+          /Users/franciscojunior/.jenkins/tools/hudson.model.JDK/jdk8/zulu8.80.0.17-ca-jdk8.0.422-macosx_aarch64/bin
+        PATH+MAVEN:
+          /Users/franciscojunior/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/M3/bin
+      image: plugins/coverage-report
+      settings:
+        class_directories: '**/target/classes'
+        reports_path_pattern: '**/**.exec'
+        source_directories: '**/src/main'
+        tool: jacoco
+    timeout: ''
+    type: Plugin

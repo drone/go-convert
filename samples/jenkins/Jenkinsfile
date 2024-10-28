@@ -535,6 +535,22 @@ line3'''
                 ], profileName: 'default'
             }
         }
+        stage('Jacoco reports') {
+          steps {
+            jacoco(
+              classPattern: '**/target/classes, **/WEB-INF/classes',
+              exclusionPattern: '**/controllers/*.class',
+              inclusionPattern: '**/*.class',
+              sourceInclusionPattern: '**/*.java',
+              sourceExclusionPattern: '**/controllers/*.java',
+              maximumBranchCoverage: '81',
+              maximumClassCoverage: '85',
+              maximumComplexityCoverage: '10',
+              maximumInstructionCoverage: '80',
+              maximumLineCoverage: '83',
+              maximumMethodCoverage: '84'
+            )
+          }
         //Allure Jenkins pipeline stages
         stage('Checkout') {
             steps {
@@ -555,6 +571,19 @@ line3'''
                     reportBuildPolicy: 'ALWAYS',
                     results: [[path: 'build/allure-results']]
                 ])
+            }
+        }
+        stage('Run NUnit') {
+            steps {
+                script {
+                    def xmlFileUrl = 'https://raw.githubusercontent.com/harness-community/test-jenkins-to-harness/refs/heads/main/nunit-test-result.xml'
+                    def outputFilePath = 'TestResult.xml'
+                    
+                    bat """
+                    powershell -Command "Invoke-WebRequest -Uri '${xmlFileUrl}' -OutFile '${outputFilePath}'"
+                    """
+                }
+                nunit testResultsPattern: 'TestResult.xml', failIfNoResults: true, skipJUnitArchiver: false, failedTestsFailBuild: true
             }
         }
         // Javadoc Steps
