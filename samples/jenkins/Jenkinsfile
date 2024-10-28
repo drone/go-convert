@@ -556,6 +556,27 @@ line3'''
                     results: [[path: 'build/allure-results']]
                 ])
             }
+        }
+        // Javadoc Steps
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/spring-guides/gs-rest-service.git', branch: 'main'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'cd complete && gradle clean build --info --stacktrace'
+            }
+        }
+        stage('Generate Javadoc') {
+            steps {
+                sh 'cd complete && gradle javadoc --info --stacktrace'
+            }
+        }
+        stage('Publish Javadoc') {
+            steps {
+                javadoc javadocDir: 'complete/build/docs/javadoc', keepAll: true
+            }
         }	
     }
 }

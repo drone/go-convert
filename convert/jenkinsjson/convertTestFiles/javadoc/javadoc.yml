@@ -1,0 +1,18 @@
+- stepGroup:
+    identifier: Stage__nulld86474
+    name: Publish Javadoc
+    steps:
+      - step:
+          identifier: f14ddfd46ceb566c
+          name: Upload and Publish Javadoc
+          spec:
+            image: harnesscommunity/drone-s3-upload-publish
+            settings:
+              aws_access_key_id: <+input>
+              aws_bucket: <+input>
+              aws_secret_access_key: <+input>
+              source: complete/build/docs/javadoc
+              target: <+pipeline.name>/<+pipeline.sequenceId>
+          timeout: ""
+          type: Plugin
+    timeout: ""
