@@ -586,25 +586,44 @@ line3'''
                 nunit testResultsPattern: 'TestResult.xml', failIfNoResults: true, skipJUnitArchiver: false, failedTestsFailBuild: true
             }
         }
-        // Cobertura Jenkins pipeline stages
-        stage('Generate cobertura Coverage Report') {
+        // Jacoco plugin stage begins
+        stage('Checkout sample code for Cobetura coverage.xml file') {
             steps {
-                sh 'mvn clean cobertura:cobertura'
+                git branch: "main", url: "https://github.com/harness-community/drone-coverage-report.git"
             }
         }
-        stage('cobertura report metrics') {
+        stage('Publish JaCoCo Coverage Report') { // Jacoco plugin stage
             steps {
-                script {
-                    cobertura coberturaReportFile: '**/coverage.xml',
-                    classCoverageTargets: '70, 0, 0',
-                    conditionalCoverageTargets: '65, 66, 67',
-                    failUnhealthy: false,
-                    failUnstable: false,
-                    fileCoverageTargets: '80, 0, 0',
-                    lineCoverageTargets: '75, 76, 77',
-                    methodCoverageTargets: '72, 73, 74',
-                    packageCoverageTargets: '80, 0, 0',
-                }
+                jacoco execPattern: 'target/*.exec',
+                       classPattern: '**/target/classes',
+                       sourcePattern: '**/src/main/java',
+                       exclusionPattern: '**/test/**',
+                       changeBuildStatus: true,
+                       minimumBranchCoverage: '1',
+                       minimumClassCoverage: '1',
+                       minimumComplexityCoverage: '100',
+                       minimumInstructionCoverage: '1',
+                       minimumLineCoverage: '1',
+                       minimumMethodCoverage: '1'
+            }
+        }
+        // Cobetura plugin stage begins
+        stage('Checkout sample code for Cobetura coverage.xml file') {
+            steps {
+                git branch: "main", url: "https://github.com/harness-community/drone-coverage-report.git"
+            }
+        }
+        stage('Publish Cobertura Coverage Report') {  // Cobetura plugin stage
+            steps {
+                cobertura coberturaReportFile: '**/coverage.xml',
+                         autoUpdateHealth: false,
+                         autoUpdateStability: false,
+                         failUnhealthy: false,
+                         failUnstable: false,
+                         lineCoverageTargets: '80, 0, 0',
+                         methodCoverageTargets: '80, 0, 0',
+                         classCoverageTargets: '70, 0, 0',
+                         conditionalCoverageTargets: '65, 0, 0'
             }
         }
     }
