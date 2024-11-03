@@ -626,5 +626,27 @@ line3'''
                          conditionalCoverageTargets: '65, 0, 0'
             }
         }
+        // slackFileUpload plugin stage begins here
+        stage('Generate Temp File') {
+            steps {
+                script {
+                    def words = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig', 'grape']
+                    def randomWords = (1..5).collect { words[new Random().nextInt(words.size())] }.join(' ')
+                    writeFile file: 'b.txt', text: randomWords
+                    echo "Temp file created with content: ${randomWords}"
+                }
+            }
+        }
+        stage('Upload to Slack') {
+            steps {
+                slackUploadFile(
+                    channel: 'C07TL1KNV8Q',
+                    credentialId: 'SlackChannelCreds',
+                    failOnError: true,
+                    filePath: 'b.txt',
+                    initialComment: 'jenkins file upload test'
+                )
+            }
+        }
     }
 }
