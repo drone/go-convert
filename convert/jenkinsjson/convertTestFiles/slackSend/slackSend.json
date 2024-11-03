@@ -1,233 +1,31 @@
 {
+  "spanId": "94930325657a19e2",
   "traceId": "6e7bf80b7c95be921beb36fb9cbb503e",
-  "spanId": "e982d1e2a6f8e5a1",
-  "harnessVersion": "2.18.12-SNAPSHOT",
-  "children": [
-    {
-      "spanId": "12cc641617cd09d6",
-      "traceId": "6e7bf80b7c95be921beb36fb9cbb503e",
-      "parent": "slack-file-message-send-test-01",
-      "all-info": "span(name: Phase: Start, spanId: 12cc641617cd09d6, parentSpanId: e982d1e2a6f8e5a1, traceId: 6e7bf80b7c95be921beb36fb9cbb503e, attr: )",
-      "name": "slack-file-message-send-test-01 #5",
-      "attributesMap": {},
-      "type": "Run Phase Span",
-      "parentSpanId": "e982d1e2a6f8e5a1",
-      "spanName": "Phase: Start"
-    },
-    {
-      "spanId": "97b5e6ca65c2085e",
-      "traceId": "6e7bf80b7c95be921beb36fb9cbb503e",
-      "parent": "slack-file-message-send-test-01",
-      "all-info": "span(name: Phase: Run, spanId: 97b5e6ca65c2085e, parentSpanId: e982d1e2a6f8e5a1, traceId: 6e7bf80b7c95be921beb36fb9cbb503e, attr: )",
-      "children": [
-        {
-          "spanId": "a65b2c56ffb8a0cb",
-          "traceId": "6e7bf80b7c95be921beb36fb9cbb503e",
-          "parent": "slack-file-message-send-test-01",
-          "all-info": "span(name: Agent Allocation, spanId: a65b2c56ffb8a0cb, parentSpanId: 97b5e6ca65c2085e, traceId: 6e7bf80b7c95be921beb36fb9cbb503e, attr: harness-attribute-extra-pip: FlowNodeMonitoringAction{traceId='6e7bf80b7c95be921beb36fb9cbb503e', spanId='3f594077f2cabe64', span.name='Agent'}:FlowNodeMonitoringAction{traceId='6e7bf80b7c95be921beb36fb9cbb503e', spanId='3f594077f2cabe64', span.name='Agent'};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3c175483:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3c175483;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@159a59a0:org.jenkinsci.plugins.workflow.actions.TimingAction@159a59a0;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3961ef34:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3961ef34;harness-others:;jenkins.pipeline.step.id:3;jenkins.pipeline.step.name:agent.allocate;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1371.vb_7cec8f3b_95e;jenkins.pipeline.step.type:node;)",
-          "name": "slack-file-message-send-test-01 #5",
-          "attributesMap": {
-            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3961ef34": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3961ef34",
-            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3c175483": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3c175483",
-            "harness-attribute-extra-pip: FlowNodeMonitoringAction{traceId='6e7bf80b7c95be921beb36fb9cbb503e', spanId='3f594077f2cabe64', span.name='Agent'}": "FlowNodeMonitoringAction{traceId='6e7bf80b7c95be921beb36fb9cbb503e', spanId='3f594077f2cabe64', span.name='Agent'}",
-            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@159a59a0": "org.jenkinsci.plugins.workflow.actions.TimingAction@159a59a0",
-            "harness-others": "",
-            "jenkins.pipeline.step.name": "agent.allocate",
-            "jenkins.pipeline.step.id": "3",
-            "jenkins.pipeline.step.type": "node",
-            "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
-            "jenkins.pipeline.step.plugin.version": "1371.vb_7cec8f3b_95e"
-          },
-          "type": "Run Phase Span",
-          "parentSpanId": "97b5e6ca65c2085e",
-          "spanName": "Agent Allocation"
-        },
-        {
-          "spanId": "3f594077f2cabe64",
-          "traceId": "6e7bf80b7c95be921beb36fb9cbb503e",
-          "parent": "slack-file-message-send-test-01",
-          "all-info": "span(name: Agent, spanId: 3f594077f2cabe64, parentSpanId: 97b5e6ca65c2085e, traceId: 6e7bf80b7c95be921beb36fb9cbb503e, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@e311aac:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@e311aac;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@159a59a0:org.jenkinsci.plugins.workflow.actions.TimingAction@159a59a0;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3961ef34:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3961ef34;harness-others:;jenkins.credentials.id:[org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3961ef34, org.jenkinsci.plugins.workflow.actions.TimingAction@159a59a0, io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@26704fc0];jenkins.pipeline.step.id:3;jenkins.pipeline.step.name:agent;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1371.vb_7cec8f3b_95e;jenkins.pipeline.step.type:node;)",
-          "children": [
-            {
-              "spanId": "c55abd859eb27e0d",
-              "traceId": "6e7bf80b7c95be921beb36fb9cbb503e",
-              "parent": "slack-file-message-send-test-01",
-              "all-info": "span(name: Stage: null, spanId: c55abd859eb27e0d, parentSpanId: 3f594077f2cabe64, traceId: 6e7bf80b7c95be921beb36fb9cbb503e, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fdc877:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fdc877;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2c448577:org.jenkinsci.plugins.workflow.actions.TimingAction@2c448577;harness-others:;jenkins.pipeline.step.type:node;)",
-              "name": "slack-file-message-send-test-01 #5",
-              "attributesMap": {
-                "harness-others": "",
-                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2c448577": "org.jenkinsci.plugins.workflow.actions.TimingAction@2c448577",
-                "jenkins.pipeline.step.type": "node",
-                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fdc877": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fdc877"
-              },
-              "type": "Run Phase Span",
-              "parentSpanId": "3f594077f2cabe64",
-              "spanName": "Stage: null"
-            },
-            {
-              "spanId": "ed0b1f6d5058e34e",
-              "traceId": "6e7bf80b7c95be921beb36fb9cbb503e",
-              "parent": "slack-file-message-send-test-01",
-              "all-info": "span(name: Stage: null, spanId: ed0b1f6d5058e34e, parentSpanId: 3f594077f2cabe64, traceId: 6e7bf80b7c95be921beb36fb9cbb503e, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@478f3ed:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@478f3ed;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1f195342:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1f195342;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@143ad798:org.jenkinsci.plugins.workflow.actions.TimingAction@143ad798;harness-others:;jenkins.pipeline.step.type:node;)",
-              "name": "slack-file-message-send-test-01 #5",
-              "attributesMap": {
-                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1f195342": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1f195342",
-                "harness-others": "",
-                "jenkins.pipeline.step.type": "node",
-                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@478f3ed": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@478f3ed",
-                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@143ad798": "org.jenkinsci.plugins.workflow.actions.TimingAction@143ad798"
-              },
-              "type": "Run Phase Span",
-              "parentSpanId": "3f594077f2cabe64",
-              "spanName": "Stage: null"
-            },
-            {
-              "spanId": "9243f84468c9614c",
-              "traceId": "6e7bf80b7c95be921beb36fb9cbb503e",
-              "parent": "slack-file-message-send-test-01",
-              "all-info": "span(name: Stage: null, spanId: 9243f84468c9614c, parentSpanId: 3f594077f2cabe64, traceId: 6e7bf80b7c95be921beb36fb9cbb503e, attr: harness-attribute:{\n  \"name\" : \"Send Slack Notification\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@48138834:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@48138834;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@64d0b9ae:org.jenkinsci.plugins.workflow.actions.TimingAction@64d0b9ae;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@71529425:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@71529425;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
-              "children": [
-                {
-                  "spanId": "220c5754c84b49c4",
-                  "traceId": "6e7bf80b7c95be921beb36fb9cbb503e",
-                  "parent": "slack-file-message-send-test-01",
-                  "all-info": "span(name: Stage: null, spanId: 220c5754c84b49c4, parentSpanId: 9243f84468c9614c, traceId: 6e7bf80b7c95be921beb36fb9cbb503e, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4d7332ce:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4d7332ce;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@6de86e6f:org.jenkinsci.plugins.workflow.actions.TimingAction@6de86e6f;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
-                  "name": "slack-file-message-send-test-01 #5",
-                  "attributesMap": {
-                    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4d7332ce": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4d7332ce",
-                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@6de86e6f": "org.jenkinsci.plugins.workflow.actions.TimingAction@6de86e6f",
-                    "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
-                    "jenkins.pipeline.step.type": "stage"
-                  },
-                  "type": "Run Phase Span",
-                  "parentSpanId": "9243f84468c9614c",
-                  "spanName": "Stage: null"
-                },
-                {
-                  "spanId": "051414364a16de5a",
-                  "traceId": "6e7bf80b7c95be921beb36fb9cbb503e",
-                  "parent": "slack-file-message-send-test-01",
-                  "all-info": "span(name: Stage: Send Slack Notification, spanId: 051414364a16de5a, parentSpanId: 9243f84468c9614c, traceId: 6e7bf80b7c95be921beb36fb9cbb503e, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1c46492:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1c46492;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@271c44ad:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@271c44ad;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.LabelAction@1295a5ac:org.jenkinsci.plugins.workflow.actions.LabelAction@1295a5ac;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@45236117:org.jenkinsci.plugins.workflow.actions.TimingAction@45236117;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.id:6;jenkins.pipeline.step.name:Send Slack Notification;jenkins.pipeline.step.plugin.name:pipeline-stage-step;jenkins.pipeline.step.plugin.version:312.v8cd10304c27a_;jenkins.pipeline.step.type:stage;)",
-                  "children": [
-                    {
-                      "spanId": "178b2ee358cc912c",
-                      "traceId": "6e7bf80b7c95be921beb36fb9cbb503e",
-                      "parent": "slack-file-message-send-test-01",
-                      "all-info": "span(name: Stage: null, spanId: 178b2ee358cc912c, parentSpanId: 051414364a16de5a, traceId: 6e7bf80b7c95be921beb36fb9cbb503e, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3145d6c9:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3145d6c9;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@479990cb:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@479990cb;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@3a06cdf6:org.jenkinsci.plugins.workflow.actions.TimingAction@3a06cdf6;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
-                      "name": "slack-file-message-send-test-01 #5",
-                      "attributesMap": {
-                        "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
-                        "jenkins.pipeline.step.type": "stage",
-                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3145d6c9": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3145d6c9",
-                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@479990cb": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@479990cb",
-                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@3a06cdf6": "org.jenkinsci.plugins.workflow.actions.TimingAction@3a06cdf6"
-                      },
-                      "type": "Run Phase Span",
-                      "parentSpanId": "051414364a16de5a",
-                      "spanName": "Stage: null"
-                    },
-                    {
-                      "spanId": "94930325657a19e2",
-                      "traceId": "6e7bf80b7c95be921beb36fb9cbb503e",
-                      "parent": "slack-file-message-send-test-01",
-                      "all-info": "span(name: slackSend, spanId: 94930325657a19e2, parentSpanId: 051414364a16de5a, traceId: 6e7bf80b7c95be921beb36fb9cbb503e, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"iconEmoji\" : \":rocket:\",\n  \"color\" : \"good\",\n  \"channel\" : \"dev\",\n  \"teamDomain\" : \"jenkins-bot-testing\",\n  \"tokenCredentialId\" : \"slackcreds03\",\n  \"message\" : \"hi, the test msg slack now test ...\",\n  \"username\" : \"jenkins-test-user\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@119bb828:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@119bb828;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1ddf0dcc:org.jenkinsci.plugins.workflow.actions.TimingAction@1ddf0dcc;harness-others:;jenkins.pipeline.step.id:7;jenkins.pipeline.step.name:Send Slack Message;jenkins.pipeline.step.plugin.name:slack;jenkins.pipeline.step.plugin.version:751.v2e44153c8fe1;jenkins.pipeline.step.type:slackSend;)",
-                      "name": "slack-file-message-send-test-01 #5",
-                      "attributesMap": {
-                        "harness-others": "",
-                        "jenkins.pipeline.step.name": "Send Slack Message",
-                        "ci.pipeline.run.user": "SYSTEM",
-                        "jenkins.pipeline.step.id": "7",
-                        "jenkins.pipeline.step.type": "slackSend",
-                        "harness-attribute": "{\n  \"iconEmoji\" : \":rocket:\",\n  \"color\" : \"good\",\n  \"channel\" : \"dev\",\n  \"teamDomain\" : \"jenkins-bot-testing\",\n  \"tokenCredentialId\" : \"slackcreds03\",\n  \"message\" : \"hi, the test msg slack now test ...\",\n  \"username\" : \"jenkins-test-user\"\n}",
-                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@119bb828": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@119bb828",
-                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1ddf0dcc": "org.jenkinsci.plugins.workflow.actions.TimingAction@1ddf0dcc",
-                        "jenkins.pipeline.step.plugin.name": "slack",
-                        "jenkins.pipeline.step.plugin.version": "751.v2e44153c8fe1"
-                      },
-                      "type": "Run Phase Span",
-                      "parentSpanId": "051414364a16de5a",
-                      "parameterMap": {
-                        "iconEmoji": ":rocket:",
-                        "color": "good",
-                        "channel": "dev",
-                        "teamDomain": "jenkins-bot-testing",
-                        "tokenCredentialId": "slackcreds03",
-                        "message": "hi, the test msg slack now test ...",
-                        "username": "jenkins-test-user"
-                      },
-                      "spanName": "slackSend"
-                    }
-                  ],
-                  "name": "slack-file-message-send-test-01 #5",
-                  "attributesMap": {
-                    "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
-                    "jenkins.pipeline.step.name": "Send Slack Notification",
-                    "jenkins.pipeline.step.id": "6",
-                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@45236117": "org.jenkinsci.plugins.workflow.actions.TimingAction@45236117",
-                    "jenkins.pipeline.step.type": "stage",
-                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@271c44ad": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@271c44ad",
-                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.LabelAction@1295a5ac": "org.jenkinsci.plugins.workflow.actions.LabelAction@1295a5ac",
-                    "jenkins.pipeline.step.plugin.name": "pipeline-stage-step",
-                    "jenkins.pipeline.step.plugin.version": "312.v8cd10304c27a_",
-                    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1c46492": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1c46492"
-                  },
-                  "type": "Run Phase Span",
-                  "parentSpanId": "9243f84468c9614c",
-                  "spanName": "Stage: Send Slack Notification"
-                }
-              ],
-              "name": "slack-file-message-send-test-01 #5",
-              "attributesMap": {
-                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@64d0b9ae": "org.jenkinsci.plugins.workflow.actions.TimingAction@64d0b9ae",
-                "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
-                "jenkins.pipeline.step.type": "stage",
-                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@48138834": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@48138834",
-                "harness-attribute": "{\n  \"name\" : \"Send Slack Notification\"\n}",
-                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@71529425": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@71529425"
-              },
-              "type": "Run Phase Span",
-              "parentSpanId": "3f594077f2cabe64",
-              "parameterMap": {"name": "Send Slack Notification"},
-              "spanName": "Stage: null"
-            }
-          ],
-          "name": "slack-file-message-send-test-01 #5",
-          "attributesMap": {
-            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3961ef34": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3961ef34",
-            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@159a59a0": "org.jenkinsci.plugins.workflow.actions.TimingAction@159a59a0",
-            "harness-others": "",
-            "jenkins.pipeline.step.name": "agent",
-            "jenkins.pipeline.step.id": "3",
-            "jenkins.pipeline.step.type": "node",
-            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@e311aac": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@e311aac",
-            "jenkins.credentials.id": "[org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3961ef34, org.jenkinsci.plugins.workflow.actions.TimingAction@159a59a0, io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@26704fc0]",
-            "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
-            "jenkins.pipeline.step.plugin.version": "1371.vb_7cec8f3b_95e"
-          },
-          "type": "Run Phase Span",
-          "parentSpanId": "97b5e6ca65c2085e",
-          "spanName": "Agent"
-        }
-      ],
-      "name": "slack-file-message-send-test-01 #5",
-      "attributesMap": {},
-      "type": "Run Phase Span",
-      "parentSpanId": "e982d1e2a6f8e5a1",
-      "spanName": "Phase: Run"
-    },
-    {
-      "spanId": "60192592ebd21acc",
-      "traceId": "6e7bf80b7c95be921beb36fb9cbb503e",
-      "parent": "slack-file-message-send-test-01",
-      "all-info": "span(name: Phase: Finalise, spanId: 60192592ebd21acc, parentSpanId: e982d1e2a6f8e5a1, traceId: 6e7bf80b7c95be921beb36fb9cbb503e, attr: )",
-      "name": "slack-file-message-send-test-01 #5",
-      "attributesMap": {},
-      "type": "Run Phase Span",
-      "parentSpanId": "e982d1e2a6f8e5a1",
-      "spanName": "Phase: Finalise"
-    }
-  ],
+  "parent": "slack-file-message-send-test-01",
+  "all-info": "span(name: slackSend, spanId: 94930325657a19e2, parentSpanId: 051414364a16de5a, traceId: 6e7bf80b7c95be921beb36fb9cbb503e, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"iconEmoji\" : \":rocket:\",\n  \"color\" : \"good\",\n  \"channel\" : \"dev\",\n  \"teamDomain\" : \"jenkins-bot-testing\",\n  \"tokenCredentialId\" : \"slackcreds03\",\n  \"message\" : \"hi, the test msg slack now test ...\",\n  \"username\" : \"jenkins-test-user\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@119bb828:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@119bb828;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1ddf0dcc:org.jenkinsci.plugins.workflow.actions.TimingAction@1ddf0dcc;harness-others:;jenkins.pipeline.step.id:7;jenkins.pipeline.step.name:Send Slack Message;jenkins.pipeline.step.plugin.name:slack;jenkins.pipeline.step.plugin.version:751.v2e44153c8fe1;jenkins.pipeline.step.type:slackSend;)",
   "name": "slack-file-message-send-test-01 #5",
-  "parentSpanId": "0000000000000000",
-  "spanName": "slack-file-message-send-test-01 #5"
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Send Slack Message",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "7",
+    "jenkins.pipeline.step.type": "slackSend",
+    "harness-attribute": "{\n  \"iconEmoji\" : \":rocket:\",\n  \"color\" : \"good\",\n  \"channel\" : \"dev\",\n  \"teamDomain\" : \"jenkins-bot-testing\",\n  \"tokenCredentialId\" : \"slackcreds03\",\n  \"message\" : \"hi, the test msg slack now test ...\",\n  \"username\" : \"jenkins-test-user\"\n}",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@119bb828": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@119bb828",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1ddf0dcc": "org.jenkinsci.plugins.workflow.actions.TimingAction@1ddf0dcc",
+    "jenkins.pipeline.step.plugin.name": "slack",
+    "jenkins.pipeline.step.plugin.version": "751.v2e44153c8fe1"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "051414364a16de5a",
+  "parameterMap": {
+    "iconEmoji": ":rocket:",
+    "color": "good",
+    "channel": "dev",
+    "teamDomain": "jenkins-bot-testing",
+    "tokenCredentialId": "slackcreds03",
+    "message": "hi, the test msg slack now test ...",
+    "username": "jenkins-test-user"
+  },
+  "spanName": "slackSend"
 }

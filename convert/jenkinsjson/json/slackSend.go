@@ -15,10 +15,7 @@ var JenkinsToDroneSlackSendParamMapperList = []JenkinsToDroneParamMapper{
 }
 
 func ConvertSlackSend(node Node, variables map[string]string) *harness.Step {
-
 	step := ConvertToStepWithProperties(&node, variables, JenkinsToDroneSlackSendParamMapperList,
 		SlackPluginImage)
-
 	return step
-
 }
