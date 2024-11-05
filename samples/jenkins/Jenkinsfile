@@ -586,5 +586,25 @@ line3'''
                 nunit testResultsPattern: 'TestResult.xml', failIfNoResults: true, skipJUnitArchiver: false, failedTestsFailBuild: true
             }
         }
+        //Kube-ctl
+        stage('Check Docker') {
+            steps {
+                sh '''
+                    echo "Current PATH: $PATH"
+                    which docker || echo "Docker not found"
+                '''
+            }
+        }
+        stage('Run Kubectl') {
+            steps {
+                withKubeConfig([
+                    credentialsId: 'credentialsId', // Replace with your actual credentials ID
+                    serverUrl: 'https://127.0.0.1:56227' // Replace with your actual server URL
+
+                ]) {
+                    sh 'kubectl get pods' // Run your kubectl command here
+                }
+            }
+        }
     }
 }
