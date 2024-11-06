@@ -30,6 +30,14 @@ func ConvertToStepWithProperties(node *Node, variables map[string]string,
 	return step
 }
 
+func ToJsonStringFromMap[T any](m T) (string, error) {
+	outBytes, err := json.Marshal(m)
+	if err == nil {
+		return string(outBytes), nil
+	}
+	return "", err
+}
+
 func GetStepWithProperties(node *Node,
 	tmpJenkinsToDroneParamMapperList []JenkinsToDroneParamMapper, imageName string) *harness.Step {
 
