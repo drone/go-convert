@@ -2,8 +2,11 @@ package json
 
 import (
 	"encoding/json"
+	"errors"
 	harness "github.com/drone/spec/dist/go"
 	"log"
+	"strconv"
+	"strings"
 )
 
 type ParamTransform func(node *Node, attrMap map[string]interface{}, jenkinsKey string) (interface{}, error)
@@ -187,6 +190,27 @@ func ToStructFromJsonString[T any](jsonStr string) (T, error) {
 	var v T
 	err := json.Unmarshal([]byte(jsonStr), &v)
 	return v, err
+}
+
+func ToStringArrayFromCsvString(csv string) ([]string, error) {
+	if csv == "" {
+		return nil, errors.New("input string is empty")
+	}
+
+	parts := strings.Split(csv, ",")
+	for i, part := range parts {
+		parts[i] = strings.TrimSpace(part)
+		if parts[i] == "" {
+			return nil, errors.New("invalid CSV string: contains empty values")
+		}
+	}
+
+	return parts, nil
+}
+
+func ToFloat64FromString(s string) (float64, error) {
+	valFloat64, err := strconv.ParseFloat(s, 64)
+	return valFloat64, err
 }
 
 const (
