@@ -629,6 +629,8 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "jacoco":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJacoco(currentNode, variables), ID: id})
 
+	case "cobertura":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertCobertura(currentNode, variables), ID: id})
 	case "readMavenPom":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertReadMavenPom(currentNode), ID: id})
 
@@ -685,6 +687,8 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		for _, step := range steps {
 			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: step, ID: id})
 		}
+	case "withKubeConfig":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertKubeCtl(currentNode, currentNode.ParameterMap), ID: id})
 
 	case "javadoc":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJavadoc(currentNode, variables), ID: id})

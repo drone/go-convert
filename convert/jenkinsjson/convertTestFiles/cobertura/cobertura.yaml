@@ -1,0 +1,26 @@
+- step:
+    identifier: cobertura5133f5
+    name: cobertura
+    spec:
+      envVariables:
+        JAVA_HOME:
+          /Users/franciscojunior/.jenkins/tools/hudson.model.JDK/jdk8/zulu8.80.0.17-ca-jdk8.0.422-macosx_aarch64
+        M2_HOME:
+          /Users/franciscojunior/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/M3
+        MAVEN_HOME:
+          /Users/franciscojunior/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/M3
+        PATH+JDK:
+          /Users/franciscojunior/.jenkins/tools/hudson.model.JDK/jdk8/zulu8.80.0.17-ca-jdk8.0.422-macosx_aarch64/bin
+        PATH+MAVEN:
+          /Users/franciscojunior/.jenkins/tools/hudson.tasks.Maven_MavenInstallation/M3/bin
+      image: plugins/coverage-report
+      settings:
+        fail_on_threshold: 'false'
+        reports_path_pattern: '**/coverage*.xml'
+        threshold_branch: '75'
+        threshold_class: '75'
+        threshold_file: '75'
+        threshold_line: '75'
+        threshold_method: '75'
+        threshold_package: '75'
+        tool: cobertura

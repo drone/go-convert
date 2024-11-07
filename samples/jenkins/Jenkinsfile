@@ -607,5 +607,65 @@ line3'''
                 javadoc javadocDir: 'complete/build/docs/javadoc', keepAll: true
             }
         }	
+        //Kube-ctl
+        stage('Check Docker') {
+            steps {
+                sh '''
+                    echo "Current PATH: $PATH"
+                    which docker || echo "Docker not found"
+                '''
+            }
+        }
+        stage('Run Kubectl') {
+            steps {
+                withKubeConfig([
+                    credentialsId: 'credentialsId', // Replace with your actual credentials ID
+                    serverUrl: 'https://127.0.0.1:56227' // Replace with your actual server URL
+
+                ]) {
+                    sh 'kubectl get pods' // Run your kubectl command here
+                }
+            }
+        }
+         // Jacoco XML plugin stage begins
+        stage('Checkout sample code for Cobetura coverage.xml file') {
+            steps {
+                git branch: "main", url: "https://github.com/harness-community/drone-coverage-report.git"
+            }
+        }
+        stage('Publish JaCoCo Coverage Report') { // Jacoco plugin stage
+            steps {
+                jacoco execPattern: 'target/*.exec',
+                       classPattern: '**/target/classes',
+                       sourcePattern: '**/src/main/java',
+                       exclusionPattern: '**/test/**',
+                       changeBuildStatus: true,
+                       minimumBranchCoverage: '1',
+                       minimumClassCoverage: '1',
+                       minimumComplexityCoverage: '100',
+                       minimumInstructionCoverage: '1',
+                       minimumLineCoverage: '1',
+                       minimumMethodCoverage: '1'
+            }
+        }
+        // Cobertura plugin stage begins
+        stage('Checkout sample code for Cobetura coverage.xml file') {
+            steps {
+                git branch: "main", url: "https://github.com/harness-community/drone-coverage-report.git"
+            }
+        }
+        stage('Publish Cobertura Coverage Report') {  // Cobetura plugin stage
+            steps {
+                cobertura coberturaReportFile: '**/coverage.xml',
+                         autoUpdateHealth: false,
+                         autoUpdateStability: false,
+                         failUnhealthy: false,
+                         failUnstable: false,
+                         lineCoverageTargets: '80, 0, 0',
+                         methodCoverageTargets: '80, 0, 0',
+                         classCoverageTargets: '70, 0, 0',
+                         conditionalCoverageTargets: '65, 0, 0'
+            }
+        }
     }
 }
