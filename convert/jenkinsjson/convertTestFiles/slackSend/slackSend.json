@@ -1,0 +1,31 @@
+{
+  "spanId": "94930325657a19e2",
+  "traceId": "6e7bf80b7c95be921beb36fb9cbb503e",
+  "parent": "slack-file-message-send-test-01",
+  "all-info": "span(name: slackSend, spanId: 94930325657a19e2, parentSpanId: 051414364a16de5a, traceId: 6e7bf80b7c95be921beb36fb9cbb503e, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"iconEmoji\" : \":rocket:\",\n  \"color\" : \"good\",\n  \"channel\" : \"dev\",\n  \"teamDomain\" : \"jenkins-bot-testing\",\n  \"tokenCredentialId\" : \"slackcreds03\",\n  \"message\" : \"hi, the test msg slack now test ...\",\n  \"username\" : \"jenkins-test-user\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@119bb828:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@119bb828;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1ddf0dcc:org.jenkinsci.plugins.workflow.actions.TimingAction@1ddf0dcc;harness-others:;jenkins.pipeline.step.id:7;jenkins.pipeline.step.name:Send Slack Message;jenkins.pipeline.step.plugin.name:slack;jenkins.pipeline.step.plugin.version:751.v2e44153c8fe1;jenkins.pipeline.step.type:slackSend;)",
+  "name": "slack-file-message-send-test-01 #5",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Send Slack Message",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "7",
+    "jenkins.pipeline.step.type": "slackSend",
+    "harness-attribute": "{\n  \"iconEmoji\" : \":rocket:\",\n  \"color\" : \"good\",\n  \"channel\" : \"dev\",\n  \"teamDomain\" : \"jenkins-bot-testing\",\n  \"tokenCredentialId\" : \"slackcreds03\",\n  \"message\" : \"hi, the test msg slack now test ...\",\n  \"username\" : \"jenkins-test-user\"\n}",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@119bb828": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@119bb828",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1ddf0dcc": "org.jenkinsci.plugins.workflow.actions.TimingAction@1ddf0dcc",
+    "jenkins.pipeline.step.plugin.name": "slack",
+    "jenkins.pipeline.step.plugin.version": "751.v2e44153c8fe1"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "051414364a16de5a",
+  "parameterMap": {
+    "iconEmoji": ":rocket:",
+    "color": "good",
+    "channel": "dev",
+    "teamDomain": "jenkins-bot-testing",
+    "tokenCredentialId": "slackcreds03",
+    "message": "hi, the test msg slack now test ...",
+    "username": "jenkins-test-user"
+  },
+  "spanName": "slackSend"
+}

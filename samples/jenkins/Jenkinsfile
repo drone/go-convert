@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     tools {
         ant 'AntNew'
         gradle 'GradleNew'
@@ -12,7 +12,7 @@ pipeline {
         DOCKER_TAG = 'latest'
         ARTIFACTORY_SERVER = 'artifactory-id'
     }
-    
+
     stages {
         stage('Plugin Build') {
             steps {
@@ -26,18 +26,16 @@ pipeline {
                         submoduleCfg: [],
                         userRemoteConfigs: [[url: 'https://github.com/harness-community/test-jenkins-to-harness.git']]
                     ])
-                    
                     // Use Maven to build
                     withMaven {
                     sh "mvn clean install\
                         package"
                     }
-                    
                     // Use Ant to build
                     withAnt {
                         sh 'ant build'
                     }
-                    
+
                     // Use Gradle to build
                     withGradle {
                         sh 'gradle build'
@@ -45,11 +43,11 @@ pipeline {
                 }
             }
         }
-        
+
         stage('ReadWriteFile') {
             steps {
                 script {
-                    writeFile file: 'output1.txt', text: '''line1 
+                    writeFile file: 'output1.txt', text: '''line1
 
 line2
 
@@ -69,15 +67,15 @@ line3'''
                       touch target/file5.txt
                       touch target/file6.txt
                     '''
-                    
+
                     // List files before deletion
                     sh 'ls'
-                    
+
                     // Delete the target directory
                     dir('target') {
                         deleteDir()
                     }
-                    
+
                     // List files after deletion
                     sh 'ls'
                 }
@@ -98,7 +96,7 @@ line3'''
                 }
             }
         }
-        
+
         stage('Read yaml step') {
             steps {
                 script {
@@ -110,12 +108,12 @@ line3'''
   properties:
     ci:
       codebase:false'''
-                        
+
                     datas = readYaml (file: 'test1.yaml')
                 }
             }
         }
-	
+
         stage('Code Analysis') {
             environment {
                 scannerHome = tool 'Sonar'
@@ -142,7 +140,7 @@ line3'''
                 script {
                     def files = findFiles(glob: '**/*.txt')
                     echo "${files.length} files"
-                
+
                     for(int i = 0; i < files.length; i++) {
                         echo "${files[i].name} -- ${files[i].path}"
                     }
@@ -305,7 +303,7 @@ line3'''
             steps {
                 fileOperations([
                     fileJoinOperation(
-                        sourceFile: 'file1.txt', 
+                        sourceFile: 'file1.txt',
                         targetFile: 'file2.txt'
                     )
                 ])
@@ -326,7 +324,7 @@ line3'''
             steps {
                 fileOperations([
                     fileJoinOperation(
-                        sourceFile: 'file1.txt', 
+                        sourceFile: 'file1.txt',
                         targetFile: 'file2.txt'
                     )
                 ])
@@ -346,7 +344,7 @@ line3'''
             steps {
                 fileOperations([
                     fileRenameOperation(
-                        source: 'newfile.txt', 
+                        source: 'newfile.txt',
                         destination: 'renamedfile.txt'
                     )
                 ])
@@ -367,8 +365,8 @@ line3'''
             steps {
                 fileOperations([
                     fileTransformOperation(
-                        includes: 'newfile*.txt', 
-                        excludes: 'newfile2.txt', 
+                        includes: 'newfile*.txt',
+                        excludes: 'newfile2.txt',
                         useDefaultExcludes: false
                     )
                 ])
@@ -391,8 +389,8 @@ line3'''
             steps {
                 fileOperations([
                     fileUnTarOperation(
-                        filePath: 'src.tar.gz', 
-                        targetLocation: 'dest/', 
+                        filePath: 'src.tar.gz',
+                        targetLocation: 'dest/',
                         isGZIP: true
                     )
                 ])
@@ -415,7 +413,7 @@ line3'''
             steps {
                 fileOperations([
                     fileUnZipOperation(
-                        filePath: 'src.zip', 
+                        filePath: 'src.zip',
                         targetLocation: 'dest/'
                     )
                 ])
@@ -437,7 +435,7 @@ line3'''
             steps {
                 fileOperations([
                     fileZipOperation(
-                        folderPath: 'src/', 
+                        folderPath: 'src/',
                         outputFolderPath: 'dest/'
                     )
                 ])
@@ -459,7 +457,7 @@ line3'''
             steps {
                 fileOperations([
                     folderCopyOperation(
-                        sourceFolderPath: 'src/', 
+                        sourceFolderPath: 'src/',
                         destinationFolderPath: 'dest'
                     )
                 ])
@@ -494,7 +492,7 @@ line3'''
             steps {
                 fileOperations([
                     folderRenameOperation(
-                        source: 'src/', 
+                        source: 'src/',
                         destination: 'dest/'
                     )
                 ])
@@ -525,32 +523,33 @@ line3'''
             steps {
                 s3Upload entries: [
                 [bucket: 'bucket-1', excludedFile: '2.txxt'
-                  , flatten: false, gzipFiles: false, keepForever: false
-                  , selectedRegion: 'us-west-1', showDirectlyInBrowser: false
-                  , sourceFile: '*.txt', uploadFromSlave: false],
-                [bucket: 'bucket-1',
-                  , flatten: false, gzipFiles: true, keepForever: false
-                  , selectedRegion: 'us-west-1', showDirectlyInBrowser: false
-                  , sourceFile: '*.md', uploadFromSlave: false]
+                 , flatten: false, gzipFiles: false, keepForever: false
+                 , selectedRegion: 'us-west-1', showDirectlyInBrowser: false
+                 , sourceFile: '*.txt', uploadFromSlave: false],
+                [bucket: 'bucket-1'
+                 , flatten: false, gzipFiles: true, keepForever: false
+                 , selectedRegion: 'us-west-1', showDirectlyInBrowser: false
+                 , sourceFile: '*.md', uploadFromSlave: false]
                 ], profileName: 'default'
             }
         }
         stage('Jacoco reports') {
-          steps {
-            jacoco(
-              classPattern: '**/target/classes, **/WEB-INF/classes',
-              exclusionPattern: '**/controllers/*.class',
-              inclusionPattern: '**/*.class',
-              sourceInclusionPattern: '**/*.java',
-              sourceExclusionPattern: '**/controllers/*.java',
-              maximumBranchCoverage: '81',
-              maximumClassCoverage: '85',
-              maximumComplexityCoverage: '10',
-              maximumInstructionCoverage: '80',
-              maximumLineCoverage: '83',
-              maximumMethodCoverage: '84'
-            )
-          }
+            steps {
+                jacoco(
+                        classPattern: '**/target/classes, **/WEB-INF/classes',
+                        exclusionPattern: '**/controllers/*.class',
+                        inclusionPattern: '**/*.class',
+                        sourceInclusionPattern: '**/*.java',
+                        sourceExclusionPattern: '**/controllers/*.java',
+                        maximumBranchCoverage: '81',
+                        maximumClassCoverage: '85',
+                        maximumComplexityCoverage: '10',
+                        maximumInstructionCoverage: '80',
+                        maximumLineCoverage: '83',
+                        maximumMethodCoverage: '84'
+                )
+            }
+        }
         //Allure Jenkins pipeline stages
         stage('Checkout') {
             steps {
@@ -578,7 +577,7 @@ line3'''
                 script {
                     def xmlFileUrl = 'https://raw.githubusercontent.com/harness-community/test-jenkins-to-harness/refs/heads/main/nunit-test-result.xml'
                     def outputFilePath = 'TestResult.xml'
-                    
+
                     bat """
                     powershell -Command "Invoke-WebRequest -Uri '${xmlFileUrl}' -OutFile '${outputFilePath}'"
                     """
@@ -606,29 +605,8 @@ line3'''
                 }
             }
         }
-         // Jacoco XML plugin stage begins
-        stage('Checkout sample code for Cobetura coverage.xml file') {
-            steps {
-                git branch: "main", url: "https://github.com/harness-community/drone-coverage-report.git"
-            }
-        }
-        stage('Publish JaCoCo Coverage Report') { // Jacoco plugin stage
-            steps {
-                jacoco execPattern: 'target/*.exec',
-                       classPattern: '**/target/classes',
-                       sourcePattern: '**/src/main/java',
-                       exclusionPattern: '**/test/**',
-                       changeBuildStatus: true,
-                       minimumBranchCoverage: '1',
-                       minimumClassCoverage: '1',
-                       minimumComplexityCoverage: '100',
-                       minimumInstructionCoverage: '1',
-                       minimumLineCoverage: '1',
-                       minimumMethodCoverage: '1'
-            }
-        }
         // Cobertura plugin stage begins
-        stage('Checkout sample code for Cobetura coverage.xml file') {
+        stage('Checkout sample code for Cobertura coverage.xml file') {
             steps {
                 git branch: "main", url: "https://github.com/harness-community/drone-coverage-report.git"
             }
@@ -636,14 +614,48 @@ line3'''
         stage('Publish Cobertura Coverage Report') {  // Cobetura plugin stage
             steps {
                 cobertura coberturaReportFile: '**/coverage.xml',
-                         autoUpdateHealth: false,
-                         autoUpdateStability: false,
-                         failUnhealthy: false,
-                         failUnstable: false,
-                         lineCoverageTargets: '80, 0, 0',
-                         methodCoverageTargets: '80, 0, 0',
-                         classCoverageTargets: '70, 0, 0',
-                         conditionalCoverageTargets: '65, 0, 0'
+                        autoUpdateHealth: false,
+                        autoUpdateStability: false,
+                        failUnhealthy: false,
+                        failUnstable: false,
+                        lineCoverageTargets: '80, 0, 0',
+                        methodCoverageTargets: '80, 0, 0',
+                        classCoverageTargets: '70, 0, 0',
+                        conditionalCoverageTargets: '65, 0, 0'
+            }
+        }
+        // slackFileUpload plugin stage begins here
+        stage('Generate Temp File') {
+            steps {
+                script {
+                    def words = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig', 'grape']
+                    def randomWords = (1..5).collect { words[new Random().nextInt(words.size())] }.join(' ')
+                    writeFile file: 'b.txt', text: randomWords
+                    echo "Temp file created with content: ${randomWords}"
+                }
+            }
+        }
+        stage('Upload to Slack') {
+            steps {
+                slackUploadFile(
+                    channel: 'C07TL1KNV8Q',
+                    credentialId: 'SlackChannelCreds',
+                    failOnError: true,
+                    filePath: 'b.txt',
+                    initialComment: 'jenkins file upload test'
+                )
+            }
+        }
+        // slackSend plugin stage begins here
+        stage('Send Slack Notification') {
+            steps {
+                slackSend channel: 'dev',
+                          color: 'good',
+                          iconEmoji: ':rocket:',
+                          message: 'hi, the test msg slack now test ...',
+                          teamDomain: 'jenkins-bot-testing',
+                          tokenCredentialId: 'slackcreds03',
+                          username: 'jenkins-test-user'
             }
         }
     }
