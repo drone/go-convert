@@ -7,16 +7,16 @@ import (
 
 func ConvertPublishHtml(node Node, variables map[string]string) *harness.Step {
 
-	s, _ := ToJsonStringFromStruct[Node](node)
-
-	fmt.Println(s)
+	s, err := ToJsonStringFromStruct[Node](node)
+	if err != nil {
+		return &harness.Step{}
+	}
 	publishHtmlParameterMap, err := ToStructFromJsonString[PublishHtmlParameterMap](s)
 	if err != nil {
 		fmt.Println(err)
 	}
 	pmt := publishHtmlParameterMap.ParameterMap.Target
 
-	fmt.Println(publishHtmlParameterMap)
 	step := &harness.Step{
 		Id:   SanitizeForId("UploadPublish", node.SpanId),
 		Name: "Upload and Publish",
@@ -28,7 +28,7 @@ func ConvertPublishHtml(node Node, variables map[string]string) *harness.Step {
 				"aws_access_key_id":     "<+input>",
 				"aws_secret_access_key": "<+input>",
 				"aws_bucket":            "<+input>",
-				"default_region":        "<+input>",
+				"aws_default_region":    "<+input>",
 				"source":                pmt.ReportDir,
 				"target":                "<+pipeline.sequenceId>",
 				"include":               pmt.Include,

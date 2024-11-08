@@ -1,0 +1,30 @@
+{
+  "spanId":"43d688dc04a34e80",
+  "traceId":"9cd229c1a1c26adb2299ded68e09021c",
+  "parent":"senthil-html-publisher-01",
+  "all-info":"span(name: publishHTML, spanId: 43d688dc04a34e80, parentSpanId: a34bdc3211c7e09d, traceId: 9cd229c1a1c26adb2299ded68e09021c, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"target\" : {\n    \"reportName\" : \"Sample HTML Report\",\n    \"reportDir\" : \"reports\",\n    \"reportFiles\" : \"index.html\",\n    \"includes\" : \"**/*.html,**/*.css\"\n  }\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3bd48c2:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3bd48c2;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1246df5f:org.jenkinsci.plugins.workflow.actions.TimingAction@1246df5f;harness-others:;jenkins.pipeline.step.id:17;jenkins.pipeline.step.name:Publish HTML reports;jenkins.pipeline.step.plugin.name:htmlpublisher;jenkins.pipeline.step.plugin.version:1.36;jenkins.pipeline.step.type:publishHTML;)",
+  "name":"senthil-html-publisher-01 #4",
+  "attributesMap":{
+    "harness-others":"",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3bd48c2":"io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3bd48c2",
+    "jenkins.pipeline.step.name":"Publish HTML reports",
+    "ci.pipeline.run.user":"SYSTEM",
+    "jenkins.pipeline.step.id":"17",
+    "jenkins.pipeline.step.type":"publishHTML",
+    "harness-attribute":"{\n  \"target\" : {\n    \"reportName\" : \"Sample HTML Report\",\n    \"reportDir\" : \"reports\",\n    \"reportFiles\" : \"index.html\",\n    \"includes\" : \"**/*.html,**/*.css\"\n  }\n}",
+    "jenkins.pipeline.step.plugin.name":"htmlpublisher",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1246df5f":"org.jenkinsci.plugins.workflow.actions.TimingAction@1246df5f",
+    "jenkins.pipeline.step.plugin.version":"1.36"
+  },
+  "type":"Run Phase Span",
+  "parentSpanId":"a34bdc3211c7e09d",
+  "parameterMap":{
+    "target":{
+      "reportName":"Sample HTML Report",
+      "reportDir":"reports",
+      "includes":"**/*.html,**/*.css",
+      "reportFiles":"index.html"
+    }
+  },
+  "spanName":"publishHTML"
+}
