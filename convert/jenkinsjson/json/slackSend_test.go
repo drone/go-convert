@@ -23,19 +23,19 @@ func TestSlackSend(t *testing.T) {
 
 	workingDir, err := os.Getwd()
 	if err != nil {
-		t.Fatalf("failed to get current working directory: %v", err)
+		t.Fatalf("Failed to get current working directory: %v", err)
 	}
 
 	filePath := filepath.Join(workingDir, jsonFilePath)
 
 	jsonData, err := os.ReadFile(filePath)
 	if err != nil {
-		t.Fatalf("failed to read JSON file: %v", err)
+		t.Fatalf("Failed to read JSON file: %v", err)
 	}
 
 	var node Node
 	if err := json.Unmarshal(jsonData, &node); err != nil {
-		t.Fatalf("failed to decode JSON: %v", err)
+		t.Fatalf("Failed to decode JSON: %v", err)
 	}
 	variables := make(map[string]string)
 
@@ -45,7 +45,7 @@ func TestSlackSend(t *testing.T) {
 	if isDebug() {
 		js, er := ToJsonStringFromStruct[harness.Step](*tmpTestStep)
 		if er != nil {
-			t.Fatalf("failed to convert struct to JSON: %v", er)
+			t.Fatalf("Failed to convert struct to JSON: %v", er)
 		}
 		fmt.Println(js)
 	}
@@ -58,7 +58,7 @@ func TestSlackSend(t *testing.T) {
 	diffs := cmp.Diff(wantStep, *tmpTestStep)
 
 	if len(diffs) != 0 {
-		t.Fatalf("failed to convert JSON to struct: %v", diffs)
+		t.Fatalf("Failed to convert JSON to struct: %v", diffs)
 	}
 
 }
