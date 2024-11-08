@@ -623,6 +623,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			}
 		}
 
+	case "publishHTML":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPublishHtml(currentNode, variables), ID: id})
+
 	case "httpRequest":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertHttpRequest(currentNode, variables), ID: id})
 
