@@ -11,7 +11,7 @@ const (
 var JenkinsToDroneSlackUploadParamMapperList = []JenkinsToDroneParamMapper{
 	{"filePath", "file_path", StringType, nil},
 	{"channel", "channel", StringType, nil},
-	{"credentialId", "credential_id", StringType, nil},
+	{"credentialId", "access_token", StringType, nil},
 	{"initialComment", "initial_comment", StringType, nil},
 	{"failOnError", "fail_on_error", BoolType, nil},
 }
