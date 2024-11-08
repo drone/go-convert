@@ -78,7 +78,7 @@ var expectedSlackFileUploadStepJSON = `{
     },
     "inputs": {
       "channel": "C07TL1KNV8Q",
-      "credential_id": "SlackToken01",
+      "access_token": "SlackToken01",
       "fail_on_error": true,
       "file_path": "b.txt",
       "initial_comment": "jenkins file upload test"
