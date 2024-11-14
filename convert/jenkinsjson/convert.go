@@ -353,6 +353,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		// this is technically a step group, we treat it as just steps for now
 		if len(currentNode.Children) > 1 {
 			// handle parallel from parent
+			if currentNode.Children[0].AttributesMap["jenkins.pipeline.step.type"] == "getContext" {
+				currentNode.Children = currentNode.Children[1:]
+			}
 			if currentNode.Children[0].AttributesMap["jenkins.pipeline.step.type"] == "parallel" {
 				parallelStepItemsWithID := make([]StepWithID, 0)
 				for _, child := range currentNode.Children {
@@ -378,6 +381,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: parallelStep, ID: id})
 			} else {
 				for _, child := range currentNode.Children {
+					if child.SpanName == "getContext" {
+						child.SpanName = currentNode.AttributesMap["jenkins.pipeline.step.name"]
+					}
 					clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout, dockerImage)
 				}
 			}
