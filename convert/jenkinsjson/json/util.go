@@ -14,15 +14,46 @@
 
 package json
 
-import "regexp"
+import (
+	"regexp"
+	"strings"
+)
 
 func SanitizeForId(spanName string, spanId string) string {
 	// Replace invalid characters with underscores
-	invalidCharRegex := regexp.MustCompile("[^a-zA-Z0-9.-_]+")
+	invalidCharRegex := regexp.MustCompile(`[^a-zA-Z0-9.\-_]+`)
 	sanitized := invalidCharRegex.ReplaceAllString(spanName, "_")
 
 	// Trim leading and trailing underscores
 	sanitized = regexp.MustCompile("^_+|_+$").ReplaceAllString(sanitized, "")
 
+	if sanitized == "" {
+		sanitized = "unamed"
+	}
+
+	if len(sanitized) > 58 {
+		sanitized = sanitized[:58]
+	}
+
 	return sanitized + spanId[:6]
+}
+
+func SanitizeForName(spanName string) string {
+	// Replace invalid characters with underscores
+	invalidCharRegex := regexp.MustCompile(`[^\w\- ]+`)
+	sanitized := invalidCharRegex.ReplaceAllString(spanName, "_")
+
+	// Trim leading and trailing underscores
+	sanitized = strings.TrimLeft(sanitized, "_ ")
+	sanitized = strings.TrimRight(sanitized, "_ ")
+
+	if sanitized == "" {
+		sanitized = "unamed"
+	}
+
+	if len(sanitized) > 128 {
+		sanitized = sanitized[:128]
+	}
+
+	return sanitized
 }
