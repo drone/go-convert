@@ -34,7 +34,7 @@ func TestConvertPagerDuty(t *testing.T) {
 			got := ConvertPagerDuty(tt.input, tt.input.ParameterMap)
 
 			if diff := cmp.Diff(got, tt.want); diff != "" {
-				t.Errorf("ConvertNunit() mismatch (-want +got):\n%s", diff)
+				t.Errorf("ConvertPagerDuty() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
@@ -65,7 +65,7 @@ func TestConvertPagerDutyChangeEvent(t *testing.T) {
 			got := ConvertPagerDutyChangeEvent(tt.input, tt.input.ParameterMap)
 
 			if diff := cmp.Diff(got, tt.want); diff != "" {
-				t.Errorf("ConvertNunit() mismatch (-want +got):\n%s", diff)
+				t.Errorf("ConvertPagerDutyChangeEvent() mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
