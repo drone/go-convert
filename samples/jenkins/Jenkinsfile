@@ -685,5 +685,26 @@ line3'''
                 ])
             }
         }
+        //mailer
+        stage('Test') {
+            steps {
+                script {
+                    // Set the build result to test email notifications
+                    currentBuild.result = 'FAILED' // Change to 'UNSTABLE' or 'SUCCESS' as needed
+                }
+            }
+        }
+        post {
+        always {
+            mail(
+                to: "test.uyser@testmail.com",
+                subject: "Jenkins Build - ${currentBuild.fullDisplayName}",
+                body: """
+                Build Status: ${currentBuild.currentResult}
+                Check console output at: ${env.BUILD_URL}console
+                """
+            )
+        }
+        }
     }
 }

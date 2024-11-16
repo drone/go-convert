@@ -699,6 +699,8 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		}
 	case "withKubeConfig":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertKubeCtl(currentNode, currentNode.ParameterMap), ID: id})
+	case "mail":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertMailer(currentNode, currentNode.ParameterMap), ID: id})
 
 	default:
 		placeholderStr := fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"])
