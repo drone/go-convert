@@ -7,7 +7,7 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
-// ConvertNunit creates a Harness step for nunit plugin.
+// ConvertPagerduty creates a Harness step for nunit plugin.
 func ConvertPagerDuty(node Node, arguments map[string]interface{}) *harness.Step {
 	incidentSource, _ := arguments["incidentSource"].(string)
 	resolve, _ := arguments["resolve"].(bool)
@@ -38,7 +38,7 @@ func ConvertPagerDuty(node Node, arguments map[string]interface{}) *harness.Step
 	return convertPagerduty
 }
 
-// ConvertNunit creates a Harness step for nunit plugin.
+// ConvertPagerduty creates a Harness step for nunit plugin.
 func ConvertPagerDutyChangeEvent(node Node, arguments map[string]interface{}) *harness.Step {
 	incidentSource, _ := arguments["incidentSource"].(string)
 	incidentSummary, _ := arguments["summaryText"].(string)
