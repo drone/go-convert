@@ -720,5 +720,32 @@ line3'''
             )
         }
     }
+        // publishHTML plugin stage begins
+        stage('Generate HTML Reports') {
+            steps {
+                script {
+                    sh 'mkdir -p reports'
+                    writeFile file: 'reports/index.html', text: '''
+                        <html>
+                        <head><title>Sample Report</title></head>
+                        <body>
+                            <h1>Main Report</h1>
+                            <p>This is the main report page.</p>
+                        </body>
+                        </html>
+                    '''
+                }
+            }
+        }
+        stage('Publish HTML Report') {
+            steps {
+                publishHTML(target: [
+                        reportName : 'Sample HTML Report',
+                        reportDir  : 'reports',
+                        reportFiles: 'index.html',
+                        includes   : '**/*.html,**/*.css'
+                ])
+            }
+        }
     }
 }
