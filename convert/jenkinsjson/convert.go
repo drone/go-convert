@@ -62,7 +62,7 @@ type ProcessedTools struct {
 var mavenGoals string
 var gradleGoals string
 
-var defaultAlpineImage string
+var defaultImage string
 
 // Converter converts a jenkinsjson pipeline to a Harness
 // v1 pipeline.
@@ -105,7 +105,7 @@ func New(options ...Option) *Converter {
 		d.defaultImage = "alpine"
 	}
 
-	defaultAlpineImage = d.defaultImage
+	defaultImage = d.defaultImage
 
 	return d
 }
@@ -983,7 +983,7 @@ func hasDefaultOrNoImage(exec *harness.StepExec) bool {
 	if exec.Image == "" {
 		return true // Image parameter is not present
 	}
-	return strings.TrimSpace(strings.ToLower(exec.Image)) == strings.ToLower(defaultAlpineImage)
+	return strings.TrimSpace(strings.ToLower(exec.Image)) == strings.ToLower(defaultImage)
 }
 
 func ENVmapsEqual(m1, m2 map[string]string) bool {
