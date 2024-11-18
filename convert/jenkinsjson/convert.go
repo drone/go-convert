@@ -62,6 +62,8 @@ type ProcessedTools struct {
 var mavenGoals string
 var gradleGoals string
 
+var defaultImage string
+
 // Converter converts a jenkinsjson pipeline to a Harness
 // v1 pipeline.
 type Converter struct {
@@ -69,6 +71,7 @@ type Converter struct {
 	kubeNamespace string
 	kubeConnector string
 	dockerhubConn string
+	defaultImage  string
 	identifiers   *store.Identifiers
 }
 
@@ -97,6 +100,12 @@ func New(options ...Option) *Converter {
 	if d.kubeConnector != "" {
 		d.kubeEnabled = true
 	}
+
+	if d.defaultImage == "" {
+		d.defaultImage = "alpine"
+	}
+
+	defaultImage = d.defaultImage
 
 	return d
 }
@@ -188,7 +197,7 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 			// Create the stepGroup for the new stage
 			dstStep := &harness.Step{
 				Name: stageName,
-				Id:   jenkinsjson.SanitizeForId(childNode.SpanName, childNode.SpanId),
+				Id:   SanitizeForId(childNode.SpanName, childNode.SpanId),
 				Type: "group",
 				Spec: &harness.StepGroup{
 					Steps: stepsInStage,
@@ -369,7 +378,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 				}
 				parallelStep := &harness.Step{
 					Name: currentNode.SpanName,
-					Id:   jenkinsjson.SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 					Type: "parallel",
 					Spec: &harness.StepParallel{
 						Steps: sortedParallelSteps,
@@ -623,9 +632,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			}
 		}
 
-	case "publishHTML":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPublishHtml(currentNode, variables), ID: id})
-
 	case "httpRequest":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertHttpRequest(currentNode, variables), ID: id})
 
@@ -634,13 +640,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 
 	case "cobertura":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertCobertura(currentNode, variables), ID: id})
-
-	case "slackSend":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSlackSend(currentNode, variables), ID: id})
-
-	case "slackUploadFile":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSlackUploadFile(currentNode, variables), ID: id})
-
 	case "readMavenPom":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertReadMavenPom(currentNode), ID: id})
 
@@ -708,8 +707,8 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		}
 		placeholderStr += "\n" + prependCommentHashToLines(string(b))
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: &harness.Step{
-			Name: jenkinsjson.SanitizeForName(currentNode.SpanName),
-			Id:   jenkinsjson.SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+			Name: currentNode.SpanName,
+			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 			Type: "script",
 			Spec: &harness.StepExec{
 				Shell: "sh",
@@ -799,7 +798,7 @@ func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]Ste
 				toolStep := &harness.Step{
 					Name:    buildName,
 					Timeout: timeout,
-					Id:      jenkinsjson.SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Id:      SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 					Type:    "script",
 					Spec: &harness.StepExec{
 						Shell: "sh",
@@ -881,7 +880,7 @@ func recursiveHandleSonarCube(currentNode jenkinsjson.Node, stepWithIDList *[]St
 				toolStep := &harness.Step{
 					Name:    pluginName,
 					Timeout: timeout,
-					Id:      jenkinsjson.SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Id:      SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 					Type:    "plugin",
 					Spec: &harness.StepPlugin{
 						Connector: "c.docker",
@@ -935,7 +934,6 @@ func mergeRunSteps(steps *[]StepWithID) {
 
 	merged := []StepWithID{}
 	cursor := (*steps)[0]
-	pushed := false
 	for i := 1; i < len(*steps); i++ {
 		current := (*steps)[i]
 		// if can merge, store all current content in cursor
@@ -943,21 +941,15 @@ func mergeRunSteps(steps *[]StepWithID) {
 			previousExec := cursor.Step.Spec.(*harness.StepExec)
 			currentExec := current.Step.Spec.(*harness.StepExec)
 			previousExec.Run += "\n" + currentExec.Run
-			cursor.Step.Name = jenkinsjson.SanitizeForName(cursor.Step.Name + "_" + current.Step.Name)
-			pushed = false
+			cursor.Step.Name += "_" + current.Step.Name
 		} else {
 			// if not able to merge, push cursor and reset cursor to current one
 			merged = append(merged, cursor)
 			cursor = current
-			if i != len(*steps)-1 {
-				pushed = true
-			}
 		}
 	}
 
-	if !pushed {
-		merged = append(merged, cursor)
-	}
+	merged = append(merged, cursor)
 	*steps = merged
 }
 
@@ -973,6 +965,10 @@ func canMergeSteps(step1, step2 *harness.Step) bool {
 		return false
 	}
 
+	if !hasDefaultOrNoImage(exec1) || !hasDefaultOrNoImage(exec2) {
+		return false
+	}
+
 	return exec1.Image == exec2.Image &&
 		exec1.Connector == exec2.Connector &&
 		exec1.Shell == exec2.Shell &&
@@ -981,6 +977,13 @@ func canMergeSteps(step1, step2 *harness.Step) bool {
 		ARGSslicesEqual(exec1.Args, exec2.Args) &&
 		exec1.Privileged == exec2.Privileged &&
 		exec1.Network == exec2.Network
+}
+
+func hasDefaultOrNoImage(exec *harness.StepExec) bool {
+	if exec.Image == "" {
+		return true // Image parameter is not present
+	}
+	return strings.TrimSpace(strings.ToLower(exec.Image)) == strings.ToLower(defaultImage)
 }
 
 func ENVmapsEqual(m1, m2 map[string]string) bool {
