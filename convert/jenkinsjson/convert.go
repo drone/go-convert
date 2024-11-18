@@ -197,7 +197,7 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 			// Create the stepGroup for the new stage
 			dstStep := &harness.Step{
 				Name: stageName,
-				Id:   SanitizeForId(childNode.SpanName, childNode.SpanId),
+				Id:   jenkinsjson.SanitizeForId(childNode.SpanName, childNode.SpanId),
 				Type: "group",
 				Spec: &harness.StepGroup{
 					Steps: stepsInStage,
@@ -378,7 +378,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 				}
 				parallelStep := &harness.Step{
 					Name: currentNode.SpanName,
-					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Id:   jenkinsjson.SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 					Type: "parallel",
 					Spec: &harness.StepParallel{
 						Steps: sortedParallelSteps,
@@ -708,7 +708,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		placeholderStr += "\n" + prependCommentHashToLines(string(b))
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: &harness.Step{
 			Name: currentNode.SpanName,
-			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+			Id:   jenkinsjson.SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 			Type: "script",
 			Spec: &harness.StepExec{
 				Shell: "sh",
@@ -798,7 +798,7 @@ func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]Ste
 				toolStep := &harness.Step{
 					Name:    buildName,
 					Timeout: timeout,
-					Id:      SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Id:      jenkinsjson.SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 					Type:    "script",
 					Spec: &harness.StepExec{
 						Shell: "sh",
@@ -880,7 +880,7 @@ func recursiveHandleSonarCube(currentNode jenkinsjson.Node, stepWithIDList *[]St
 				toolStep := &harness.Step{
 					Name:    pluginName,
 					Timeout: timeout,
-					Id:      SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Id:      jenkinsjson.SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 					Type:    "plugin",
 					Spec: &harness.StepPlugin{
 						Connector: "c.docker",
@@ -934,6 +934,7 @@ func mergeRunSteps(steps *[]StepWithID) {
 
 	merged := []StepWithID{}
 	cursor := (*steps)[0]
+	pushed := false
 	for i := 1; i < len(*steps); i++ {
 		current := (*steps)[i]
 		// if can merge, store all current content in cursor
@@ -941,7 +942,8 @@ func mergeRunSteps(steps *[]StepWithID) {
 			previousExec := cursor.Step.Spec.(*harness.StepExec)
 			currentExec := current.Step.Spec.(*harness.StepExec)
 			previousExec.Run += "\n" + currentExec.Run
-			cursor.Step.Name += "_" + current.Step.Name
+			cursor.Step.Name += jenkinsjson.SanitizeForName(cursor.Step.Name + "_" + current.Step.Name)
+			pushed = false
 		} else {
 			// if not able to merge, push cursor and reset cursor to current one
 			merged = append(merged, cursor)
@@ -949,7 +951,10 @@ func mergeRunSteps(steps *[]StepWithID) {
 		}
 	}
 
-	merged = append(merged, cursor)
+	if !pushed {
+		merged = append(merged, cursor)
+	}
+
 	*steps = merged
 }
 
