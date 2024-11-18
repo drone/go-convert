@@ -47,7 +47,7 @@ func TestConvertJavadoc(t *testing.T) {
 			"aws_secret_access_key": "<+input>",
 			"aws_bucket":            "<+input>",
 			"source":                expectedSource,
-			"target":                "<+pipeline.name>/<+pipeline.sequenceId>",
+			"target":                "<+pipeline.identifier>/<+pipeline.sequenceId>",
 		},
 	}
 
