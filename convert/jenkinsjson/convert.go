@@ -942,7 +942,7 @@ func mergeRunSteps(steps *[]StepWithID) {
 			previousExec := cursor.Step.Spec.(*harness.StepExec)
 			currentExec := current.Step.Spec.(*harness.StepExec)
 			previousExec.Run += "\n" + currentExec.Run
-			cursor.Step.Name += jenkinsjson.SanitizeForName(cursor.Step.Name + "_" + current.Step.Name)
+			cursor.Step.Name = jenkinsjson.SanitizeForName(cursor.Step.Name + "_" + current.Step.Name)
 			pushed = false
 		} else {
 			// if not able to merge, push cursor and reset cursor to current one
