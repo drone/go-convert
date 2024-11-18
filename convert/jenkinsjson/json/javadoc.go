@@ -27,7 +27,7 @@ func ConvertJavadoc(node Node, variables map[string]string) *harness.Step {
                 "aws_secret_access_key": "<+input>",
                 "aws_bucket":            "<+input>",
                 "source":                javadocDir,
-                "target":                "<+pipeline.name>/<+pipeline.sequenceId>",
+                "target":                "<+pipeline.identifier>/<+pipeline.sequenceId>",
             },
         },
     }
