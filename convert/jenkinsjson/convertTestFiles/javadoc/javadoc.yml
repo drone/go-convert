@@ -12,7 +12,7 @@
               aws_bucket: <+input>
               aws_secret_access_key: <+input>
               source: complete/build/docs/javadoc
-              target: <+pipeline.name>/<+pipeline.sequenceId>
+              target: <+pipeline.identifier>/<+pipeline.sequenceId>
           timeout: ""
           type: Plugin
     timeout: ""
