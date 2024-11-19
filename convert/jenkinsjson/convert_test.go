@@ -505,6 +505,239 @@ func TestMergeMaps(t *testing.T) {
 	}
 }
 
+func TestMergeRunSteps(t *testing.T) {
+	createStepExec := func(run, image, shell string, envs map[string]string) *harness.StepExec {
+		return &harness.StepExec{
+			Run:        run,
+			Image:      image,
+			Shell:      shell,
+			Envs:       envs,
+			Connector:  "",
+			Args:       []string{},
+			Privileged: false,
+			Network:    "",
+		}
+	}
+
+	createStep := func(name, stepType string, spec *harness.StepExec) *harness.Step {
+		return &harness.Step{
+			Name: name,
+			Type: stepType,
+			Spec: spec,
+		}
+	}
+
+	t.Run("Empty steps slice", func(t *testing.T) {
+		steps := []StepWithID{}
+		mergeRunSteps(&steps)
+		if len(steps) != 0 {
+			t.Errorf("expected empty slice, got length %d", len(steps))
+		}
+	})
+
+	t.Run("Single step", func(t *testing.T) {
+		exec := createStepExec("echo hello", "", "sh", nil)
+		step := createStep("step1", "script", exec)
+		steps := []StepWithID{{Step: step}}
+
+		mergeRunSteps(&steps)
+		if len(steps) != 1 {
+			t.Errorf("expected length 1, got %d", len(steps))
+		}
+		if steps[0].Step.Name != "step1" {
+			t.Errorf("expected name 'step1', got %s", steps[0].Step.Name)
+		}
+	})
+
+	t.Run("Mergeable steps", func(t *testing.T) {
+		steps := []StepWithID{
+			{
+				Step: createStep("step1", "script", createStepExec("echo hello", "", "sh", nil)),
+			},
+			{
+				Step: createStep("step2", "script", createStepExec("echo world", "", "sh", nil)),
+			},
+		}
+
+		mergeRunSteps(&steps)
+		if len(steps) != 1 {
+			t.Errorf("expected length 1, got %d", len(steps))
+		}
+		if steps[0].Step.Name != "step1_step2" {
+			t.Errorf("expected name 'step1_step2', got %s", steps[0].Step.Name)
+		}
+		execSpec := steps[0].Step.Spec.(*harness.StepExec)
+		expectedRun := "echo hello\necho world"
+		if execSpec.Run != expectedRun {
+			t.Errorf("expected run command '%s', got '%s'", expectedRun, execSpec.Run)
+		}
+	})
+
+	t.Run("Non-mergeable steps - different types", func(t *testing.T) {
+		steps := []StepWithID{
+			{
+				Step: createStep("step1", "script", createStepExec("echo hello", "", "sh", nil)),
+			},
+			{
+				Step: createStep("step2", "non-script", createStepExec("echo world", "", "sh", nil)),
+			},
+		}
+
+		mergeRunSteps(&steps)
+		if len(steps) != 2 {
+			t.Errorf("expected length 2, got %d", len(steps))
+		}
+		if steps[0].Step.Name != "step1" {
+			t.Errorf("expected first step name 'step1', got %s", steps[0].Step.Name)
+		}
+		if steps[1].Step.Name != "step2" {
+			t.Errorf("expected second step name 'step2', got %s", steps[1].Step.Name)
+		}
+	})
+}
+
+func TestCanMergeSteps(t *testing.T) {
+	t.Run("Different step types", func(t *testing.T) {
+		step1 := &harness.Step{Type: "script"}
+		step2 := &harness.Step{Type: "non-script"}
+		if canMergeSteps(step1, step2) {
+			t.Error("expected steps with different types to not be mergeable")
+		}
+	})
+
+	t.Run("Invalid spec type", func(t *testing.T) {
+		step1 := &harness.Step{Type: "script", Spec: "invalid"}
+		step2 := &harness.Step{Type: "script", Spec: &harness.StepExec{}}
+		if canMergeSteps(step1, step2) {
+			t.Error("expected steps with invalid spec to not be mergeable")
+		}
+	})
+
+	t.Run("Different images", func(t *testing.T) {
+		step1 := &harness.Step{
+			Type: "script",
+			Spec: &harness.StepExec{Image: "image1"},
+		}
+		step2 := &harness.Step{
+			Type: "script",
+			Spec: &harness.StepExec{Image: "image2"},
+		}
+		if canMergeSteps(step1, step2) {
+			t.Error("expected steps with different images to not be mergeable")
+		}
+	})
+
+	t.Run("Matching steps", func(t *testing.T) {
+		exec := &harness.StepExec{
+			Image:      "",
+			Shell:      "sh",
+			Connector:  "",
+			Envs:       map[string]string{"KEY": "VALUE"},
+			Args:       []string{"arg1"},
+			Privileged: false,
+			Network:    "",
+		}
+		step1 := &harness.Step{Type: "script", Spec: exec}
+		step2 := &harness.Step{Type: "script", Spec: exec}
+		if !canMergeSteps(step1, step2) {
+			t.Error("expected identical steps to be mergeable")
+		}
+	})
+}
+
+func TestHasDefaultOrNoImage(t *testing.T) {
+	t.Run("No image", func(t *testing.T) {
+		exec := &harness.StepExec{Image: ""}
+		if !hasDefaultOrNoImage(exec) {
+			t.Error("expected empty image to return true")
+		}
+	})
+
+	t.Run("Default image with different casing", func(t *testing.T) {
+		exec := &harness.StepExec{Image: "Alpine"}
+		if !hasDefaultOrNoImage(exec) {
+			t.Error("expected default image with different casing to return true")
+		}
+	})
+
+	t.Run("Non-default image", func(t *testing.T) {
+		exec := &harness.StepExec{Image: "ubuntu:latest"}
+		if hasDefaultOrNoImage(exec) {
+			t.Error("expected non-default image to return false")
+		}
+	})
+}
+
+func TestENVmapsEqual(t *testing.T) {
+	t.Run("Empty maps", func(t *testing.T) {
+		if !ENVmapsEqual(nil, nil) {
+			t.Error("expected nil maps to be equal")
+		}
+		if !ENVmapsEqual(map[string]string{}, map[string]string{}) {
+			t.Error("expected empty maps to be equal")
+		}
+	})
+
+	t.Run("Different sizes", func(t *testing.T) {
+		m1 := map[string]string{"a": "1"}
+		m2 := map[string]string{"a": "1", "b": "2"}
+		if ENVmapsEqual(m1, m2) {
+			t.Error("expected maps of different sizes to not be equal")
+		}
+	})
+
+	t.Run("Same content", func(t *testing.T) {
+		m1 := map[string]string{"a": "1", "b": "2"}
+		m2 := map[string]string{"a": "1", "b": "2"}
+		if !ENVmapsEqual(m1, m2) {
+			t.Error("expected maps with same content to be equal")
+		}
+	})
+
+	t.Run("Different values", func(t *testing.T) {
+		m1 := map[string]string{"a": "1", "b": "2"}
+		m2 := map[string]string{"a": "1", "b": "3"}
+		if ENVmapsEqual(m1, m2) {
+			t.Error("expected maps with different values to not be equal")
+		}
+	})
+}
+
+func TestARGSslicesEqual(t *testing.T) {
+	t.Run("Empty slices", func(t *testing.T) {
+		if !ARGSslicesEqual(nil, nil) {
+			t.Error("expected nil slices to be equal")
+		}
+		if !ARGSslicesEqual([]string{}, []string{}) {
+			t.Error("expected empty slices to be equal")
+		}
+	})
+
+	t.Run("Different lengths", func(t *testing.T) {
+		s1 := []string{"a"}
+		s2 := []string{"a", "b"}
+		if ARGSslicesEqual(s1, s2) {
+			t.Error("expected slices of different lengths to not be equal")
+		}
+	})
+
+	t.Run("Same content", func(t *testing.T) {
+		s1 := []string{"a", "b", "c"}
+		s2 := []string{"a", "b", "c"}
+		if !ARGSslicesEqual(s1, s2) {
+			t.Error("expected slices with same content to be equal")
+		}
+	})
+
+	t.Run("Different content", func(t *testing.T) {
+		s1 := []string{"a", "b", "c"}
+		s2 := []string{"a", "b", "d"}
+		if ARGSslicesEqual(s1, s2) {
+			t.Error("expected slices with different content to not be equal")
+		}
+	})
+}
+
 // TestS3UploadWithGzipDisabled tests the s3Upload functionality with a single entry where "gzipFiles" is set to false.
 //
 // Expected Behavior:

@@ -62,6 +62,8 @@ type ProcessedTools struct {
 var mavenGoals string
 var gradleGoals string
 
+var defaultImage string
+
 // Converter converts a jenkinsjson pipeline to a Harness
 // v1 pipeline.
 type Converter struct {
@@ -69,6 +71,7 @@ type Converter struct {
 	kubeNamespace string
 	kubeConnector string
 	dockerhubConn string
+	defaultImage  string
 	identifiers   *store.Identifiers
 }
 
@@ -97,6 +100,12 @@ func New(options ...Option) *Converter {
 	if d.kubeConnector != "" {
 		d.kubeEnabled = true
 	}
+
+	if d.defaultImage == "" {
+		d.defaultImage = "alpine"
+	}
+
+	defaultImage = d.defaultImage
 
 	return d
 }
@@ -935,7 +944,6 @@ func mergeRunSteps(steps *[]StepWithID) {
 
 	merged := []StepWithID{}
 	cursor := (*steps)[0]
-	pushed := false
 	for i := 1; i < len(*steps); i++ {
 		current := (*steps)[i]
 		// if can merge, store all current content in cursor
@@ -944,20 +952,14 @@ func mergeRunSteps(steps *[]StepWithID) {
 			currentExec := current.Step.Spec.(*harness.StepExec)
 			previousExec.Run += "\n" + currentExec.Run
 			cursor.Step.Name = jenkinsjson.SanitizeForName(cursor.Step.Name + "_" + current.Step.Name)
-			pushed = false
 		} else {
 			// if not able to merge, push cursor and reset cursor to current one
 			merged = append(merged, cursor)
 			cursor = current
-			if i != len(*steps)-1 {
-				pushed = true
-			}
 		}
 	}
 
-	if !pushed {
-		merged = append(merged, cursor)
-	}
+	merged = append(merged, cursor)
 	*steps = merged
 }
 
@@ -973,6 +975,10 @@ func canMergeSteps(step1, step2 *harness.Step) bool {
 		return false
 	}
 
+	if !hasDefaultOrNoImage(exec1) || !hasDefaultOrNoImage(exec2) {
+		return false
+	}
+
 	return exec1.Image == exec2.Image &&
 		exec1.Connector == exec2.Connector &&
 		exec1.Shell == exec2.Shell &&
@@ -981,6 +987,13 @@ func canMergeSteps(step1, step2 *harness.Step) bool {
 		ARGSslicesEqual(exec1.Args, exec2.Args) &&
 		exec1.Privileged == exec2.Privileged &&
 		exec1.Network == exec2.Network
+}
+
+func hasDefaultOrNoImage(exec *harness.StepExec) bool {
+	if exec.Image == "" {
+		return true // Image parameter is not present
+	}
+	return strings.TrimSpace(strings.ToLower(exec.Image)) == strings.ToLower(defaultImage)
 }
 
 func ENVmapsEqual(m1, m2 map[string]string) bool {
