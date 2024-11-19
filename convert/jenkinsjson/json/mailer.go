@@ -17,14 +17,14 @@ func ConvertMailer(node Node, arguments map[string]interface{}) *harness.Step {
 		Spec: &harness.StepPlugin{
 			Image: "plugins/email",
 			With: map[string]interface{}{
-				"host":         "smtp.gmail.com",
-				"port":         "587",
-				"username":     "<username>",
-				"password":     "<password>",
+				"host":         "<+input>",
+				"port":         "<+input>",
+				"username":     "<+input>",
+				"password":     "<+input>",
 				"subject":      subject,
 				"body":         body,
 				"recipients":   to,
-				"from.address": "<from_address>",
+				"from.address": "<+input>",
 			},
 		},
 	}

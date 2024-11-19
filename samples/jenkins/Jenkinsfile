@@ -694,17 +694,17 @@ line3'''
                 }
             }
         }
-        post {
-        always {
-            mail(
-                to: "test.uyser@testmail.com",
-                subject: "Jenkins Build - ${currentBuild.fullDisplayName}",
-                body: """
-                Build Status: ${currentBuild.currentResult}
-                Check console output at: ${env.BUILD_URL}console
-                """
-            )
-        }
+         post {
+            always {
+                mail(
+                    to: "test.uyser@testmail.com",
+                    subject: "Jenkins Build - ${currentBuild.fullDisplayName}",
+                    body: """
+                    Build Status: ${currentBuild.currentResult}
+                    Check console output at: ${env.BUILD_URL}console
+                    """
+                )
+            }
         }
     }
 }

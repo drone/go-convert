@@ -18,13 +18,13 @@ func TestConvertMailer(t *testing.T) {
 			Image: "plugins/email",
 			With: map[string]interface{}{
 				"body":         string("\n                    Build Status: FAILURE\n                    Check console output at: http://localhost:8080/job/Mail_Pipeline/15/console\n                    "),
-				"from.address": string("<from_address>"),
-				"host":         string("smtp.gmail.com"),
-				"password":     string("<password>"),
-				"port":         string("587"),
+				"from.address": string("<+input>"),
+				"host":         string("<+input>"),
+				"password":     string("<+input>"),
+				"port":         string("<+input>"),
 				"recipients":   string("test.user@testmail.com"),
 				"subject":      string("Jenkins Build - Mail_Pipeline #15"),
-				"username":     string("<username>"),
+				"username":     string("<+input>"),
 			},
 		},
 	}))
