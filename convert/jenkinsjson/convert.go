@@ -290,6 +290,27 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	return nil, nil
 }
 
+func processNodejsScript(currentNode jenkinsjson.Node, result *string) {
+	for _, child := range currentNode.Children {
+		processNode(child, result)
+	}
+}
+
+func processNode(node jenkinsjson.Node, result *string) {
+	if stepType, exists := node.AttributesMap["jenkins.pipeline.step.type"]; exists {
+		switch stepType {
+		case "wrap":
+			for _, child := range node.Children {
+				processNode(child, result)
+			}
+		case "bat", "sh":
+			if script, ok := node.ParameterMap["script"].(string); ok {
+				*result += script + "\n"
+			}
+		}
+	}
+}
+
 func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWithID, processedTools *ProcessedTools, variables map[string]string, timeout string, dockerImage string) (*harness.CloneStage, *harness.Repository) {
 	var clone *harness.CloneStage
 	var repo *harness.Repository
@@ -527,6 +548,13 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		}
 		if processedTools.AntPresent {
 			clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "ant", "ant", "frekele/ant:latest", variables, timeout)
+		}
+		if symbol, ok := currentNode.ParameterMap["delegate"].(map[string]interface{})["symbol"]; ok && symbol == "nodejs" {
+			// Recursively process children
+			var result string
+			processNodejsScript(currentNode, &result)
+			fmt.Println(result)
+			// *stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPowerShell(currentNode, variables, timeout), ID: id})
 		}
 	case "powershell":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPowerShell(currentNode, variables, timeout), ID: id})
