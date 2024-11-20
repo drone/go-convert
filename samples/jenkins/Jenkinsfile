@@ -685,5 +685,28 @@ line3'''
                 ])
             }
         }
+
+        //Nodejs pipeline stage
+        stage('Install Packages') {
+            steps {
+                // Set up the NodeJS environment
+                nodejs(nodeJSInstallationName: 'node') {
+                    sh '''
+                        # Ensure npm uses the public registry
+                        echo "registry=https://registry.npmjs.org/" > .npmrc
+                        npm install
+                    '''
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                nodejs(nodeJSInstallationName: 'node') {
+                    // Run npm test to execute the "test" script in package.json
+                    sh 'npm test'
+                }
+            }
+        }
     }
 }
