@@ -1,0 +1,16 @@
+- step:
+    identifier: nexusartifactuploadera3af28
+    name: nexusArtifactUploader
+    spec:
+      image: harnesscommunity/drone-nexus-publish
+      settings:
+        artifacts: '[{"artifactId":"fruit-names-v0.1","classifier":"","file":"fruit_names.txt","type":"txt"}]'
+        group_id: test01
+        nexus_version: nexus3
+        password: <password>
+        protocol: http
+        repository: plg01maven2
+        server_url: 4.24.1.2:9192/
+        username: <user_id>
+    timeout: ""
+    type: Plugin
