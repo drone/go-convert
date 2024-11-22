@@ -50,26 +50,26 @@ var expectedNexusUploaderStepJSON = `{
     "name": "nexusArtifactUploader",
     "type": "plugin",
     "spec": {
-        "image": "harnesscommunity/drone-nexus-publish",
+        "image": "plugins/nexus-publish:latest",
         "with": {
             "artifacts": "[{\"artifactId\":\"fruit-names-v0.1\",\"classifier\":\"\",\"file\":\"fruit_names.txt\",\"type\":\"txt\"}]",
             "group_id": "test01",
             "nexus_version": "nexus3",
-            "password": "add password",
+            "password": "\u003c+input\u003e",
             "protocol": "http",
             "repository": "plg01maven2",
             "server_url": "4.24.1.2:9192/",
-            "username": "add user name"
+            "username": "\u003c+input\u003e"
         },
         "inputs": {
             "artifacts": "[{\"artifactId\":\"fruit-names-v0.1\",\"classifier\":\"\",\"file\":\"fruit_names.txt\",\"type\":\"txt\"}]",
             "group_id": "test01",
             "nexus_version": "nexus3",
-            "password": "add password",
+            "password": "\u003c+input\u003e",
             "protocol": "http",
             "repository": "plg01maven2",
             "server_url": "4.24.1.2:9192/",
-            "username": "add user name"
+            "username": "\u003c+input\u003e"
         }
     }
 }`

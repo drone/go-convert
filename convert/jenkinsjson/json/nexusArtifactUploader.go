@@ -70,8 +70,8 @@ func GetArtifactsListString(node Node) (string, error) {
 
 	jsonData, err := json.Marshal(combinedArtifacts)
 	if err != nil {
-		log.Println("Error converting artifacts list to JSON string:", err)
-		return "", fmt.Errorf("Error converting artifacts list to JSON string:", err)
+		log.Printf("Error converting artifacts list to JSON string: %s ", err)
+		return "", fmt.Errorf("Error converting artifacts list to JSON string: %s ", err)
 	}
 
 	return string(jsonData), nil
