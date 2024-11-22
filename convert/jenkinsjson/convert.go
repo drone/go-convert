@@ -532,6 +532,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "newBuildInfo", "getArtifactoryServer":
 		return nil, nil
 	case "":
+	case "milestone":
 	case "withAnt", "tool", "envVarsForTool":
 	case "withMaven":
 		clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "maven", "maven", "maven:latest", variables, timeout)
