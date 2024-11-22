@@ -52,8 +52,7 @@ func GetArtifactsListString(node Node) (string, error) {
 
 	artifactsInfoMapList, ok := attrMap["artifacts"].([]interface{})
 	if !ok {
-		log.Println("Error converting artifacts to map")
-		return "", nil
+		return "", fmt.Errorf("artifacts is not a valid list in node %s", node.SpanName)
 	}
 
 	var combinedArtifacts []map[string]interface{}
