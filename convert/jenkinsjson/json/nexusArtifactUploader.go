@@ -2,6 +2,7 @@ package json
 
 import (
 	"encoding/json"
+	"fmt"
 	harness "github.com/drone/spec/dist/go"
 	"log"
 )
@@ -24,8 +25,8 @@ func ConvertNexusArtifactUploader(node Node, variables map[string]string) *harne
 		ArtifactUploaderImage)
 
 	tmpStepPlugin := step.Spec.(*harness.StepPlugin)
-	tmpStepPlugin.With["username"] = <+input>
-	tmpStepPlugin.With["password"] = <+input>
+	tmpStepPlugin.With["username"] = "<+input>"
+	tmpStepPlugin.With["password"] = "<+input>"
 	artifactsListStr, err := GetArtifactsListString(node)
 	if err != nil {
 		log.Println("Error getting artifacts list string:", err)
@@ -41,18 +42,19 @@ func GetArtifactsListString(node Node) (string, error) {
 	attr, ok := node.AttributesMap[HarnessAttribute]
 	if !ok {
 		log.Printf("harness-attribute missing for spanName %s", node.SpanName)
-		return "", nil
+		return "", fmt.Errorf("harness-attribute missing for spanName %s", node.SpanName)
 	}
 
 	attrMap, err := ToMapFromJsonString[map[string]interface{}](attr)
 	if err != nil {
 		log.Printf("Failed to unmarshal harness-attribute for node %s: %v", node.SpanName, err)
-		return "", nil
+		return "", fmt.Errorf("Failed to unmarshal harness-attribute for node %s: %v", node.SpanName, err)
 	}
 
 	artifactsInfoMapList, ok := attrMap["artifacts"].([]interface{})
 	if !ok {
-		return "", fmt.Errorf("artifacts is not a valid list in node %s", node.SpanName)
+		log.Printf("Error artifacts attribute missing in node %s", node.SpanName)
+		return "", fmt.Errorf("Error artifacts attribute missing in node %s", node.SpanName)
 	}
 
 	var combinedArtifacts []map[string]interface{}
@@ -60,8 +62,8 @@ func GetArtifactsListString(node Node) (string, error) {
 	for _, artifactInfoMap := range artifactsInfoMapList {
 		v, ok := artifactInfoMap.(map[string]interface{})
 		if !ok {
-			log.Println("Error converting artifact info to map")
-			return "", nil
+			log.Printf("Error invalid artifacts list info for %s ", node.SpanName)
+			return "", fmt.Errorf("Error invalid artifacts list info for %s ", node.SpanName)
 		}
 		combinedArtifacts = append(combinedArtifacts, v)
 	}
@@ -69,7 +71,7 @@ func GetArtifactsListString(node Node) (string, error) {
 	jsonData, err := json.Marshal(combinedArtifacts)
 	if err != nil {
 		log.Println("Error converting artifacts list to JSON string:", err)
-		return "", nil
+		return "", fmt.Errorf("Error converting artifacts list to JSON string:", err)
 	}
 
 	return string(jsonData), nil
