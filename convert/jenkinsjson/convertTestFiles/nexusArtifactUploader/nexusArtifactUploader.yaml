@@ -7,10 +7,8 @@
         artifacts: '[{"artifactId":"fruit-names-v0.1","classifier":"","file":"fruit_names.txt","type":"txt"}]'
         group_id: test01
         nexus_version: nexus3
-        password: <password>
+        password: add password
         protocol: http
-        repository: plg01maven2
-        server_url: 4.24.1.2:9192/
-        username: <user_id>
-    timeout: ""
-    type: Plugin
+        repository: senthilmaven2
+        server_url: 43.204.190.241:8081/
+        username: add user name
