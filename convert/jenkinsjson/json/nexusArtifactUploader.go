@@ -62,7 +62,7 @@ func GetArtifactsListString(node Node) (string, error) {
 	for _, artifactInfoMap := range artifactsInfoMapList {
 		v, ok := artifactInfoMap.(map[string]interface{})
 		if !ok {
-			log.Printf("Error invalid artifacts list info for %s ", node.SpanName)
+			log.Printf("Error invalid artifact info for %s ", node.SpanName)
 			return "", fmt.Errorf("Error invalid artifacts list info for %s ", node.SpanName)
 		}
 		combinedArtifacts = append(combinedArtifacts, v)
