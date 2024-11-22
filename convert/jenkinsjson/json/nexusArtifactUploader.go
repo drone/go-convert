@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	ArtifactUploaderImage = "harnesscommunity/drone-nexus-publish"
+	ArtifactUploaderImage = "plugins/nexus-publish:latest"
 )
 
 var JenkinsToNexusArtifactUploaderParamMapperList = []JenkinsToDroneParamMapper{
