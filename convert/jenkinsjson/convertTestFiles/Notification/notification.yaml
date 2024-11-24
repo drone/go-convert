@@ -1,0 +1,16 @@
+- step:
+    identifier: notifyendpointsca9fc8
+    name: Notification
+    spec:
+      image: plugins/webhook
+      settings:
+        content_type: application/json
+        debug: "true"
+        method: <+input>
+        password: <+input>
+        template: '{"status": "Build Successful", "job": "${env.JOB_NAME}",
+                        "buildNumber": "${env.BUILD_NUMBER}"}'
+        urls: <+input>
+        username: <+input>
+    timeout: ""
+    type: Plugin

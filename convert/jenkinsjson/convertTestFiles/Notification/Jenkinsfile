@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Simulating a build process...'
+                // Debug message for build stage
+                script {
+                    echo "Build stage is starting."
+                }
+            }
+        }
+        stage('Notify') {
+            steps {
+                script {
+                    // Prepare payload
+                    def payload = '{"status": "Build Successful", "job": "${env.JOB_NAME}", "buildNumber": "${env.BUILD_NUMBER}"}'
+
+                    // Debug: Print payload to verify its structure
+                    echo "Payload: ${payload}"
+
+                    // Debug: Check if the endpoint exists and can be accessed
+                    try {
+                        echo "Attempting to notify endpoint 'localEndpoint' with data"
+                        notifyEndpoints id: 'localEndpoint', data: payload
+                        echo "Notification sent successfully."
+                    } catch (Exception e) {
+                        // Catching any potential error during the notification
+                        echo "Failed to notify endpoint. Error: ${e.getMessage()}"
+                    }
+                }
+            }
+        }
+    }
+}
