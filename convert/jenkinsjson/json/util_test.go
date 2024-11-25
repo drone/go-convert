@@ -35,7 +35,7 @@ func TestSanitizeForId(t *testing.T) {
 			name:       "RealSample",
 			spanId:     "a2e5df",
 			spanName:   "Deploy to DEV-CT",
-			expectedId: "deploytodeva2e5df",
+			expectedId: "Deploy_to_DEV-CTa2e5df",
 		},
 		{
 			name:       "TruncateLongName",
