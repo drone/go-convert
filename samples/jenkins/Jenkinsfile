@@ -585,6 +585,27 @@ line3'''
                 nunit testResultsPattern: 'TestResult.xml', failIfNoResults: true, skipJUnitArchiver: false, failedTestsFailBuild: true
             }
         }
+        // Javadoc Steps
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/spring-guides/gs-rest-service.git', branch: 'main'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'cd complete && gradle clean build --info --stacktrace'
+            }
+        }
+        stage('Generate Javadoc') {
+            steps {
+                sh 'cd complete && gradle javadoc --info --stacktrace'
+            }
+        }
+        stage('Publish Javadoc') {
+            steps {
+                javadoc javadocDir: 'complete/build/docs/javadoc', keepAll: true
+            }
+        }	
         //Kube-ctl
         stage('Check Docker') {
             steps {
@@ -706,6 +727,31 @@ line3'''
                 )
             }
         }
+        // nexusArtifactUploader plugin stage begins
+        stage('Generate File') {
+            steps {
+                writeFile file: 'fruit_names.txt', text: 'apple\nbanana\ncherry\ndate\nelderberry\nfig\ngrape\nhoneydew\nkiwi\nlemon'
+                echo "Generated file: fruit_names.txt"
+            }
+        }
+
+        stage('Upload to Nexus') {
+            steps {
+                nexusArtifactUploader artifacts: [[
+                    artifactId: 'fruit-names-v0.1',
+                    file: 'fruit_names.txt',
+                    type: 'txt'
+                ]],
+                credentialsId: 'nexus-hnstest01-creds',
+                groupId: 'test01',
+                nexusUrl: '4.24.1.21:9192/',
+                repository: 'plg01maven2',
+                version: '1.12'
+            }
+        }
+    }
+}
+
         //Nodejs conversion Step
         stage('Install Packages') {
             steps {
