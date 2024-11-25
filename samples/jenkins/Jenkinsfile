@@ -749,5 +749,33 @@ line3'''
                 version: '1.12'
             }
         }
+
+        //Unarchive Stage
+        stage('Unarchive Files') {
+            steps {
+                script {
+                    // Directory to store unarchived files
+                    def extractDir = 'unarchived_files'
+
+                    // Ensure the directory exists
+                    sh "mkdir -p ${extractDir}"
+
+                    // Define the mapping for unarchiving files
+                    def mappings = [
+                        'archive.zip': "${extractDir}/zip/",
+                    ]
+
+                    // Loop through the mappings and unarchive files
+                    for (archive in mappings.keySet()) {
+                        def targetDir = mappings[archive]
+                        echo "Unarchiving: ${archive} into ${targetDir}"
+                        unarchive mapping: ["${archive}": targetDir]
+                    }
+
+                    // Verify the unarchived files
+                    sh "ls -l ${extractDir}"
+                }
+            }
+        }
     }
 }
