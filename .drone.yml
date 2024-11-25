@@ -36,7 +36,7 @@ steps:
 #      - refs/tags/*
 
 trigger:
-  branch:
-  - master
-  event:
-    - pull_request
+  ref:
+    - refs/heads/master
+    - refs/tags/**
+    - refs/pull/**
