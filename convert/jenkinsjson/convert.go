@@ -62,7 +62,7 @@ type ProcessedTools struct {
 var mavenGoals string
 var gradleGoals string
 
-var defaultImage string
+var defaultWindowsImage string = "mcr.microsoft.com/powershell"
 
 // Converter converts a jenkinsjson pipeline to a Harness
 // v1 pipeline.
@@ -71,7 +71,6 @@ type Converter struct {
 	kubeNamespace string
 	kubeConnector string
 	dockerhubConn string
-	defaultImage  string
 	identifiers   *store.Identifiers
 }
 
@@ -100,12 +99,6 @@ func New(options ...Option) *Converter {
 	if d.kubeConnector != "" {
 		d.kubeEnabled = true
 	}
-
-	if d.defaultImage == "" {
-		d.defaultImage = "alpine"
-	}
-
-	defaultImage = d.defaultImage
 
 	return d
 }
@@ -404,9 +397,12 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		}
 	case "sh":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage), ID: id})
+	case "bat":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertBat(currentNode, variables, timeout, defaultWindowsImage), ID: id})
 	case "pwsh":
-		dockerImage = "mcr.microsoft.com/powershell"
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPwsh(currentNode, variables, timeout, dockerImage), ID: id})
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPwsh(currentNode, variables, timeout, defaultWindowsImage), ID: id})
+	case "powershell":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPowerShell(currentNode, variables, timeout, defaultWindowsImage), ID: id})
 	case "timeout":
 		if len(currentNode.ParameterMap) > 0 {
 			var unit string
@@ -544,8 +540,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		if processedTools.AntPresent {
 			clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "ant", "ant", "frekele/ant:latest", variables, timeout)
 		}
-	case "powershell":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPowerShell(currentNode, variables, timeout), ID: id})
 
 	case "zip":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertZip(currentNode, variables), ID: id})
@@ -555,9 +549,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 
 	case "findFiles":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFindFiles(currentNode), ID: id})
-
-	case "bat":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertBat(currentNode, variables, timeout), ID: id})
 
 	case "tar":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertTar(currentNode, variables), ID: id})
@@ -990,7 +981,7 @@ func canMergeSteps(step1, step2 *harness.Step) bool {
 		return false
 	}
 
-	if !hasDefaultOrNoImage(exec1) || !hasDefaultOrNoImage(exec2) {
+	if !hasNoImage(exec1) || !hasNoImage(exec2) {
 		return false
 	}
 
@@ -1004,11 +995,8 @@ func canMergeSteps(step1, step2 *harness.Step) bool {
 		exec1.Network == exec2.Network
 }
 
-func hasDefaultOrNoImage(exec *harness.StepExec) bool {
-	if exec.Image == "" {
-		return true // Image parameter is not present
-	}
-	return strings.TrimSpace(strings.ToLower(exec.Image)) == strings.ToLower(defaultImage)
+func hasNoImage(exec *harness.StepExec) bool {
+	return strings.TrimSpace(exec.Image) == ""
 }
 
 func ENVmapsEqual(m1, m2 map[string]string) bool {

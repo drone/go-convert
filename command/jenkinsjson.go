@@ -85,7 +85,6 @@ func (c *JenkinsJson) Execute(_ context.Context, f *flag.FlagSet, _ ...interface
 	converter := jenkinsjson.New(
 		jenkinsjson.WithDockerhub(c.dockerConn),
 		jenkinsjson.WithKubernetes(c.kubeName, c.kubeConn),
-		jenkinsjson.WithDefaultImage(c.defaultImage),
 	)
 	after, err := converter.ConvertBytes(before)
 	if err != nil {
@@ -104,6 +103,7 @@ func (c *JenkinsJson) Execute(_ context.Context, f *flag.FlagSet, _ ...interface
 			downgrader.WithName(c.name),
 			downgrader.WithOrganization(c.org),
 			downgrader.WithProject(c.proj),
+			downgrader.WithDefaultImage(c.defaultImage),
 		)
 		after, err = d.Downgrade(after)
 		if err != nil {
