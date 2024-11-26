@@ -1,8 +1,0 @@
-- step:
-    identifier: stagenull70802f
-    name: ant
-    spec:
-      connectorRef: account.docker
-      image: aosapps/drone-sonar-plugin
-    timeout: ""
-    type: Plugin
