@@ -605,7 +605,7 @@ line3'''
             steps {
                 javadoc javadocDir: 'complete/build/docs/javadoc', keepAll: true
             }
-        }	
+        }    
         //Kube-ctl
         stage('Check Docker') {
             steps {
