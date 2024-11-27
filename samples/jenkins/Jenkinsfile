@@ -115,7 +115,7 @@ line3'''
                 }
             }
         }
-	
+    
         stage('Code Analysis') {
             environment {
                 scannerHome = tool 'Sonar'
