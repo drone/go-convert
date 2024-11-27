@@ -981,10 +981,6 @@ func canMergeSteps(step1, step2 *harness.Step) bool {
 		return false
 	}
 
-	if !hasNoImage(exec1) || !hasNoImage(exec2) {
-		return false
-	}
-
 	return exec1.Image == exec2.Image &&
 		exec1.Connector == exec2.Connector &&
 		exec1.Shell == exec2.Shell &&
@@ -993,10 +989,6 @@ func canMergeSteps(step1, step2 *harness.Step) bool {
 		ARGSslicesEqual(exec1.Args, exec2.Args) &&
 		exec1.Privileged == exec2.Privileged &&
 		exec1.Network == exec2.Network
-}
-
-func hasNoImage(exec *harness.StepExec) bool {
-	return strings.TrimSpace(exec.Image) == ""
 }
 
 func ENVmapsEqual(m1, m2 map[string]string) bool {

@@ -645,29 +645,6 @@ func TestCanMergeSteps(t *testing.T) {
 	})
 }
 
-func TestHasDefaultOrNoImage(t *testing.T) {
-	t.Run("No image", func(t *testing.T) {
-		exec := &harness.StepExec{Image: ""}
-		if !hasNoImage(exec) {
-			t.Error("expected empty image to return true")
-		}
-	})
-
-	t.Run("No image with spaces", func(t *testing.T) {
-		exec := &harness.StepExec{Image: "   "}
-		if !hasNoImage(exec) {
-			t.Error("expected no image with spaces to return true")
-		}
-	})
-
-	t.Run("Non-default image", func(t *testing.T) {
-		exec := &harness.StepExec{Image: "ubuntu:latest"}
-		if hasNoImage(exec) {
-			t.Error("expected non-default image to return false")
-		}
-	})
-}
-
 func TestENVmapsEqual(t *testing.T) {
 	t.Run("Empty maps", func(t *testing.T) {
 		if !ENVmapsEqual(nil, nil) {
