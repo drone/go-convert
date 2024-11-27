@@ -1,7 +1,6 @@
 package json
 
 import (
-	"fmt"
 	"testing"
 
 	harness "github.com/drone/spec/dist/go"
@@ -12,16 +11,22 @@ func TestConvertUnarchive(t *testing.T) {
 
 	targetStr := string("unarchived_files/zip/")
 	source := string("archive.zip")
-	// Initialize the script
-	expectedScript := fmt.Sprintf("mkdir -p %s && unzip -o %s -d %s", targetStr, source, targetStr)
 	var tests []runner
 	tests = append(tests, prepare(t, "/unarchive/unarchive_snippet", &harness.Step{
 		Id:   "unarchive4bf5e3",
-		Name: "UnArchive",
-		Type: "script",
-		Spec: &harness.StepExec{
-			Shell: "sh",
-			Run:   expectedScript,
+		Name: "Unarchive",
+		Type: "plugin",
+		Spec: &harness.StepPlugin{
+			Image: "plugins/archive",
+			With: map[string]interface{}{
+				"source":    source,
+				"target":    targetStr,
+				"format":    "zip",
+				"action":    "extract",
+				"glob":      "**/*",
+				"overwrite": "true",
+				"exclude":   "",
+			},
 		},
 	}))
 

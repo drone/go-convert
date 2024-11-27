@@ -1,8 +1,13 @@
 - step:
     identifier: unarchive4bf5e3
-    name: UnArchive
+    name: Unarchive
     spec:
-      command: mkdir -p unarchived_files/zip/ && unzip -o archive.zip -d unarchived_files/zip/
-      shell: Sh
-    timeout: ''
-    type: Run
+      image: plugins/archive
+      settings:
+        action: extract
+        exclude: ''
+        format: zip
+        glob: '**/*'
+        overwrite: 'true'
+        source: archive.zip
+        target: unarchived_files/zip/
