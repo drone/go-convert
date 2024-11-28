@@ -17,6 +17,7 @@ package command
 import (
 	"context"
 	"flag"
+	"github.com/drone/go-convert/convert/harness"
 	"io/ioutil"
 	"log"
 	"os"
@@ -55,7 +56,7 @@ func (c *JenkinsJson) SetFlags(f *flag.FlagSet) {
 
 	f.StringVar(&c.org, "org", "default", "harness organization")
 	f.StringVar(&c.proj, "project", "default", "harness project")
-	f.StringVar(&c.name, "pipeline", "default", "harness pipeline name")
+	f.StringVar(&c.name, "pipeline", harness.DefaultName, "harness pipeline name")
 	f.StringVar(&c.repoConn, "repo-connector", "", "repository connector")
 	f.StringVar(&c.repoName, "repo-name", "", "repository name")
 	f.StringVar(&c.kubeConn, "kube-connector", "", "kubernetes connector")

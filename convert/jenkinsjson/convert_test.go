@@ -379,7 +379,7 @@ func TestConvert_EmptyJenkinsJSON(t *testing.T) {
 	expectedYAML := `version: 1
 kind: pipeline
 type: ""
-name: ""
+name: default
 spec:
   stages:
   - desc: ""
@@ -413,11 +413,11 @@ spec:
 		return strings.Join(strings.Fields(s), " ")
 	}
 
-	normalizedExpectedYAML := normalize(expectedYAML)
-	normalizedOutput := normalize(string(output))
+	expected := normalize(expectedYAML)
+	got := normalize(string(output))
 
-	if normalizedOutput != normalizedExpectedYAML {
-		t.Errorf("Expected output to be '%s', got '%s'", normalizedExpectedYAML, normalizedOutput)
+	if diff := cmp.Diff(got, expected); diff != "" {
+		t.Errorf("TestConvert_EmptyJenkinsJSON mismatch (-want +got):\n%s", diff)
 	}
 }
 
