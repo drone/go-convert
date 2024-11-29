@@ -1,6 +1,7 @@
 package json
 
 import (
+	"encoding/json"
 	"testing"
 
 	harness "github.com/drone/spec/dist/go"
@@ -8,6 +9,12 @@ import (
 )
 
 func TestConvertNotification(t *testing.T) {
+
+	// Remove line breaks and format as compact JSON
+	var compactData map[string]interface{}
+	_ = json.Unmarshal([]byte("{\"status\": \"Build Successful\", \"job\": \"${env.JOB_NAME}\", \"buildNumber\": \"${env.BUILD_NUMBER}\"}"), &compactData) // Parse JSON
+	compactBytes, _ := json.Marshal(compactData)                                                                                                           // Convert to compact JSON
+	compactString := string(compactBytes)                                                                                                                  // Convert bytes to string
 
 	var tests []runner
 	tests = append(tests, prepare(t, "/notification/notification_snippet", &harness.Step{
@@ -24,7 +31,7 @@ func TestConvertNotification(t *testing.T) {
 				"method":       "<+input>",
 				"content_type": "application/json",
 				"debug":        "true",
-				"template":     "{\"status\": \"Build Successful\", \"job\": \"${env.JOB_NAME}\", \"buildNumber\": \"${env.BUILD_NUMBER}\"}",
+				"template":     compactString,
 			},
 		},
 	}))
