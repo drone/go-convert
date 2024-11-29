@@ -26,8 +26,8 @@ func ConvertUnarchive(node Node, paramMap map[string]interface{}) *harness.Step 
 		format = "zip"
 	case strings.HasSuffix(source, ".tar"):
 		format = "tar"
-	case strings.HasSuffix(source, ".tar.gz"):
-		format = "tar.gz"
+	case strings.HasSuffix(source, ".gz"):
+		format = "tar"
 	}
 
 	// Create a Harness plugin step for unarchiving
