@@ -17,13 +17,13 @@ func TestConvertPagerDuty(t *testing.T) {
 		Spec: &harness.StepPlugin{
 			Image: "plugins/pagerduty",
 			With: map[string]interface{}{
-				"log_level":         string("debug"),
+				"log_level":         string("info"),
 				"routing_key":       string("a666ad1326f34605d06c0dbd4d87c1cb"),
 				"incident_summary":  string("Build Failed for test-pager-duty"),
 				"incident_source":   string("test-pager-duty"),
 				"incident_severity": string("critical"),
 				"resolve":           bool(false),
-				"job_status":        string("failure"),
+				"job_status":        string("<+pipeline.status>"),
 				"dedup_key":         string("E54EC853A59A3815EF3632D5F854CF26"),
 			},
 		},
@@ -50,7 +50,7 @@ func TestConvertPagerDutyChangeEvent(t *testing.T) {
 		Spec: &harness.StepPlugin{
 			Image: "plugins/pagerduty",
 			With: map[string]interface{}{
-				"log_level":           string("debug"),
+				"log_level":           string("info"),
 				"routing_key":         string("a666ad1326f34605d06c0dbd4d87c1cb"),
 				"incident_summary":    string("Job test-pager-duty completed with status SUCCESS"),
 				"incident_source":     string(""),

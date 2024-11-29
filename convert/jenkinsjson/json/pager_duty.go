@@ -23,13 +23,13 @@ func ConvertPagerDuty(node Node, arguments map[string]interface{}) *harness.Step
 		Spec: &harness.StepPlugin{
 			Image: "plugins/pagerduty",
 			With: map[string]interface{}{
-				"log_level":         "debug",
+				"log_level":         "info",
 				"routing_key":       routingKey,
 				"incident_summary":  incidentSummary,
 				"incident_source":   incidentSource,
 				"incident_severity": incidentSeverity,
 				"resolve":           resolve,
-				"job_status":        "failure",
+				"job_status":        "<+pipeline.status>",
 				"dedup_key":         dedupKey,
 			},
 		},
@@ -62,7 +62,7 @@ func ConvertPagerDutyChangeEvent(node Node, arguments map[string]interface{}) *h
 		Spec: &harness.StepPlugin{
 			Image: "plugins/pagerduty",
 			With: map[string]interface{}{
-				"log_level":           "debug",
+				"log_level":           "info",
 				"routing_key":         routingKey,
 				"incident_summary":    incidentSummary,
 				"incident_source":     incidentSource,
