@@ -45,6 +45,7 @@ func TestBat(t *testing.T) {
 				Id:      "bat3b5f74",
 				Type:    "script",
 				Spec: &harness.StepExec{
+					Image: "abc.example.com/image:tag",
 					Shell: "pwsh",
 					Run:   "echo @\"\necho hello world\n\"@ > bat3b5f74.bat\n ./bat3b5f74.bat",
 				},
@@ -63,6 +64,7 @@ func TestBat(t *testing.T) {
 				Id:      "bat3b5f74",
 				Type:    "script",
 				Spec: &harness.StepExec{
+					Image: "abc.example.com/image:tag",
 					Shell: "pwsh",
 					Run:   "echo @\"\necho hello world\n\"@ > bat3b5f74.bat\n ./bat3b5f74.bat",
 					Envs: map[string]string{
@@ -76,7 +78,7 @@ func TestBat(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := ConvertBat(tt.input, tt.variables, "10m")
+			got := ConvertBat(tt.input, tt.variables, "10m", "abc.example.com/image:tag")
 			if diff := cmp.Diff(got, tt.want); diff != "" {
 				t.Errorf("ConvertBat() mismatch (-want +got):\n%s", diff)
 			}

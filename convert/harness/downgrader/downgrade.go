@@ -44,6 +44,7 @@ type Downgrader struct {
 	pipelineName  string
 	pipelineOrg   string
 	pipelineProj  string
+	defaultImage  string
 	identifiers   *store.Identifiers
 }
 
@@ -461,7 +462,7 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 			Env:             spec_.Envs,
 			Command:         spec_.Run,
 			ConnRef:         d.dockerhubConn,
-			Image:           spec_.Image,
+			Image:           convertImage(spec_.Image, d.defaultImage),
 			ImagePullPolicy: convertImagePull(spec_.Pull),
 			Outputs:         outputs, // Add this line
 			Privileged:      spec_.Privileged,
@@ -583,6 +584,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 			Spec: &v0.StepArtifactoryUpload{
 				Target:     setting["target"].(string),
 				SourcePath: setting["source"].(string),
+				ConnRef:    "<+input>",
 			},
 			When: convertStepWhen(src.When, id),
 		}
@@ -789,6 +791,14 @@ func convertTimeout(s string) v0.Duration {
 	return v0.Duration{
 		Duration: d,
 	}
+}
+
+func convertImage(s string, defaultImage string) string {
+	image := s
+	if image == "" {
+		image = defaultImage
+	}
+	return image
 }
 
 func convertImagePull(v string) (s string) {
