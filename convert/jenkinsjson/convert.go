@@ -119,6 +119,7 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	// create the harness pipeline resource
 	config := &harness.Config{
 		Version: 1,
+		Name:    jenkinsjson.SanitizeForName(pipelineJson.Name),
 		Kind:    "pipeline",
 		Spec:    dst,
 	}

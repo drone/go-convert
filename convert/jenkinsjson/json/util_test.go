@@ -89,7 +89,7 @@ func TestSanitizeForName(t *testing.T) {
 		{
 			name:         "ReplaceColonWithUnderscore",
 			spanName:     "a string with a : in it",
-			expectedName: "a string with a _ in it",
+			expectedName: "a string with a in it",
 		},
 		{
 			name:         "RemoveLeadingSpacesAndUnderscores",
@@ -101,6 +101,16 @@ func TestSanitizeForName(t *testing.T) {
 			spanName:     "a string + ",
 			expectedName: "a string",
 		},
+		{
+			name:         "RemoveRepeatingSpacesAndUnderscores",
+			spanName:     "a string   with multiple spaces_____and underscores",
+			expectedName: "a string with multiple spaces_and underscores",
+		},
+		{
+			name:         "RemoveRepeatingCharsReplacingWithTheLastUsed",
+			spanName:     "group ending with   _underscore, group ending with_____ space, group ending with    -hyphen",
+			expectedName: "group ending with_underscore group ending with space group ending with-hyphen",
+		},
 	}
 
 	for _, tc := range tests {
@@ -109,7 +119,7 @@ func TestSanitizeForName(t *testing.T) {
 			name := SanitizeForName(tc.spanName)
 
 			if name != tc.expectedName {
-				t.Errorf("%v failed, got '%v' expected '%v'", tc.name, name, tc.expectedName)
+				t.Errorf("%v failed,\ngot      '%v'\nexpected '%v'", tc.name, name, tc.expectedName)
 			}
 		})
 	}

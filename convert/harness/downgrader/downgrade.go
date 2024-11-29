@@ -22,10 +22,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/drone/go-convert/convert/harness"
 	"github.com/drone/go-convert/internal/slug"
 	"github.com/drone/go-convert/internal/store"
 
-	harness "github.com/drone/go-convert/convert/harness/downgrader/yaml"
+	downgraderYaml "github.com/drone/go-convert/convert/harness/downgrader/yaml"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/spec/dist/go"
 	"github.com/ghodss/yaml"
@@ -89,7 +90,7 @@ func New(options ...Option) *Downgrader {
 
 	// set the default pipeline name.
 	if d.pipelineName == "" {
-		d.pipelineName = "default"
+		d.pipelineName = harness.DefaultName
 	}
 
 	// set the default pipeline id.
@@ -123,7 +124,7 @@ func New(options ...Option) *Downgrader {
 
 // Downgrade downgrades a v1 pipeline.
 func (d *Downgrader) Downgrade(b []byte) ([]byte, error) {
-	src, err := harness.ParseBytes(b)
+	src, err := downgraderYaml.ParseBytes(b)
 	if err != nil {
 		return nil, err
 	}
@@ -155,16 +156,11 @@ func (d *Downgrader) downgrade(src []*v1.Config) ([]byte, error) {
 	for i, p := range src {
 		config := new(v0.Config)
 
-		// TODO pipeline.name removed from spec
-
-		// use name from yaml if set and name not provided
-		// if p.Name != "" && d.pipelineId == "default" {
-		// 	config.Pipeline.ID = slug.Create(p.Name)
-		// 	config.Pipeline.Name = p.Name
-		// } else {
 		config.Pipeline.ID = d.pipelineId
 		config.Pipeline.Name = d.pipelineName
-		// }
+		if config.Pipeline.Name == harness.DefaultName && p.Name != "" {
+			config.Pipeline.Name = p.Name
+		}
 
 		config.Pipeline.Org = d.pipelineOrg
 		config.Pipeline.Project = d.pipelineProj
