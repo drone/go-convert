@@ -33,11 +33,3 @@ func WithKubernetes(namespace, connector string) Option {
 		d.kubeConnector = connector
 	}
 }
-
-// WithDefaultImage returns an option to set the default
-// image to run step.
-func WithDefaultImage(image string) Option {
-	return func(d *Converter) {
-		d.defaultImage = image
-	}
-}

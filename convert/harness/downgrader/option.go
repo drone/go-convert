@@ -72,3 +72,10 @@ func WithProject(project string) Option {
 		d.pipelineProj = project
 	}
 }
+
+// WithDefaultImage returns an option to set the default Run step image
+func WithDefaultImage(image string) Option {
+	return func(d *Downgrader) {
+		d.defaultImage = image
+	}
+}
