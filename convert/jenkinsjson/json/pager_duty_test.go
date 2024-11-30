@@ -51,7 +51,7 @@ func TestConvertPagerDutyChangeEvent(t *testing.T) {
 			Image: "plugins/pagerduty",
 			With: map[string]interface{}{
 				"log_level":           string("info"),
-				"routing_key":         string("a666ad1326f34605d06c0dbd4d87c1cb"),
+				"integration_key":     string("a666ad1326f34605d06c0dbd4d87c1cb"),
 				"incident_summary":    string("Job test-pager-duty completed with status SUCCESS"),
 				"incident_source":     string(""),
 				"custom_details":      string(`{"buildNumber":"22","jobName":"test-pager-duty","jobURL":"http://localhost:8080/job/test-pager-duty/22/"}`),
