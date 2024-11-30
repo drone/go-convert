@@ -790,9 +790,6 @@ line3'''
                 version: '1.12'
             }
         }
-    }
-}
-
         //Nodejs conversion Step
         stage('Install Packages') {
             steps {
