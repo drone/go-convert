@@ -24,7 +24,7 @@ func ConvertPagerDuty(node Node, arguments map[string]interface{}) *harness.Step
 			Image: "plugins/pagerduty",
 			With: map[string]interface{}{
 				"log_level":         "info",
-				"routing_key":       <+input>,
+				"routing_key":       routingKey,
 				"incident_summary":  incidentSummary,
 				"incident_source":   incidentSource,
 				"incident_severity": incidentSeverity,
@@ -38,7 +38,7 @@ func ConvertPagerDuty(node Node, arguments map[string]interface{}) *harness.Step
 	return convertPagerduty
 }
 
-// ConvertPagerduty creates a Harness step for nunit plugin.
+// ConvertPagerDutyChangeEvent creates a Harness step for nunit plugin.
 func ConvertPagerDutyChangeEvent(node Node, arguments map[string]interface{}) *harness.Step {
 	incidentSource, _ := arguments["incidentSource"].(string)
 	incidentSummary, _ := arguments["summaryText"].(string)
