@@ -13,8 +13,8 @@ func ConvertGatling(node Node) *harness.Step {
 		Spec: &harness.StepPlugin{
 			Image: "harnesscommunity/drone-s3-upload-publish",
 			With: map[string]interface{}{
-				"aws_access_key_id":     "<+secrets.getValue('S3_access')>",
-				"aws_secret_access_key": "<+secrets.getValue('S3_secret')>",
+				"aws_access_key_id":     "<+input>",
+				"aws_secret_access_key": "<+input>",
 				"aws_default_region":    "<+input>",
 				"aws_bucket":            "<+input>",
 				"source":                "<+input>",
