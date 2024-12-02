@@ -18,10 +18,10 @@ func TestConvertGatling(t *testing.T) {
 			Image: "harnesscommunity/drone-s3-upload-publish",
 			With: map[string]interface{}{
 				"artifact_file":         "artifact.txt",
-				"aws_access_key_id":     "<+secrets.getValue('S3_access')>",
+				"aws_access_key_id":     "<+input>",
 				"aws_bucket":            "<+input>",
 				"aws_default_region":    "<+input>",
-				"aws_secret_access_key": "<+secrets.getValue('S3_secret')>",
+				"aws_secret_access_key": "<+input>",
 				"glob":                  "**/*.html, **/*.css",
 				"source":                "<+input>",
 				"target":                "<+input>",
