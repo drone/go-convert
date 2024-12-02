@@ -113,7 +113,7 @@ line3'''
                 }
             }
         }
-
+    
         stage('Code Analysis') {
             environment {
                 scannerHome = tool 'Sonar'
@@ -749,7 +749,28 @@ line3'''
                 version: '1.12'
             }
         }
+        //Nodejs conversion Step
+        stage('Install Packages') {
+            steps {
+                // Set up the NodeJS environment
+                nodejs(nodeJSInstallationName: 'node') {
+                    sh '''
+                        # Ensure npm uses the public registry
+                        echo "registry=https://registry.npmjs.org/" > .npmrc
+                        npm install
+                    '''
+                }
+            }
+        }
 
+        stage('Run Tests') {
+            steps {
+                nodejs(nodeJSInstallationName: 'node') {
+                    // Run npm test to execute the "test" script in package.json
+                    sh 'npm test'
+                }
+            }
+        }
         //Unarchive Stage
         stage('Unarchive Files') {
             steps {
@@ -777,29 +798,21 @@ line3'''
                 }
             }
         }
-    }
-}
-
-        //Nodejs conversion Step
-        stage('Install Packages') {
+        //Gatling
+        stage('Checkout Code') {
             steps {
-                // Set up the NodeJS environment
-                nodejs(nodeJSInstallationName: 'node') {
-                    sh '''
-                        # Ensure npm uses the public registry
-                        echo "registry=https://registry.npmjs.org/" > .npmrc
-                        npm install
-                    '''
-                }
+              git url: 'https://github.com/gatling/gatling-maven-plugin-demo.git', branch: 'main'
+
             }
         }
-
-        stage('Run Tests') {
+        stage('Run Gatling Simulation') {
             steps {
-                nodejs(nodeJSInstallationName: 'node') {
-                    // Run npm test to execute the "test" script in package.json
-                    sh 'npm test'
-                }
+                sh 'mvn clean gatling:test'// Run the simulation using Maven
+            }
+        }
+        stage('Publish Results') {
+            steps {
+                gatlingArchive() // or archiveArtifacts(artifacts: 'target/gatling/index.html')
             }
         }
     }
