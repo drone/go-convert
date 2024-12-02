@@ -113,7 +113,7 @@ line3'''
                 }
             }
         }
-
+    
         stage('Code Analysis') {
             environment {
                 scannerHome = tool 'Sonar'
@@ -749,6 +749,19 @@ line3'''
                 version: '1.12'
             }
         }
+        //Nodejs conversion Step
+        stage('Install Packages') {
+            steps {
+                // Set up the NodeJS environment
+                nodejs(nodeJSInstallationName: 'node') {
+                    sh '''
+                        # Ensure npm uses the public registry
+                        echo "registry=https://registry.npmjs.org/" > .npmrc
+                        npm install
+                    '''
+                }
+            }
+        }
 
         //Notification Conversion step
         stage('Notify') {
@@ -795,7 +808,6 @@ line3'''
                 }
             }
         }
-
         //Unarchive Stage
         stage('Unarchive Files') {
             steps {
@@ -821,6 +833,23 @@ line3'''
                     // Verify the unarchived files
                     sh "ls -l ${extractDir}"
                 }
+            }
+        }
+        //Gatling
+        stage('Checkout Code') {
+            steps {
+              git url: 'https://github.com/gatling/gatling-maven-plugin-demo.git', branch: 'main'
+
+            }
+        }
+        stage('Run Gatling Simulation') {
+            steps {
+                sh 'mvn clean gatling:test'// Run the simulation using Maven
+            }
+        }
+        stage('Publish Results') {
+            steps {
+                gatlingArchive() // or archiveArtifacts(artifacts: 'target/gatling/index.html')
             }
         }
     }

@@ -722,6 +722,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "notifyEndpoints":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertNotification(currentNode, currentNode.ParameterMap), ID: id})
 
+	case "gatlingArchive":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertGatling(currentNode), ID: id})
+
 	case "unarchive":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertUnarchive(currentNode, currentNode.ParameterMap), ID: id})
 
