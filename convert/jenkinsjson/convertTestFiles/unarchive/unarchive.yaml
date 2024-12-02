@@ -1,0 +1,13 @@
+- step:
+    identifier: unarchive4bf5e3
+    name: Unarchive
+    spec:
+      image: plugins/archive
+      settings:
+        action: extract
+        exclude: ''
+        format: zip
+        glob: '**/*'
+        overwrite: 'true'
+        source: archive.zip
+        target: unarchived_files/zip/
