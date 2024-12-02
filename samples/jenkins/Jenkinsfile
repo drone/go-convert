@@ -519,7 +519,6 @@ line3'''
                 }
             }
         }
-
         //Gatling
         stage('Checkout Code') {
             steps {
