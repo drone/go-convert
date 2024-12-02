@@ -188,11 +188,6 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 			stepsInStage := make([]*harness.Step, 0)
 			recursiveParseJsonToSteps(childNode, &stepsInStage, processedTools, variables, dockerImage)
 
-			// skip empty step groups
-			if len(stepsInStage) == 0 {
-				continue
-			}
-
 			// Create the stepGroup for the new stage
 			dstStep := &harness.Step{
 				Name: jenkinsjson.SanitizeForName(stageName),
