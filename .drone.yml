@@ -36,5 +36,7 @@ steps:
 #      - refs/tags/*
 
 trigger:
-  branch:
-  - master
+  ref:
+    - refs/heads/master
+    - refs/tags/**
+    - refs/pull/**

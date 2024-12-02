@@ -379,7 +379,7 @@ func TestConvert_EmptyJenkinsJSON(t *testing.T) {
 	expectedYAML := `version: 1
 kind: pipeline
 type: ""
-name: ""
+name: default
 spec:
   stages:
   - desc: ""
@@ -413,11 +413,11 @@ spec:
 		return strings.Join(strings.Fields(s), " ")
 	}
 
-	normalizedExpectedYAML := normalize(expectedYAML)
-	normalizedOutput := normalize(string(output))
+	expected := normalize(expectedYAML)
+	got := normalize(string(output))
 
-	if normalizedOutput != normalizedExpectedYAML {
-		t.Errorf("Expected output to be '%s', got '%s'", normalizedExpectedYAML, normalizedOutput)
+	if diff := cmp.Diff(got, expected); diff != "" {
+		t.Errorf("TestConvert_EmptyJenkinsJSON mismatch (-want +got):\n%s", diff)
 	}
 }
 
@@ -641,29 +641,6 @@ func TestCanMergeSteps(t *testing.T) {
 		step2 := &harness.Step{Type: "script", Spec: exec}
 		if !canMergeSteps(step1, step2) {
 			t.Error("expected identical steps to be mergeable")
-		}
-	})
-}
-
-func TestHasDefaultOrNoImage(t *testing.T) {
-	t.Run("No image", func(t *testing.T) {
-		exec := &harness.StepExec{Image: ""}
-		if !hasDefaultOrNoImage(exec) {
-			t.Error("expected empty image to return true")
-		}
-	})
-
-	t.Run("Default image with different casing", func(t *testing.T) {
-		exec := &harness.StepExec{Image: "Alpine"}
-		if !hasDefaultOrNoImage(exec) {
-			t.Error("expected default image with different casing to return true")
-		}
-	})
-
-	t.Run("Non-default image", func(t *testing.T) {
-		exec := &harness.StepExec{Image: "ubuntu:latest"}
-		if hasDefaultOrNoImage(exec) {
-			t.Error("expected non-default image to return false")
 		}
 	})
 }

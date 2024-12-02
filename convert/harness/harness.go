@@ -13,3 +13,5 @@
 // limitations under the License.
 
 package harness
+
+var DefaultName = "default"

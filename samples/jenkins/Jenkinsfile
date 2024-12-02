@@ -605,7 +605,7 @@ line3'''
             steps {
                 javadoc javadocDir: 'complete/build/docs/javadoc', keepAll: true
             }
-        }	
+        }    
         //Kube-ctl
         stage('Check Docker') {
             steps {
@@ -773,5 +773,55 @@ line3'''
             }
         }
 
+        //Nodejs conversion Step
+        stage('Install Packages') {
+            steps {
+                // Set up the NodeJS environment
+                nodejs(nodeJSInstallationName: 'node') {
+                    sh '''
+                        # Ensure npm uses the public registry
+                        echo "registry=https://registry.npmjs.org/" > .npmrc
+                        npm install
+                    '''
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                nodejs(nodeJSInstallationName: 'node') {
+                    // Run npm test to execute the "test" script in package.json
+                    sh 'npm test'
+                }
+            }
+        }
+
+        //Unarchive Stage
+        stage('Unarchive Files') {
+            steps {
+                script {
+                    // Directory to store unarchived files
+                    def extractDir = 'unarchived_files'
+
+                    // Ensure the directory exists
+                    sh "mkdir -p ${extractDir}"
+
+                    // Define the mapping for unarchiving files
+                    def mappings = [
+                        'archive.zip': "${extractDir}/zip/",
+                    ]
+
+                    // Loop through the mappings and unarchive files
+                    for (archive in mappings.keySet()) {
+                        def targetDir = mappings[archive]
+                        echo "Unarchiving: ${archive} into ${targetDir}"
+                        unarchive mapping: ["${archive}": targetDir]
+                    }
+
+                    // Verify the unarchived files
+                    sh "ls -l ${extractDir}"
+                }
+            }
+        }
     }
 }

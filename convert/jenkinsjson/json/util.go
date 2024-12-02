@@ -15,6 +15,7 @@
 package json
 
 import (
+	"github.com/drone/go-convert/convert/harness"
 	"regexp"
 	"strings"
 )
@@ -43,12 +44,16 @@ func SanitizeForName(spanName string) string {
 	invalidCharRegex := regexp.MustCompile(`[^\w\- ]+`)
 	sanitized := invalidCharRegex.ReplaceAllString(spanName, "_")
 
+	// Replace repeating separators
+	repeatingCharRegex := regexp.MustCompile(`([_ \-]){2,}`)
+	sanitized = repeatingCharRegex.ReplaceAllString(sanitized, "$1")
+
 	// Trim leading and trailing underscores
 	sanitized = strings.TrimLeft(sanitized, "_ ")
 	sanitized = strings.TrimRight(sanitized, "_ ")
 
 	if sanitized == "" {
-		sanitized = "unamed"
+		sanitized = harness.DefaultName
 	}
 
 	if len(sanitized) > 128 {

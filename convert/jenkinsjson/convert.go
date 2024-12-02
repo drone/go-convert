@@ -62,7 +62,7 @@ type ProcessedTools struct {
 var mavenGoals string
 var gradleGoals string
 
-var defaultImage string
+var defaultWindowsImage string = "mcr.microsoft.com/powershell"
 
 // Converter converts a jenkinsjson pipeline to a Harness
 // v1 pipeline.
@@ -71,7 +71,6 @@ type Converter struct {
 	kubeNamespace string
 	kubeConnector string
 	dockerhubConn string
-	defaultImage  string
 	identifiers   *store.Identifiers
 }
 
@@ -101,12 +100,6 @@ func New(options ...Option) *Converter {
 		d.kubeEnabled = true
 	}
 
-	if d.defaultImage == "" {
-		d.defaultImage = "alpine"
-	}
-
-	defaultImage = d.defaultImage
-
 	return d
 }
 
@@ -126,6 +119,7 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	// create the harness pipeline resource
 	config := &harness.Config{
 		Version: 1,
+		Name:    jenkinsjson.SanitizeForName(pipelineJson.Name),
 		Kind:    "pipeline",
 		Spec:    dst,
 	}
@@ -404,9 +398,12 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		}
 	case "sh":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage), ID: id})
+	case "bat":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertBat(currentNode, variables, timeout, defaultWindowsImage), ID: id})
 	case "pwsh":
-		dockerImage = "mcr.microsoft.com/powershell"
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPwsh(currentNode, variables, timeout, dockerImage), ID: id})
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPwsh(currentNode, variables, timeout, defaultWindowsImage), ID: id})
+	case "powershell":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPowerShell(currentNode, variables, timeout, defaultWindowsImage), ID: id})
 	case "timeout":
 		if len(currentNode.ParameterMap) > 0 {
 			var unit string
@@ -544,8 +541,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		if processedTools.AntPresent {
 			clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "ant", "ant", "frekele/ant:latest", variables, timeout)
 		}
-	case "powershell":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPowerShell(currentNode, variables, timeout), ID: id})
+		if symbol, ok := currentNode.ParameterMap["delegate"].(map[string]interface{})["symbol"]; ok && symbol == "nodejs" {
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertNodejs(currentNode), ID: id})
+		}
 
 	case "zip":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertZip(currentNode, variables), ID: id})
@@ -555,9 +553,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 
 	case "findFiles":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFindFiles(currentNode), ID: id})
-
-	case "bat":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertBat(currentNode, variables, timeout), ID: id})
 
 	case "tar":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertTar(currentNode, variables), ID: id})
@@ -726,6 +721,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 
 	case "notifyEndpoints":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertNotification(currentNode, currentNode.ParameterMap), ID: id})
+
+	case "unarchive":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertUnarchive(currentNode, currentNode.ParameterMap), ID: id})
 
 	default:
 		placeholderStr := fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"])
@@ -993,10 +991,6 @@ func canMergeSteps(step1, step2 *harness.Step) bool {
 		return false
 	}
 
-	if !hasDefaultOrNoImage(exec1) || !hasDefaultOrNoImage(exec2) {
-		return false
-	}
-
 	return exec1.Image == exec2.Image &&
 		exec1.Connector == exec2.Connector &&
 		exec1.Shell == exec2.Shell &&
@@ -1005,13 +999,6 @@ func canMergeSteps(step1, step2 *harness.Step) bool {
 		ARGSslicesEqual(exec1.Args, exec2.Args) &&
 		exec1.Privileged == exec2.Privileged &&
 		exec1.Network == exec2.Network
-}
-
-func hasDefaultOrNoImage(exec *harness.StepExec) bool {
-	if exec.Image == "" {
-		return true // Image parameter is not present
-	}
-	return strings.TrimSpace(strings.ToLower(exec.Image)) == strings.ToLower(defaultImage)
 }
 
 func ENVmapsEqual(m1, m2 map[string]string) bool {
