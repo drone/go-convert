@@ -719,6 +719,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "javadoc":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJavadoc(currentNode, variables), ID: id})
 
+	case "gatlingArchive":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertGatling(currentNode), ID: id})
+
 	default:
 		placeholderStr := fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"])
 		b, err := json.MarshalIndent(currentNode.ParameterMap, "", "  ")
