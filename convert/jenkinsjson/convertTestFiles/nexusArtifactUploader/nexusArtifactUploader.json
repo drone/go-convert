@@ -1,0 +1,38 @@
+{
+  "spanId": "a3af28ce260b3e9c",
+  "traceId": "b8af2fa03e749636c61444c85011714a",
+  "parent": "plg01-nexus-artifact-uploader",
+  "all-info": "span(name: nexusArtifactUploader, spanId: a3af28ce260b3e9c, parentSpanId: 04540616edfdf37b, traceId: b8af2fa03e749636c61444c85011714a, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"nexusVersion\" : \"nexus3\",\n  \"nexusUrl\" : \"4.24.1.2:9192/\",\n  \"protocol\" : \"http\",\n  \"groupId\" : \"test01\",\n  \"credentialsId\" : \"nexus-hnstest01-creds\",\n  \"repository\" : \"plg01maven2\",\n  \"version\" : \"0.12hrns\",\n  \"artifacts\" : [ {\n    \"artifactId\" : \"fruit-names-v0.1\",\n    \"classifier\" : \"\",\n    \"file\" : \"fruit_names.txt\",\n    \"type\" : \"txt\"\n  } ]\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@1507f5c5:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@1507f5c5;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6ec43b4f:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6ec43b4f;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2f9a845e:org.jenkinsci.plugins.workflow.actions.TimingAction@2f9a845e;harness-others:;jenkins.pipeline.step.id:21;jenkins.pipeline.step.name:Nexus Artifact Uploader;jenkins.pipeline.step.plugin.name:nexus-artifact-uploader;jenkins.pipeline.step.plugin.version:2.14;jenkins.pipeline.step.type:nexusArtifactUploader;)",
+  "name": "plg01-nexus-artifact-uploader #2",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Nexus Artifact Uploader",
+    "ci.pipeline.run.user": "SYSTEM",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2f9a845e": "org.jenkinsci.plugins.workflow.actions.TimingAction@2f9a845e",
+    "jenkins.pipeline.step.id": "21",
+    "jenkins.pipeline.step.type": "nexusArtifactUploader",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6ec43b4f": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6ec43b4f",
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@1507f5c5": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@1507f5c5",
+    "harness-attribute": "{\n  \"nexusVersion\" : \"nexus3\",\n  \"nexusUrl\" : \"4.24.1.2:9192/\",\n  \"protocol\" : \"http\",\n  \"groupId\" : \"test01\",\n  \"credentialsId\" : \"nexus-hnstest01-creds\",\n  \"repository\" : \"plg01maven2\",\n  \"version\" : \"0.12hrns\",\n  \"artifacts\" : [ {\n    \"artifactId\" : \"fruit-names-v0.1\",\n    \"classifier\" : \"\",\n    \"file\" : \"fruit_names.txt\",\n    \"type\" : \"txt\"\n  } ]\n}",
+    "jenkins.pipeline.step.plugin.name": "nexus-artifact-uploader",
+    "jenkins.pipeline.step.plugin.version": "2.14"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "04540616edfdf37b",
+  "parameterMap": {
+    "nexusVersion": "nexus3",
+    "nexusUrl": "4.24.1.2:9192/",
+    "protocol": "http",
+    "groupId": "test01",
+    "credentialsId": "nexus-hnstest01-creds",
+    "repository": "plg01maven2",
+    "version": "0.12hrns",
+    "artifacts": [{
+      "file": "fruit_names.txt",
+      "classifier": "",
+      "artifactId": "fruit-names-v0.1",
+      "type": "txt"
+    }]
+  },
+  "spanName": "nexusArtifactUploader"
+}

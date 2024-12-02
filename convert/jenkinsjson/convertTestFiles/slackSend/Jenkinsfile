@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Send Slack Notification') {
+            steps {
+                slackSend channel: 'dev',
+                          color: 'good',
+                          iconEmoji: ':rocket:',
+                          message: 'hi, the test msg slack now test ...',
+                          teamDomain: 'jenkins-bot-testing',
+                          tokenCredentialId: 'slackcreds03',
+                          username: 'jenkins-test-user'
+            }
+        }
+    }
+}

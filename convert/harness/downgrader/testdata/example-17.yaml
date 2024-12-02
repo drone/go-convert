@@ -19,7 +19,7 @@ spec:
             type: script
           - name: publish
             spec:
-              image: plugins/kaniko-docker
+              image: plugins/kaniko:latest
               with:
                 password: <+ secrets.getValue("docker_password") >
                 repo: octocat/hello-world

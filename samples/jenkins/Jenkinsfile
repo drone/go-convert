@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     tools {
         ant 'AntNew'
         gradle 'GradleNew'
@@ -12,7 +12,7 @@ pipeline {
         DOCKER_TAG = 'latest'
         ARTIFACTORY_SERVER = 'artifactory-id'
     }
-    
+
     stages {
         stage('Plugin Build') {
             steps {
@@ -26,18 +26,16 @@ pipeline {
                         submoduleCfg: [],
                         userRemoteConfigs: [[url: 'https://github.com/harness-community/test-jenkins-to-harness.git']]
                     ])
-                    
                     // Use Maven to build
                     withMaven {
                     sh "mvn clean install\
                         package"
                     }
-                    
                     // Use Ant to build
                     withAnt {
                         sh 'ant build'
                     }
-                    
+
                     // Use Gradle to build
                     withGradle {
                         sh 'gradle build'
@@ -45,11 +43,11 @@ pipeline {
                 }
             }
         }
-        
+
         stage('ReadWriteFile') {
             steps {
                 script {
-                    writeFile file: 'output1.txt', text: '''line1 
+                    writeFile file: 'output1.txt', text: '''line1
 
 line2
 
@@ -69,15 +67,15 @@ line3'''
                       touch target/file5.txt
                       touch target/file6.txt
                     '''
-                    
+
                     // List files before deletion
                     sh 'ls'
-                    
+
                     // Delete the target directory
                     dir('target') {
                         deleteDir()
                     }
-                    
+
                     // List files after deletion
                     sh 'ls'
                 }
@@ -98,7 +96,7 @@ line3'''
                 }
             }
         }
-        
+
         stage('Read yaml step') {
             steps {
                 script {
@@ -110,7 +108,7 @@ line3'''
   properties:
     ci:
       codebase:false'''
-                        
+
                     datas = readYaml (file: 'test1.yaml')
                 }
             }
@@ -142,7 +140,7 @@ line3'''
                 script {
                     def files = findFiles(glob: '**/*.txt')
                     echo "${files.length} files"
-                
+
                     for(int i = 0; i < files.length; i++) {
                         echo "${files[i].name} -- ${files[i].path}"
                     }
@@ -305,7 +303,7 @@ line3'''
             steps {
                 fileOperations([
                     fileJoinOperation(
-                        sourceFile: 'file1.txt', 
+                        sourceFile: 'file1.txt',
                         targetFile: 'file2.txt'
                     )
                 ])
@@ -326,7 +324,7 @@ line3'''
             steps {
                 fileOperations([
                     fileJoinOperation(
-                        sourceFile: 'file1.txt', 
+                        sourceFile: 'file1.txt',
                         targetFile: 'file2.txt'
                     )
                 ])
@@ -346,7 +344,7 @@ line3'''
             steps {
                 fileOperations([
                     fileRenameOperation(
-                        source: 'newfile.txt', 
+                        source: 'newfile.txt',
                         destination: 'renamedfile.txt'
                     )
                 ])
@@ -367,8 +365,8 @@ line3'''
             steps {
                 fileOperations([
                     fileTransformOperation(
-                        includes: 'newfile*.txt', 
-                        excludes: 'newfile2.txt', 
+                        includes: 'newfile*.txt',
+                        excludes: 'newfile2.txt',
                         useDefaultExcludes: false
                     )
                 ])
@@ -391,8 +389,8 @@ line3'''
             steps {
                 fileOperations([
                     fileUnTarOperation(
-                        filePath: 'src.tar.gz', 
-                        targetLocation: 'dest/', 
+                        filePath: 'src.tar.gz',
+                        targetLocation: 'dest/',
                         isGZIP: true
                     )
                 ])
@@ -415,7 +413,7 @@ line3'''
             steps {
                 fileOperations([
                     fileUnZipOperation(
-                        filePath: 'src.zip', 
+                        filePath: 'src.zip',
                         targetLocation: 'dest/'
                     )
                 ])
@@ -437,7 +435,7 @@ line3'''
             steps {
                 fileOperations([
                     fileZipOperation(
-                        folderPath: 'src/', 
+                        folderPath: 'src/',
                         outputFolderPath: 'dest/'
                     )
                 ])
@@ -459,7 +457,7 @@ line3'''
             steps {
                 fileOperations([
                     folderCopyOperation(
-                        sourceFolderPath: 'src/', 
+                        sourceFolderPath: 'src/',
                         destinationFolderPath: 'dest'
                     )
                 ])
@@ -494,7 +492,7 @@ line3'''
             steps {
                 fileOperations([
                     folderRenameOperation(
-                        source: 'src/', 
+                        source: 'src/',
                         destination: 'dest/'
                     )
                 ])

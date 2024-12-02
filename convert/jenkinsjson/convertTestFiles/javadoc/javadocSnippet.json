@@ -1,0 +1,34 @@
+{
+  "spanId": "ab0898fad8618719",
+  "traceId": "7af960212217ab39dfee129e39d04ced",
+  "parent": "op-javadoc",
+  "all-info": "span(name: javadoc, spanId: ab0898fad8618719, parentSpanId: 632277cd45ef3710, traceId: 7af960212217ab39dfee129e39d04ced, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"delegate\" : {\n    \"symbol\" : \"javadoc\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"javadocDir\" : \"build/docs/javadoc\",\n      \"keepAll\" : true\n    },\n    \"model\" : null\n  }\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@19317f9f:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@19317f9f;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@37a5f855:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@37a5f855;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1c654d7c:org.jenkinsci.plugins.workflow.actions.TimingAction@1c654d7c;harness-others:-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep;jenkins.pipeline.step.id:32;jenkins.pipeline.step.name:Publish Javadoc;jenkins.pipeline.step.plugin.name:javadoc;jenkins.pipeline.step.plugin.version:280.v050b_5c849f69;jenkins.pipeline.step.type:javadoc;)",
+  "name": "op-javadoc #10",
+  "attributesMap": {
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@19317f9f": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@19317f9f",
+    "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+    "jenkins.pipeline.step.name": "Publish Javadoc",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "32",
+    "jenkins.pipeline.step.type": "javadoc",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@37a5f855": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@37a5f855",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1c654d7c": "org.jenkinsci.plugins.workflow.actions.TimingAction@1c654d7c",
+    "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"javadoc\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"javadocDir\" : \"build/docs/javadoc\",\n      \"keepAll\" : true\n    },\n    \"model\" : null\n  }\n}",
+    "jenkins.pipeline.step.plugin.name": "javadoc",
+    "jenkins.pipeline.step.plugin.version": "280.v050b_5c849f69"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "632277cd45ef3710",
+  "parameterMap": {
+    "delegate": {
+      "symbol": "javadoc",
+      "klass": null,
+      "arguments": {
+        "javadocDir": "build/docs/javadoc",
+        "keepAll": true
+      },
+      "model": null
+    }
+  },
+  "spanName": "javadoc"
+}

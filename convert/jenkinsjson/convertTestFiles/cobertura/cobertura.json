@@ -1,0 +1,42 @@
+{
+  "Name": "cobertura-plugin #10",
+  "Parent": "cobertura-plugin",
+  "SpanName": "cobertura",
+  "SpanId": "5133f5e0742de8b7",
+  "ParentSpanId": "16593f8e46a69ecb",
+  "TraceId": "fe1b9569b5b689de88a994a135076eef",
+  "Children": null,
+  "Type": "Run Phase Span",
+  "ParameterMap": {
+    "delegate": {
+      "arguments": {
+        "classCoverageTargets": "95,50,75",
+        "coberturaReportFile": "**/coverage*.xml",
+        "conditionalCoverageTargets": "95,50,75",
+        "failNoReports": false,
+        "failUnhealthy": false,
+        "failUnstable": false,
+        "fileCoverageTargets": "95,50,75",
+        "lineCoverageTargets": "95,50,75",
+        "methodCoverageTargets": "95,50,75",
+        "onlyStable": false,
+        "packageCoverageTargets": "95,50,75"
+      },
+      "klass": null,
+      "model": null,
+      "symbol": "cobertura"
+    }
+  },
+  "AttributesMap": {
+    "ci.pipeline.run.user": "SYSTEM",
+    "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"cobertura\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"classCoverageTargets\" : \"95,50,75\",\n      \"coberturaReportFile\" : \"**/coverage*.xml\",\n      \"conditionalCoverageTargets\" : \"95,50,75\",\n      \"failNoReports\" : false,\n      \"failUnhealthy\" : false,\n      \"failUnstable\" : false,\n      \"fileCoverageTargets\" : \"95,50,75\",\n      \"lineCoverageTargets\" : \"95,50,75\",\n      \"methodCoverageTargets\" : \"95,50,75\",\n      \"onlyStable\" : false,\n      \"packageCoverageTargets\" : \"95,50,75\"\n    },\n    \"model\" : null\n  }\n}",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@14c871a5": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@14c871a5",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@182082e9": "org.jenkinsci.plugins.workflow.actions.TimingAction@182082e9",
+    "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+    "jenkins.pipeline.step.id": "50",
+    "jenkins.pipeline.step.name": "Publish Cobertura Coverage Report",
+    "jenkins.pipeline.step.plugin.name": "cobertura",
+    "jenkins.pipeline.step.plugin.version": "1.17",
+    "jenkins.pipeline.step.type": "cobertura"
+  }
+}
