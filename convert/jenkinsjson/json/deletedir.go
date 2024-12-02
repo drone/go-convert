@@ -22,8 +22,11 @@ func ConvertDeleteDir(node Node, variables map[string]string) *harness.Step {
 	return step
 }
 
-func ConvertDir(node Node, variables map[string]string) *harness.Step {
-	dirPath := node.ParameterMap["path"].(string)
+func ConvertDir(node Node, variables map[string]string) (*harness.Step, bool) {
+	dirPath, ok := node.ParameterMap["path"].(string)
+	if !ok {
+		return nil, false
+	}
 	step := &harness.Step{
 		Name: "Dir",
 		Id:   SanitizeForId(node.SpanName, node.SpanId),
@@ -36,5 +39,5 @@ func ConvertDir(node Node, variables map[string]string) *harness.Step {
 	if len(variables) > 0 {
 		step.Spec.(*harness.StepExec).Envs = variables
 	}
-	return step
+	return step, true
 }

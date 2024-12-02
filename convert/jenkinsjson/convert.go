@@ -188,10 +188,15 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 			stepsInStage := make([]*harness.Step, 0)
 			recursiveParseJsonToSteps(childNode, &stepsInStage, processedTools, variables, dockerImage)
 
+			// skip empty step groups
+			if len(stepsInStage) == 0 {
+				continue
+			}
+
 			// Create the stepGroup for the new stage
 			dstStep := &harness.Step{
-				Name: stageName,
-				Id:   jenkinsjson.SanitizeForId(childNode.SpanName, childNode.SpanId),
+				Name: jenkinsjson.SanitizeForName(stageName),
+				Id:   jenkinsjson.SanitizeForId(stageName, childNode.SpanId),
 				Type: "group",
 				Spec: &harness.StepGroup{
 					Steps: stepsInStage,
@@ -329,7 +334,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	}
 
 	switch currentNode.AttributesMap["jenkins.pipeline.step.type"] {
-	case "node", "parallel", "script":
+	case "node", "parallel", "script", "ws", "ansiColor":
 		// node, parallel, withEnv, and withMaven are wrapper layers to hold actual steps
 		// parallel should be handled at its parent
 		for _, child := range currentNode.Children {
@@ -338,6 +343,14 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "withEnv":
 		var1 := ExtractEnvironmentVariables(currentNode)
 		combinedVariables := mergeMaps(variables, var1)
+
+		for _, child := range currentNode.Children {
+			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, combinedVariables, timeout, dockerImage)
+		}
+
+	case "withCredentials":
+		withCredentialsVars := jenkinsjson.ConvertWithCredentials(currentNode)
+		combinedVariables := mergeMaps(variables, withCredentialsVars)
 
 		for _, child := range currentNode.Children {
 			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, combinedVariables, timeout, dockerImage)
@@ -475,7 +488,13 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "sleep":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSleep(currentNode, variables), ID: id})
 	case "dir":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDir(currentNode, variables), ID: id})
+		// dir can have repeated dir steps in its children, these do not include the ParametersMap
+		if dirStep, ok := jenkinsjson.ConvertDir(currentNode, variables); ok {
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: dirStep, ID: id})
+		}
+		for _, child := range currentNode.Children {
+			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout, dockerImage)
+		}
 	case "deleteDir":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDeleteDir(currentNode, variables), ID: id})
 	case "writeYaml":
@@ -742,6 +761,11 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			},
 			Desc: "This is a place holder for: " + currentNode.AttributesMap["jenkins.pipeline.step.type"],
 		}, ID: id})
+
+		for _, child := range currentNode.Children {
+			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout, dockerImage)
+		}
+
 	}
 	return clone, repo
 }
