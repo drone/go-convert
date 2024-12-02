@@ -723,6 +723,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "pagerduty":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPagerDuty(currentNode, currentNode.ParameterMap), ID: id})
 
+	case "gatlingArchive":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertGatling(currentNode), ID: id})
+
 	case "unarchive":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertUnarchive(currentNode, currentNode.ParameterMap), ID: id})
 
