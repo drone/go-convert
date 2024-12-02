@@ -161,6 +161,9 @@ func (d *Downgrader) downgrade(src []*v1.Config) ([]byte, error) {
 		if config.Pipeline.Name == harness.DefaultName && p.Name != "" {
 			config.Pipeline.Name = p.Name
 		}
+		if config.Pipeline.ID == harness.DefaultName && p.Name != "" {
+			config.Pipeline.ID = slug.Create(p.Name)
+		}
 
 		config.Pipeline.Org = d.pipelineOrg
 		config.Pipeline.Project = d.pipelineProj
