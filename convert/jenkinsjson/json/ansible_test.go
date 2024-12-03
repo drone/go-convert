@@ -20,7 +20,7 @@ func TestConvertAnsiblePlaybook(t *testing.T) {
 				"become_user":    "root",
 				"check":          false,
 				"extra_vars":     "{\"var1\":\"value1\",\"var2\":\"value2\"}",
-				"forks":          0,
+				"forks":          "5",
 				"inventory":      "inventory.ini",
 				"limit":          "localhost",
 				"list_hosts":     "",

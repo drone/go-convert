@@ -1,8 +1,9 @@
 package json
 
 import (
-	"encoding/json"
 	"fmt"
+	"strconv"
+	"strings"
 
 	harness "github.com/drone/spec/dist/go"
 )
@@ -13,7 +14,6 @@ func ConvertAnsiblePlaybook(node Node, arguments map[string]interface{}) *harnes
 	become, _ := arguments["become"].(bool)
 	becomeUser, _ := arguments["becomeUser"].(string)
 	checkMode, _ := arguments["checkMode"].(bool)
-	forks, _ := arguments["forks"].(int)
 	hostKeyChecking, _ := arguments["hostKeyChecking"].(string)
 	inventory, _ := arguments["inventory"].(string)
 	limit, _ := arguments["limit"].(string)
@@ -22,22 +22,40 @@ func ConvertAnsiblePlaybook(node Node, arguments map[string]interface{}) *harnes
 	tags, _ := arguments["tags"].(string)
 	vaultCredentialsId, _ := arguments["vaultCredentialsId"].(string)
 
+	var forks int
+	if value, ok := arguments["forks"]; ok {
+		switch v := value.(type) {
+		case float64:
+			forks = int(v) // JSON numbers are often float64
+			fmt.Println("forks is float64, converted to int:", forks)
+		case int:
+			forks = v
+			fmt.Println("forks is int:", forks)
+		case string:
+			// Convert string to int
+			if intValue, err := strconv.Atoi(v); err == nil {
+				forks = intValue
+				fmt.Println("forks is string, converted to int:", forks)
+			} else {
+				fmt.Println("Failed to convert forks from string to int:", err)
+			}
+		default:
+			fmt.Println("forks has an unexpected type:", v)
+			forks = 0 // Default value if type assertion fails
+		}
+	} else {
+		fmt.Println("forks key not found in arguments")
+	}
+
 	// Extract extraVars from the arguments map
-	extraVarsMap, ok := arguments["extraVars"].(map[string]interface{})
+	extraVarsSlice, ok := arguments["extraVars"].([]string)
 	if !ok {
-		fmt.Println("Failed to cast extraVars")
+		fmt.Println("Failed to cast extraVars to []string")
 		return nil
 	}
 
-	// Convert map to JSON string
-	extraVarsBytes, err := json.Marshal(extraVarsMap)
-	if err != nil {
-		fmt.Println("Failed to convert extraVars to JSON")
-		return nil
-	}
-
-	// Assign JSON string to extraVars
-	extraVars := string(extraVarsBytes)
+	// Join extraVars slice into a single string separated by spaces
+	extraVars := strings.Join(extraVarsSlice, " ")
 
 	convertAnsiblePlaybook := &harness.Step{
 		Name: "Ansible_Playbook",
