@@ -1,0 +1,68 @@
+pipeline {
+    agent any
+
+    environment {
+        PATH = "/opt/homebrew/bin:$PATH"
+        VAULT_PASSWORD = 'secretpassword'
+        ANSIBLE_INVENTORY = 'inventory.ini'
+        ANSIBLE_PLAYBOOK = 'test-playbook.yml'
+        ANSIBLE_VAULT_TMP_PATH = '/tmp/vault-password.txt'
+    }
+    stages {
+        stage('Install Homebrew') {
+            steps {
+                script {
+                    sh '''
+                    if ! command -v brew &> /dev/null; then
+                        echo "Homebrew not found. Installing..."
+                        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                    else
+                        echo "Homebrew is already installed."
+                    fi
+                    '''
+                }
+            }
+        }
+
+        stage('Install Ansible') {
+            steps {
+                script {
+                    sh 'brew install ansible'
+                }
+            }
+        }
+
+        stage('Run Ansible Playbook') {
+            steps {
+                ansiblePlaybook(
+                    playbook: "${ANSIBLE_PLAYBOOK}",
+                    become: true, // Enable privilege escalation
+                    becomeUser: 'root', // Specify user for escalation
+                    checkMode: false, // Disable check mode
+                    colorized: true, // Enable colored output
+                    credentialsId: '', // Optional credentials ID
+                    disableHostKeyChecking: true, // Disable host key checking
+                    dynamicInventory: false, // Use static inventory
+                    extraVars: [ // Specify extra variables
+                        var1: 'value1',
+                        var2: 'value2'
+                    ],
+                    extras: '--diff --timeout=30', // Additional flags
+                    forks: 5, // Number of parallel processes
+                    hostKeyChecking: false, // Alias for disableHostKeyChecking
+                    installation: 'Default', // Specify installation
+                    inventory: 'inventory.ini', // Inventory file path
+                    inventoryContent: '', // Inline inventory content
+                    limit: 'all', // Restrict to specific hosts
+                    skippedTags: 'skip_tag1,skip_tag2', // Tags to skip
+                    startAtTask: 'start_task_name', // Start execution at a specific task
+                    sudo: false,
+                    sudoUser: '',
+                    tags: 'tag1,tag2', // Tags to execute
+                    vaultCredentialsId: '', // Vault credentials ID
+                    vaultTmpPath: "${ANSIBLE_VAULT_TMP_PATH}" // Path to vault password file
+                )
+            }
+        }
+    }
+}

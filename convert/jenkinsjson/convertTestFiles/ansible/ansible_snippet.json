@@ -1,0 +1,51 @@
+{
+  "spanId": "b2fcf14e7a77a8f7",
+  "traceId": "7d1ddf3bb4b373d3df9fbd587b36d037",
+  "parent": "ansible",
+  "all-info": "span(name: ansiblePlaybook, spanId: b2fcf14e7a77a8f7, parentSpanId: a9d15e0d263ba34b, traceId: 7d1ddf3bb4b373d3df9fbd587b36d037, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"forks\" : 5,\n  \"hostKeyChecking\" : false,\n  \"disableHostKeyChecking\" : true,\n  \"startAtTask\" : \"\",\n  \"dynamicInventory\" : false,\n  \"extras\" : \"--diff --timeout=30\",\n  \"credentialsId\" : \"\",\n  \"inventory\" : \"localhost,\",\n  \"becomeUser\" : \"root\",\n  \"colorized\" : true,\n  \"tags\" : \"setup,deploy\",\n  \"inventoryContent\" : \"\",\n  \"sudoUser\" : \"\",\n  \"vaultCredentialsId\" : \"\",\n  \"checkMode\" : false,\n  \"skippedTags\" : \"debug\",\n  \"installation\" : \"Default\",\n  \"vaultTmpPath\" : \"/tmp/vault-password.txt\",\n  \"limit\" : \"localhost\",\n  \"extraVars\" : {\n    \"var1\" : \"value1\",\n    \"var2\" : \"value2\"\n  },\n  \"sudo\" : false,\n  \"playbook\" : \"example-playbook.yml\",\n  \"become\" : true\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@6c0f4f7:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@6c0f4f7;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7982defe:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7982defe;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@35580470:org.jenkinsci.plugins.workflow.actions.TimingAction@35580470;harness-others:;jenkins.pipeline.step.id:27;jenkins.pipeline.step.name:Invoke an ansible playbook;jenkins.pipeline.step.plugin.name:ansible;jenkins.pipeline.step.plugin.version:403.v8d0ca_dcb_b_502;jenkins.pipeline.step.type:ansiblePlaybook;)",
+  "name": "ansible #95",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Invoke an ansible playbook",
+    "ci.pipeline.run.user": "SYSTEM",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7982defe": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7982defe",
+    "jenkins.pipeline.step.id": "27",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@35580470": "org.jenkinsci.plugins.workflow.actions.TimingAction@35580470",
+    "jenkins.pipeline.step.type": "ansiblePlaybook",
+    "harness-attribute": "{\n  \"forks\" : 5,\n  \"hostKeyChecking\" : false,\n  \"disableHostKeyChecking\" : true,\n  \"startAtTask\" : \"\",\n  \"dynamicInventory\" : false,\n  \"extras\" : \"--diff --timeout=30\",\n  \"credentialsId\" : \"\",\n  \"inventory\" : \"localhost,\",\n  \"becomeUser\" : \"root\",\n  \"colorized\" : true,\n  \"tags\" : \"setup,deploy\",\n  \"inventoryContent\" : \"\",\n  \"sudoUser\" : \"\",\n  \"vaultCredentialsId\" : \"\",\n  \"checkMode\" : false,\n  \"skippedTags\" : \"debug\",\n  \"installation\" : \"Default\",\n  \"vaultTmpPath\" : \"/tmp/vault-password.txt\",\n  \"limit\" : \"localhost\",\n  \"extraVars\" : {\n    \"var1\" : \"value1\",\n    \"var2\" : \"value2\"\n  },\n  \"sudo\" : false,\n  \"playbook\" : \"example-playbook.yml\",\n  \"become\" : true\n}",
+    "jenkins.pipeline.step.plugin.name": "ansible",
+    "jenkins.pipeline.step.plugin.version": "403.v8d0ca_dcb_b_502",
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@6c0f4f7": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@6c0f4f7"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "a9d15e0d263ba34b",
+  "parameterMap": {
+    "forks": 5,
+    "hostKeyChecking": false,
+    "disableHostKeyChecking": true,
+    "startAtTask": "",
+    "dynamicInventory": false,
+    "extras": "--diff --timeout=30",
+    "credentialsId": "",
+    "inventory": "inventory.ini",
+    "becomeUser": "root",
+    "colorized": true,
+    "tags": "setup,deploy",
+    "inventoryContent": "",
+    "sudoUser": "",
+    "vaultCredentialsId": "",
+    "checkMode": false,
+    "skippedTags": "debug",
+    "installation": "Default",
+    "vaultTmpPath": "/tmp/vault-password.txt",
+    "limit": "localhost",
+    "extraVars": {
+      "var2": "value2",
+      "var1": "value1"
+    },
+    "sudo": false,
+    "playbook": "example-playbook.yml",
+    "become": true
+  },
+  "spanName": "ansiblePlaybook"
+}
