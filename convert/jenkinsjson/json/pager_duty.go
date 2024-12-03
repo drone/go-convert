@@ -24,7 +24,7 @@ func ConvertPagerDuty(node Node, arguments map[string]interface{}) *harness.Step
 			Image: "plugins/pagerduty",
 			With: map[string]interface{}{
 				"log_level":         "info",
-				"routing_key":       <+input>,
+				"routing_key":       "<+input>",
 				"incident_summary":  incidentSummary,
 				"incident_source":   incidentSource,
 				"incident_severity": incidentSeverity,
