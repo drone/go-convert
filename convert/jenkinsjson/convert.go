@@ -468,7 +468,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		for _, child := range currentNode.Children {
 			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout, dockerImage)
 		}
-	case "checkout":
+	case "git", "checkout":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertCheckout(currentNode, variables), ID: id})
 	case "archiveArtifacts":
 		archiveSteps := jenkinsjson.ConvertArchive(currentNode)
@@ -479,7 +479,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertEmailext(currentNode, variables, timeout), ID: id})
 	case "junit":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJunit(currentNode, variables), ID: id})
-	case "git":
 	case "sleep":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSleep(currentNode, variables), ID: id})
 	case "dir":
