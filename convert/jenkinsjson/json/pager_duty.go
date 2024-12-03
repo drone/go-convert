@@ -14,7 +14,6 @@ func ConvertPagerDuty(node Node, arguments map[string]interface{}) *harness.Step
 	dedupKey, _ := arguments["dedupKey"].(string)
 	incidentSummary, _ := arguments["incidentSummary"].(string)
 	incidentSeverity, _ := arguments["incidentSeverity"].(string)
-	routingKey, _ := arguments["routingKey"].(string)
 
 	convertPagerduty := &harness.Step{
 		Id:   SanitizeForId(node.SpanName, node.SpanId),

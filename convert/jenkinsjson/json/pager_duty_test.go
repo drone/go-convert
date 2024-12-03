@@ -18,7 +18,7 @@ func TestConvertPagerDuty(t *testing.T) {
 			Image: "plugins/pagerduty",
 			With: map[string]interface{}{
 				"log_level":         string("info"),
-				"routing_key":       string("a666ad1326f34605d06c0dbd4d87c1cb"),
+				"routing_key":       string("<+input>"),
 				"incident_summary":  string("Build Failed for test-pager-duty"),
 				"incident_source":   string("test-pager-duty"),
 				"incident_severity": string("critical"),
