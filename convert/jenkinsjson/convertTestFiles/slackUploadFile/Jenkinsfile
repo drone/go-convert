@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    environment {
+        TEMP_FILE = 'b.txt'
+    }
+
+    stages {
+        stage('Generate Temp File') {
+            steps {
+                script {
+                    def words = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig', 'grape']
+                    def randomWords = (1..5).collect { words[new Random().nextInt(words.size())] }.join(' ')
+                    writeFile file: TEMP_FILE, text: randomWords
+                    echo "Temp file created with content: ${randomWords}"
+                }
+            }
+        }
+
+        stage('Upload to Slack') {
+            steps {
+                slackUploadFile(
+                    channel: 'C07TL1KNV8Q',
+                    credentialId: 'SlackChannelCreds',
+                    failOnError: true,
+                    filePath: TEMP_FILE,
+                    initialComment: 'jenkins file upload test'
+                )
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                if (fileExists(TEMP_FILE)) {
+                    sh "rm -f ${TEMP_FILE}"
+                    echo "Temp file ${TEMP_FILE} deleted."
+                }
+            }
+        }
+    }
+}

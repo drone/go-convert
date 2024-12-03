@@ -8,7 +8,7 @@ import (
 
 func ConvertSh(node Node, variables map[string]string, timeout string, dockerImage string) *harness.Step {
 	shStep := &harness.Step{
-		Name:    node.SpanName,
+		Name:    SanitizeForName(node.SpanName),
 		Timeout: timeout,
 		Id:      SanitizeForId(node.SpanName, node.SpanId),
 		Type:    "script",

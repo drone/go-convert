@@ -2,8 +2,11 @@ package json
 
 import (
 	"encoding/json"
+	"errors"
 	harness "github.com/drone/spec/dist/go"
 	"log"
+	"strconv"
+	"strings"
 )
 
 type ParamTransform func(node *Node, attrMap map[string]interface{}, jenkinsKey string) (interface{}, error)
@@ -27,6 +30,14 @@ func ConvertToStepWithProperties(node *Node, variables map[string]string,
 	return step
 }
 
+func ToJsonStringFromMap[T any](m T) (string, error) {
+	outBytes, err := json.Marshal(m)
+	if err == nil {
+		return string(outBytes), nil
+	}
+	return "", err
+}
+
 func GetStepWithProperties(node *Node,
 	tmpJenkinsToDroneParamMapperList []JenkinsToDroneParamMapper, imageName string) *harness.Step {
 
@@ -46,7 +57,63 @@ func GetStepWithProperties(node *Node,
 
 	for _, val := range tmpJenkinsToDroneParamMapperList {
 		SafeAssignWithPropertiesTyped(node, &withProperties, attrMap, val.JenkinsParam,
-			val.DroneParam, val.JenkinsParamType, val.TransformFunc)
+			val.DroneParam, val.JenkinsParamType, val.TransformFunc, false)
+	}
+
+	step := &harness.Step{
+		Name: node.SpanName,
+		Id:   SanitizeForId(node.SpanName, node.SpanId),
+		Type: "plugin",
+		Spec: &harness.StepPlugin{
+			Image:  imageName,
+			Inputs: withProperties,
+			With:   withProperties,
+		},
+	}
+
+	return step
+}
+
+func ConvertToStepUsingParameterMapDelegate(node *Node, variables map[string]string,
+	tmpJenkinsToDroneParamMapperList []JenkinsToDroneParamMapper, imageName string) *harness.Step {
+
+	step := GetStepUsingParameterMapDelegate(node, tmpJenkinsToDroneParamMapperList, imageName)
+
+	if len(variables) > 0 {
+		step.Spec.(*harness.StepPlugin).Envs = variables
+	}
+
+	return step
+}
+
+func GetStepUsingParameterMapDelegate(node *Node,
+	tmpJenkinsToDroneParamMapperList []JenkinsToDroneParamMapper, imageName string) *harness.Step {
+
+	withProperties := map[string]interface{}{}
+
+	delegateMapIfce, ok := node.ParameterMap["delegate"]
+	if !ok {
+		return &harness.Step{}
+	}
+
+	delegateMap, err := delegateMapIfce.(map[string]interface{})
+	if !err {
+		return &harness.Step{}
+	}
+
+	arguments, ok := delegateMap["arguments"]
+	if !ok {
+		return &harness.Step{}
+	}
+
+	argumentsMap, err := arguments.(map[string]interface{})
+	if !err {
+		return &harness.Step{}
+	}
+
+	for _, val := range tmpJenkinsToDroneParamMapperList {
+		SafeAssignWithPropertiesTyped(node, &withProperties, argumentsMap, val.JenkinsParam,
+			val.DroneParam, val.JenkinsParamType, val.TransformFunc, false)
 	}
 
 	step := &harness.Step{
@@ -64,7 +131,8 @@ func GetStepWithProperties(node *Node,
 }
 
 func SafeAssignWithPropertiesTyped(node *Node, withProperties *map[string]interface{},
-	attrMap map[string]interface{}, jenkinsKey, droneKey, jenkinsParamType string, paramTransformFunc ParamTransform) {
+	attrMap map[string]interface{}, jenkinsKey, droneKey, jenkinsParamType string,
+	paramTransformFunc ParamTransform, isWarn bool) {
 
 	var valOk bool
 	var newVal interface{}
@@ -72,7 +140,6 @@ func SafeAssignWithPropertiesTyped(node *Node, withProperties *map[string]interf
 	if paramTransformFunc != nil { // paramTransformFunc overrides the default behavior
 		retVal, err := paramTransformFunc(node, attrMap, jenkinsKey)
 		if err != nil {
-			// log.Printf("jenkins parameter %s is not a string for node %s", droneKey, droneKey)
 			return
 		}
 		(*withProperties)[droneKey] = retVal
@@ -81,7 +148,9 @@ func SafeAssignWithPropertiesTyped(node *Node, withProperties *map[string]interf
 
 	val, found := attrMap[jenkinsKey]
 	if !found {
-		log.Printf("jenkins param -- %s missing for node %s", jenkinsKey, droneKey)
+		if isWarn {
+			log.Printf("jenkins param -- %s missing for node %s", jenkinsKey, droneKey)
+		}
 		return
 	}
 
@@ -129,6 +198,27 @@ func ToStructFromJsonString[T any](jsonStr string) (T, error) {
 	var v T
 	err := json.Unmarshal([]byte(jsonStr), &v)
 	return v, err
+}
+
+func ToStringArrayFromCsvString(csv string) ([]string, error) {
+	if csv == "" {
+		return nil, errors.New("input string is empty")
+	}
+
+	parts := strings.Split(csv, ",")
+	for i, part := range parts {
+		parts[i] = strings.TrimSpace(part)
+		if parts[i] == "" {
+			return nil, errors.New("invalid CSV string: contains empty values")
+		}
+	}
+
+	return parts, nil
+}
+
+func ToFloat64FromString(s string) (float64, error) {
+	valFloat64, err := strconv.ParseFloat(s, 64)
+	return valFloat64, err
 }
 
 const (

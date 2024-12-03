@@ -1,0 +1,126 @@
+{
+  "spanId": "99086bc578544ba9",
+  "traceId": "8a85a96d5009b0838f1074cd9bd5984c",
+  "parent": "Test_Nodejs_plugin",
+  "all-info": "span(name: Stage: null, spanId: 99086bc578544ba9, parentSpanId: b726fb59b015ad7b, traceId: 8a85a96d5009b0838f1074cd9bd5984c, attr: harness-attribute:{\r\n  \"delegate\" : {\r\n    \"symbol\" : \"nodejs\",\r\n    \"klass\" : null,\r\n    \"arguments\" : {\r\n      \"nodeJSInstallationName\" : \"Node 22\"\r\n    },\r\n    \"model\" : null\r\n  }\r\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@52416506:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@52416506;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@4f5adbd4:org.jenkinsci.plugins.workflow.actions.TimingAction@4f5adbd4;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@146b406d:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@146b406d;harness-others:;jenkins.pipeline.step.type:wrap;)",
+  "children": [
+    {
+      "spanId": "4dad6bcc1544f9b9",
+      "traceId": "8a85a96d5009b0838f1074cd9bd5984c",
+      "parent": "Test_Nodejs_plugin",
+      "all-info": "span(name: Stage: null, spanId: 4dad6bcc1544f9b9, parentSpanId: 99086bc578544ba9, traceId: 8a85a96d5009b0838f1074cd9bd5984c, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3bc1da4e:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3bc1da4e;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2904a805:org.jenkinsci.plugins.workflow.actions.TimingAction@2904a805;harness-others:;jenkins.pipeline.step.type:wrap;)",
+      "name": "Test_Nodejs_plugin #4",
+      "attributesMap": {
+        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3bc1da4e": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3bc1da4e",
+        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2904a805": "org.jenkinsci.plugins.workflow.actions.TimingAction@2904a805",
+        "harness-others": "",
+        "jenkins.pipeline.step.type": "wrap"
+      },
+      "type": "Run Phase Span",
+      "parentSpanId": "99086bc578544ba9",
+      "spanName": "Stage: null"
+    },
+    {
+      "spanId": "6020c253b602c693",
+      "traceId": "8a85a96d5009b0838f1074cd9bd5984c",
+      "parent": "Test_Nodejs_plugin",
+      "all-info": "span(name: Stage: null, spanId: 6020c253b602c693, parentSpanId: 99086bc578544ba9, traceId: 8a85a96d5009b0838f1074cd9bd5984c, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@17036922:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@17036922;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@41cef527:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@41cef527;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@325b7831:org.jenkinsci.plugins.workflow.actions.TimingAction@325b7831;harness-others:;jenkins.pipeline.step.type:wrap;)",
+      "children": [
+        {
+          "spanId": "470bd0cfec6f43ac",
+          "traceId": "8a85a96d5009b0838f1074cd9bd5984c",
+          "parent": "Test_Nodejs_plugin",
+          "all-info": "span(name: bat, spanId: 470bd0cfec6f43ac, parentSpanId: 6020c253b602c693, traceId: 8a85a96d5009b0838f1074cd9bd5984c, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\r\n  \"script\" : \"npm --version\"\r\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6fa85e2a:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6fa85e2a;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@637dbca1:org.jenkinsci.plugins.workflow.actions.TimingAction@637dbca1;harness-others:-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long;jenkins.pipeline.step.id:18;jenkins.pipeline.step.name:Windows Batch Script;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1371.vb_7cec8f3b_95e;jenkins.pipeline.step.type:bat;)",
+          "name": "Test_Nodejs_plugin #4",
+          "attributesMap": {
+            "harness-others": "-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long",
+            "jenkins.pipeline.step.name": "Windows Batch Script",
+            "ci.pipeline.run.user": "SYSTEM",
+            "jenkins.pipeline.step.id": "18",
+            "jenkins.pipeline.step.type": "bat",
+            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@637dbca1": "org.jenkinsci.plugins.workflow.actions.TimingAction@637dbca1",
+            "harness-attribute": "{\r\n  \"script\" : \"npm --version\"\r\n}",
+            "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
+            "jenkins.pipeline.step.plugin.version": "1371.vb_7cec8f3b_95e",
+            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6fa85e2a": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6fa85e2a"
+          },
+          "type": "Run Phase Span",
+          "parentSpanId": "6020c253b602c693",
+          "parameterMap": { "script": "npm --version" },
+          "spanName": "bat"
+        },
+        {
+          "spanId": "4a9bac16c68a1993",
+          "traceId": "8a85a96d5009b0838f1074cd9bd5984c",
+          "parent": "Test_Nodejs_plugin",
+          "all-info": "span(name: Stage: null, spanId: 4a9bac16c68a1993, parentSpanId: 6020c253b602c693, traceId: 8a85a96d5009b0838f1074cd9bd5984c, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@c8a17fe:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@c8a17fe;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@30e0409c:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@30e0409c;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@47cf545e:org.jenkinsci.plugins.workflow.actions.TimingAction@47cf545e;harness-others:;jenkins.pipeline.step.type:wrap;)",
+          "name": "Test_Nodejs_plugin #4",
+          "attributesMap": {
+            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@47cf545e": "org.jenkinsci.plugins.workflow.actions.TimingAction@47cf545e",
+            "harness-others": "",
+            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@c8a17fe": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@c8a17fe",
+            "jenkins.pipeline.step.type": "wrap",
+            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@30e0409c": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@30e0409c"
+          },
+          "type": "Run Phase Span",
+          "parentSpanId": "6020c253b602c693",
+          "spanName": "Stage: null"
+        },
+        {
+          "spanId": "eb13aeb24d05fbb1",
+          "traceId": "8a85a96d5009b0838f1074cd9bd5984c",
+          "parent": "Test_Nodejs_plugin",
+          "all-info": "span(name: bat, spanId: eb13aeb24d05fbb1, parentSpanId: 6020c253b602c693, traceId: 8a85a96d5009b0838f1074cd9bd5984c, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\r\n  \"script\" : \"npm install\"\r\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5a73f798:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5a73f798;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@5fe91849:org.jenkinsci.plugins.workflow.actions.TimingAction@5fe91849;harness-others:-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long;jenkins.pipeline.step.id:19;jenkins.pipeline.step.name:Windows Batch Script;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1371.vb_7cec8f3b_95e;jenkins.pipeline.step.type:bat;)",
+          "name": "Test_Nodejs_plugin #4",
+          "attributesMap": {
+            "harness-others": "-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long",
+            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5a73f798": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5a73f798",
+            "jenkins.pipeline.step.name": "Windows Batch Script",
+            "ci.pipeline.run.user": "SYSTEM",
+            "jenkins.pipeline.step.id": "19",
+            "jenkins.pipeline.step.type": "bat",
+            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@5fe91849": "org.jenkinsci.plugins.workflow.actions.TimingAction@5fe91849",
+            "harness-attribute": "{\r\n  \"script\" : \"npm install\"\r\n}",
+            "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
+            "jenkins.pipeline.step.plugin.version": "1371.vb_7cec8f3b_95e"
+          },
+          "type": "Run Phase Span",
+          "parentSpanId": "6020c253b602c693",
+          "parameterMap": { "script": "npm install" },
+          "spanName": "bat"
+        }
+      ],
+      "name": "Test_Nodejs_plugin #4",
+      "attributesMap": {
+        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@17036922": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@17036922",
+        "harness-others": "",
+        "jenkins.pipeline.step.type": "wrap",
+        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@41cef527": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@41cef527",
+        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@325b7831": "org.jenkinsci.plugins.workflow.actions.TimingAction@325b7831"
+      },
+      "type": "Run Phase Span",
+      "parentSpanId": "99086bc578544ba9",
+      "spanName": "Stage: null"
+    }
+  ],
+  "name": "Test_Nodejs_plugin #4",
+  "attributesMap": {
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@146b406d": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@146b406d",
+    "harness-others": "",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@52416506": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@52416506",
+    "jenkins.pipeline.step.type": "wrap",
+    "harness-attribute": "{\r\n  \"delegate\" : {\r\n    \"symbol\" : \"nodejs\",\r\n    \"klass\" : null,\r\n    \"arguments\" : {\r\n      \"nodeJSInstallationName\" : \"Node 22\"\r\n    },\r\n    \"model\" : null\r\n  }\r\n}",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@4f5adbd4": "org.jenkinsci.plugins.workflow.actions.TimingAction@4f5adbd4"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "b726fb59b015ad7b",
+  "parameterMap": {
+    "delegate": {
+      "symbol": "nodejs",
+      "klass": null,
+      "arguments": { "nodeJSInstallationName": "Node 22" },
+      "model": null
+    }
+  },
+  "spanName": "Stage: null"
+}
