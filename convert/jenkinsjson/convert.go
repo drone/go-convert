@@ -732,7 +732,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertMailer(currentNode, currentNode.ParameterMap), ID: id})
 
 	case "pagerdutyChangeEvent":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPagerDutyChangeEvent(currentNode, currentNode.ParameterMap), ID: id})
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.convertPagerdutyChangeEvent(currentNode, currentNode.ParameterMap), ID: id})
 
 	case "pagerduty":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPagerDuty(currentNode, currentNode.ParameterMap), ID: id})
