@@ -47,15 +47,26 @@ func ConvertAnsiblePlaybook(node Node, arguments map[string]interface{}) *harnes
 		fmt.Println("forks key not found in arguments")
 	}
 
-	// Extract extraVars from the arguments map
-	extraVarsSlice, ok := arguments["extraVars"].([]string)
-	if !ok {
-		fmt.Println("Failed to cast extraVars to []string")
-		return nil
+	// Handle extraVars
+	var extraVars string
+	if value, ok := arguments["extraVars"]; ok {
+		switch v := value.(type) {
+		case []string:
+			// Already in correct format
+			extraVars = strings.Join(v, " ")
+		case map[string]interface{}:
+			// Convert map to "key=value" strings
+			var extraVarsList []string
+			for key, val := range v {
+				extraVarsList = append(extraVarsList, fmt.Sprintf("%s=%v", key, val))
+			}
+			extraVars = strings.Join(extraVarsList, ",")
+		default:
+			fmt.Println("Unexpected type for extraVars:", v)
+		}
+	} else {
+		fmt.Println("extraVars key not found in arguments")
 	}
-
-	// Join extraVars slice into a single string separated by spaces
-	extraVars := strings.Join(extraVarsSlice, " ")
 
 	convertAnsiblePlaybook := &harness.Step{
 		Name: "Ansible_Playbook",
