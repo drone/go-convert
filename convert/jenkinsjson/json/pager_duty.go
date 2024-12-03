@@ -41,7 +41,6 @@ func ConvertPagerDuty(node Node, arguments map[string]interface{}) *harness.Step
 func ConvertPagerDutyChangeEvent(node Node, arguments map[string]interface{}) *harness.Step {
 	incidentSource, _ := arguments["incidentSource"].(string)
 	incidentSummary, _ := arguments["summaryText"].(string)
-	routingkey, _ := arguments["integrationKey"].(string)
 	customDetails, _ := arguments["customDetails"].(map[string]interface{})
 
 	customDetailsStr := ""
