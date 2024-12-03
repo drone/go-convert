@@ -22,7 +22,7 @@ import (
 
 func SanitizeForId(spanName string, spanId string) string {
 	// Replace invalid characters with underscores
-	invalidCharRegex := regexp.MustCompile(`[^a-zA-Z0-9.\-_]+`)
+	invalidCharRegex := regexp.MustCompile(`[^a-zA-Z0-9_]+`)
 	sanitized := invalidCharRegex.ReplaceAllString(spanName, "_")
 
 	// Trim leading and trailing underscores
