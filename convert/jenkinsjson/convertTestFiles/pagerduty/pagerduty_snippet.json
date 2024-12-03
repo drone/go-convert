@@ -1,0 +1,30 @@
+{
+  "spanId": "51d22b52c315ebd9",
+  "traceId": "6d2b4c2026d5c84a377d2dd97898ad1a",
+  "parent": "test-pager-duty",
+  "all-info": "span(name: pagerduty, spanId: 51d22b52c315ebd9, parentSpanId: d948447763f8ffaa, traceId: 6d2b4c2026d5c84a377d2dd97898ad1a, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\r\n  \"incidentSeverity\" : \"critical\",\r\n  \"incidentSource\" : \"test-pager-duty\",\r\n  \"resolve\" : false,\r\n  \"dedupKey\" : \"E54EC853A59A3815EF3632D5F854CF26\",\r\n  \"routingKey\" : \"a666ad1326f34605d06c0dbd4d87c1cb\",\r\n  \"incidentSummary\" : \"Build Failed for test-pager-duty\"\r\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@72cf357e:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@72cf357e;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@57568f5:org.jenkinsci.plugins.workflow.actions.TimingAction@57568f5;harness-others:;jenkins.pipeline.step.id:26;jenkins.pipeline.step.name:PagerDuty trigger/resolve step;jenkins.pipeline.step.plugin.name:pagerduty;jenkins.pipeline.step.plugin.version:0.7.1;jenkins.pipeline.step.type:pagerduty;)",
+  "name": "test-pager-duty #22",
+  "attributesMap": {
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@72cf357e": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@72cf357e",
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "PagerDuty trigger/resolve step",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "26",
+    "jenkins.pipeline.step.type": "pagerduty",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@57568f5": "org.jenkinsci.plugins.workflow.actions.TimingAction@57568f5",
+    "harness-attribute": "{\r\n  \"incidentSeverity\" : \"critical\",\r\n  \"incidentSource\" : \"test-pager-duty\",\r\n  \"resolve\" : false,\r\n  \"dedupKey\" : \"E54EC853A59A3815EF3632D5F854CF26\",\r\n  \"routingKey\" : \"a666ad1326f34605d06c0dbd4d87c1cb\",\r\n  \"incidentSummary\" : \"Build Failed for test-pager-duty\"\r\n}",
+    "jenkins.pipeline.step.plugin.name": "pagerduty",
+    "jenkins.pipeline.step.plugin.version": "0.7.1"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "d948447763f8ffaa",
+  "parameterMap": {
+    "incidentSource": "test-pager-duty",
+    "resolve": false,
+    "dedupKey": "E54EC853A59A3815EF3632D5F854CF26",
+    "incidentSummary": "Build Failed for test-pager-duty",
+    "incidentSeverity": "critical",
+    "routingKey": "a666ad1326f34605d06c0dbd4d87c1cb"
+  },
+  "spanName": "pagerduty"
+}

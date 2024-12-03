@@ -725,13 +725,17 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		for _, step := range steps {
 			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: step, ID: id})
 		}
+
 	case "withKubeConfig":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertKubeCtl(currentNode, currentNode.ParameterMap), ID: id})
 	case "mail":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertMailer(currentNode, currentNode.ParameterMap), ID: id})
 
-	case "javadoc":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJavadoc(currentNode, variables), ID: id})
+	case "pagerdutyChangeEvent":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPagerDutyChangeEvent(currentNode, currentNode.ParameterMap), ID: id})
+
+	case "pagerduty":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPagerDuty(currentNode, currentNode.ParameterMap), ID: id})
 
 	case "gatlingArchive":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertGatling(currentNode), ID: id})
