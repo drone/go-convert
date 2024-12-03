@@ -1,0 +1,75 @@
+pipeline {
+    agent any
+    environment {
+        // Ensure your PagerDuty routing key and integration key are securely stored in Jenkins credentials.
+        PAGERDUTY_ROUTING_KEY = "your_routing_key"
+        PAGERDUTY_DEDUP_KEY = "your_dedup_key"
+        PAGERDUTY_INTEGRATION_KEY = "your_integration_key" // Add your integration key for change events here
+    }
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building...'
+                // Insert your build steps here
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing...'
+                // Insert your test steps here
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying...'
+                // Insert your deploy steps here
+            }
+        }
+    }
+    post {
+        success {
+            echo 'Job succeeded!'
+            pagerduty(
+                resolve: true,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Succeeded for ${env.JOB_NAME}",
+                incidentSeverity: "info",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+        failure {
+            echo 'Job failed!'
+            pagerduty(
+                resolve: false,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Failed for ${env.JOB_NAME}",
+                incidentSeverity: "critical",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+        aborted {
+            echo 'Job was aborted!'
+            pagerduty(
+                resolve: false,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Aborted for ${env.JOB_NAME}",
+                incidentSeverity: "warning",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+        unstable {
+            echo 'Job is unstable!'
+            pagerduty(
+                resolve: false,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Unstable for ${env.JOB_NAME}",
+                incidentSeverity: "warning",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+    }
+}

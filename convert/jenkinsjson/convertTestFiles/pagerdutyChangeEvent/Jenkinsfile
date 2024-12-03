@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    environment {
+        // Ensure your PagerDuty routing key and integration key are securely stored in Jenkins credentials.
+        PAGERDUTY_ROUTING_KEY = "your_routing_key"
+        PAGERDUTY_DEDUP_KEY = "your_dedup_key"
+        PAGERDUTY_INTEGRATION_KEY = "your_integration_key" // Add your integration key for change events here
+    }
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building...'
+                // Insert your build steps here
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Testing...'
+                // Insert your test steps here
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying...'
+                // Insert your deploy steps here
+            }
+        }
+    }
+    post {
+        always {
+            // Create a change event in PagerDuty after the job completes, regardless of outcome
+            pagerdutyChangeEvent(
+                integrationKey: "${env.PAGERDUTY_INTEGRATION_KEY}",
+                summaryText: "Job ${env.JOB_NAME} completed with status ${currentBuild.currentResult}",
+                customDetails: [
+                    buildNumber: "${env.BUILD_NUMBER}",
+                    jobName: "${env.JOB_NAME}",
+                    jobURL: "${env.BUILD_URL}"
+                ]
+            )
+        }
+    }
+}
