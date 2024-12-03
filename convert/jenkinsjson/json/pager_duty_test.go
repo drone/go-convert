@@ -43,7 +43,7 @@ func TestConvertPagerDuty(t *testing.T) {
 func TestConvertPagerDutyChangeEvent(t *testing.T) {
 
 	var tests []runner
-	tests = append(tests, prepare(t, "/pagerdutyChangeEvent/pagerdutyChangeEvent_snippet", &harness.Step{
+	tests = append(tests, prepare(t, "/pagerdutyChangeEvent/pagerDutyChangeEvent_snippet", &harness.Step{
 		Id:   "pagerdutyChangeEvent499434",
 		Name: "Pagerduty_Change_Event",
 		Type: "plugin",
