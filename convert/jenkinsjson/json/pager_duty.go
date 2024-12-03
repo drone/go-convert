@@ -62,7 +62,7 @@ func ConvertPagerDutyChangeEvent(node Node, arguments map[string]interface{}) *h
 			Image: "plugins/pagerduty",
 			With: map[string]interface{}{
 				"log_level":           "info",
-				"routing_key":         routingkey,
+				"routing_key":         "<+input>",
 				"incident_summary":    incidentSummary,
 				"incident_source":     incidentSource,
 				"create_change_event": true,
