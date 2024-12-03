@@ -480,6 +480,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "junit":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJunit(currentNode, variables), ID: id})
 	case "git":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertCheckout(currentNode, variables), ID: id})
 	case "sleep":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSleep(currentNode, variables), ID: id})
 	case "dir":
