@@ -6,7 +6,7 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
-func ConvertBat(node Node, variables map[string]string, timeout string) *harness.Step {
+func ConvertBat(node Node, variables map[string]string, timeout string, dockerImage string) *harness.Step {
 	script := fmt.Sprintf("%v", node.ParameterMap["script"])
 	stepId := SanitizeForId(node.SpanName, node.SpanId)
 	cmd := getFileCreateCommand(stepId, script)
@@ -16,6 +16,7 @@ func ConvertBat(node Node, variables map[string]string, timeout string) *harness
 		Id:      stepId,
 		Type:    "script",
 		Spec: &harness.StepExec{
+			Image: dockerImage,
 			Shell: "pwsh",
 			Run:   cmd,
 		},

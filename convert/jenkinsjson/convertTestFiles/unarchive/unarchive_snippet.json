@@ -1,0 +1,24 @@
+{
+  "spanId": "4bf5e3ac44876208",
+  "traceId": "0f4444ef5d1887d2a917f8e9a3b9cb76",
+  "parent": "Vani_Unarchive",
+  "all-info": "span(name: unarchive, spanId: 4bf5e3ac44876208, parentSpanId: e8795c91c5afd84e, traceId: 0f4444ef5d1887d2a917f8e9a3b9cb76, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"mapping\" : {\n    \"archive.zip\" : \"unarchived_files/zip/\"\n  }\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@59b01d93:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@59b01d93;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4f03b5d7:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4f03b5d7;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@27163664:org.jenkinsci.plugins.workflow.actions.TimingAction@27163664;harness-others:-mapping-field org.jenkinsci.plugins.workflow.steps.ArtifactUnarchiverStep mapping-org.jenkinsci.plugins.workflow.steps.ArtifactUnarchiverStep.mapping-interface java.util.Map;jenkins.pipeline.step.id:21;jenkins.pipeline.step.name:Copy archived artifacts into the workspace;jenkins.pipeline.step.plugin.name:workflow-basic-steps;jenkins.pipeline.step.plugin.version:1058.vcb_fc1e3a_21a_9;jenkins.pipeline.step.type:unarchive;)",
+  "name": "Vani_Unarchive #2",
+  "attributesMap": {
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@27163664": "org.jenkinsci.plugins.workflow.actions.TimingAction@27163664",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4f03b5d7": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4f03b5d7",
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@59b01d93": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@59b01d93",
+    "harness-others": "-mapping-field org.jenkinsci.plugins.workflow.steps.ArtifactUnarchiverStep mapping-org.jenkinsci.plugins.workflow.steps.ArtifactUnarchiverStep.mapping-interface java.util.Map",
+    "jenkins.pipeline.step.name": "Copy archived artifacts into the workspace",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "21",
+    "jenkins.pipeline.step.type": "unarchive",
+    "harness-attribute": "{\n  \"mapping\" : {\n    \"archive.zip\" : \"unarchived_files/zip/\"\n  }\n}",
+    "jenkins.pipeline.step.plugin.name": "workflow-basic-steps",
+    "jenkins.pipeline.step.plugin.version": "1058.vcb_fc1e3a_21a_9"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "e8795c91c5afd84e",
+  "parameterMap": {"mapping": {"archive.zip": "unarchived_files/zip/"}},
+  "spanName": "unarchive"
+}

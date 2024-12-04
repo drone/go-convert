@@ -113,7 +113,7 @@ line3'''
                 }
             }
         }
-
+    
         stage('Code Analysis') {
             environment {
                 scannerHome = tool 'Sonar'
@@ -575,8 +575,8 @@ line3'''
         stage('Run NUnit') {
             steps {
                 script {
-                    def xmlFileUrl = 'https://raw.githubusercontent.com/harness-community/test-jenkins-to-harness/refs/heads/main/nunit-test-result.xml'
-                    def outputFilePath = 'TestResult.xml'
+                     xmlFileUrl = 'https://raw.githubusercontent.com/harness-community/test-jenkins-to-harness/refs/heads/main/nunit-test-result.xml'
+                     outputFilePath = 'TestResult.xml'
 
                     bat """
                     powershell -Command "Invoke-WebRequest -Uri '${xmlFileUrl}' -OutFile '${outputFilePath}'"
@@ -585,6 +585,7 @@ line3'''
                 nunit testResultsPattern: 'TestResult.xml', failIfNoResults: true, skipJUnitArchiver: false, failedTestsFailBuild: true
             }
         }
+
         // Javadoc Steps
         stage('Checkout') {
             steps {
@@ -679,6 +680,68 @@ line3'''
                           username: 'jenkins-test-user'
             }
         }
+        //Pagerduty plugin
+        post {
+        success {
+            echo 'Job succeeded!'
+            pagerduty(
+                resolve: true,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Succeeded for ${env.JOB_NAME}",
+                incidentSeverity: "info",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+        failure {
+            echo 'Job failed!'
+            pagerduty(
+                resolve: false,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Failed for ${env.JOB_NAME}",
+                incidentSeverity: "critical",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+        aborted {
+            echo 'Job was aborted!'
+            pagerduty(
+                resolve: false,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Aborted for ${env.JOB_NAME}",
+                incidentSeverity: "warning",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+        unstable {
+            echo 'Job is unstable!'
+            pagerduty(
+                resolve: false,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Unstable for ${env.JOB_NAME}",
+                incidentSeverity: "warning",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+    }
+    //pagerduty plugin change event
+    post {
+        always {
+            // Create a change event in PagerDuty after the job completes, regardless of outcome
+            pagerdutyChangeEvent(
+                integrationKey: "${env.PAGERDUTY_INTEGRATION_KEY}",
+                summaryText: "Job ${env.JOB_NAME} completed with status ${currentBuild.currentResult}",
+                customDetails: [
+                    buildNumber: "${env.BUILD_NUMBER}",
+                    jobName: "${env.JOB_NAME}",
+                    jobURL: "${env.BUILD_URL}"
+                ]
+            )
+        }
+    }
         // publishHTML plugin stage begins
         stage('Generate HTML Reports') {
             steps {
@@ -749,9 +812,8 @@ line3'''
                 version: '1.12'
             }
         }
-
-        //Sonar Quality Gate
-        stage('SonarQube Analysis') {
+        //Nodejs conversion Step
+        stage('Install Packages') {
             steps {
                 withSonarQubeEnv('SonarCloud') { // Matches the name in Jenkins configuration
                     sh "${SONAR_SCANNER}  -Dsonar.projectKey=vanisrikanithi_Test-Sonarqube" +
@@ -776,6 +838,50 @@ line3'''
                         echo "Quality Gate passed with status: ${qualityGate.status}."
                     }
                 }
+            }
+        }
+        //Unarchive Stage
+        stage('Unarchive Files') {
+            steps {
+                script {
+                    // Directory to store unarchived files
+                    def extractDir = 'unarchived_files'
+
+                    // Ensure the directory exists
+                    sh "mkdir -p ${extractDir}"
+
+                    // Define the mapping for unarchiving files
+                    def mappings = [
+                        'archive.zip': "${extractDir}/zip/",
+                    ]
+
+                    // Loop through the mappings and unarchive files
+                    for (archive in mappings.keySet()) {
+                        def targetDir = mappings[archive]
+                        echo "Unarchiving: ${archive} into ${targetDir}"
+                        unarchive mapping: ["${archive}": targetDir]
+                    }
+
+                    // Verify the unarchived files
+                    sh "ls -l ${extractDir}"
+                }
+            }
+        }
+        //Gatling
+        stage('Checkout Code') {
+            steps {
+              git url: 'https://github.com/gatling/gatling-maven-plugin-demo.git', branch: 'main'
+
+            }
+        }
+        stage('Run Gatling Simulation') {
+            steps {
+                sh 'mvn clean gatling:test'// Run the simulation using Maven
+            }
+        }
+        stage('Publish Results') {
+            steps {
+                gatlingArchive() // or archiveArtifacts(artifacts: 'target/gatling/index.html')
             }
         }
     }

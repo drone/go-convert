@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Prepare Archive Files') {
+            steps {
+                script {
+                    // Create dummy files for archiving
+                    sh '''
+                        echo "File 1 content" > file1.txt
+                        echo "File 2 content" > file2.txt
+
+                        # Create zip archive
+                        zip archive.zip file1.txt file2.txt
+                    '''
+
+                    // Archive files using Jenkins Archive Plugin
+                    archiveArtifacts artifacts: 'archive.zip', fingerprint: true
+                }
+            }
+        }
+
+        stage('Unarchive Files') {
+            steps {
+                script {
+                    // Directory to store unarchived files
+                    def extractDir = 'unarchived_files'
+
+                    // Ensure the directory exists
+                    sh "mkdir -p ${extractDir}"
+
+                    // Define the mapping for unarchiving files
+                    def mappings = [
+                        'archive.zip': "${extractDir}/zip/",
+                    ]
+
+                    // Loop through the mappings and unarchive files
+                    for (archive in mappings.keySet()) {
+                        def targetDir = mappings[archive]
+                        echo "Unarchiving: ${archive} into ${targetDir}"
+                        unarchive mapping: ["${archive}": targetDir]
+                    }
+
+                    // Verify the unarchived files
+                    sh "ls -l ${extractDir}"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                // Clean up workspace
+                sh "rm -rf file1.txt file2.txt archive.zip archive.tar archive.tar.gz unarchived_files"
+            }
+        }
+    }
+}

@@ -17,6 +17,7 @@ package command
 import (
 	"context"
 	"flag"
+	"github.com/drone/go-convert/convert/harness"
 	"io/ioutil"
 	"log"
 	"os"
@@ -55,7 +56,7 @@ func (c *JenkinsJson) SetFlags(f *flag.FlagSet) {
 
 	f.StringVar(&c.org, "org", "default", "harness organization")
 	f.StringVar(&c.proj, "project", "default", "harness project")
-	f.StringVar(&c.name, "pipeline", "default", "harness pipeline name")
+	f.StringVar(&c.name, "pipeline", harness.DefaultName, "harness pipeline name")
 	f.StringVar(&c.repoConn, "repo-connector", "", "repository connector")
 	f.StringVar(&c.repoName, "repo-name", "", "repository name")
 	f.StringVar(&c.kubeConn, "kube-connector", "", "kubernetes connector")
@@ -85,7 +86,6 @@ func (c *JenkinsJson) Execute(_ context.Context, f *flag.FlagSet, _ ...interface
 	converter := jenkinsjson.New(
 		jenkinsjson.WithDockerhub(c.dockerConn),
 		jenkinsjson.WithKubernetes(c.kubeName, c.kubeConn),
-		jenkinsjson.WithDefaultImage(c.defaultImage),
 	)
 	after, err := converter.ConvertBytes(before)
 	if err != nil {
@@ -104,6 +104,7 @@ func (c *JenkinsJson) Execute(_ context.Context, f *flag.FlagSet, _ ...interface
 			downgrader.WithName(c.name),
 			downgrader.WithOrganization(c.org),
 			downgrader.WithProject(c.proj),
+			downgrader.WithDefaultImage(c.defaultImage),
 		)
 		after, err = d.Downgrade(after)
 		if err != nil {

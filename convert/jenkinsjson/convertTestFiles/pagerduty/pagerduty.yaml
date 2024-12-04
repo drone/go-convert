@@ -1,0 +1,16 @@
+- step:
+    identifier: pagerduty51d22b
+    name: Pagerduty
+    spec:
+      image: plugins/pagerduty
+      settings:
+        dedup_key: E54EC853A59A3815EF3632D5F854CF26
+        incident_severity: critical
+        incident_source: test-pager-duty
+        incident_summary: Build Failed for test-pager-duty
+        job_status: failure
+        log_level: debug
+        resolve: 'false'
+        routing_key: a666ad1326f34605d06c0dbd4d87c1cb
+    timeout: ''
+    type: Plugin
