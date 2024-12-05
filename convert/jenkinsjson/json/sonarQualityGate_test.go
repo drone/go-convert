@@ -15,7 +15,7 @@ func TestConvertSonarQualityGate(t *testing.T) {
 		Name: "Sonarqube_Quality_Gate",
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
-			Image: "plugins/sonarqube-scanner:v2.4.2",
+			Image: "plugins/sonarqube-scanner:latest",
 			With: map[string]interface{}{
 				"sonar_key":             "<+input>",
 				"sonar_name":            "<+input>",
