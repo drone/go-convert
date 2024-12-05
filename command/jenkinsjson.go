@@ -21,6 +21,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/drone/go-convert/convert/harness/downgrader"
 	"github.com/drone/go-convert/convert/jenkinsjson"
@@ -41,6 +43,7 @@ type JenkinsJson struct {
 
 	downgrade   bool
 	beforeAfter bool
+	outputDir   string
 }
 
 func (*JenkinsJson) Name() string     { return "jenkinsjson" }
@@ -53,6 +56,7 @@ func (*JenkinsJson) Usage() string {
 func (c *JenkinsJson) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&c.downgrade, "downgrade", false, "downgrade to the legacy yaml format")
 	f.BoolVar(&c.beforeAfter, "before-after", false, "print the befor and after")
+	f.StringVar(&c.outputDir, "output-dir", "", "directory where the output should be saved")
 
 	f.StringVar(&c.org, "org", "default", "harness organization")
 	f.StringVar(&c.proj, "project", "default", "harness project")
@@ -66,7 +70,86 @@ func (c *JenkinsJson) SetFlags(f *flag.FlagSet) {
 }
 
 func (c *JenkinsJson) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	path := f.Arg(0)
+	if f.NArg() >= 1 {
+		return processArgs(f, c)
+	} else {
+		log.Println("No file(s) specified")
+		return subcommands.ExitFailure
+	}
+}
+
+func processArgs(f *flag.FlagSet, c *JenkinsJson) subcommands.ExitStatus {
+	for _, arg := range f.Args() {
+		recursivelyProcessFiles(arg, c)
+	}
+	return subcommands.ExitSuccess
+}
+
+func recursivelyProcessFiles(filename string, c *JenkinsJson) subcommands.ExitStatus {
+	fileInfo, err := os.Stat(filename)
+	if err != nil {
+		log.Fatalf("Cannot open input file: %s\n%v", filename, err)
+	}
+	if fileInfo.IsDir() {
+		recursivelyProcessDir(filename, c)
+	} else {
+		return processFile(filename, c)
+	}
+
+	return subcommands.ExitSuccess
+}
+
+func processFile(filename string, c *JenkinsJson) subcommands.ExitStatus {
+	outFile := getOutputFile(c, filename)
+
+	if exitStatus := c.processFile(filename, outFile); exitStatus != subcommands.ExitSuccess {
+		return exitStatus
+	}
+	return subcommands.ExitSuccess
+}
+
+func recursivelyProcessDir(filename string, c *JenkinsJson) {
+	dirEntries, err := os.ReadDir(filename)
+	if err != nil {
+		log.Fatalf("Failed to read directory children: %s\n%v", filename, err)
+	}
+	for _, entry := range dirEntries {
+		absFilepath := filename + "/" + entry.Name()
+		recursivelyProcessFiles(absFilepath, c)
+	}
+}
+
+func getOutputFile(c *JenkinsJson, filename string) *os.File {
+	if c.outputDir == "" {
+		return os.Stdout
+	}
+	return createOutputFile(c, filename)
+}
+
+func createOutputFile(c *JenkinsJson, inputFile string) *os.File {
+	fileInfo, err := os.Stat(c.outputDir)
+	if os.IsNotExist(err) {
+		log.Fatalf("Provided output directory does not exist: %s", inputFile)
+	} else if !fileInfo.IsDir() {
+		log.Fatalf("Provided output path is not a directory: %s", inputFile)
+	} else if err != nil {
+		log.Fatalln(err)
+	}
+
+	base := filepath.Base(inputFile)
+	ext := filepath.Ext(inputFile)
+	filename := strings.TrimSuffix(base, ext)
+
+	outputFilePath := c.outputDir + "/" + filename + ".yaml"
+	outputFile, err := os.Create(outputFilePath)
+	if err != nil {
+		log.Fatalln("Failed to create the output file", err)
+	}
+	return outputFile
+}
+
+func (c *JenkinsJson) processFile(filePath string, file *os.File) subcommands.ExitStatus {
+	path := filePath
 
 	// if the user does not specify the path as
 	// a command line arg, assume the default path.
@@ -114,12 +197,12 @@ func (c *JenkinsJson) Execute(_ context.Context, f *flag.FlagSet, _ ...interface
 	}
 
 	if c.beforeAfter {
-		os.Stdout.WriteString("---\n")
-		os.Stdout.Write(before)
-		os.Stdout.WriteString("\n---\n")
+		file.WriteString("---\n")
+		file.Write(before)
+		file.WriteString("\n---\n")
 	}
 
-	os.Stdout.Write(after)
+	file.Write(after)
 
 	return subcommands.ExitSuccess
 }
