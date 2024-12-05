@@ -17,6 +17,7 @@ package command
 import (
 	"context"
 	"flag"
+	"fmt"
 	"github.com/drone/go-convert/convert/harness"
 	"io/ioutil"
 	"log"
@@ -79,51 +80,107 @@ func (c *JenkinsJson) Execute(_ context.Context, f *flag.FlagSet, _ ...interface
 }
 
 func processArgs(f *flag.FlagSet, c *JenkinsJson) subcommands.ExitStatus {
+	var fileCount, dirCount int
+	totalFiles := 0
+
+	// First, count how many files and directories there are to process
 	for _, arg := range f.Args() {
-		recursivelyProcessFiles(arg, c)
+		files, dirs := countFilesAndDirs(arg, c)
+		totalFiles += files
+		dirCount += dirs
 	}
+
+	// Then process files while printing progress (skip progress if output is stdout)
+	progress := 0
+	for _, arg := range f.Args() {
+		filesProcessed, dirsProcessed := recursivelyProcessFiles(arg, c, &progress, totalFiles)
+		fileCount += filesProcessed
+		dirCount += dirsProcessed
+	}
+
+	printSummary(fileCount, dirCount, c)
 	return subcommands.ExitSuccess
 }
 
-func recursivelyProcessFiles(filename string, c *JenkinsJson) subcommands.ExitStatus {
+func countFilesAndDirs(filename string, c *JenkinsJson) (int, int) {
 	fileInfo, err := os.Stat(filename)
 	if err != nil {
 		log.Fatalf("Cannot open input file: %s\n%v", filename, err)
 	}
 	if fileInfo.IsDir() {
-		recursivelyProcessDir(filename, c)
-	} else {
-		return processFile(filename, c)
+		return countFilesInDir(filename, c)
 	}
-
-	return subcommands.ExitSuccess
+	return 1, 0
 }
 
-func processFile(filename string, c *JenkinsJson) subcommands.ExitStatus {
-	outFile := getOutputFile(c, filename)
-
-	if exitStatus := c.processFile(filename, outFile); exitStatus != subcommands.ExitSuccess {
-		return exitStatus
-	}
-	return subcommands.ExitSuccess
-}
-
-func recursivelyProcessDir(filename string, c *JenkinsJson) {
+func countFilesInDir(filename string, c *JenkinsJson) (int, int) {
 	dirEntries, err := os.ReadDir(filename)
 	if err != nil {
 		log.Fatalf("Failed to read directory children: %s\n%v", filename, err)
 	}
+	fileCount := 0
+	dirCount := 1 // Count the directory itself
 	for _, entry := range dirEntries {
 		absFilepath := filename + "/" + entry.Name()
-		recursivelyProcessFiles(absFilepath, c)
+		files, dirs := countFilesAndDirs(absFilepath, c)
+		fileCount += files
+		dirCount += dirs
+	}
+	return fileCount, dirCount
+}
+
+func recursivelyProcessFiles(filename string, c *JenkinsJson, progress *int, totalFiles int) (int, int) {
+	fileInfo, err := os.Stat(filename)
+	if err != nil {
+		log.Fatalf("Cannot open input file: %s\n%v", filename, err)
+	}
+
+	if fileInfo.IsDir() {
+		return recursivelyProcessDir(filename, c, progress, totalFiles)
+	} else {
+		return processFile(filename, c, progress, totalFiles), 0
 	}
 }
 
+func processFile(filename string, c *JenkinsJson, progress *int, totalFiles int) int {
+	outFile := getOutputFile(c, filename)
+
+	if exitStatus := c.processFile(filename, outFile); exitStatus != subcommands.ExitSuccess {
+		return 0
+	}
+
+	*progress++
+	printProgress(*progress, totalFiles, c)
+	return 1
+}
+
+func recursivelyProcessDir(filename string, c *JenkinsJson, progress *int, totalFiles int) (int, int) {
+	dirEntries, err := os.ReadDir(filename)
+	if err != nil {
+		log.Fatalf("Failed to read directory children: %s\n%v", filename, err)
+	}
+
+	fileCount := 0
+	dirCount := 1 // Count the directory itself
+	for _, entry := range dirEntries {
+		absFilepath := filename + "/" + entry.Name()
+		filesProcessed, dirsProcessed := recursivelyProcessFiles(absFilepath, c, progress, totalFiles)
+		fileCount += filesProcessed
+		dirCount += dirsProcessed
+	}
+
+	return fileCount, dirCount
+}
+
 func getOutputFile(c *JenkinsJson, filename string) *os.File {
-	if c.outputDir == "" {
+	if isOutputToStdout(c) {
 		return os.Stdout
 	}
 	return createOutputFile(c, filename)
+}
+
+func isOutputToStdout(c *JenkinsJson) bool {
+	return c.outputDir == ""
 }
 
 func createOutputFile(c *JenkinsJson, inputFile string) *os.File {
@@ -146,6 +203,21 @@ func createOutputFile(c *JenkinsJson, inputFile string) *os.File {
 		log.Fatalln("Failed to create the output file", err)
 	}
 	return outputFile
+}
+
+func printProgress(current, total int, c *JenkinsJson) {
+	if !isOutputToStdout(c) {
+		progress := float64(current) / float64(total) * 100
+		// Print progress on the same line, overwriting previous output
+		// The '\r' character moves the cursor to the beginning of the line
+		fmt.Printf("\rProcessing... %.2f%% complete (%d/%d)", progress, current, total)
+	}
+}
+
+func printSummary(fileCount, dirCount int, c *JenkinsJson) {
+	if !isOutputToStdout(c) {
+		fmt.Printf("\nSummary: Processed %d files and %d directories\n", fileCount, dirCount)
+	}
 }
 
 func (c *JenkinsJson) processFile(filePath string, file *os.File) subcommands.ExitStatus {
@@ -196,8 +268,8 @@ func (c *JenkinsJson) processFile(filePath string, file *os.File) subcommands.Ex
 		}
 	}
 
+	file.WriteString("\n---\n")
 	if c.beforeAfter {
-		file.WriteString("---\n")
 		file.Write(before)
 		file.WriteString("\n---\n")
 	}
