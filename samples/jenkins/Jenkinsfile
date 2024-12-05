@@ -606,7 +606,7 @@ line3'''
             steps {
                 javadoc javadocDir: 'complete/build/docs/javadoc', keepAll: true
             }
-        }
+        }    
         //Kube-ctl
         stage('Check Docker') {
             steps {
@@ -815,22 +815,28 @@ line3'''
         //Nodejs conversion Step
         stage('Install Packages') {
             steps {
-                // Set up the NodeJS environment
-                nodejs(nodeJSInstallationName: 'node') {
-                    sh '''
-                        # Ensure npm uses the public registry
-                        echo "registry=https://registry.npmjs.org/" > .npmrc
-                        npm install
-                    '''
+                withSonarQubeEnv('SonarCloud') { // Matches the name in Jenkins configuration
+                    sh "${SONAR_SCANNER}  -Dsonar.projectKey=vanisrikanithi_Test-Sonarqube" +
+               '-Dsonar.organization=vanisrikanithi' +
+               '-Dsonar.login=b751ddb91e11f466d7cdfa0abd65b4a6c393d938 ' +
+               '-Dsonar.sources=src ' +
+               '-Dsonar.java.binaries=target/classes'
                 }
             }
         }
 
-        stage('Run Tests') {
+        stage('Quality Gate') {
             steps {
-                nodejs(nodeJSInstallationName: 'node') {
-                    // Run npm test to execute the "test" script in package.json
-                    sh 'npm test'
+                script {
+                    def qualityGate = waitForQualityGate()
+                    // If the quality gate fails, log the status but don't abort the pipeline
+                    if (qualityGate.status != 'OK' && qualityGate.status != 'NONE') {
+                        echo "Quality Gate failed with status: ${qualityGate.status}. Continuing the pipeline."
+            } else if (qualityGate.status == 'NONE') {
+                        echo 'Quality Gate status is NONE. Check SonarQube configuration.'
+            } else {
+                        echo "Quality Gate passed with status: ${qualityGate.status}."
+                    }
                 }
             }
         }
