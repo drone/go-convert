@@ -12,7 +12,7 @@ func ConvertSonarQualityGate(node Node) *harness.Step {
 		Type: "plugin",
 		Id:   SanitizeForId(node.SpanName, node.SpanId),
 		Spec: &harness.StepPlugin{
-			Image: "plugins/sonarqube-scanner:v2.4.2",
+			Image: "plugins/sonarqube-scanner:latest",
 			With: map[string]interface{}{
 				"sonar_key":             "<+input>",
 				"sonar_name":            "<+input>",
