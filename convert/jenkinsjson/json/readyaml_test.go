@@ -2,6 +2,7 @@ package json
 
 import (
 	"encoding/json"
+	yaml "github.com/drone/spec/dist/go"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -62,5 +63,47 @@ func TestConvertReadYaml(t *testing.T) {
 			t.Errorf("Unexpected parsing results for test %v", i)
 			t.Log(diff)
 		}
+	}
+}
+
+func TestActualConvertReadYamlFunction(t *testing.T) {
+	tests := []struct {
+		name             string
+		harnessAttribute string
+		want             *yaml.StepExec
+	}{
+		{
+			name:             "ReadFile",
+			harnessAttribute: "{\n  \"file\" : \"file.yaml\"\n}",
+			want: &yaml.StepExec{
+				Shell: "sh",
+				Run:   "cat file.yaml",
+			},
+		},
+		{
+			name:             "ReadText",
+			harnessAttribute: "{\n  \"text\" : \"OVERSIZE_VALUE\"\n}",
+			want: &yaml.StepExec{
+				Shell: "sh",
+				Run:   "echo 'OVERSIZE_VALUE'",
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			node := Node{
+				SpanId:   "abcdefg",
+				SpanName: "readYaml",
+				AttributesMap: map[string]string{
+					"harness-attribute": tc.harnessAttribute,
+				},
+			}
+			variables := map[string]string{}
+			got := ConvertReadYaml(node, variables)
+			if diff := cmp.Diff(got.Spec, tc.want); diff != "" {
+				t.Errorf("ConvertReadYaml() mismatch (-want +got):\n%s", diff)
+			}
+		})
 	}
 }
