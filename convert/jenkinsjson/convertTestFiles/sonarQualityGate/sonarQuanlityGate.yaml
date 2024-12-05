@@ -2,7 +2,7 @@
     identifier: waitforqualitygate6278c9
     name: Sonarqube_Quality_Gate
     spec:
-      image: 'plugins/sonarqube-scanner:v2.4.2'
+      image: 'plugins/sonarqube-scanner:latest'
       settings:
         scm_disabled: 'false'
         skip_scan: 'false'
