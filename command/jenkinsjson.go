@@ -17,10 +17,13 @@ package command
 import (
 	"context"
 	"flag"
+	"fmt"
 	"github.com/drone/go-convert/convert/harness"
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/drone/go-convert/convert/harness/downgrader"
 	"github.com/drone/go-convert/convert/jenkinsjson"
@@ -41,6 +44,7 @@ type JenkinsJson struct {
 
 	downgrade   bool
 	beforeAfter bool
+	outputDir   string
 }
 
 func (*JenkinsJson) Name() string     { return "jenkinsjson" }
@@ -53,6 +57,7 @@ func (*JenkinsJson) Usage() string {
 func (c *JenkinsJson) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&c.downgrade, "downgrade", false, "downgrade to the legacy yaml format")
 	f.BoolVar(&c.beforeAfter, "before-after", false, "print the befor and after")
+	f.StringVar(&c.outputDir, "output-dir", "", "directory where the output should be saved")
 
 	f.StringVar(&c.org, "org", "default", "harness organization")
 	f.StringVar(&c.proj, "project", "default", "harness project")
@@ -66,7 +71,157 @@ func (c *JenkinsJson) SetFlags(f *flag.FlagSet) {
 }
 
 func (c *JenkinsJson) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	path := f.Arg(0)
+	if f.NArg() >= 1 {
+		return processArgs(f, c)
+	} else {
+		log.Println("No file(s) specified")
+		return subcommands.ExitFailure
+	}
+}
+
+func processArgs(f *flag.FlagSet, c *JenkinsJson) subcommands.ExitStatus {
+	var fileCount, dirCount int
+	totalFiles := 0
+
+	// First, count how many files and directories there are to process
+	for _, arg := range f.Args() {
+		files, dirs := countFilesAndDirs(arg, c)
+		totalFiles += files
+		dirCount += dirs
+	}
+
+	// Then process files while printing progress (skip progress if output is stdout)
+	progress := 0
+	for _, arg := range f.Args() {
+		filesProcessed, dirsProcessed := recursivelyProcessFiles(arg, c, &progress, totalFiles)
+		fileCount += filesProcessed
+		dirCount += dirsProcessed
+	}
+
+	printSummary(fileCount, dirCount, c)
+	return subcommands.ExitSuccess
+}
+
+func countFilesAndDirs(filename string, c *JenkinsJson) (int, int) {
+	fileInfo, err := os.Stat(filename)
+	if err != nil {
+		log.Fatalf("Cannot open input file: %s\n%v", filename, err)
+	}
+	if fileInfo.IsDir() {
+		return countFilesInDir(filename, c)
+	}
+	return 1, 0
+}
+
+func countFilesInDir(filename string, c *JenkinsJson) (int, int) {
+	dirEntries, err := os.ReadDir(filename)
+	if err != nil {
+		log.Fatalf("Failed to read directory children: %s\n%v", filename, err)
+	}
+	fileCount := 0
+	dirCount := 1 // Count the directory itself
+	for _, entry := range dirEntries {
+		absFilepath := filename + "/" + entry.Name()
+		files, dirs := countFilesAndDirs(absFilepath, c)
+		fileCount += files
+		dirCount += dirs
+	}
+	return fileCount, dirCount
+}
+
+func recursivelyProcessFiles(filename string, c *JenkinsJson, progress *int, totalFiles int) (int, int) {
+	fileInfo, err := os.Stat(filename)
+	if err != nil {
+		log.Fatalf("Cannot open input file: %s\n%v", filename, err)
+	}
+
+	if fileInfo.IsDir() {
+		return recursivelyProcessDir(filename, c, progress, totalFiles)
+	} else {
+		return processFile(filename, c, progress, totalFiles), 0
+	}
+}
+
+func processFile(filename string, c *JenkinsJson, progress *int, totalFiles int) int {
+	outFile := getOutputFile(c, filename)
+
+	if exitStatus := c.processFile(filename, outFile); exitStatus != subcommands.ExitSuccess {
+		return 0
+	}
+
+	*progress++
+	printProgress(*progress, totalFiles, c)
+	return 1
+}
+
+func recursivelyProcessDir(filename string, c *JenkinsJson, progress *int, totalFiles int) (int, int) {
+	dirEntries, err := os.ReadDir(filename)
+	if err != nil {
+		log.Fatalf("Failed to read directory children: %s\n%v", filename, err)
+	}
+
+	fileCount := 0
+	dirCount := 1 // Count the directory itself
+	for _, entry := range dirEntries {
+		absFilepath := filename + "/" + entry.Name()
+		filesProcessed, dirsProcessed := recursivelyProcessFiles(absFilepath, c, progress, totalFiles)
+		fileCount += filesProcessed
+		dirCount += dirsProcessed
+	}
+
+	return fileCount, dirCount
+}
+
+func getOutputFile(c *JenkinsJson, filename string) *os.File {
+	if isOutputToStdout(c) {
+		return os.Stdout
+	}
+	return createOutputFile(c, filename)
+}
+
+func isOutputToStdout(c *JenkinsJson) bool {
+	return c.outputDir == ""
+}
+
+func createOutputFile(c *JenkinsJson, inputFile string) *os.File {
+	fileInfo, err := os.Stat(c.outputDir)
+	if os.IsNotExist(err) {
+		log.Fatalf("Provided output directory does not exist: %s", inputFile)
+	} else if !fileInfo.IsDir() {
+		log.Fatalf("Provided output path is not a directory: %s", inputFile)
+	} else if err != nil {
+		log.Fatalln(err)
+	}
+
+	base := filepath.Base(inputFile)
+	ext := filepath.Ext(inputFile)
+	filename := strings.TrimSuffix(base, ext)
+
+	outputFilePath := c.outputDir + "/" + filename + ".yaml"
+	outputFile, err := os.Create(outputFilePath)
+	if err != nil {
+		log.Fatalln("Failed to create the output file", err)
+	}
+	return outputFile
+}
+
+func printProgress(current, total int, c *JenkinsJson) {
+	if !isOutputToStdout(c) {
+		progress := float64(current) / float64(total) * 100
+		// Print progress on the same line, overwriting previous output
+		// The '\r' character moves the cursor to the beginning of the line
+		fmt.Printf("\rProcessing... %.2f%% complete (%d/%d)", progress, current, total)
+	}
+}
+
+func printSummary(fileCount, dirCount int, c *JenkinsJson) {
+	if !isOutputToStdout(c) {
+		fmt.Printf("\nSummary: Processed %d files and %d directories\n", fileCount, dirCount)
+	}
+}
+
+func (c *JenkinsJson) processFile(filePath string, file *os.File) subcommands.ExitStatus {
+	path := filePath
 
 	// if the user does not specify the path as
 	// a command line arg, assume the default path.
@@ -113,13 +268,13 @@ func (c *JenkinsJson) Execute(_ context.Context, f *flag.FlagSet, _ ...interface
 		}
 	}
 
+	file.WriteString("\n---\n")
 	if c.beforeAfter {
-		os.Stdout.WriteString("---\n")
-		os.Stdout.Write(before)
-		os.Stdout.WriteString("\n---\n")
+		file.Write(before)
+		file.WriteString("\n---\n")
 	}
 
-	os.Stdout.Write(after)
+	file.Write(after)
 
 	return subcommands.ExitSuccess
 }

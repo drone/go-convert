@@ -201,7 +201,7 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 			// Convert stageID to integer and store it with the stage
 			id, err := strconv.Atoi(stageID)
 			if err != nil {
-				fmt.Println("Error converting stage ID to integer:", err)
+				fmt.Printf("Error converting stage ID to integer, spanId=%s: %v\n", jsonNode.SpanId, err)
 				id = 0
 			}
 
