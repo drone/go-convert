@@ -8,6 +8,14 @@ github.com/docker/go-units v0.4.0 h1:3uh0PgVws3nIA0Q+MwDC8yjEPf9zjRfZZWXZYDct3Tw
 github.com/docker/go-units v0.4.0/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
 github.com/drone/spec v0.0.0-20230919004456-7455b8913ff5 h1:NgAseJNQpJE3XtgJUPu4x7x5fcBjqZ3oKHDJfwBYdWk=
 github.com/drone/spec v0.0.0-20230919004456-7455b8913ff5/go.mod h1:KyQZA9qwuscbbM7yTrtZg25Wammoc5GKwaRem8kDA5k=
+github.com/drone/spec v0.0.0-20241206074240-c0adc29201f6 h1:ag4sJrFRvWf9PxqN2JDurm2C3zCeKnHgp20ZaDkBiyg=
+github.com/drone/spec v0.0.0-20241206074240-c0adc29201f6/go.mod h1:KyQZA9qwuscbbM7yTrtZg25Wammoc5GKwaRem8kDA5k=
+github.com/drone/spec v0.0.0-20241206110716-6b0bc437f5d3 h1:waJqvC0pcxSVG0NNlVtyQ6Sp5cO+Rg/P9Z32XFSo4UU=
+github.com/drone/spec v0.0.0-20241206110716-6b0bc437f5d3/go.mod h1:KyQZA9qwuscbbM7yTrtZg25Wammoc5GKwaRem8kDA5k=
+github.com/drone/spec v0.0.0-20241206112721-895e54a426dc h1:mJUkCCiOITKFGkCRyq/taIpHmrffcgEH9OuWaiwZaA4=
+github.com/drone/spec v0.0.0-20241206112721-895e54a426dc/go.mod h1:KyQZA9qwuscbbM7yTrtZg25Wammoc5GKwaRem8kDA5k=
+github.com/drone/spec v0.0.0-20241206113347-76171b50a6b8 h1:WL+nD/36D3R1HlpqOmY7vxdYUttrL2V4a/VLky9v+Lk=
+github.com/drone/spec v0.0.0-20241206113347-76171b50a6b8/go.mod h1:KyQZA9qwuscbbM7yTrtZg25Wammoc5GKwaRem8kDA5k=
 github.com/ghodss/yaml v1.0.0 h1:wQHKEahhL6wmXdzwWG11gIVCkOv05bNOh+Rxn0yngAk=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=

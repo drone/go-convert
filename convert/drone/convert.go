@@ -141,17 +141,18 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	//
 
 	// create the pipeline spec
-	pipeline := &v2.Pipeline{
-		Options: &v2.Default{
-			Registry: convertRegistry(ctx.pipeline),
-		},
+	pipeline := &v2.PipelineV1{
+		// Options: &v2.Default{
+		// 	Registry: convertRegistry(ctx.pipeline),
+		// },
 	}
 
 	// create the harness pipeline resource
-	config := &v2.Config{
-		Version: 1,
-		Kind:    "pipeline",
-		Spec:    pipeline,
+	config := &v2.ConfigV1{
+		// Version: 1,
+		// Kind:    "pipeline",
+		// Spec:    pipeline,
+		Pipeline: pipeline,
 	}
 
 	for _, from := range ctx.pipeline {
@@ -166,22 +167,28 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 			// TODO pipeline.name removed from spec
 			// pipeline.Name = from.Name
 
-			pipeline.Stages = append(pipeline.Stages, &v2.Stage{
-				Name:     from.Name,
-				Type:     "ci",
-				When:     convertCond(from.Trigger),
-				Delegate: convertNode(from.Node),
-				Spec: &v2.StageCI{
-					Clone:    convertClone(from.Clone),
-					Envs:     copyenv(from.Environment),
-					Platform: convertPlatform(from.Platform),
-					Runtime:  convertRuntime(from),
-					Steps:    convertSteps(from, d.orgSecrets),
-					Volumes:  convertVolumes(from.Volumes),
+			// pipeline.Stages = append(pipeline.Stages, &v2.Stage{
+			// 	Name:     from.Name,
+			// 	Type:     "ci",
+			// 	When:     convertCond(from.Trigger),
+			// 	Delegate: convertNode(from.Node),
+			// 	Spec: &v2.StageCI{
+			// 		Clone:    convertClone(from.Clone),
+			// 		Envs:     copyenv(from.Environment),
+			// 		Platform: convertPlatform(from.Platform),
+			// 		Runtime:  convertRuntime(from),
+			// 		Steps:    convertSteps(from, d.orgSecrets),
+			// 		Volumes:  convertVolumes(from.Volumes),
 
-					// TODO support for delegate.selectors from from.Node
-					// TODO support for stage.variables
-				},
+			// 		// TODO support for delegate.selectors from from.Node
+			// 		// TODO support for stage.variables
+			// 	},
+			// })
+			pipeline.Stages = append(pipeline.Stages, &v2.StageV1{
+				Name:    from.Name,
+				Clone:   convertClone(from.Clone),
+				Runtime: convertRuntime(from),
+				Steps:   convertSteps(from, d.orgSecrets),
 			})
 		}
 	}
@@ -236,25 +243,28 @@ func convertRegistry(src []*v1.Pipeline) *v2.Registry {
 	return dst
 }
 
-func convertSteps(src *v1.Pipeline, orgSecrets []string) []*v2.Step {
-	var dst []*v2.Step
-	for _, v := range src.Services {
-		if v != nil {
-			dst = append(dst, convertBackground(v, orgSecrets))
-		}
-	}
+func convertSteps(src *v1.Pipeline, orgSecrets []string) []*v2.StepV1 {
+	var dst []*v2.StepV1
+	// for _, v := range src.Services {
+	// 	if v != nil {
+	// 		dst = append(dst, convertBackground(v, orgSecrets))
+	// 	}
+	// }
 	for _, v := range src.Steps {
 		if v != nil {
 			switch {
 			case v.Detach:
-				dst = append(dst, convertBackground(v, orgSecrets))
+				// dst = append(dst, convertBackground(v, orgSecrets))
+				continue
 			case isPlugin(v):
-				dst = append(dst, convertPlugin(v, orgSecrets))
+				// dst = append(dst, convertPlugin(v, orgSecrets))
+				continue
 			default:
 				dst = append(dst, convertRun(v, orgSecrets))
 			}
 		}
 	}
+
 	return dst
 }
 
@@ -299,25 +309,29 @@ func convertBackground(src *v1.Step, orgSecrets []string) *v2.Step {
 	}
 }
 
-func convertRun(src *v1.Step, orgSecrets []string) *v2.Step {
-	return &v2.Step{
+func convertRun(src *v1.Step, orgSecrets []string) *v2.StepV1 {
+	return &v2.StepV1{
 		Name: src.Name,
-		Type: "script",
-		When: convertCond(src.When),
-		Spec: &v2.StepExec{
-			Image:      src.Image,
-			Mount:      convertMounts(src.Volumes),
-			Privileged: src.Privileged,
-			Pull:       convertPull(src.Pull),
-			Shell:      convertShell(src.Shell),
-			User:       src.User,
-			Entrypoint: convertEntrypoint(src.Entrypoint),
-			Args:       convertArgs(src.Entrypoint, src.Command),
-			Run:        convertScript(src.Commands),
-			Envs:       convertVariables(src.Environment, orgSecrets),
-			Resources:  convertResourceLimits(&src.Resource),
-			// Volumes       // FIX
+		Container: &v2.ContainerSpec{
+			Image: src.Image,
 		},
+		Run: &v2.StepRun{
+			Script: src.Commands,
+		},
+		// When: convertCond(src.When),
+		// Spec: &v2.StepExec{
+		// 	Image:      src.Image,
+		// 	Mount:      convertMounts(src.Volumes),
+		// 	Privileged: src.Privileged,
+		// 	Pull:       convertPull(src.Pull),
+		// 	Shell:      convertShell(src.Shell),
+		// 	User:       src.User,
+		// 	Entrypoint: convertEntrypoint(src.Entrypoint),
+		// 	Args:       convertArgs(src.Entrypoint, src.Command),
+		// 	Run:        convertScript(src.Commands),
+		// 	Envs:       convertVariables(src.Environment, orgSecrets),
+		// 	Resources:  convertResourceLimits(&src.Resource),
+		// Volumes       // FIX
 	}
 }
 
@@ -626,27 +640,29 @@ func convertShell(src string) string {
 	}
 }
 
-func convertRuntime(src *v1.Pipeline) *v2.Runtime {
-	if src.Type == "kubernetes" {
-		return &v2.Runtime{
-			Type: "kubernetes",
-			Spec: &v2.RuntimeKube{
-				// TODO should harness support `dns_config`
-				// TODO should harness support `host_aliases`
-				// TODO support for `tolerations`
-				Annotations:    src.Metadata.Annotations,
-				Labels:         src.Metadata.Labels,
-				Namespace:      src.Metadata.Namespace,
-				NodeSelector:   src.NodeSelector,
-				Node:           src.NodeName,
-				ServiceAccount: src.ServiceAccount,
-				Resources:      convertResourceRequests(&src.Resource),
-			},
-		}
-	}
-	return &v2.Runtime{
-		Type: "machine",
-		Spec: v2.RuntimeMachine{},
+func convertRuntime(src *v1.Pipeline) *v2.RuntimeV1 {
+	// if src.Type == "kubernetes" {
+	// 	return &v2.Runtime{
+	// 		Type: "kubernetes",
+	// 		Spec: &v2.RuntimeKube{
+	// 			// TODO should harness support `dns_config`
+	// 			// TODO should harness support `host_aliases`
+	// 			// TODO support for `tolerations`
+	// 			Annotations:    src.Metadata.Annotations,
+	// 			Labels:         src.Metadata.Labels,
+	// 			Namespace:      src.Metadata.Namespace,
+	// 			NodeSelector:   src.NodeSelector,
+	// 			Node:           src.NodeName,
+	// 			ServiceAccount: src.ServiceAccount,
+	// 			Resources:      convertResourceRequests(&src.Resource),
+	// 		},
+	// 	}
+	// }
+	return &v2.RuntimeV1{
+		Cloud: &v2.CloudSpec{
+			Image: "ubuntu-latest",
+			Size:  "large",
+		},
 	}
 }
 
