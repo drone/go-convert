@@ -16,10 +16,6 @@ steps:
 
 - name: frontend
   image: node
-  environment:
-    PLUGIN_LOG_LEVEL: info
-    PLUGIN_ARTIFACT_REGION: us-east-1
-    PLUGIN_ARTIFACT_BUCKET_NAME: unified-versioning-bucket
   commands:
   - npm install
   - npm run test
