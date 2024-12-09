@@ -114,6 +114,7 @@ type (
 		Volumes      []*VolumeMount        `json:"volumes,omitempty"`
 		When         Conditions            `json:"when,omitempty"`
 		WorkingDir   string                `json:"working_dir,omitempty" yaml:"working_dir"`
+		Connector    string                `json:"connector,omitempty"`
 	}
 
 	// Volume that can be mounted by containers.
