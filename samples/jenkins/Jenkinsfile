@@ -884,5 +884,53 @@ line3'''
                 gatlingArchive() // or archiveArtifacts(artifacts: 'target/gatling/index.html')
             }
         }
+
+        //TestNG
+        stage('Generate Sample TestNG Results') {
+            steps {
+                script {
+                    // Create a sample testng-results.xml inline
+                    def testngResults = '''<?xml version="1.0" encoding="UTF-8"?>
+                    <testng-results skipped="0" failed="1" ignored="0" total="3" passed="2">
+                      <suite name="Sample Suite" duration-ms="58" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z">
+                        <test name="Sample Test" duration-ms="58" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z">
+                          <class name="com.example.TestClass">
+                            <test-method status="PASS" name="testMethod1" duration-ms="10" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z"/>
+                            <test-method status="PASS" name="testMethod2" duration-ms="15" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z"/>
+                            <test-method status="FAIL" name="testMethod3" duration-ms="20" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z">
+                              <exception class="java.lang.AssertionError">
+                                <message><![CDATA[expected [true] but found [false]]]></message>
+                                <full-stacktrace><![CDATA[java.lang.AssertionError: expected [true] but found [false]
+                                    at org.testng.Assert.fail(Assert.java:99)
+                                    at com.example.TestClass.testMethod3(TestClass.java:25)]]></full-stacktrace>
+                              </exception>
+                            </test-method>
+                          </class>
+                        </test>
+                      </suite>
+                    </testng-results>'''
+
+                    // Write the XML content to testng-results.xml in the workspace
+                    writeFile(file: 'testng-results.xml', text: testngResults)
+                }
+            }
+        }
+        post {
+            always {
+            // Publish TestNG results
+                testNG(
+                    reportFilenamePattern: '**/testng-results.xml',
+                    failedFails: 100,
+                    failedSkips: 100,
+                    unstableFails: 100,
+                    unstableSkips: 100,
+                    showFailedBuilds: true,
+                    failureOnFailedTestConfig: false,
+                    escapeTestDescp: true,
+                    escapeExceptionMsg: true,
+                    thresholdMode: 1
+                )
+            }
+        }
     }
 }
