@@ -17,6 +17,7 @@ package command
 import (
 	"context"
 	"flag"
+	"github.com/drone/go-convert/convert/harness"
 	"io/ioutil"
 	"log"
 	"os"
@@ -28,14 +29,15 @@ import (
 )
 
 type JenkinsJson struct {
-	name       string
-	proj       string
-	org        string
-	repoName   string
-	repoConn   string
-	kubeName   string
-	kubeConn   string
-	dockerConn string
+	name         string
+	proj         string
+	org          string
+	repoName     string
+	repoConn     string
+	kubeName     string
+	kubeConn     string
+	dockerConn   string
+	defaultImage string
 
 	downgrade   bool
 	beforeAfter bool
@@ -54,12 +56,13 @@ func (c *JenkinsJson) SetFlags(f *flag.FlagSet) {
 
 	f.StringVar(&c.org, "org", "default", "harness organization")
 	f.StringVar(&c.proj, "project", "default", "harness project")
-	f.StringVar(&c.name, "pipeline", "default", "harness pipeline name")
+	f.StringVar(&c.name, "pipeline", harness.DefaultName, "harness pipeline name")
 	f.StringVar(&c.repoConn, "repo-connector", "", "repository connector")
 	f.StringVar(&c.repoName, "repo-name", "", "repository name")
 	f.StringVar(&c.kubeConn, "kube-connector", "", "kubernetes connector")
 	f.StringVar(&c.kubeName, "kube-namespace", "", "kubernets namespace")
 	f.StringVar(&c.dockerConn, "docker-connector", "", "dockerhub connector")
+	f.StringVar(&c.defaultImage, "default-image", "alpine", "default image for run step")
 }
 
 func (c *JenkinsJson) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
@@ -101,6 +104,7 @@ func (c *JenkinsJson) Execute(_ context.Context, f *flag.FlagSet, _ ...interface
 			downgrader.WithName(c.name),
 			downgrader.WithOrganization(c.org),
 			downgrader.WithProject(c.proj),
+			downgrader.WithDefaultImage(c.defaultImage),
 		)
 		after, err = d.Downgrade(after)
 		if err != nil {

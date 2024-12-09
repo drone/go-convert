@@ -1,0 +1,54 @@
+steps:
+  - step:
+      identifier: s3upload1ec9020
+      name: s3Upload1ec902_0
+      spec:
+        image: plugins/archive
+        settings:
+          exclude: 2.txt
+          glob: "*.txt"
+          source: .
+          target: s3Upload.gzip
+      timeout: ""
+      type: Plugin
+  - step:
+      identifier: s3uploads3uplo0
+      name: s3Uploads3Uplo_0
+      spec:
+        image: plugins/s3
+        settings:
+          access_key: <+input>
+          bucket: bucket-1
+          exclude: 2.txt
+          region: us-west-1
+          secret_key: <+input>
+          source: "*.txt"
+          target: <+input>
+      timeout: ""
+      type: Plugin
+  - step:
+      identifier: s3upload1ec9021
+      name: s3Upload1ec902_1
+      spec:
+        image: plugins/archive
+        settings:
+          exclude: 2.txt
+          glob: "*.txt"
+          source: .
+          target: s3Upload.gzip
+      timeout: ""
+      type: Plugin
+  - step:
+      identifier: s3uploads3uplo1
+      name: s3Uploads3Uplo_1
+      spec:
+        image: plugins/s3
+        settings:
+          access_key: <+input>
+          bucket: bucket-2
+          exclude: 2.txt
+          region: us-west-1
+          secret_key: <+input>
+          source: "*.txt"
+          target: <+input>
+      timeout: ""

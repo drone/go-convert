@@ -1,0 +1,27 @@
+{
+  "spanId": "0fb62047be44794e",
+  "traceId": "68619222e565647b7daf28be798bdb26",
+  "parent": "Mail_Pipeline",
+  "all-info": "span(name: mail, spanId: 0fb62047be44794e, parentSpanId: 7ccf4ab5dd4035e3, traceId: 68619222e565647b7daf28be798bdb26, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"body\" : \"\\n                    Build Status: FAILURE\\n                    Check console output at: http://localhost:8080/job/Mail_Pipeline/15/console\\n                    \",\n  \"subject\" : \"Jenkins Build - Mail_Pipeline #15\",\n  \"to\" : \"test.user@testmail.com\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2b82c7b7:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2b82c7b7;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2d96420d:org.jenkinsci.plugins.workflow.actions.TimingAction@2d96420d;harness-others:-subject-field org.jenkinsci.plugins.workflow.steps.MailStep subject-org.jenkinsci.plugins.workflow.steps.MailStep.subject-class java.lang.String-body-field org.jenkinsci.plugins.workflow.steps.MailStep body-org.jenkinsci.plugins.workflow.steps.MailStep.body-class java.lang.String-from-field org.jenkinsci.plugins.workflow.steps.MailStep from-org.jenkinsci.plugins.workflow.steps.MailStep.from-class java.lang.String-to-field org.jenkinsci.plugins.workflow.steps.MailStep to-org.jenkinsci.plugins.workflow.steps.MailStep.to-class java.lang.String-cc-field org.jenkinsci.plugins.workflow.steps.MailStep cc-org.jenkinsci.plugins.workflow.steps.MailStep.cc-class java.lang.String-bcc-field org.jenkinsci.plugins.workflow.steps.MailStep bcc-org.jenkinsci.plugins.workflow.steps.MailStep.bcc-class java.lang.String-replyTo-field org.jenkinsci.plugins.workflow.steps.MailStep replyTo-org.jenkinsci.plugins.workflow.steps.MailStep.replyTo-class java.lang.String;jenkins.pipeline.step.id:11;jenkins.pipeline.step.name:Mail;jenkins.pipeline.step.plugin.name:workflow-basic-steps;jenkins.pipeline.step.plugin.version:1058.vcb_fc1e3a_21a_9;jenkins.pipeline.step.type:mail;)",
+  "name": "Mail_Pipeline #15",
+  "attributesMap": {
+    "harness-others": "-subject-field org.jenkinsci.plugins.workflow.steps.MailStep subject-org.jenkinsci.plugins.workflow.steps.MailStep.subject-class java.lang.String-body-field org.jenkinsci.plugins.workflow.steps.MailStep body-org.jenkinsci.plugins.workflow.steps.MailStep.body-class java.lang.String-from-field org.jenkinsci.plugins.workflow.steps.MailStep from-org.jenkinsci.plugins.workflow.steps.MailStep.from-class java.lang.String-to-field org.jenkinsci.plugins.workflow.steps.MailStep to-org.jenkinsci.plugins.workflow.steps.MailStep.to-class java.lang.String-cc-field org.jenkinsci.plugins.workflow.steps.MailStep cc-org.jenkinsci.plugins.workflow.steps.MailStep.cc-class java.lang.String-bcc-field org.jenkinsci.plugins.workflow.steps.MailStep bcc-org.jenkinsci.plugins.workflow.steps.MailStep.bcc-class java.lang.String-replyTo-field org.jenkinsci.plugins.workflow.steps.MailStep replyTo-org.jenkinsci.plugins.workflow.steps.MailStep.replyTo-class java.lang.String",
+    "jenkins.pipeline.step.name": "Mail",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "11",
+    "jenkins.pipeline.step.type": "mail",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2b82c7b7": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2b82c7b7",
+    "harness-attribute": "{\n  \"body\" : \"\\n                    Build Status: FAILURE\\n                    Check console output at: http://localhost:8080/job/Mail_Pipeline/15/console\\n                    \",\n  \"subject\" : \"Jenkins Build - Mail_Pipeline #15\",\n  \"to\" : \"test.user@testmail.com\"\n}",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2d96420d": "org.jenkinsci.plugins.workflow.actions.TimingAction@2d96420d",
+    "jenkins.pipeline.step.plugin.name": "workflow-basic-steps",
+    "jenkins.pipeline.step.plugin.version": "1058.vcb_fc1e3a_21a_9"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "7ccf4ab5dd4035e3",
+  "parameterMap": {
+    "subject": "Jenkins Build - Mail_Pipeline #15",
+    "to": "test.user@testmail.com",
+    "body": "\n                    Build Status: FAILURE\n                    Check console output at: http://localhost:8080/job/Mail_Pipeline/15/console\n                    "
+  },
+  "spanName": "mail"
+}

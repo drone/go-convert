@@ -1,0 +1,24 @@
+pipeline {
+    agent any
+    tools {
+        maven 'maven1'  // The name of the Maven tool you configured
+    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+              git url: 'https://github.com/gatling/gatling-maven-plugin-demo.git', branch: 'main'
+
+            }
+        }
+        stage('Run Gatling Simulation') {
+            steps {
+                sh 'mvn clean gatling:test'// Run the simulation using Maven
+            }
+        }
+        stage('Publish Results') {
+            steps {
+                gatlingArchive() // or archiveArtifacts(artifacts: 'target/gatling/index.html')
+            }
+        }
+    }
+}
