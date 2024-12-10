@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+    environment {
+        SLACK_USER_ID = ''
+    }
+    stages {
+        stage('Retrieve Slack User ID') {
+            steps {
+                script {
+                    SLACK_USER_ID = slackUserIdFromEmail(
+                        botUser: true,
+                        email: 'slack_user@gmail.com',
+                        tokenCredentialId: 'slack_token_01'
+                    )
+                    echo "Slack User ID for email slack_user@gmail.com: ${SLACK_USER_ID}"
+                }
+            }
+        }
+        stage('Use Slack User ID') {
+            steps {
+                echo "Perform actions using Slack User ID: ${SLACK_USER_ID}"
+            }
+        }
+    }
+}
