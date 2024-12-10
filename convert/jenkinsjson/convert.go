@@ -668,6 +668,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "slackUserIdFromEmail":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSlackUserIdFromEmail(currentNode, variables), ID: id})
 
+	case "slackUserIdsFromCommitters":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSlackUserIdsFromCommitters(currentNode, variables), ID: id})
+
 	case "nexusArtifactUploader":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertNexusArtifactUploader(currentNode, variables), ID: id})
 
