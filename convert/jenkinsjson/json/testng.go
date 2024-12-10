@@ -35,20 +35,16 @@ func ConvertTestng(node Node, parameterMap map[string]interface{}) *harness.Step
 		failedFails = int(val)
 	}
 
-	unstableSkips := 0
-	if val, ok := arguments["unstableSkips"].(float64); ok {
-		unstableSkips = int(val)
-	}
-
-	unstableFails := 0
-	if val, ok := arguments["unstableFails"].(float64); ok {
-		unstableFails = int(val)
-	}
-
-	thresholdMode, ok := arguments["thresholdMode"]
-
-	if !ok {
-		thresholdMode = 1
+	thresholdMode := "absolute" // Default value
+	if val, ok := arguments["thresholdMode"].(float64); ok {
+		switch int(val) {
+		case 1:
+			thresholdMode = "absolute"
+		case 2:
+			thresholdMode = "percentage"
+		default:
+			fmt.Printf("Warning: Unsupported thresholdMode value: %v. Defaulting to 'absolute'\n", val)
+		}
 	}
 
 	convertTestng := &harness.Step{
@@ -61,12 +57,8 @@ func ConvertTestng(node Node, parameterMap map[string]interface{}) *harness.Step
 				"report_filename_pattern":       reportFilenamePattern,
 				"failed_fails":                  failedFails,
 				"failed_skips":                  failedSkips,
-				"unstable_fails":                unstableFails,
-				"unstable_skips":                unstableSkips,
 				"threshold_mode":                thresholdMode,
 				"failure_on_failed_test_config": failureOnFailedTestConfig,
-				"fail_if_no_results":            true,
-				"job_status":                    "<+pipeline.status>",
 				"level":                         "info",
 			},
 		},

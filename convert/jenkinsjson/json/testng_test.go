@@ -17,16 +17,12 @@ func TestConvertTestNG(t *testing.T) {
 		Spec: &harness.StepPlugin{
 			Image: "plugins/testng",
 			With: map[string]interface{}{
-				"fail_if_no_results":            true,
 				"failed_fails":                  100,
 				"failed_skips":                  100,
 				"failure_on_failed_test_config": false,
-				"job_status":                    "<+pipeline.status>",
 				"level":                         "info",
 				"report_filename_pattern":       "**/testng-results.xml",
-				"threshold_mode":                float64(1),
-				"unstable_fails":                100,
-				"unstable_skips":                100,
+				"threshold_mode":                "absolute",
 			},
 		},
 	}))
