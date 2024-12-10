@@ -186,7 +186,7 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 			// })
 			pipeline.Stages = append(pipeline.Stages, &v2.StageV1{
 				Name:    from.Name,
-				Clone:   convertCloneV1(from.Clone),
+				Clone:   convertCloneV1(&from.Clone),
 				Runtime: "machine",
 				Steps:   convertSteps(from, d.orgSecrets),
 			})
@@ -715,12 +715,36 @@ func convertShell(src string) string {
 // 	return dst
 // }
 
-func convertCloneV1(src v1.Clone) *v2.CloneStageV1 {
-	dst := new(v2.CloneStageV1)
-	if v := src.Disable; v {
-		dst.Disabled = true
+// func convertCloneV1(src v1.Clone) *v2.CloneStageV1 {
+// 	dst := &v2.CloneStageV1{
+// 		Disabled: true, // Default to true
+// 	}
+
+// 	if src.Disable {
+// 		dst.Disabled = false
+// 	}
+// 	return dst
+// }
+
+//	func convertCloneV1(src v1.Clone) *v2.CloneStageV1 {
+//		dst := &v2.CloneStageV1{
+//			Disabled: src.Disable, // Direct mapping from input
+//		}
+//		return dst
+//	}
+func convertCloneV1(from *v1.Clone) *v2.CloneStageV1 {
+	// If from is nil, set Disabled to true
+	if from == nil {
+		return &v2.CloneStageV1{
+			Disabled: true,
+		}
 	}
-	return dst
+
+	// Use the Disable field from the input Clone struct
+	// If no explicit disable is set, it will be false (the zero value)
+	return &v2.CloneStageV1{
+		Disabled: from.Disable || true,
+	}
 }
 
 func convertNode(src map[string]string) []string {
