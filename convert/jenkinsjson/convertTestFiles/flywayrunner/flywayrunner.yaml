@@ -1,0 +1,14 @@
+- step:
+    identifier: flywayrunner092504
+    name: flywayrunner
+    spec:
+      image: plugins/drone-flyway-runner
+      settings:
+        command_line_args: -X
+        flyway_command: migrate
+        locations: /opt/hns/harness-plugins/flyway-test-files/migration_files
+        password: <+input>
+        url: jdbc:mysql://43.204.190.241:3306/flyway_test
+        username: <+input>
+    timeout: ""
+    type: Plugin
