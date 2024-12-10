@@ -11,7 +11,6 @@ func ConvertSlackUserIdsFromCommitters(node Node, variables map[string]string) *
 		SlackPluginImage)
 	tmpStepPlugin := step.Spec.(*harness.StepPlugin)
 	tmpStepPlugin.With["access_token"] = "<+input>"
-	tmpStepPlugin.With["git_repo_path"] = "<+input>"
 	tmpStepPlugin.With["committers_slack_id"] = true
 	return step
 }
