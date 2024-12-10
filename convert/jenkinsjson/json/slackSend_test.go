@@ -18,7 +18,7 @@ func TestSlackSend(t *testing.T) {
 	expectedStepJson := expectedSlackSendStepJSON
 
 	isDebug := func() bool {
-		return false
+		return true
 	}
 
 	workingDir, err := os.Getwd()
@@ -64,7 +64,7 @@ func TestSlackSend(t *testing.T) {
 }
 
 var expectedSlackSendStepJSON = `{
-    "id": "slackSend949303",
+    "id": "slackSend8962b0",
     "name": "slackSend",
     "type": "plugin",
     "spec": {
@@ -73,16 +73,18 @@ var expectedSlackSendStepJSON = `{
             "access_token": "slackcreds03",
             "channel": "dev",
             "color": "good",
+            "committers_slack_id": true,
             "icon_emoji": ":rocket:",
-            "message": "hi, the test msg slack now test ...",
+            "message": "hi, this is senthil-slack-file-send-03_dec10",
             "username": "jenkins-test-user"
         },
         "inputs": {
             "access_token": "slackcreds03",
             "channel": "dev",
             "color": "good",
+            "committers_slack_id": true,
             "icon_emoji": ":rocket:",
-            "message": "hi, the test msg slack now test ...",
+            "message": "hi, this is senthil-slack-file-send-03_dec10",
             "username": "jenkins-test-user"
         }
     }

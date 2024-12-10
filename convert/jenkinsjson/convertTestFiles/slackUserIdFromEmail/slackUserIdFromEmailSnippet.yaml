@@ -1,0 +1,10 @@
+- step:
+    identifier: slackuseridfromemail976043
+    name: slackUserIdFromEmail
+    spec:
+      image: plugins/slack
+      settings:
+        access_token: <+input>
+        slack_user_email_id: slack_user_tst223@gmail.com
+    timeout: ""
+    type: Plugin

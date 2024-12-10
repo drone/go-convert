@@ -1,0 +1,27 @@
+{
+  "spanId": "0bf200abc0e35408",
+  "traceId": "4455df641391aa9f78d8510b870b7b26",
+  "parent": "slackUserIdsFromCommitters_senthil_01",
+  "all-info": "span(name: slackUserIdsFromCommitters, spanId: 0bf200abc0e35408, parentSpanId: f47fe8f02fd4705b, traceId: 4455df641391aa9f78d8510b870b7b26, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"botUser\" : true,\n  \"tokenCredentialId\" : \"slack_creds_02\"\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@6ab52b8d:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@6ab52b8d;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6e0673f3:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6e0673f3;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@921b2ca:org.jenkinsci.plugins.workflow.actions.TimingAction@921b2ca;harness-others:;jenkins.pipeline.step.id:30;jenkins.pipeline.step.name:Resolve Slack UserIds from Changeset Authors;jenkins.pipeline.step.plugin.name:slack;jenkins.pipeline.step.plugin.version:741.v00f9591c586d;jenkins.pipeline.step.type:slackUserIdsFromCommitters;)",
+  "name": "slackUserIdsFromCommitters_senthil_01 #26",
+  "attributesMap": {
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@921b2ca": "org.jenkinsci.plugins.workflow.actions.TimingAction@921b2ca",
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Resolve Slack UserIds from Changeset Authors",
+    "ci.pipeline.run.user": "SYSTEM",
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@6ab52b8d": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@6ab52b8d",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6e0673f3": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6e0673f3",
+    "jenkins.pipeline.step.id": "30",
+    "jenkins.pipeline.step.type": "slackUserIdsFromCommitters",
+    "harness-attribute": "{\n  \"botUser\" : true,\n  \"tokenCredentialId\" : \"slack_creds_02\"\n}",
+    "jenkins.pipeline.step.plugin.name": "slack",
+    "jenkins.pipeline.step.plugin.version": "741.v00f9591c586d"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "f47fe8f02fd4705b",
+  "parameterMap": {
+    "botUser": true,
+    "tokenCredentialId": "slack_creds_02"
+  },
+  "spanName": "slackUserIdsFromCommitters"
+}
