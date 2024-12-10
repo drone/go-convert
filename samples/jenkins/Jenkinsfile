@@ -914,17 +914,5 @@ line3'''
                 }
             }
         }
-        // slackUserIdsFromCommitters
-        stage('Get Slack User IDs from Committers') {
-            steps {
-                script {
-                    def slackUserIds = slackUserIdsFromCommitters(
-                            botUser: true,
-                            tokenCredentialId: 'slack_creds_01'
-                    )
-                    echo "Slack User IDs: ${slackUserIds ?: 'No IDs found'}"
-                }
-            }
-        }
     }
 }
