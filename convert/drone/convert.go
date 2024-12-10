@@ -739,9 +739,6 @@ func convertCloneV1(from *v1.Clone) *v2.CloneStageV1 {
 			Disabled: true,
 		}
 	}
-
-	// Use the Disable field from the input Clone struct
-	// If no explicit disable is set, it will be false (the zero value)
 	return &v2.CloneStageV1{
 		Disabled: from.Disable || true,
 	}
