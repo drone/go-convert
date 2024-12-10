@@ -1,20 +1,13 @@
 package json
 
 import (
-	"encoding/json"
 	"testing"
 
 	harness "github.com/drone/spec/dist/go"
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestConvertNotification(t *testing.T) {
-
-	// Remove line breaks and format as compact JSON
-	var compactData map[string]interface{}
-	_ = json.Unmarshal([]byte("{\"status\": \"Build Successful\", \"job\": \"${env.JOB_NAME}\", \"buildNumber\": \"${env.BUILD_NUMBER}\"}"), &compactData) // Parse JSON
-	compactBytes, _ := json.Marshal(compactData)                                                                                                           // Convert to compact JSON
-	compactString := string(compactBytes)                                                                                                                  // Convert bytes to string
+func TestConvertNotification(t *testing.T) { // Convert bytes to string
 
 	var tests []runner
 	tests = append(tests, prepare(t, "/notification/notification_snippet", &harness.Step{
@@ -25,13 +18,21 @@ func TestConvertNotification(t *testing.T) {
 			Connector: "<+input>",
 			Image:     "plugins/webhook",
 			With: map[string]interface{}{
-				"urls":         "<+input>",
+				"urls":         []string{"https://httpbin.org/post"},
+				"method":       "POST",
 				"username":     "<+input>",
 				"password":     "<+input>",
-				"method":       "<+input>",
-				"content_type": "application/json",
-				"debug":        "true",
-				"template":     compactString,
+				"token-value":  "<+input>",
+				"token-type":   "<+input>",
+				"content-type": "application/json",
+				"headers":      "Authorization=abcd",
+				"template": `{
+  		"loglines": "10",
+  		"phase": "COMPLETED",
+  		"status": "Success",
+  		"notes": "Build metrics for analysis",
+  		"timestamp": "${time.now()}"
+	}`,
 			},
 		},
 	}))

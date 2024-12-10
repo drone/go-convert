@@ -1,20 +1,60 @@
 package json
 
 import (
-	"encoding/json"
+	"fmt"
+	"strings"
 
 	harness "github.com/drone/spec/dist/go"
 )
 
 // ConvertNotification creates a Harness step for nunit plugin.
-func ConvertNotification(node Node, arguments map[string]interface{}) *harness.Step {
-	data, _ := arguments["data"].(string)
+func ConvertNotification(node Node, parameterMap map[string]interface{}) *harness.Step {
 
-	// Remove line breaks and format as compact JSON
-	var compactData map[string]interface{}
-	_ = json.Unmarshal([]byte(data), &compactData) // Parse JSON
-	compactBytes, _ := json.Marshal(compactData)   // Convert to compact JSON
-	compactString := string(compactBytes)          // Convert bytes to string
+	// Extract values from parameterMap
+	endpoints, ok := parameterMap["endpoints"].([]interface{})
+	urls := []string{}
+	headers := ""
+	contentType := "application/json" // Default content type
+
+	if ok && len(endpoints) > 0 {
+		// Assuming only one endpoint in the array for simplicity
+		if endpoint, ok := endpoints[0].(map[string]interface{}); ok {
+			if url, ok := endpoint["url"].(string); ok {
+				urls = append(urls, url)
+			}
+			if headerMap, ok := endpoint["headers"].(map[string]interface{}); ok {
+				headerParts := []string{}
+				for key, value := range headerMap {
+					headerParts = append(headerParts, fmt.Sprintf("%s=%v", key, value))
+				}
+				headers = strings.Join(headerParts, ",")
+			}
+
+			if format, ok := endpoint["format"].(string); ok {
+				switch format {
+				case "JSON":
+					contentType = "application/json"
+				case "XML":
+					contentType = "application/xml"
+				default:
+					contentType = "application/json" // Fallback
+				}
+			}
+		}
+	}
+
+	loglines, _ := parameterMap["loglines"].(string)
+	phase, _ := parameterMap["phase"].(string)
+	notes, _ := parameterMap["notes"].(string)
+
+	// Create the template
+	template := fmt.Sprintf(`{
+  		"loglines": "%s",
+  		"phase": "%s",
+  		"status": "Success",
+  		"notes": "%s",
+  		"timestamp": "${time.now()}"
+	}`, loglines, phase, notes)
 
 	convertNotification := &harness.Step{
 		Name: "Notification",
@@ -24,13 +64,15 @@ func ConvertNotification(node Node, arguments map[string]interface{}) *harness.S
 			Connector: "<+input>",
 			Image:     "plugins/webhook",
 			With: map[string]interface{}{
-				"urls":         "<+input>",
+				"urls":         urls,
+				"method":       "POST",
 				"username":     "<+input>",
 				"password":     "<+input>",
-				"method":       "<+input>",
-				"content_type": "application/json",
-				"debug":        "true",
-				"template":     compactString,
+				"token-value":  "<+input>",
+				"token-type":   "<+input>",
+				"content-type": contentType,
+				"headers":      headers,
+				"template":     template,
 			},
 		},
 	}

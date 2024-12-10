@@ -1,16 +1,21 @@
 - step:
-    identifier: notifyendpointsca9fc8
+    identifier: notifyendpoints2f61b6
     name: Notification
     spec:
       image: plugins/webhook
       settings:
-        content_type: application/json
-        debug: "true"
-        method: <+input>
-        password: <+input>
-        template: '{"status": "Build Successful", "job": "${env.JOB_NAME}",
-                        "buildNumber": "${env.BUILD_NUMBER}"}'
-        urls: <+input>
-        username: <+input>
+        content-type: application/json
+        headers:
+          - "Authorization: abcd"
+        method: POST
+        password: mypassword
+        template: "{\n  \t\t\"loglines\": \"10\",\n  \t\t\"phase\":
+          \"COMPLETED\",\n  \t\t\"status\": \"Success\",\n  \t\t\"notes\":
+          \"Build metrics for analysis\",\n  \t\t\"timestamp\": \"${time.now()}\"\n\t}"
+        token-type: Bearer
+        token-value: your-token-value
+        urls:
+          - https://httpbin.org/post
+        username: myusername
     timeout: ""
     type: Plugin
