@@ -715,23 +715,6 @@ func convertShell(src string) string {
 // 	return dst
 // }
 
-// func convertCloneV1(src v1.Clone) *v2.CloneStageV1 {
-// 	dst := &v2.CloneStageV1{
-// 		Disabled: true, // Default to true
-// 	}
-
-// 	if src.Disable {
-// 		dst.Disabled = false
-// 	}
-// 	return dst
-// }
-
-//	func convertCloneV1(src v1.Clone) *v2.CloneStageV1 {
-//		dst := &v2.CloneStageV1{
-//			Disabled: src.Disable, // Direct mapping from input
-//		}
-//		return dst
-//	}
 func convertCloneV1(from *v1.Clone) *v2.CloneStageV1 {
 	// If from is nil, set Disabled to true
 	if from == nil {
