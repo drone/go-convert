@@ -884,6 +884,36 @@ line3'''
                 gatlingArchive() // or archiveArtifacts(artifacts: 'target/gatling/index.html')
             }
         }
+        // slackUserIdFromEmail
+        stage('Retrieve Slack User ID') {
+            steps {
+                script {
+                    SLACK_USER_ID = slackUserIdFromEmail(
+                        botUser: true,
+                        email: 'slack_user@gmail.com',
+                        tokenCredentialId: 'slack_token_01'
+                    )
+                    echo "Slack User ID for email slack_user@gmail.com: ${SLACK_USER_ID}"
+                }
+            }
+        }
+        stage('Use Slack User ID') {
+            steps {
+                echo "Perform actions using Slack User ID: ${SLACK_USER_ID}"
+            }
+        }
+        // slackUserIdsFromCommitters
+        stage('Get Slack User IDs from Committers') {
+            steps {
+                script {
+                    def slackUserIds = slackUserIdsFromCommitters(
+                            botUser: true,
+                            tokenCredentialId: 'slack_creds_01'
+                    )
+                    echo "Slack User IDs: ${slackUserIds ?: 'No IDs found'}"
+                }
+            }
+        }
         // flywayrunner
         stage('Flyway Migration: Apple Orange') {
             steps {
