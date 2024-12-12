@@ -5,17 +5,14 @@
       image: plugins/webhook
       settings:
         content-type: application/json
-        headers:
-          - "Authorization: abcd"
         method: POST
-        password: mypassword
-        template: "{\n  \t\t\"loglines\": \"10\",\n  \t\t\"phase\":
-          \"COMPLETED\",\n  \t\t\"status\": \"Success\",\n  \t\t\"notes\":
-          \"Build metrics for analysis\",\n  \t\t\"timestamp\": \"${time.now()}\"\n\t}"
-        token-type: Bearer
-        token-value: your-token-value
+        password: <+input>
+        template: "{\n  \t\t\"phase\": \"COMPLETED\",\n  \t\t\"notes\":
+          \"Build metrics for analysis\",\n\t}"
+        token-type: <+input>
+        token-value: <+input>
         urls:
           - https://httpbin.org/post
-        username: myusername
+        username: <+input>
     timeout: ""
     type: Plugin
