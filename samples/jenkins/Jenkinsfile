@@ -575,8 +575,8 @@ line3'''
         stage('Run NUnit') {
             steps {
                 script {
-                    def xmlFileUrl = 'https://raw.githubusercontent.com/harness-community/test-jenkins-to-harness/refs/heads/main/nunit-test-result.xml'
-                    def outputFilePath = 'TestResult.xml'
+                     xmlFileUrl = 'https://raw.githubusercontent.com/harness-community/test-jenkins-to-harness/refs/heads/main/nunit-test-result.xml'
+                     outputFilePath = 'TestResult.xml'
 
                     bat """
                     powershell -Command "Invoke-WebRequest -Uri '${xmlFileUrl}' -OutFile '${outputFilePath}'"
@@ -585,6 +585,7 @@ line3'''
                 nunit testResultsPattern: 'TestResult.xml', failIfNoResults: true, skipJUnitArchiver: false, failedTestsFailBuild: true
             }
         }
+
         // Javadoc Steps
         stage('Checkout') {
             steps {
@@ -679,6 +680,68 @@ line3'''
                           username: 'jenkins-test-user'
             }
         }
+        //Pagerduty plugin
+        post {
+        success {
+            echo 'Job succeeded!'
+            pagerduty(
+                resolve: true,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Succeeded for ${env.JOB_NAME}",
+                incidentSeverity: "info",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+        failure {
+            echo 'Job failed!'
+            pagerduty(
+                resolve: false,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Failed for ${env.JOB_NAME}",
+                incidentSeverity: "critical",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+        aborted {
+            echo 'Job was aborted!'
+            pagerduty(
+                resolve: false,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Aborted for ${env.JOB_NAME}",
+                incidentSeverity: "warning",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+        unstable {
+            echo 'Job is unstable!'
+            pagerduty(
+                resolve: false,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Unstable for ${env.JOB_NAME}",
+                incidentSeverity: "warning",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+    }
+    //pagerduty plugin change event
+    post {
+        always {
+            // Create a change event in PagerDuty after the job completes, regardless of outcome
+            pagerdutyChangeEvent(
+                integrationKey: "${env.PAGERDUTY_INTEGRATION_KEY}",
+                summaryText: "Job ${env.JOB_NAME} completed with status ${currentBuild.currentResult}",
+                customDetails: [
+                    buildNumber: "${env.BUILD_NUMBER}",
+                    jobName: "${env.JOB_NAME}",
+                    jobURL: "${env.BUILD_URL}"
+                ]
+            )
+        }
+    }
         // publishHTML plugin stage begins
         stage('Generate HTML Reports') {
             steps {
@@ -752,59 +815,27 @@ line3'''
         //Nodejs conversion Step
         stage('Install Packages') {
             steps {
-                // Set up the NodeJS environment
-                nodejs(nodeJSInstallationName: 'node') {
-                    sh '''
-                        # Ensure npm uses the public registry
-                        echo "registry=https://registry.npmjs.org/" > .npmrc
-                        npm install
-                    '''
+                withSonarQubeEnv('SonarCloud') { // Matches the name in Jenkins configuration
+                    sh "${SONAR_SCANNER}  -Dsonar.projectKey=vanisrikanithi_Test-Sonarqube" +
+               '-Dsonar.organization=vanisrikanithi' +
+               '-Dsonar.login=b751ddb91e11f466d7cdfa0abd65b4a6c393d938 ' +
+               '-Dsonar.sources=src ' +
+               '-Dsonar.java.binaries=target/classes'
                 }
             }
         }
-
-        //Notification Conversion step
-        stage('Notify') {
+        stage('Quality Gate') {
             steps {
                 script {
-                    // Prepare payload
-                    def payload = '{"status": "Build Successful", "job": "${env.JOB_NAME}", "buildNumber": "${env.BUILD_NUMBER}"}'
-
-                    // Debug: Print payload to verify its structure
-                    echo "Payload: ${payload}"
-
-                    // Debug: Check if the endpoint exists and can be accessed
-                    try {
-                        echo "Attempting to notify endpoint 'localEndpoint' with data"
-                        notifyEndpoints id: 'localEndpoint', data: payload
-                        echo "Notification sent successfully."
-                    } catch (Exception e) {
-                        // Catching any potential error during the notification
-                        echo "Failed to notify endpoint. Error: ${e.getMessage()}"
+                    def qualityGate = waitForQualityGate()
+                    // If the quality gate fails, log the status but don't abort the pipeline
+                    if (qualityGate.status != 'OK' && qualityGate.status != 'NONE') {
+                        echo "Quality Gate failed with status: ${qualityGate.status}. Continuing the pipeline."
+            } else if (qualityGate.status == 'NONE') {
+                        echo 'Quality Gate status is NONE. Check SonarQube configuration.'
+            } else {
+                        echo "Quality Gate passed with status: ${qualityGate.status}."
                     }
-                }
-            }
-        }
-
-        //Nodejs conversion Step
-        stage('Install Packages') {
-            steps {
-                // Set up the NodeJS environment
-                nodejs(nodeJSInstallationName: 'node') {
-                    sh '''
-                        # Ensure npm uses the public registry
-                        echo "registry=https://registry.npmjs.org/" > .npmrc
-                        npm install
-                    '''
-                }
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                nodejs(nodeJSInstallationName: 'node') {
-                    // Run npm test to execute the "test" script in package.json
-                    sh 'npm test'
                 }
             }
         }
@@ -850,6 +881,49 @@ line3'''
         stage('Publish Results') {
             steps {
                 gatlingArchive() // or archiveArtifacts(artifacts: 'target/gatling/index.html')
+            }
+        }
+        // slackUserIdFromEmail
+        stage('Retrieve Slack User ID') {
+            steps {
+                script {
+                    SLACK_USER_ID = slackUserIdFromEmail(
+                        botUser: true,
+                        email: 'slack_user@gmail.com',
+                        tokenCredentialId: 'slack_token_01'
+                    )
+                    echo "Slack User ID for email slack_user@gmail.com: ${SLACK_USER_ID}"
+                }
+            }
+        }
+        stage('Use Slack User ID') {
+            steps {
+                echo "Perform actions using Slack User ID: ${SLACK_USER_ID}"
+            }
+        }
+        // slackUserIdsFromCommitters
+        stage('Get Slack User IDs from Committers') {
+            steps {
+                script {
+                    def slackUserIds = slackUserIdsFromCommitters(
+                            botUser: true,
+                            tokenCredentialId: 'slack_creds_01'
+                    )
+                    echo "Slack User IDs: ${slackUserIds ?: 'No IDs found'}"
+                }
+            }
+        }
+
+        stage('Notify') {
+            steps {
+                script {
+                    notifyEndpoints(
+                        endpoint: env.NOTIFICATION_ENDPOINT,
+                        notes: env.BUILD_NOTES,
+                        phase: 'COMPLETED',
+                        loglines: '1'
+                    )
+                }
             }
         }
     }
