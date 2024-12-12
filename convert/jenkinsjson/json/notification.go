@@ -2,18 +2,16 @@ package json
 
 import (
 	"fmt"
-	"strings"
 
 	harness "github.com/drone/spec/dist/go"
 )
 
-// ConvertNotification creates a Harness step for nunit plugin.
+// ConvertNotification creates a Harness step for Notification plugin.
 func ConvertNotification(node Node, parameterMap map[string]interface{}) *harness.Step {
 
 	// Extract values from parameterMap
 	endpoints, ok := parameterMap["endpoints"].([]interface{})
 	urls := []string{}
-	headers := ""
 	contentType := "application/json" // Default content type
 
 	if ok && len(endpoints) > 0 {
@@ -21,13 +19,6 @@ func ConvertNotification(node Node, parameterMap map[string]interface{}) *harnes
 		if endpoint, ok := endpoints[0].(map[string]interface{}); ok {
 			if url, ok := endpoint["url"].(string); ok {
 				urls = append(urls, url)
-			}
-			if headerMap, ok := endpoint["headers"].(map[string]interface{}); ok {
-				headerParts := []string{}
-				for key, value := range headerMap {
-					headerParts = append(headerParts, fmt.Sprintf("%s=%v", key, value))
-				}
-				headers = strings.Join(headerParts, ",")
 			}
 
 			if format, ok := endpoint["format"].(string); ok {
@@ -43,26 +34,26 @@ func ConvertNotification(node Node, parameterMap map[string]interface{}) *harnes
 		}
 	}
 
-	loglines, _ := parameterMap["loglines"].(string)
+	// If no URLs were found, use <+input>
+	if len(urls) == 0 {
+		urls = append(urls, "<+input>")
+	}
+
 	phase, _ := parameterMap["phase"].(string)
 	notes, _ := parameterMap["notes"].(string)
 
 	// Create the template
 	template := fmt.Sprintf(`{
-  		"loglines": "%s",
   		"phase": "%s",
-  		"status": "Success",
   		"notes": "%s",
-  		"timestamp": "${time.now()}"
-	}`, loglines, phase, notes)
+	}`, phase, notes)
 
 	convertNotification := &harness.Step{
 		Name: "Notification",
 		Type: "plugin",
 		Id:   SanitizeForId(node.SpanName, node.SpanId),
 		Spec: &harness.StepPlugin{
-			Connector: "<+input>",
-			Image:     "plugins/webhook",
+			Image: "plugins/webhook",
 			With: map[string]interface{}{
 				"urls":         urls,
 				"method":       "POST",
@@ -71,7 +62,6 @@ func ConvertNotification(node Node, parameterMap map[string]interface{}) *harnes
 				"token-value":  "<+input>",
 				"token-type":   "<+input>",
 				"content-type": contentType,
-				"headers":      headers,
 				"template":     template,
 			},
 		},

@@ -1,27 +1,36 @@
 {
-  "spanId": "ca9fc8eff41d4f92",
-  "traceId": "f1adc1d1a45c1dedbd53784e7fca2814",
-  "parent": "vani_notification",
-  "all-info": "span(name: notifyEndpoints, spanId: ca9fc8eff41d4f92, parentSpanId: acee98a0cf6aa892, traceId: f1adc1d1a45c1dedbd53784e7fca2814, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"data\" : \"{\\\"status\\\": \\\"Build Successful\\\", \\\"job\\\": \\\"${env.JOB_NAME}\\\", \\\"buildNumber\\\": \\\"${env.BUILD_NUMBER}\\\"}\",\n  \"id\" : \"localEndpoint\"\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@31117cf1:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@31117cf1;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1ac86a35:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1ac86a35;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@3de2c204:org.jenkinsci.plugins.workflow.actions.TimingAction@3de2c204;harness-others:;jenkins.pipeline.step.id:21;jenkins.pipeline.step.name:Notify configured endpoints;jenkins.pipeline.step.plugin.name:notification;jenkins.pipeline.step.plugin.version:1.17;jenkins.pipeline.step.type:notifyEndpoints;)",
-  "name": "vani_notification #18",
+  "spanId": "2f61b68e9e0048e2",
+  "traceId": "2b0e53934eda3036265588832b32296a",
+  "parent": "notification",
+  "all-info": "span(name: notifyEndpoints, spanId: 2f61b68e9e0048e2, parentSpanId: 527ceb23f807b770, traceId: 2b0e53934eda3036265588832b32296a, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"phase\" : \"COMPLETED\",\n  \"endpoints\" : [ {\n    \"url\" : \"https://httpbin.org/post\",\n    \"protocol\" : \"HTTP\",\n    \"format\" : \"JSON\",\n    \"headers\" : {\n      \"Authorization\" : \"abcd\"\n    }\n  } ],\n  \"loglines\" : \"10\",\n  \"notes\" : \"Build metrics for analysis\"\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3b2b0b5d:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3b2b0b5d;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@10e3eda8:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@10e3eda8;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1659c9c:org.jenkinsci.plugins.workflow.actions.TimingAction@1659c9c;harness-others:;jenkins.pipeline.step.id:32;jenkins.pipeline.step.name:Notify configured endpoints;jenkins.pipeline.step.plugin.name:notification;jenkins.pipeline.step.plugin.version:1.18;jenkins.pipeline.step.type:notifyEndpoints;)",
+  "name": "notification #28",
   "attributesMap": {
-    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@3de2c204": "org.jenkinsci.plugins.workflow.actions.TimingAction@3de2c204",
     "harness-others": "",
     "jenkins.pipeline.step.name": "Notify configured endpoints",
     "ci.pipeline.run.user": "SYSTEM",
-    "jenkins.pipeline.step.id": "21",
+    "jenkins.pipeline.step.id": "32",
     "jenkins.pipeline.step.type": "notifyEndpoints",
-    "harness-attribute": "{\n  \"data\" : \"{\\\"status\\\": \\\"Build Successful\\\", \\\"job\\\": \\\"${env.JOB_NAME}\\\", \\\"buildNumber\\\": \\\"${env.BUILD_NUMBER}\\\"}\",\n  \"id\" : \"localEndpoint\"\n}",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@10e3eda8": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@10e3eda8",
+    "harness-attribute": "{\n  \"phase\" : \"COMPLETED\",\n  \"endpoints\" : [ {\n    \"url\" : \"https://httpbin.org/post\",\n    \"protocol\" : \"HTTP\",\n    \"format\" : \"JSON\",\n    \"headers\" : {\n      \"Authorization\" : \"abcd\"\n    }\n  } ],\n  \"loglines\" : \"10\",\n  \"notes\" : \"Build metrics for analysis\"\n}",
     "jenkins.pipeline.step.plugin.name": "notification",
-    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1ac86a35": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1ac86a35",
-    "jenkins.pipeline.step.plugin.version": "1.17",
-    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@31117cf1": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@31117cf1"
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1659c9c": "org.jenkinsci.plugins.workflow.actions.TimingAction@1659c9c",
+    "jenkins.pipeline.step.plugin.version": "1.18",
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3b2b0b5d": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3b2b0b5d"
   },
   "type": "Run Phase Span",
-  "parentSpanId": "acee98a0cf6aa892",
+  "parentSpanId": "527ceb23f807b770",
   "parameterMap": {
-    "data": "{\"status\": \"Build Successful\", \"job\": \"${env.JOB_NAME}\", \"buildNumber\": \"${env.BUILD_NUMBER}\"}",
-    "id": "localEndpoint"
+    "phase": "COMPLETED",
+    "endpoints": [
+      {
+        "headers": { "Authorization": "abcd" },
+        "protocol": "HTTP",
+        "format": "JSON",
+        "url": "https://httpbin.org/post"
+      }
+    ],
+    "loglines": "10",
+    "notes": "Build metrics for analysis"
   },
   "spanName": "notifyEndpoints"
 }
