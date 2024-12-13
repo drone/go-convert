@@ -914,17 +914,19 @@ line3'''
             }
         }
 
-        stage('Notify') {
-            steps {
-                script {
-                    notifyEndpoints(
-                        endpoint: env.NOTIFICATION_ENDPOINT,
-                        notes: env.BUILD_NOTES,
-                        phase: 'COMPLETED',
-                        loglines: '1'
-                    )
-                }
+        //Notify Endpoints
+        post {
+        always {
+            script {
+                notifyEndpoints(
+                    endpoint: env.NOTIFICATION_ENDPOINT,
+                  
+                    notes: env.BUILD_NOTES,
+                    phase: 'COMPLETED',
+                    loglines: '10'
+                )
             }
+        }
         }
     }
 }

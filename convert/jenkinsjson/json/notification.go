@@ -10,32 +10,12 @@ import (
 func ConvertNotification(node Node, parameterMap map[string]interface{}) *harness.Step {
 
 	// Extract values from parameterMap
-	endpoints, ok := parameterMap["endpoints"].([]interface{})
+	url, urlOk := parameterMap["endpoint"].(string)
 	urls := []string{}
-	contentType := "application/json" // Default content type
 
-	if ok && len(endpoints) > 0 {
-		// Assuming only one endpoint in the array for simplicity
-		if endpoint, ok := endpoints[0].(map[string]interface{}); ok {
-			if url, ok := endpoint["url"].(string); ok {
-				urls = append(urls, url)
-			}
-
-			if format, ok := endpoint["format"].(string); ok {
-				switch format {
-				case "JSON":
-					contentType = "application/json"
-				case "XML":
-					contentType = "application/xml"
-				default:
-					contentType = "application/json" // Fallback
-				}
-			}
-		}
-	}
-
-	// If no URLs were found, use <+input>
-	if len(urls) == 0 {
+	if urlOk {
+		urls = append(urls, url)
+	} else {
 		urls = append(urls, "<+input>")
 	}
 
@@ -61,7 +41,7 @@ func ConvertNotification(node Node, parameterMap map[string]interface{}) *harnes
 				"password":     "<+input>",
 				"token-value":  "<+input>",
 				"token-type":   "<+input>",
-				"content-type": contentType,
+				"content-type": "application/json",
 				"template":     template,
 			},
 		},

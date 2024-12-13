@@ -12,7 +12,7 @@
         token-type: <+input>
         token-value: <+input>
         urls:
-          - https://httpbin.org/post
+          - https://webhook.site/9ffae84b-a338-43ef-9283-319d70574bf4
         username: <+input>
     timeout: ""
     type: Plugin

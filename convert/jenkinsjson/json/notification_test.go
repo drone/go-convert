@@ -11,13 +11,13 @@ func TestConvertNotification(t *testing.T) { // Convert bytes to string
 
 	var tests []runner
 	tests = append(tests, prepare(t, "/notification/notification_snippet", &harness.Step{
-		Id:   "notifyEndpoints2f61b6",
+		Id:   "notifyEndpointsc1ca8f",
 		Name: "Notification",
 		Type: "plugin",
 		Spec: &harness.StepPlugin{
 			Image: "plugins/webhook",
 			With: map[string]interface{}{
-				"urls":         []string{"https://httpbin.org/post"},
+				"urls":         []string{"https://webhook.site/9ffae84b-a338-43ef-9283-319d70574bf4"},
 				"method":       "POST",
 				"username":     "<+input>",
 				"password":     "<+input>",

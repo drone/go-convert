@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        NOTIFICATION_ENDPOINT = "http://localhost:3000/api/data"
+        NOTIFICATION_ENDPOINT = "https://webhook.site/9ffae84b-a338-43ef-9283-319d70574bf4"
         NOTIFICATION_PROTOCOL = "HTTP"
         NOTIFICATION_FORMAT = "JSON"
         BUILD_NOTES = "Build metrics for analysis"
@@ -33,6 +33,19 @@ pipeline {
                         loglines: '1'
                     )
                 }
+            }
+        }
+    }
+        post {
+        always {
+            script {
+                notifyEndpoints(
+                    endpoint: env.NOTIFICATION_ENDPOINT,
+                  
+                    notes: env.BUILD_NOTES,
+                    phase: 'COMPLETED',
+                    loglines: '10'
+                )
             }
         }
     }
