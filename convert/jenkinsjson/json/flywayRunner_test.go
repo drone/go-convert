@@ -32,7 +32,7 @@ func TestFlywayRunner(t *testing.T) {
 
 	tmpTestStep := ConvertFlywayRunner(node, variables)
 
-	wantStep, err := ToStructFromJsonString[harness.Step](expectedSlackUserIdFromEmail)
+	wantStep, err := ToStructFromJsonString[harness.Step](expectedFywayRunnerStep)
 	if err != nil {
 		t.Fatalf("want step : %v", err)
 	}
@@ -44,7 +44,7 @@ func TestFlywayRunner(t *testing.T) {
 	}
 }
 
-var expectedSlackUserIdFromEmail = `{
+var expectedFywayRunnerStep = `{
     "id": "flywayrunner092504",
     "name": "flywayrunner",
     "type": "plugin",
