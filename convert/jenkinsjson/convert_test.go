@@ -758,6 +758,7 @@ func TestS3UploadWithGzipDisabled(t *testing.T) {
 	}
 
 	// Initialize the list to collect steps
+	stepGroupWithId := []StepGroupWithID{}
 	stepWithIDList := []StepWithID{}
 	processedTools := &ProcessedTools{}
 	variables := make(map[string]string)
@@ -765,7 +766,7 @@ func TestS3UploadWithGzipDisabled(t *testing.T) {
 	dockerImage := "plugin/s3upload"
 
 	// Call the function collectStepsWithID to collect the steps
-	collectStepsWithID(node, &stepWithIDList, processedTools, variables, timeout, dockerImage)
+	collectStepsWithID(node, &stepGroupWithId, &stepWithIDList, processedTools, variables, timeout, dockerImage)
 
 	// Expecting single step for s3uplaod without gzip
 	if len(stepWithIDList) != 1 {
@@ -840,6 +841,7 @@ func TestCollectStepsWithIDS3UploadMultipleEntry(t *testing.T) {
 	}
 
 	// Initialize the list to collect steps
+	stepGroupWithId := []StepGroupWithID{}
 	stepWithIDList1 := []StepWithID{}
 	processedTools := &ProcessedTools{}
 	variables := make(map[string]string)
@@ -847,7 +849,7 @@ func TestCollectStepsWithIDS3UploadMultipleEntry(t *testing.T) {
 	dockerImage := "plugin/s3upload"
 
 	// Call the function collectStepsWithID to collect the steps
-	collectStepsWithID(node, &stepWithIDList1, processedTools, variables, timeout, dockerImage)
+	collectStepsWithID(node, &stepGroupWithId, &stepWithIDList1, processedTools, variables, timeout, dockerImage)
 
 	// Expecting 3 steps: step1: for the gzip false case (only s3upload)
 	// step2:  gzip true(Converts3Archive) and step3: s3upload .
