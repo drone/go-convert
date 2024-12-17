@@ -22,11 +22,17 @@ func ConvertNotification(node Node, parameterMap map[string]interface{}) *harnes
 	phase, _ := parameterMap["phase"].(string)
 	notes, _ := parameterMap["notes"].(string)
 
+	// Determine the status based on phase
+	status := ""
+	if phase == "COMPLETED" {
+		status = "SUCCESSFUL"
+	}
+
 	// Create the template
 	template := fmt.Sprintf(`{
-  		"phase": "%s",
-  		"notes": "%s",
-	}`, phase, notes)
+    "status": "%s",
+    "notes": "%s"
+}`, status, notes)
 
 	convertNotification := &harness.Step{
 		Name: "Notification",
@@ -37,10 +43,7 @@ func ConvertNotification(node Node, parameterMap map[string]interface{}) *harnes
 			With: map[string]interface{}{
 				"urls":         urls,
 				"method":       "POST",
-				"username":     "<+input>",
-				"password":     "<+input>",
 				"token-value":  "<+input>",
-				"token-type":   "<+input>",
 				"content-type": "application/json",
 				"template":     template,
 			},

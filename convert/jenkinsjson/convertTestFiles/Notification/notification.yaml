@@ -1,18 +1,18 @@
 - step:
-    identifier: notifyendpoints2f61b6
+    identifier: notifyendpointsaa7206
     name: Notification
     spec:
       image: plugins/webhook
       settings:
         content-type: application/json
         method: POST
-        password: <+input>
-        template: "{\n  \t\t\"phase\": \"COMPLETED\",\n  \t\t\"notes\":
-          \"Build metrics for analysis\",\n\t}"
-        token-type: <+input>
+        template: |-
+          {
+              "status": "SUCCESSFUL",
+              "notes": "Build metrics for analysis"
+          }
         token-value: <+input>
         urls:
           - https://webhook.site/9ffae84b-a338-43ef-9283-319d70574bf4
-        username: <+input>
     timeout: ""
     type: Plugin

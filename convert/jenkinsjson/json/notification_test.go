@@ -19,15 +19,12 @@ func TestConvertNotification(t *testing.T) { // Convert bytes to string
 			With: map[string]interface{}{
 				"urls":         []string{"https://webhook.site/9ffae84b-a338-43ef-9283-319d70574bf4"},
 				"method":       "POST",
-				"username":     "<+input>",
-				"password":     "<+input>",
 				"token-value":  "<+input>",
-				"token-type":   "<+input>",
 				"content-type": "application/json",
 				"template": `{
-  		"phase": "COMPLETED",
-  		"notes": "Build metrics for analysis",
-	}`,
+    "status": "SUCCESSFUL",
+    "notes": "Build metrics for analysis"
+}`,
 			},
 		},
 	}))
