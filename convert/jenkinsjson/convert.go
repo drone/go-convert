@@ -909,8 +909,8 @@ func handleTool(currentNode jenkinsjson.Node, processedTools *ProcessedTools) {
 	// Check if this node is a "tool" node
 	if stepType, ok := currentNode.AttributesMap["jenkins.pipeline.step.type"]; ok && stepType == "tool" {
 		typeVal, typeExists := currentNode.ParameterMap["type"].(string)
-		toolType := ""
 		if typeExists {
+			toolType := ""
 			// Determine the tool type from 'typeVal'
 			if parts := strings.Split(typeVal, "$"); len(parts) > 1 {
 				toolType = parts[1]
