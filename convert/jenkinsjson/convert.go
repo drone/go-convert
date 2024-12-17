@@ -909,27 +909,25 @@ func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]Ste
 func handleTool(currentNode jenkinsjson.Node, processedTools *ProcessedTools) {
 	// Check if this node is a "tool" node
 	if stepType, ok := currentNode.AttributesMap["jenkins.pipeline.step.type"]; ok && stepType == "tool" {
-		if attr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
-			toolAttributes := make(map[string]string)
-			if err := json.Unmarshal([]byte(attr), &toolAttributes); err == nil {
-				fullToolType := toolAttributes["type"]
-				toolType := ""
-				if parts := strings.Split(fullToolType, "$"); len(parts) > 1 {
-					toolType = parts[1]
-				} else {
-					toolType = extractToolType(fullToolType)
-				}
+		typeVal, typeExists := currentNode.ParameterMap["type"].(string)
+		toolType := ""
+		if typeExists {
+			// Determine the tool type from 'typeVal'
+			if parts := strings.Split(typeVal, "$"); len(parts) > 1 {
+				toolType = parts[1]
+			} else {
+				toolType = extractToolType(typeVal)
+			}
 
-				switch toolType {
-				case "MavenInstallation":
-					processedTools.MavenPresent = true
-				case "GradleInstallation":
-					processedTools.GradlePresent = true
-				case "AntInstallation":
-					processedTools.AntPresent = true
-				default:
-					processedTools.ToolProcessed = true
-				}
+			switch toolType {
+			case "MavenInstallation":
+				processedTools.MavenPresent = true
+			case "GradleInstallation":
+				processedTools.GradlePresent = true
+			case "AntInstallation":
+				processedTools.AntPresent = true
+			default:
+				processedTools.ToolProcessed = true
 			}
 		}
 	}
