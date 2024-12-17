@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	FlywayRunnerPluginImage = "plugins/drone-flyway-runner"
+	FlywayRunnerPluginImage = "plugins/flyway"
 )
 
 var JenkinsToFlywayRunnerParamMapperList = []JenkinsToDroneParamMapper{
