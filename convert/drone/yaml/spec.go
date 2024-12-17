@@ -34,7 +34,7 @@ type (
 		Volumes     []*Volume         `json:"volumes,omitempty"`
 		PullSecrets []string          `json:"image_pull_secrets,omitempty" yaml:"image_pull_secrets"`
 		Workspace   Workspace         `json:"workspace,omitempty"`
-
+		Runtime     string            `json:"runtime,omitempty"`
 		// Kubernetes Runner
 		DnsConfig      DnsConfig         `json:"dns_config,omitempty"   yaml:"dns_config"`
 		HostAliases    []HostAlias       `json:"host_aliases,omitempty" yaml:"host_aliases"`

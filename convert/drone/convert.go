@@ -158,10 +158,11 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		case v1.KindPipeline:
 			// TODO pipeline.name removed from spec
 			// pipeline.Name = from.Name
+			runtime := determineRuntime(from)
 			pipeline.Stages = append(pipeline.Stages, &v2.StageV1{
 				Name:    from.Name,
 				Clone:   convertCloneV1(&from.Clone),
-				Runtime: "machine",
+				Runtime: runtime,
 				Steps:   convertSteps(from, d.orgSecrets),
 			})
 		}
@@ -182,6 +183,13 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	out = bytes.ReplaceAll(out, []byte("/drone/src"), []byte("/harness"))
 
 	return out, nil
+}
+
+func determineRuntime(from *v1.Pipeline) string {
+	if from.Runtime != "" {
+		return from.Runtime
+	}
+	return "machine"
 }
 
 func convertRegistry(src []*v1.Pipeline) *v2.Registry {
