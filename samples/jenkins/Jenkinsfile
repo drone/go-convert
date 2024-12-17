@@ -824,7 +824,6 @@ line3'''
                 }
             }
         }
-
         stage('Quality Gate') {
             steps {
                 script {
@@ -913,6 +912,21 @@ line3'''
                     echo "Slack User IDs: ${slackUserIds ?: 'No IDs found'}"
                 }
             }
+        }
+
+        //Notify Endpoints
+        post {
+        always {
+            script {
+                notifyEndpoints(
+                    endpoint: env.NOTIFICATION_ENDPOINT,
+                  
+                    notes: env.BUILD_NOTES,
+                    phase: 'COMPLETED',
+                    loglines: '10'
+                )
+            }
+        }
         }
     }
 }
