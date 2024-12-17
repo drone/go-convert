@@ -297,6 +297,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	var clone *harness.CloneStage
 	var repo *harness.Repository
 
+	// parameterMap and harness-attribute are now aligned in recent trace files and always contain identical data.
+	// However, if older traces can only contain harness-attribute, let's update parameterMap manually as we
+	// use it exclusively for lookups below.
 	if len(currentNode.ParameterMap) == 0 {
 		if harnessAttr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
 			var paramMap map[string]interface{}
@@ -516,21 +519,36 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "verifySha256":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertVerifySha256(currentNode, variables, dockerImage), ID: id})
 	case "artifactoryUpload":
-		attr, ok := currentNode.AttributesMap["harness-attribute"]
+		specStr, ok := currentNode.ParameterMap["spec"].(string)
 		if !ok {
+			fmt.Println("Invalid or missing 'spec' in ParameterMap for artifactoryUpload")
 			return nil, nil
 		}
-		fileSpecs, err := jenkinsjson.ParseHarnessAttribute(attr)
+
+		var spec jenkinsjson.Spec
+		err := json.Unmarshal([]byte(specStr), &spec)
 		if err != nil {
+			fmt.Println("Error unmarshalling 'spec' for artifactoryUpload:", err)
 			return nil, nil
 		}
-		for _, fileSpec := range fileSpecs {
+
+		// Iterate over each file specification
+		for _, fileSpec := range spec.Files {
+			// Create a new node with 'pattern' and 'target' in ParameterMap
 			newNode := currentNode
-			newNode.AttributesMap = map[string]string{
-				"pattern": fileSpec.Pattern,
-				"target":  fileSpec.Target,
+			newNode.ParameterMap["pattern"] = fileSpec.Pattern
+			newNode.ParameterMap["target"] = fileSpec.Target
+
+			// Convert and append the Artifactory Upload step
+			convertedStep := jenkinsjson.ConvertArtifactUploadJfrog(newNode, variables, timeout)
+			if convertedStep != nil {
+				*stepWithIDList = append(*stepWithIDList, StepWithID{
+					Step: convertedStep,
+					ID:   id,
+				})
+			} else {
+				fmt.Println("Failed to convert artifactoryUpload step")
 			}
-			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertArtifactUploadJfrog(newNode, variables, timeout), ID: id})
 		}
 
 	case "anchore":
@@ -896,27 +914,25 @@ func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]Ste
 func handleTool(currentNode jenkinsjson.Node, processedTools *ProcessedTools) {
 	// Check if this node is a "tool" node
 	if stepType, ok := currentNode.AttributesMap["jenkins.pipeline.step.type"]; ok && stepType == "tool" {
-		if attr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
-			toolAttributes := make(map[string]string)
-			if err := json.Unmarshal([]byte(attr), &toolAttributes); err == nil {
-				fullToolType := toolAttributes["type"]
-				toolType := ""
-				if parts := strings.Split(fullToolType, "$"); len(parts) > 1 {
-					toolType = parts[1]
-				} else {
-					toolType = extractToolType(fullToolType)
-				}
+		typeVal, typeExists := currentNode.ParameterMap["type"].(string)
+		if typeExists {
+			toolType := ""
+			// Determine the tool type from 'typeVal'
+			if parts := strings.Split(typeVal, "$"); len(parts) > 1 {
+				toolType = parts[1]
+			} else {
+				toolType = extractToolType(typeVal)
+			}
 
-				switch toolType {
-				case "MavenInstallation":
-					processedTools.MavenPresent = true
-				case "GradleInstallation":
-					processedTools.GradlePresent = true
-				case "AntInstallation":
-					processedTools.AntPresent = true
-				default:
-					processedTools.ToolProcessed = true
-				}
+			switch toolType {
+			case "MavenInstallation":
+				processedTools.MavenPresent = true
+			case "GradleInstallation":
+				processedTools.GradlePresent = true
+			case "AntInstallation":
+				processedTools.AntPresent = true
+			default:
+				processedTools.ToolProcessed = true
 			}
 		}
 	}
