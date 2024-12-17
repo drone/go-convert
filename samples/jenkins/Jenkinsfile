@@ -913,20 +913,35 @@ line3'''
                 }
             }
         }
-
         //Notify Endpoints
         post {
-        always {
-            script {
-                notifyEndpoints(
-                    endpoint: env.NOTIFICATION_ENDPOINT,
-                  
-                    notes: env.BUILD_NOTES,
-                    phase: 'COMPLETED',
-                    loglines: '10'
-                )
+            always {
+                script {
+                    notifyEndpoints(
+                            endpoint: env.NOTIFICATION_ENDPOINT,
+
+                            notes: env.BUILD_NOTES,
+                            phase: 'COMPLETED',
+                            loglines: '10'
+                    )
+                }
             }
-        }
+
+            // flywayrunner
+            stage('Flyway Migration: Apple Orange') {
+                steps {
+                    script {
+                        flywayrunner(
+                                credentialsId: "mysql_creds_01",
+                                url: 'jdbc:mysql://3.4.19.21:3306/flyway_test',
+                                flywayCommand: 'migrate',
+                                installationName: 'flyway03',
+                                locations: '/opt/hns/harness-plugins/flyway-test-files/migration_files',
+                                commandLineArgs: '-X'
+                        )
+                    }
+                }
+            }
         }
     }
 }
