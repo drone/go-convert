@@ -10,7 +10,7 @@ import (
 func TestConvertNotification(t *testing.T) { // Convert bytes to string
 
 	var tests []runner
-	tests = append(tests, prepare(t, "/notification/notification_snippet", &harness.Step{
+	tests = append(tests, prepare(t, "/Notification/notification_snippet", &harness.Step{
 		Id:   "notifyEndpointsc1ca8f",
 		Name: "Notification",
 		Type: "plugin",
