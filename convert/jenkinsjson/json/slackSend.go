@@ -11,6 +11,7 @@ var JenkinsToDroneSlackSendParamMapperList = []JenkinsToDroneParamMapper{
 	{"color", "color", StringType, nil},
 	{"message", "message", StringType, nil},
 	{"iconEmoji", "icon_emoji", StringType, nil},
+	{"notifyCommitters", "committers_slack_id", BoolType, nil},
 	// "teamDomain" e.g https://<teamDomain>.slack.com - Unsupported Jenkins field
 }
 

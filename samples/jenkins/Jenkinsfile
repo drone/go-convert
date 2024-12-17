@@ -824,7 +824,6 @@ line3'''
                 }
             }
         }
-
         stage('Quality Gate') {
             steps {
                 script {
@@ -884,8 +883,53 @@ line3'''
                 gatlingArchive() // or archiveArtifacts(artifacts: 'target/gatling/index.html')
             }
         }
+        // slackUserIdFromEmail
+        stage('Retrieve Slack User ID') {
+            steps {
+                script {
+                    SLACK_USER_ID = slackUserIdFromEmail(
+                        botUser: true,
+                        email: 'slack_user@gmail.com',
+                        tokenCredentialId: 'slack_token_01'
+                    )
+                    echo "Slack User ID for email slack_user@gmail.com: ${SLACK_USER_ID}"
+                }
+            }
+        }
+        stage('Use Slack User ID') {
+            steps {
+                echo "Perform actions using Slack User ID: ${SLACK_USER_ID}"
+            }
+        }
+        // slackUserIdsFromCommitters
+        stage('Get Slack User IDs from Committers') {
+            steps {
+                script {
+                    def slackUserIds = slackUserIdsFromCommitters(
+                            botUser: true,
+                            tokenCredentialId: 'slack_creds_01'
+                    )
+                    echo "Slack User IDs: ${slackUserIds ?: 'No IDs found'}"
+                }
+            }
+        }
+
+        //Notify Endpoints
+        post {
+        always {
+            script {
+                notifyEndpoints(
+                    endpoint: env.NOTIFICATION_ENDPOINT,
+                    notes: env.BUILD_NOTES,
+                    phase: 'COMPLETED',
+                    loglines: '10'
+                )
+            }
+        }
+        }
 
         //TestNG
+        stages {
         stage('Generate Sample TestNG Results') {
             steps {
                 script {
@@ -915,22 +959,24 @@ line3'''
                 }
             }
         }
-        post {
-            always {
+    }
+
+    post {
+        always {
             // Publish TestNG results
-                testNG(
-                    reportFilenamePattern: '**/testng-results.xml',
-                    failedFails: 100,
-                    failedSkips: 100,
-                    unstableFails: 100,
-                    unstableSkips: 100,
-                    showFailedBuilds: true,
-                    failureOnFailedTestConfig: false,
-                    escapeTestDescp: true,
-                    escapeExceptionMsg: true,
-                    thresholdMode: 1
-                )
-            }
+            testNG(
+                reportFilenamePattern: '**/testng-results.xml',
+                failedFails: 100,
+                failedSkips: 100,
+                unstableFails: 100,
+                unstableSkips: 100,
+                showFailedBuilds: true,
+                failureOnFailedTestConfig: false,
+                escapeTestDescp: true,
+                escapeExceptionMsg: true,
+                thresholdMode: 1
+            )
         }
+    }
     }
 }

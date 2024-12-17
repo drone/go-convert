@@ -201,7 +201,7 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 			// Convert stageID to integer and store it with the stage
 			id, err := strconv.Atoi(stageID)
 			if err != nil {
-				fmt.Println("Error converting stage ID to integer:", err)
+				fmt.Printf("Error converting stage ID to integer, spanId=%s: %v\n", jsonNode.SpanId, err)
 				id = 0
 			}
 
@@ -665,6 +665,12 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "slackUploadFile":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSlackUploadFile(currentNode, variables), ID: id})
 
+	case "slackUserIdFromEmail":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSlackUserIdFromEmail(currentNode, variables), ID: id})
+
+	case "slackUserIdsFromCommitters":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSlackUserIdsFromCommitters(currentNode, variables), ID: id})
+
 	case "nexusArtifactUploader":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertNexusArtifactUploader(currentNode, variables), ID: id})
 
@@ -735,6 +741,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 
 	case "pagerduty":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPagerDuty(currentNode, currentNode.ParameterMap), ID: id})
+
+	case "notifyEndpoints":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertNotification(currentNode, currentNode.ParameterMap), ID: id})
 
 	case "gatlingArchive":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertGatling(currentNode), ID: id})
