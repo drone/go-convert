@@ -298,8 +298,8 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	var repo *harness.Repository
 
 	// parameterMap and harness-attribute are now aligned in recent trace files and always contain identical data.
-	// However, keep this for backwards compatibility with older traces that might
-	// only contain harness-attribute.
+	// However, if older traces can only contain harness-attribute, let's update parameterMap manually as we
+	// use it exclusively for lookups below.
 	if len(currentNode.ParameterMap) == 0 {
 		if harnessAttr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
 			var paramMap map[string]interface{}
@@ -519,7 +519,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "verifySha256":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertVerifySha256(currentNode, variables, dockerImage), ID: id})
 	case "artifactoryUpload":
-		// Updated artifactoryUpload handling using ParameterMap
 		specStr, ok := currentNode.ParameterMap["spec"].(string)
 		if !ok {
 			fmt.Println("Invalid or missing 'spec' in ParameterMap for artifactoryUpload")
