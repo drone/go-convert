@@ -41,7 +41,6 @@ func TestConvertArtifactUploadJfrog(t *testing.T) {
 					"jenkins.pipeline.step.plugin.name":    "artifactory",
 					"jenkins.pipeline.step.plugin.version": "4.0.8",
 					"jenkins.pipeline.step.type":           "artifactoryUpload",
-					"harness-attribute":                    "{\n  \"failNoOp\" : false,\n  \"server\" : \"UNSERIALIZABLE\",\n  \"buildInfo\" : \"UNSERIALIZABLE\",\n  \"spec\" : \"{\\n                    \\\"files\\\": [{\\n                        \\\"pattern\\\": \\\"output1.txt\\\",\\n                        \\\"target\\\": \\\"/artifactory/generic-local/op-ci/\\\"\\n                    },{\\n                        \\\"pattern\\\": \\\"output2.txt\\\",\\n                        \\\"target\\\": \\\"/artifactory/generic-local/op-ci2/\\\"\\n                    },{\\n                        \\\"pattern\\\": \\\"output3.txt\\\",\\n                        \\\"target\\\": \\\"/artifactory/generic-local/op-ci3/\\\"\\n                    }]\\n                 }\"\n}",
 					"harness-others":                       "",
 				},
 				Name:         "artifactuploadjfrog #8",

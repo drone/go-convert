@@ -441,8 +441,8 @@ func TestHandleTool_ValidToolNodeMaven(t *testing.T) {
 	toolNode := jenkinsjson.Node{
 		AttributesMap: map[string]string{
 			"jenkins.pipeline.step.type": "tool",
-			"harness-attribute":          `{"type": "$MavenInstallation"}`,
 		},
+		ParameterMap: map[string]interface{}{"type": "$MavenInstallation"},
 	}
 	processedTools := &ProcessedTools{}
 	handleTool(toolNode, processedTools)
@@ -456,8 +456,8 @@ func TestHandleTool_ValidToolNodeGradle(t *testing.T) {
 	toolNode := jenkinsjson.Node{
 		AttributesMap: map[string]string{
 			"jenkins.pipeline.step.type": "tool",
-			"harness-attribute":          `{"type": "$GradleInstallation"}`,
 		},
+		ParameterMap: map[string]interface{}{"type": "$GradleInstallation"},
 	}
 	processedTools := &ProcessedTools{}
 	handleTool(toolNode, processedTools)
@@ -471,8 +471,8 @@ func TestHandleTool_ValidToolNodeAnt(t *testing.T) {
 	toolNode := jenkinsjson.Node{
 		AttributesMap: map[string]string{
 			"jenkins.pipeline.step.type": "tool",
-			"harness-attribute":          `{"type": "$AntInstallation"}`,
 		},
+		ParameterMap: map[string]interface{}{"type": "$AntInstallation"},
 	}
 	processedTools := &ProcessedTools{}
 	handleTool(toolNode, processedTools)
