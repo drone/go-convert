@@ -14,6 +14,45 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+func TestConvert(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "test-build-scan-push",
+			input: "./convertTestFiles/convert/test-build-scan-push.json",
+			want:  "./convertTestFiles/convert/test-build-scan-push.yaml",
+		},
+		{
+			name:  "build-and-multiple-deploy",
+			input: "./convertTestFiles/convert/build-and-multiple-deploy.json",
+			want:  "./convertTestFiles/convert/build-and-multiple-deploy.yaml",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			converter := Converter{}
+			got, err := converter.ConvertFile(tc.input)
+			if err != nil {
+				t.Error("Failed to convert file", tc.input, err)
+			}
+
+			want, err := os.ReadFile(tc.want)
+			if err != nil {
+				t.Error("Failed to read the expected output file", tc.want, err)
+			}
+
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("TestConvert mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+
+}
+
 func TestConvertMaven(t *testing.T) {
 	workingDir, err := os.Getwd()
 	if err != nil {

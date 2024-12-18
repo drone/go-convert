@@ -169,11 +169,8 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 		}
 	}
 
-	//if _, ok := childNode.AttributesMap["jenkins.pipeline.step.id"]; ok {
 	if jsonNode.AttributesMap["jenkins.pipeline.step.type"] == "stage" || jsonNode.AttributesMap["jenkins.pipeline.step.type"] == "node" {
 
-		//stageName, ok := childNode.AttributesMap["jenkins.pipeline.step.name"]
-		//if !ok || stageName == "" {
 		stageName := searchChildNodesForStageName(jsonNode)
 		if stageName == "" {
 			stageName = "Unnamed Stage"
