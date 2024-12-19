@@ -14,6 +14,45 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+func TestConvert(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{
+			name:  "test-build-scan-push",
+			input: "./convertTestFiles/convert/test-build-scan-push.json",
+			want:  "./convertTestFiles/convert/test-build-scan-push.yaml",
+		},
+		{
+			name:  "build-and-multiple-deploy",
+			input: "./convertTestFiles/convert/build-and-multiple-deploy.json",
+			want:  "./convertTestFiles/convert/build-and-multiple-deploy.yaml",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			converter := Converter{}
+			got, err := converter.ConvertFile(tc.input)
+			if err != nil {
+				t.Error("Failed to convert file", tc.input, err)
+			}
+
+			want, err := os.ReadFile(tc.want)
+			if err != nil {
+				t.Error("Failed to read the expected output file", tc.want, err)
+			}
+
+			if diff := cmp.Diff(want, got); diff != "" {
+				t.Errorf("TestConvert mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+
+}
+
 func TestConvertMaven(t *testing.T) {
 	workingDir, err := os.Getwd()
 	if err != nil {
@@ -441,8 +480,8 @@ func TestHandleTool_ValidToolNodeMaven(t *testing.T) {
 	toolNode := jenkinsjson.Node{
 		AttributesMap: map[string]string{
 			"jenkins.pipeline.step.type": "tool",
-			"harness-attribute":          `{"type": "$MavenInstallation"}`,
 		},
+		ParameterMap: map[string]interface{}{"type": "$MavenInstallation"},
 	}
 	processedTools := &ProcessedTools{}
 	handleTool(toolNode, processedTools)
@@ -456,8 +495,8 @@ func TestHandleTool_ValidToolNodeGradle(t *testing.T) {
 	toolNode := jenkinsjson.Node{
 		AttributesMap: map[string]string{
 			"jenkins.pipeline.step.type": "tool",
-			"harness-attribute":          `{"type": "$GradleInstallation"}`,
 		},
+		ParameterMap: map[string]interface{}{"type": "$GradleInstallation"},
 	}
 	processedTools := &ProcessedTools{}
 	handleTool(toolNode, processedTools)
@@ -471,8 +510,8 @@ func TestHandleTool_ValidToolNodeAnt(t *testing.T) {
 	toolNode := jenkinsjson.Node{
 		AttributesMap: map[string]string{
 			"jenkins.pipeline.step.type": "tool",
-			"harness-attribute":          `{"type": "$AntInstallation"}`,
 		},
+		ParameterMap: map[string]interface{}{"type": "$AntInstallation"},
 	}
 	processedTools := &ProcessedTools{}
 	handleTool(toolNode, processedTools)
@@ -758,6 +797,7 @@ func TestS3UploadWithGzipDisabled(t *testing.T) {
 	}
 
 	// Initialize the list to collect steps
+	stepGroupWithId := []StepGroupWithID{}
 	stepWithIDList := []StepWithID{}
 	processedTools := &ProcessedTools{}
 	variables := make(map[string]string)
@@ -765,7 +805,7 @@ func TestS3UploadWithGzipDisabled(t *testing.T) {
 	dockerImage := "plugin/s3upload"
 
 	// Call the function collectStepsWithID to collect the steps
-	collectStepsWithID(node, &stepWithIDList, processedTools, variables, timeout, dockerImage)
+	collectStepsWithID(node, &stepGroupWithId, &stepWithIDList, processedTools, variables, timeout, dockerImage)
 
 	// Expecting single step for s3uplaod without gzip
 	if len(stepWithIDList) != 1 {
@@ -840,6 +880,7 @@ func TestCollectStepsWithIDS3UploadMultipleEntry(t *testing.T) {
 	}
 
 	// Initialize the list to collect steps
+	stepGroupWithId := []StepGroupWithID{}
 	stepWithIDList1 := []StepWithID{}
 	processedTools := &ProcessedTools{}
 	variables := make(map[string]string)
@@ -847,7 +888,7 @@ func TestCollectStepsWithIDS3UploadMultipleEntry(t *testing.T) {
 	dockerImage := "plugin/s3upload"
 
 	// Call the function collectStepsWithID to collect the steps
-	collectStepsWithID(node, &stepWithIDList1, processedTools, variables, timeout, dockerImage)
+	collectStepsWithID(node, &stepGroupWithId, &stepWithIDList1, processedTools, variables, timeout, dockerImage)
 
 	// Expecting 3 steps: step1: for the gzip false case (only s3upload)
 	// step2:  gzip true(Converts3Archive) and step3: s3upload .
