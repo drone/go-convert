@@ -426,7 +426,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 				clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage)
 			}
 		}
-	case "sh":
+	case "sh", "sh_unifiedTraceBranch":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage), ID: id})
 	case "bat":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertBat(currentNode, variables, timeout, defaultWindowsImage), ID: id})
@@ -862,7 +862,7 @@ func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]Ste
 	for _, child := range currentNode.Children {
 		// Check if this child contains the type "sh"
 		stepType, ok := child.AttributesMap["jenkins.pipeline.step.type"]
-		if ok && stepType == "sh" {
+		if ok && (stepType == "sh" || stepType == "sh_unifiedTraceBranch") {
 			script, scriptOk := child.ParameterMap["script"]
 			if scriptOk {
 				// Check if the tool is not processed
