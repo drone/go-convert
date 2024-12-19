@@ -801,6 +801,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 	case "waitForQualityGate":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSonarQualityGate(currentNode), ID: id})
 
+	case "testNG":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertTestng(currentNode, currentNode.ParameterMap), ID: id})
+
 	default:
 		placeholderStr := fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"])
 		b, err := json.MarshalIndent(currentNode.ParameterMap, "", "  ")
