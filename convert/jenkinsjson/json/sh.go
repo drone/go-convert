@@ -6,7 +6,7 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
-func ConvertSh(node Node, variables map[string]string, timeout string, dockerImage string) *harness.Step {
+func ConvertSh(node Node, variables map[string]string, timeout string, dockerImage string, name string) *harness.Step {
 	shStep := &harness.Step{
 		Name:    SanitizeForName(node.SpanName),
 		Timeout: timeout,
@@ -14,7 +14,7 @@ func ConvertSh(node Node, variables map[string]string, timeout string, dockerIma
 		Type:    "script",
 		Spec: &harness.StepExec{
 			Image: dockerImage,
-			Shell: "sh",
+			Shell: name,
 			Run:   fmt.Sprintf("%v", node.ParameterMap["script"]),
 		},
 	}
