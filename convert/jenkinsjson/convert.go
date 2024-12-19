@@ -59,6 +59,10 @@ type ProcessedTools struct {
 	SonarCubePresent   bool
 }
 
+// In a unified pipeline trace, 'sh' types identified as branched/conditional will be pre-fixed with '_unifiedTraceBranch'
+// This is done because we don't want these steps to be merged, so that pipeline analysis is easier.
+const unifiedBranchedShStep = "sh_unifiedTraceBranch"
+
 var mavenGoals string
 var gradleGoals string
 
@@ -426,8 +430,11 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 				clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage)
 			}
 		}
+
 	case "sh":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage), ID: id})
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage, ""), ID: id})
+	case unifiedBranchedShStep:
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage, "_unifiedTraceBranch"), ID: id})
 	case "bat":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertBat(currentNode, variables, timeout, defaultWindowsImage), ID: id})
 	case "pwsh":
@@ -862,7 +869,7 @@ func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]Ste
 	for _, child := range currentNode.Children {
 		// Check if this child contains the type "sh"
 		stepType, ok := child.AttributesMap["jenkins.pipeline.step.type"]
-		if ok && stepType == "sh" {
+		if ok && (stepType == "sh" || stepType == unifiedBranchedShStep) {
 			script, scriptOk := child.ParameterMap["script"]
 			if scriptOk {
 				// Check if the tool is not processed
