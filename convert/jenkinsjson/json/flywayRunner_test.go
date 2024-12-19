@@ -49,7 +49,7 @@ var expectedFywayRunnerStep = `{
     "name": "flywayrunner",
     "type": "plugin",
     "spec": {
-        "image": "plugins/drone-flyway-runner",
+        "image": "plugins/flyway",
         "with": {
             "command_line_args": "-X",
             "flyway_command": "migrate",
