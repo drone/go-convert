@@ -1,0 +1,25 @@
+pipeline:
+  stages:
+  - clone:
+      disabled: true
+    name: default
+    runtime: machine
+    steps:
+    - name: backend
+      run:
+        container:
+          image: golang
+        env:
+          PLUGIN_ARTIFACT_BUCKET_NAME: unified-versioning-bucket
+          PLUGIN_ARTIFACT_REGION: us-east-1
+          PLUGIN_LOG_LEVEL: info
+        script: |-
+          go build
+          go test
+    - name: frontend
+      run:
+        container:
+          image: node
+        script: |-
+          npm install
+          npm run test

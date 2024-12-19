@@ -1,0 +1,21 @@
+pipeline:
+  stages:
+  - clone:
+      disabled: true
+    name: default
+    runtime: machine
+    steps:
+    - name: backend
+      run:
+        container:
+          image: golang
+        script: |-
+          go build
+          go test
+    - name: frontend
+      run:
+        container:
+          image: node
+        script: |-
+          npm install
+          npm run test
