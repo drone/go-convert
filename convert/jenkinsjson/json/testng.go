@@ -34,13 +34,17 @@ func ConvertTestng(node Node, parameterMap map[string]interface{}) *harness.Step
 	if val, ok := arguments["failedFails"].(float64); ok {
 		failedFails = int(val)
 	}
+	const (
+		ThresholdModeAbsolute   = 1
+		ThresholdModePercentage = 2
+	)
 
 	thresholdMode := "absolute" // Default value
 	if val, ok := arguments["thresholdMode"].(float64); ok {
 		switch int(val) {
-		case 1:
+		case ThresholdModeAbsolute:
 			thresholdMode = "absolute"
-		case 2:
+		case ThresholdModePercentage:
 			thresholdMode = "percentage"
 		default:
 			fmt.Printf("Warning: Unsupported thresholdMode value: %v. Defaulting to 'absolute'\n", val)
