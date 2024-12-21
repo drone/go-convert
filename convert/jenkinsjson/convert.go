@@ -335,12 +335,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 		}
 	}
 
-	if len(currentNode.AttributesMap) == 0 {
-		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage)
-		}
-	}
-
 	// Handle all tool nodes at the beginning
 	handleTool(currentNode, processedTools)
 
@@ -357,35 +351,21 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 	switch currentNode.AttributesMap["jenkins.pipeline.step.type"] {
 	case "node":
 		collectStagesWithID(&currentNode, processedTools, stepGroupWithId, variables, dockerImage)
-	case "parallel", "script", "ws", "ansiColor":
-		// node, parallel, withEnv, and withMaven are wrapper layers to hold actual steps
-		// parallel should be handled at its parent
-		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage)
-		}
+		return clone, repo
+	case "", "parallel", "script", "withAnt", "tool", "envVarsForTool", "ws", "ansiColor", "newBuildInfo", "getArtifactoryServer":
+		// for spans where we should ignore its content and just process the children
+
 	case "withEnv":
 		var1 := ExtractEnvironmentVariables(currentNode)
-		combinedVariables := mergeMaps(variables, var1)
-
-		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, combinedVariables, timeout, dockerImage)
-		}
+		variables = mergeMaps(variables, var1)
 
 	case "withCredentials":
 		withCredentialsVars := jenkinsjson.ConvertWithCredentials(currentNode)
-		combinedVariables := mergeMaps(variables, withCredentialsVars)
-
-		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, combinedVariables, timeout, dockerImage)
-		}
+		variables = mergeMaps(variables, withCredentialsVars)
 
 	case "withDockerContainer":
 		if img, ok := currentNode.ParameterMap["image"].(string); ok {
 			dockerImage = img
-			// fmt.Println(dockerImage1)
-		}
-		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage)
 		}
 
 	case "stage":
@@ -425,10 +405,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 			} else {
 				collectStagesWithID(&currentNode, processedTools, stepGroupWithId, variables, dockerImage)
 			}
-		} else {
-			for _, child := range currentNode.Children {
-				clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage)
-			}
+			return clone, repo
 		}
 
 	case "sh":
@@ -494,9 +471,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 				fmt.Println("Time key does not exist in ParameterMap or its value is not a recognized type.")
 			}
 		}
-		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage)
-		}
 	case "git", "checkout":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertCheckout(currentNode, variables), ID: id})
 	case "archiveArtifacts":
@@ -514,9 +488,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 		// dir can have repeated dir steps in its children, these do not include the ParametersMap
 		if dirStep, ok := jenkinsjson.ConvertDir(currentNode, variables); ok {
 			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: dirStep, ID: id})
-		}
-		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage)
 		}
 	case "deleteDir":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDeleteDir(currentNode, variables), ID: id})
@@ -548,14 +519,14 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 		specStr, ok := currentNode.ParameterMap["spec"].(string)
 		if !ok {
 			fmt.Println("Invalid or missing 'spec' in ParameterMap for artifactoryUpload")
-			return nil, nil
+			break
 		}
 
 		var spec jenkinsjson.Spec
 		err := json.Unmarshal([]byte(specStr), &spec)
 		if err != nil {
 			fmt.Println("Error unmarshalling 'spec' for artifactoryUpload:", err)
-			return nil, nil
+			break
 		}
 
 		// Iterate over each file specification
@@ -583,10 +554,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 	case "dockerPushStep", "rtDockerPush":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDockerPushStep(currentNode, variables, timeout), ID: id})
 
-	case "newBuildInfo", "getArtifactoryServer":
-		return nil, nil
-	case "":
-	case "withAnt", "tool", "envVarsForTool":
 	case "withMaven":
 		clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "maven", "maven", "maven:latest", variables, timeout)
 	case "withGradle":
@@ -601,6 +568,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 		if symbol, ok := currentNode.ParameterMap["delegate"].(map[string]interface{})["symbol"]; ok && symbol == "nodejs" {
 			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertNodejs(currentNode), ID: id})
 		}
+		return clone, repo
 
 	case "zip":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertZip(currentNode, variables), ID: id})
@@ -821,12 +789,12 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 			},
 			Desc: "This is a place holder for: " + currentNode.AttributesMap["jenkins.pipeline.step.type"],
 		}, ID: id})
-
-		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage)
-		}
-
 	}
+
+	for _, child := range currentNode.Children {
+		clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage)
+	}
+
 	return clone, repo
 }
 func mergeMaps(dest, src map[string]string) map[string]string {
