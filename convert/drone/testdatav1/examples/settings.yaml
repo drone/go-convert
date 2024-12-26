@@ -26,6 +26,4 @@ steps:
      auto_tag: true
      auto_tag_suffix: windows-1809-amd64
 
-
-
 ...

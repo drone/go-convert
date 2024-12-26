@@ -233,7 +233,18 @@ func convertSteps(src *v1.Pipeline, orgSecrets []string) []*v2.StepV1 {
 			case v.Detach:
 				continue
 			case isPlugin(v):
-				continue
+				stepV1 := &v2.StepV1{
+					Name: v.Name,
+				}
+				stepV1.RunSpec = v2.RunSpec{
+					Container: &v2.ContainerSpec{
+						Image:     v.Image,
+						Connector: v.Connector,
+					},
+					With: convertSettings(v.Settings, orgSecrets),
+					Env:  convertVariables(v.Environment, orgSecrets),
+				}
+				dst = append(dst, stepV1)
 			default:
 				stepV1 := &v2.StepV1{
 					Name: v.Name,
@@ -301,6 +312,7 @@ func convertBackground(src *v1.Step, orgSecrets []string) *v2.Step {
 
 func convertRun(src *v2.StepV1, orgSecrets []string) *v2.StepV1 {
 	runSpec := &v2.RunSpec{
+		With: src.Run.With,
 		Container: &v2.ContainerSpec{
 			Image:     src.Run.Container.Image,
 			Connector: src.Run.Container.Connector,
