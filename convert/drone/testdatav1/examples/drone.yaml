@@ -16,16 +16,8 @@ steps:
 
 - name: frontend
   image: node
-  settings:
-     dockerfile: docker/docker/Dockerfile.windows.amd64.1809
-     repo: plugins/buildx
-     username:
-       from_secret: docker_username
-     password:
-       from_secret: docker_password
-     auto_tag: true
-     auto_tag_suffix: windows-1809-amd64
-
-
+  commands:
+  - npm install
+  - npm run test
 
 ...

@@ -1,0 +1,28 @@
+pipeline:
+  stages:
+  - clone:
+      disabled: true
+    name: default
+    runtime: machine
+    steps:
+    - name: backend
+      run:
+        container:
+          image: golang
+        env:
+          PLUGIN_ARTIFACT_BUCKET_NAME: unified-versioning-bucket
+          PLUGIN_ARTIFACT_REGION: us-east-1
+          PLUGIN_LOG_LEVEL: info
+        script: |-
+          go build
+          go test
+    - container:
+        image: node
+      name: frontend
+      with:
+        auto_tag: true
+        auto_tag_suffix: windows-1809-amd64
+        dockerfile: docker/docker/Dockerfile.windows.amd64.1809
+        password: <+secrets.getValue("docker_password")>
+        repo: plugins/buildx
+        username: <+secrets.getValue("docker_username")>

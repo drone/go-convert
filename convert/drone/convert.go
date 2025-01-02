@@ -33,7 +33,6 @@ import (
 // conversion context
 type context struct {
 	pipeline []*v1.Pipeline
-	stage    *v1.Pipeline
 }
 
 // Converter converts a Drone pipeline to a Harness
@@ -141,17 +140,11 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	//
 
 	// create the pipeline spec
-	pipeline := &v2.Pipeline{
-		Options: &v2.Default{
-			Registry: convertRegistry(ctx.pipeline),
-		},
-	}
+	pipeline := &v2.PipelineV1{}
 
 	// create the harness pipeline resource
-	config := &v2.Config{
-		Version: 1,
-		Kind:    "pipeline",
-		Spec:    pipeline,
+	config := &v2.ConfigV1{
+		Pipeline: pipeline,
 	}
 
 	for _, from := range ctx.pipeline {
@@ -165,23 +158,12 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 		case v1.KindPipeline:
 			// TODO pipeline.name removed from spec
 			// pipeline.Name = from.Name
-
-			pipeline.Stages = append(pipeline.Stages, &v2.Stage{
-				Name:     from.Name,
-				Type:     "ci",
-				When:     convertCond(from.Trigger),
-				Delegate: convertNode(from.Node),
-				Spec: &v2.StageCI{
-					Clone:    convertClone(from.Clone),
-					Envs:     copyenv(from.Environment),
-					Platform: convertPlatform(from.Platform),
-					Runtime:  convertRuntime(from),
-					Steps:    convertSteps(from, d.orgSecrets),
-					Volumes:  convertVolumes(from.Volumes),
-
-					// TODO support for delegate.selectors from from.Node
-					// TODO support for stage.variables
-				},
+			runtime := determineRuntime(from)
+			pipeline.Stages = append(pipeline.Stages, &v2.StageV1{
+				Name:    from.Name,
+				Clone:   convertCloneV1(&from.Clone),
+				Runtime: runtime,
+				Steps:   convertSteps(from, d.orgSecrets),
 			})
 		}
 	}
@@ -201,6 +183,13 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	out = bytes.ReplaceAll(out, []byte("/drone/src"), []byte("/harness"))
 
 	return out, nil
+}
+
+func determineRuntime(from *v1.Pipeline) string {
+	if from.Runtime != "" {
+		return from.Runtime
+	}
+	return "machine"
 }
 
 func convertRegistry(src []*v1.Pipeline) *v2.Registry {
@@ -236,26 +225,48 @@ func convertRegistry(src []*v1.Pipeline) *v2.Registry {
 	return dst
 }
 
-func convertSteps(src *v1.Pipeline, orgSecrets []string) []*v2.Step {
-	var dst []*v2.Step
-	for _, v := range src.Services {
-		if v != nil {
-			dst = append(dst, convertBackground(v, orgSecrets))
-		}
-	}
+func convertSteps(src *v1.Pipeline, orgSecrets []string) []*v2.StepV1 {
+	var dst []*v2.StepV1
 	for _, v := range src.Steps {
 		if v != nil {
 			switch {
 			case v.Detach:
-				dst = append(dst, convertBackground(v, orgSecrets))
+				continue
 			case isPlugin(v):
-				dst = append(dst, convertPlugin(v, orgSecrets))
+				stepV1 := &v2.StepV1{
+					Name: v.Name,
+				}
+				stepV1.RunSpec = v2.RunSpec{
+					Container: &v2.ContainerSpec{
+						Image:     v.Image,
+						Connector: v.Connector,
+					},
+					With: convertSettings(v.Settings, orgSecrets),
+					Env:  convertVariables(v.Environment, orgSecrets),
+				}
+				dst = append(dst, stepV1)
 			default:
-				dst = append(dst, convertRun(v, orgSecrets))
+				stepV1 := &v2.StepV1{
+					Name: v.Name,
+					Run: &v2.RunSpec{
+						Container: &v2.ContainerSpec{
+							Image:     v.Image,
+							Connector: v.Connector,
+						},
+						Env:    convertVariables(v.Environment, orgSecrets),
+						Script: joinCommands(v.Commands),
+					},
+				}
+				dst = append(dst, convertRun(stepV1, orgSecrets))
 			}
 		}
 	}
+
 	return dst
+}
+
+func joinCommands(commands []string) string {
+	return strings.Join(commands, "\n")
 }
 
 func convertPlugin(src *v1.Step, orgSecrets []string) *v2.Step {
@@ -299,25 +310,20 @@ func convertBackground(src *v1.Step, orgSecrets []string) *v2.Step {
 	}
 }
 
-func convertRun(src *v1.Step, orgSecrets []string) *v2.Step {
-	return &v2.Step{
-		Name: src.Name,
-		Type: "script",
-		When: convertCond(src.When),
-		Spec: &v2.StepExec{
-			Image:      src.Image,
-			Mount:      convertMounts(src.Volumes),
-			Privileged: src.Privileged,
-			Pull:       convertPull(src.Pull),
-			Shell:      convertShell(src.Shell),
-			User:       src.User,
-			Entrypoint: convertEntrypoint(src.Entrypoint),
-			Args:       convertArgs(src.Entrypoint, src.Command),
-			Run:        convertScript(src.Commands),
-			Envs:       convertVariables(src.Environment, orgSecrets),
-			Resources:  convertResourceLimits(&src.Resource),
-			// Volumes       // FIX
+func convertRun(src *v2.StepV1, orgSecrets []string) *v2.StepV1 {
+	runSpec := &v2.RunSpec{
+		With: src.Run.With,
+		Container: &v2.ContainerSpec{
+			Image:     src.Run.Container.Image,
+			Connector: src.Run.Container.Connector,
 		},
+		Env:    src.Run.Env,
+		Script: src.Run.Script,
+	}
+
+	return &v2.StepV1{
+		Name: src.Name,
+		Run:  runSpec,
 	}
 }
 
@@ -626,45 +632,16 @@ func convertShell(src string) string {
 	}
 }
 
-func convertRuntime(src *v1.Pipeline) *v2.Runtime {
-	if src.Type == "kubernetes" {
-		return &v2.Runtime{
-			Type: "kubernetes",
-			Spec: &v2.RuntimeKube{
-				// TODO should harness support `dns_config`
-				// TODO should harness support `host_aliases`
-				// TODO support for `tolerations`
-				Annotations:    src.Metadata.Annotations,
-				Labels:         src.Metadata.Labels,
-				Namespace:      src.Metadata.Namespace,
-				NodeSelector:   src.NodeSelector,
-				Node:           src.NodeName,
-				ServiceAccount: src.ServiceAccount,
-				Resources:      convertResourceRequests(&src.Resource),
-			},
+func convertCloneV1(from *v1.Clone) *v2.CloneStageV1 {
+	// If from is nil, set Disabled to true
+	if from == nil {
+		return &v2.CloneStageV1{
+			Disabled: true,
 		}
 	}
-	return &v2.Runtime{
-		Type: "machine",
-		Spec: v2.RuntimeMachine{},
+	return &v2.CloneStageV1{
+		Disabled: from.Disable || true,
 	}
-}
-
-func convertClone(src v1.Clone) *v2.CloneStage {
-	dst := new(v2.CloneStage)
-	if v := src.Depth; v != 0 {
-		dst.Depth = int64(v)
-	}
-	if v := src.Disable; v {
-		dst.Disabled = true
-	}
-	if v := src.SkipVerify; v {
-		dst.Insecure = true
-	}
-	if v := src.Trace; v {
-		dst.Trace = true
-	}
-	return dst
 }
 
 func convertNode(src map[string]string) []string {
