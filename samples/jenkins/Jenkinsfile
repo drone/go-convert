@@ -612,7 +612,7 @@ line3'''
             steps {
                 javadoc javadocDir: 'complete/build/docs/javadoc', keepAll: true
             }
-        }
+        }    
         //Kube-ctl
         stage('Check Docker') {
             steps {
@@ -821,22 +821,27 @@ line3'''
         //Nodejs conversion Step
         stage('Install Packages') {
             steps {
-                // Set up the NodeJS environment
-                nodejs(nodeJSInstallationName: 'node') {
-                    sh '''
-                        # Ensure npm uses the public registry
-                        echo "registry=https://registry.npmjs.org/" > .npmrc
-                        npm install
-                    '''
+                withSonarQubeEnv('SonarCloud') { // Matches the name in Jenkins configuration
+                    sh "${SONAR_SCANNER}  -Dsonar.projectKey=vanisrikanithi_Test-Sonarqube" +
+               '-Dsonar.organization=vanisrikanithi' +
+               '-Dsonar.login=b751ddb91e11f466d7cdfa0abd65b4a6c393d938 ' +
+               '-Dsonar.sources=src ' +
+               '-Dsonar.java.binaries=target/classes'
                 }
             }
         }
-
-        stage('Run Tests') {
+        stage('Quality Gate') {
             steps {
-                nodejs(nodeJSInstallationName: 'node') {
-                    // Run npm test to execute the "test" script in package.json
-                    sh 'npm test'
+                script {
+                    def qualityGate = waitForQualityGate()
+                    // If the quality gate fails, log the status but don't abort the pipeline
+                    if (qualityGate.status != 'OK' && qualityGate.status != 'NONE') {
+                        echo "Quality Gate failed with status: ${qualityGate.status}. Continuing the pipeline."
+            } else if (qualityGate.status == 'NONE') {
+                        echo 'Quality Gate status is NONE. Check SonarQube configuration.'
+            } else {
+                        echo "Quality Gate passed with status: ${qualityGate.status}."
+                    }
                 }
             }
         }
@@ -884,61 +889,116 @@ line3'''
                 gatlingArchive() // or archiveArtifacts(artifacts: 'target/gatling/index.html')
             }
         }
-        //Ansible-Playbook
-        stage('Install Homebrew') {
+        // slackUserIdFromEmail
+        stage('Retrieve Slack User ID') {
             steps {
                 script {
-                    sh '''
-                    if ! command -v brew &> /dev/null; then
-                        echo "Homebrew not found. Installing..."
-                        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-                    else
-                        echo "Homebrew is already installed."
-                    fi
-                    '''
+                    SLACK_USER_ID = slackUserIdFromEmail(
+                        botUser: true,
+                        email: 'slack_user@gmail.com',
+                        tokenCredentialId: 'slack_token_01'
+                    )
+                    echo "Slack User ID for email slack_user@gmail.com: ${SLACK_USER_ID}"
+                }
+            }
+        }
+        stage('Use Slack User ID') {
+            steps {
+                echo "Perform actions using Slack User ID: ${SLACK_USER_ID}"
+            }
+        }
+        // slackUserIdsFromCommitters
+        stage('Get Slack User IDs from Committers') {
+            steps {
+                script {
+                    def slackUserIds = slackUserIdsFromCommitters(
+                            botUser: true,
+                            tokenCredentialId: 'slack_creds_01'
+                    )
+                    echo "Slack User IDs: ${slackUserIds ?: 'No IDs found'}"
+                }
+            }
+        }
+        //Notify Endpoints
+        post {
+            always {
+                script {
+                    notifyEndpoints(
+                            endpoint: env.NOTIFICATION_ENDPOINT,
+
+                            notes: env.BUILD_NOTES,
+                            phase: 'COMPLETED',
+                            loglines: '10'
+                    )
+                }
+            }
+
+            // flywayrunner
+            stage('Flyway Migration: Apple Orange') {
+                steps {
+                    script {
+                        flywayrunner(
+                                credentialsId: "mysql_creds_01",
+                                url: 'jdbc:mysql://3.4.19.21:3306/flyway_test',
+                                flywayCommand: 'migrate',
+                                installationName: 'flyway03',
+                                locations: '/opt/hns/harness-plugins/flyway-test-files/migration_files',
+                                commandLineArgs: '-X'
+                        )
+                    }
                 }
             }
         }
 
-        stage('Install Ansible') {
+        //TestNG
+        stages {
+        stage('Generate Sample TestNG Results') {
             steps {
                 script {
-                    sh 'brew install ansible'
+                    // Create a sample testng-results.xml inline
+                    def testngResults = '''<?xml version="1.0" encoding="UTF-8"?>
+                    <testng-results skipped="0" failed="1" ignored="0" total="3" passed="2">
+                      <suite name="Sample Suite" duration-ms="58" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z">
+                        <test name="Sample Test" duration-ms="58" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z">
+                          <class name="com.example.TestClass">
+                            <test-method status="PASS" name="testMethod1" duration-ms="10" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z"/>
+                            <test-method status="PASS" name="testMethod2" duration-ms="15" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z"/>
+                            <test-method status="FAIL" name="testMethod3" duration-ms="20" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z">
+                              <exception class="java.lang.AssertionError">
+                                <message><![CDATA[expected [true] but found [false]]]></message>
+                                <full-stacktrace><![CDATA[java.lang.AssertionError: expected [true] but found [false]
+                                    at org.testng.Assert.fail(Assert.java:99)
+                                    at com.example.TestClass.testMethod3(TestClass.java:25)]]></full-stacktrace>
+                              </exception>
+                            </test-method>
+                          </class>
+                        </test>
+                      </suite>
+                    </testng-results>'''
+
+                    // Write the XML content to testng-results.xml in the workspace
+                    writeFile(file: 'testng-results.xml', text: testngResults)
                 }
             }
         }
+    }
 
-        stage('Run Ansible Playbook') {
-            steps {
-                ansiblePlaybook(
-                    playbook: "${ANSIBLE_PLAYBOOK}",
-                    become: true, // Enable privilege escalation
-                    becomeUser: 'root', // Specify user for escalation
-                    checkMode: false, // Disable check mode
-                    colorized: true, // Enable colored output
-                    credentialsId: '', // Optional credentials ID
-                    disableHostKeyChecking: true, // Disable host key checking
-                    dynamicInventory: false, // Use static inventory
-                    extraVars: [ // Specify extra variables
-                        var1: 'value1',
-                        var2: 'value2'
-                    ],
-                    extras: '--diff --timeout=30', // Additional flags
-                    forks: 5, // Number of parallel processes
-                    hostKeyChecking: false, // Alias for disableHostKeyChecking
-                    installation: 'Default', // Specify installation
-                    inventory: 'inventory.ini', // Inventory file path
-                    inventoryContent: '', // Inline inventory content
-                    limit: 'all', // Restrict to specific hosts
-                    skippedTags: 'skip_tag1,skip_tag2', // Tags to skip
-                    startAtTask: 'start_task_name', // Start execution at a specific task
-                    sudo: false,
-                    sudoUser: '',
-                    tags: 'tag1,tag2', // Tags to execute
-                    vaultCredentialsId: '', // Vault credentials ID
-                    vaultTmpPath: "${ANSIBLE_VAULT_TMP_PATH}" // Path to vault password file
-                )
-            }
+    post {
+        always {
+            // Publish TestNG results
+            testNG(
+                reportFilenamePattern: '**/testng-results.xml',
+                failedFails: 100,
+                failedSkips: 100,
+                unstableFails: 100,
+                unstableSkips: 100,
+                showFailedBuilds: true,
+                failureOnFailedTestConfig: false,
+                escapeTestDescp: true,
+                escapeExceptionMsg: true,
+                thresholdMode: 1
+            )
         }
+    }
     }
 }

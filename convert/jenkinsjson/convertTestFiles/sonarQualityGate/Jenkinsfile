@@ -1,0 +1,81 @@
+pipeline {
+    agent any
+
+    environment {
+        // SonarScanner version to download
+        SONAR_SCANNER_VERSION = '4.7.0.2747'
+    }
+
+    tools {
+        maven 'maven1'  // Make sure this matches the name you gave to your Maven installation in Jenkins
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Clone the repository
+                git url: 'https://github.com/SonarSource/sonar-scanner-maven.git', branch: 'master'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                // Install Maven dependencies and build the project
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Debug Workspace') {
+            steps {
+                sh 'ls -l' // Debug workspace to ensure 'src' directory exists
+            }
+        }
+        stage('Prepare SonarScanner') {
+            steps {
+                script {
+                    sh 'rm -rf sonar-scanner'
+                    // Download and configure SonarScanner
+                    sh """
+mkdir -p sonar-scanner
+curl -k -o sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}.zip
+unzip -q sonar-scanner-cli.zip -d sonar-scanner
+mv sonar-scanner/sonar-scanner-* sonar-scanner/sonar-scanner
+export PATH=\$PWD/sonar-scanner/sonar-scanner/bin:\$PATH
+"""
+                }
+                script {
+                    env.SONAR_SCANNER = "${pwd()}/sonar-scanner/sonar-scanner/bin/sonar-scanner"
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarCloud') { // Matches the name in Jenkins configuration
+                    sh "${SONAR_SCANNER}  -Dsonar.projectKey=vanisrikanithi_Test-Sonarqube" +
+               '-Dsonar.organization=vanisrikanithi' +
+               '-Dsonar.login=b751ddb91e11f466d7cdfa0abd65b4a6c393d938 ' +
+               '-Dsonar.sources=src ' +
+               '-Dsonar.java.binaries=target/classes'
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                script {
+                    def qualityGate = waitForQualityGate()
+                    // If the quality gate fails, log the status but don't abort the pipeline
+                    if (qualityGate.status != 'OK' && qualityGate.status != 'NONE') {
+                        echo "Quality Gate failed with status: ${qualityGate.status}. Continuing the pipeline."
+            } else if (qualityGate.status == 'NONE') {
+                        echo 'Quality Gate status is NONE. Check SonarQube configuration.'
+            } else {
+                        echo "Quality Gate passed with status: ${qualityGate.status}."
+                    }
+                }
+            }
+        }
+
+    }
+}

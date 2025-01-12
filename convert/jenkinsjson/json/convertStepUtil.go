@@ -159,6 +159,8 @@ func SafeAssignWithPropertiesTyped(node *Node, withProperties *map[string]interf
 		newVal, valOk = CastTo[string](val)
 	case Float64Type:
 		newVal, valOk = CastTo[float64](val)
+	case StringToFloat64Type:
+		newVal, valOk = FloatStringToFloat64Val(val.(string))
 	case BoolType:
 		newVal, valOk = CastTo[bool](val)
 	case InterfaceListType:
@@ -171,6 +173,11 @@ func SafeAssignWithPropertiesTyped(node *Node, withProperties *map[string]interf
 	}
 
 	(*withProperties)[droneKey] = newVal
+}
+
+func FloatStringToFloat64Val(s string) (float64, bool) {
+	val, err := strconv.ParseFloat(s, 64)
+	return val, err == nil
 }
 
 func CastTo[T any](jenkinsParamInterface interface{}) (T, bool) {
@@ -222,12 +229,13 @@ func ToFloat64FromString(s string) (float64, error) {
 }
 
 const (
-	Float64Type       = "float64"
-	StringType        = "string"
-	BoolType          = "bool"
-	InterfaceListType = "InterfaceList"
-	DontCare          = "DontCare"
-	HarnessAttribute  = "harness-attribute"
+	Float64Type         = "float64"
+	StringToFloat64Type = "stringToFloat64"
+	StringType          = "string"
+	BoolType            = "bool"
+	InterfaceListType   = "InterfaceList"
+	DontCare            = "DontCare"
+	HarnessAttribute    = "harness-attribute"
 )
 
 //

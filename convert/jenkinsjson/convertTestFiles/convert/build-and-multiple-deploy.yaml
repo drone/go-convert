@@ -1,0 +1,2564 @@
+version: 1
+kind: pipeline
+type: ""
+name: ExampleProcessing workflows application develop_17
+spec:
+  stages:
+  - desc: ""
+    id: build
+    name: build
+    strategy: null
+    delegate: []
+    status: null
+    type: ci
+    when: null
+    failure: null
+    inputs: {}
+    spec:
+      cache: null
+      clone: null
+      platform: null
+      runtime: null
+      steps:
+      - id: agent8bc8d9
+        name: agent
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: checkout_github_com_example_repoe625ad
+            name: 'checkout: github.com/example/repo'
+            desc: ""
+            type: plugin
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: plugins/drone-git:latest
+              name: ""
+              uses: ""
+              connector: ""
+              pull: ""
+              envs: {}
+              reports: []
+              privileged: false
+              user: ""
+              group: ""
+              network: ""
+              with:
+                branch: develop
+                depth: ""
+                git_url: https://github.com/example/repo.git
+                platform: github.com
+              inputs: {}
+              outputs: []
+              resources: null
+              mount: []
+          - id: milestone0526f5
+            name: milestone
+            desc: 'This is a place holder for: milestone'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: milestone"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "ordinal": 1
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: libraryResource2d8537
+            name: libraryResource
+            desc: 'This is a place holder for: libraryResource'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: libraryResource"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "resource": "Get-Repo.ps1"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: readJSON61018b
+            name: readJSON
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: alpine
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: jsonObj='OVERSIZE_VALUE'
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs:
+              - jsonObj
+              resources: null
+              mount: []
+          - id: get_git_commit178d7a
+            name: get git commit
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: mcr.microsoft.com/powershell
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: pwsh
+              envs: {}
+              run: |-
+                echo @"
+                @git log --pretty=%%H -1
+                "@ > get_git_commit178d7a.bat
+                 ./get_git_commit178d7a.bat
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: buildDescriptionb2bb1d
+            name: buildDescription
+            desc: 'This is a place holder for: buildDescription'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: buildDescription"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "delegate": {
+                #     "arguments": {
+                #       "\u003canonymous\u003e": "0.1.0-develop-2204"
+                #     },
+                #     "klass": null,
+                #     "model": null,
+                #     "symbol": "buildDescription"
+                #   }
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: writeFileb25a3b
+            name: writeFile
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: printf 'OVERSIZE_VALUE' > buildDb.ps1
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: get_repo60a091
+            name: get repo
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: mcr.microsoft.com/powershell
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: pwsh
+              envs: {}
+              run: |
+                ## Get-Repo
+                ## Returns the name of the git repo you are located in.
+                (git remote get-url origin | Split-Path -Leaf).replace('.git', '')
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: get_org7a2aaf
+            name: get org
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: mcr.microsoft.com/powershell
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: pwsh
+              envs: {}
+              run: (git remote get-url origin).split('/')[-2]
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: committer_detailse0c046
+            name: committer details
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: mcr.microsoft.com/powershell
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: pwsh
+              envs: {}
+              run: |-
+                echo @"
+                git --no-pager show -s --format=%%ae --no-color
+                "@ > committer_detailse0c046.bat
+                 ./committer_detailse0c046.bat
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: pwshc8be2f
+            name: pwsh
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: mcr.microsoft.com/powershell
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: pwsh
+              envs: {}
+              run: git log -1 --format=format:%B
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: fileExists574a3e
+            name: fileExists
+            desc: 'This is a place holder for: fileExists'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: fileExists"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "file": "jenkins-workflow/GitVersion.yml"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: writeFile3684db
+            name: writeFile
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: printf 'OVERSIZE_VALUE' > jenkins-workflow/GitVersion.yml
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: execute_gitVersion8f88aa
+            name: execute gitVersion
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: mcr.microsoft.com/powershell
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: pwsh
+              envs: {}
+              run: "\n      git config core.longpaths true \n      git checkout -b
+                master --quiet;\n      git checkout -b develop --quiet;\n      git
+                fetch --tags --quiet;\n      git checkout develop --quiet;\n      gitversion
+                -config jenkins-workflow/GitVersion.yml -output json -updateassemblyinfo
+                -updatewixversionfile\n    "
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: gitVersion_showconfig9ccadc
+            name: gitVersion showconfig
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: mcr.microsoft.com/powershell
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: pwsh
+              envs: {}
+              run: gitversion -config jenkins-workflow/GitVersion.yml -showconfig
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: gitVersion_diagnostics13f44a
+            name: gitVersion diagnostics
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: mcr.microsoft.com/powershell
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: pwsh
+              envs: {}
+              run: gitversion -config jenkins-workflow/GitVersion.yml -diag
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: libraryResource0e645f
+            name: libraryResource
+            desc: 'This is a place holder for: libraryResource'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: libraryResource"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "resource": "pipelineHelpers.ps1"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: writeFileb3c11f
+            name: writeFile
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: printf 'OVERSIZE_VALUE' > pipelineHelpers.ps1
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: libraryResource54740d
+            name: libraryResource
+            desc: 'This is a place holder for: libraryResource'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: libraryResource"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "resource": "deployRapHelpers.ps1"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: writeFileeb4408
+            name: writeFile
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: printf 'OVERSIZE_VALUE' > deployRapHelpers.ps1
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: libraryResource2a71ca
+            name: libraryResource
+            desc: 'This is a place holder for: libraryResource'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: libraryResource"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "resource": "deployServiceHelpers.ps1"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: writeFile9ee480
+            name: writeFile
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: printf 'OVERSIZE_VALUE' > deployServiceHelpers.ps1
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: libraryResource405d43
+            name: libraryResource
+            desc: 'This is a place holder for: libraryResource'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: libraryResource"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "resource": "normalizePathHelpers.ps1"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: writeFile098285
+            name: writeFile
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: printf 'OVERSIZE_VALUE' > normalizePathHelpers.ps1
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: libraryResourceb71529
+            name: libraryResource
+            desc: 'This is a place holder for: libraryResource'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: libraryResource"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "resource": "xmlHelpers.ps1"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: writeFile5cc38e
+            name: writeFile
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: printf 'OVERSIZE_VALUE' > xmlHelpers.ps1
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: libraryResource9d0ee7
+            name: libraryResource
+            desc: 'This is a place holder for: libraryResource'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: libraryResource"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "resource": "clickOnceHelpers.ps1"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: writeFileea6e1b
+            name: writeFile
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: printf 'OVERSIZE_VALUE' > clickOnceHelpers.ps1
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: libraryResourcebc145c
+            name: libraryResource
+            desc: 'This is a place holder for: libraryResource'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: libraryResource"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "resource": "deploy-lib.ps1"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: writeFilee47fa2
+            name: writeFile
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: printf 'OVERSIZE_VALUE' > deploy-lib.ps1
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: libraryResource72984e
+            name: libraryResource
+            desc: 'This is a place holder for: libraryResource'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: libraryResource"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "resource": "buildDb.ps1"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: libraryResource28b225
+            name: libraryResource
+            desc: 'This is a place holder for: libraryResource'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: libraryResource"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "resource": "deployDb.ps1"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: writeFile77b269
+            name: writeFile
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: printf 'OVERSIZE_VALUE' > deployDb.ps1
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: libraryResource00a4ad
+            name: libraryResource
+            desc: 'This is a place holder for: libraryResource'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: libraryResource"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "resource": "buildModule.ps1"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: libraryResourcea2d6b5
+            name: libraryResource
+            desc: 'This is a place holder for: libraryResource'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: libraryResource"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "resource": "deployModule.ps1"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: writeFile67f047
+            name: writeFile
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: printf 'OVERSIZE_VALUE' > deployModule.ps1
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: writeFiled33d87
+            name: writeFile
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: printf 'OVERSIZE_VALUE' > pwshdeploy.ps1
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: stash830244
+            name: stash
+            desc: 'This is a place holder for: stash'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: stash"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "includes": "*.ps1",
+                #   "name": "powershellHelpers"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: milestone945404
+            name: milestone
+            desc: 'This is a place holder for: milestone'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: milestone"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "ordinal": 2
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: libraryResource11b797
+            name: libraryResource
+            desc: 'This is a place holder for: libraryResource'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: libraryResource"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "resource": "GitVersion.yml"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: writeFilee78952
+            name: writeFile
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: "printf 'Param\n    (\n        [String]\n        $Module\n    )\n\n$ErrorActionPreference
+                = 'stop' \n$location = get-location \nWrite-JenkinsAnsi -Message \"Creating
+                module folder\" -MessageType ok\nNew-Item -Name $Module -Path $location
+                -ItemType directory\n\nWrite-JenkinsAnsi -Message \"Creating module
+                location\" -MessageType ok\n\nCopy-Item $location\\* -Destination
+                $location\\$Module -Exclude $Module,PwshHelpers -Recurse\n\n\ntry
+                {\nimport-module buildhelpers\n$Version = Get-MetaData -Path $location\\$Module\\$Module.psd1\nWrite-JenkinsAnsi
+                -Message \"Incrementing module to $Version\" -MessageType ok\nUpdate-Metadata
+                -Path $location\\$Module\\$Module.psd1  -PropertyName ModuleVersion
+                -Value $Version\nPublish-Module -path $location\\$Module -NuGetApiKey
+                $ENV:TOKEN -Repository example-powershell_dev\n    }\ncatch {\nWrite-JenkinsAnsi
+                -Message $_ -MessageType error -ErrorAction Stop\n    }\nWrite-JenkinsAnsi
+                -Message \"Published to proget\" -MessageType ok' > buildModule.ps1"
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: libraryResource5b03ec
+            name: libraryResource
+            desc: 'This is a place holder for: libraryResource'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: libraryResource"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "resource": "pwshdeploy.ps1"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: agent8bc5c0
+        name: agent
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: milestonead6d17
+            name: milestone
+            desc: 'This is a place holder for: milestone'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: milestone"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "ordinal": 3
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: cleanWs2f5794
+            name: cleanWs
+            desc: 'This is a place holder for: cleanWs'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: cleanWs"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "delegate": {
+                #     "arguments": {},
+                #     "klass": null,
+                #     "model": null,
+                #     "symbol": "cleanWs"
+                #   }
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: pwshd91563
+            name: pwsh
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: mcr.microsoft.com/powershell
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: pwsh
+              envs: {}
+              run: ./PwshHelpers/buildModule.ps1 -Module application
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: checkout_github_com_example_repo96e075
+            name: 'checkout: github.com/example/repo'
+            desc: ""
+            type: plugin
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: plugins/drone-git:latest
+              name: ""
+              uses: ""
+              connector: ""
+              pull: ""
+              envs: {}
+              reports: []
+              privileged: false
+              user: ""
+              group: ""
+              network: ""
+              with:
+                branch: develop
+                depth: ""
+                git_url: https://github.com/example/repo.git
+                platform: github.com
+              inputs: {}
+              outputs: []
+              resources: null
+              mount: []
+          - id: pwshd5530b
+            name: pwsh
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: mcr.microsoft.com/powershell
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: pwsh
+              envs: {}
+              run: New-Item -Name PwshHelpers -ItemType directory
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: Stage_nulle947a3
+            name: Dir_unstash
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                mkdir -p PwshHelpers && cd PwshHelpers
+                echo "This is a place holder for: unstash"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "name": "powershellHelpers"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Run_Parallele24f1a
+        name: Run Parallel
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: Stage_Run_Parallelbd92ed
+            name: 'Stage: Run Parallel'
+            desc: ""
+            type: parallel
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              steps:
+              - id: getContext811174
+                name: getContext
+                desc: 'This is a place holder for: getContext'
+                type: script
+                timeout: ""
+                strategy: null
+                when: null
+                failure: null
+                inputs: {}
+                spec:
+                  image: ""
+                  connector: ""
+                  user: ""
+                  group: ""
+                  pull: ""
+                  shell: sh
+                  envs: {}
+                  run: |-
+                    echo "This is a place holder for: getContext"
+
+                    # Here is the parameterMap for this function:
+                    # {
+                    #   "type": "UNSERIALIZABLE"
+                    # }
+                  entrypoint: ""
+                  args: []
+                  privileged: false
+                  network: ""
+                  reports: []
+                  outputs: []
+                  resources: null
+                  mount: []
+      - id: Deploy_to_DEV3dab84
+        name: Deploy to DEV
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContexta2e5df
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_DEV_CT517c03
+        name: Deploy to DEV-CT
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContextf267b3
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_QAc048ba
+        name: Deploy to QA
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContexteabd7b
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_QA_CT31df84
+        name: Deploy to QA-CT
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContext5b5cbb
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_UAT362fcc
+        name: Deploy to UAT
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContext977d75
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_MTP44765b
+        name: Deploy to MTP
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContextd759d0
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_EGVb2fc00
+        name: Deploy to EGV
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContext12fe8e
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_LVSb57233
+        name: Deploy to LVS
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContext30eeb3
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_ROC9a8f31
+        name: Deploy to ROC
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContext6f016b
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_LNTc96d89
+        name: Deploy to LNT
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContextcb12e7
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_UK_Resticted9e018f
+        name: Deploy to UK-Resticted
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContexta503b9
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_UK_Restricted_Oldad3072
+        name: Deploy to UK-Restricted-Old
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContextfa0e4c
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_LNT_CMSc7fc0a
+        name: Deploy to LNT-CMS
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContext31d02d
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_LD5309510
+        name: Deploy to LD5
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContextdce7a6
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_DEUd5554f
+        name: Deploy to DEU
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContext39acde
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_HKG4669ff
+        name: Deploy to HKG
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContext8d9574
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_SH5daf45b
+        name: Deploy to SH5
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContextb7e87d
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_TY6e0c30d
+        name: Deploy to TY6
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContextbed5a3
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_TR2bdf78b
+        name: Deploy to TR2
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContext050840
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_ZH58c8524
+        name: Deploy to ZH5
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContext731a11
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_PAR34b911
+        name: Deploy to PAR
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContextd02c74
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_DEV_JDd99705
+        name: Deploy to DEV-JD
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContext1e2e97
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_ITAR_SEG0de8d6
+        name: Deploy to ITAR-SEG
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContext2ccbcb
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Deploy_to_CA1_CMSa8fc61
+        name: Deploy to CA1-CMS
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContext140e0c
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      envs: {}
+      volumes: []
+  inputs: {}
+  options: null

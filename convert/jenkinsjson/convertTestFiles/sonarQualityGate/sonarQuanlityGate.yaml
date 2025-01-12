@@ -1,0 +1,19 @@
+- step:
+    identifier: waitforqualitygate6278c9
+    name: Sonarqube_Quality_Gate
+    spec:
+      image: 'plugins/sonarqube-scanner:latest'
+      settings:
+        scm_disabled: 'false'
+        skip_scan: 'false'
+        sonar_host: <+input>
+        sonar_key: <+input>
+        sonar_name: <+input>
+        sonar_organization: <+input>
+        sonar_quality_enabled: 'true'
+        sonar_qualitygate: OK
+        sonar_token: <+input>
+        sources: .
+        timeout: '300'
+    timeout: ''
+    type: Plugin

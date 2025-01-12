@@ -6,14 +6,26 @@ name: default
 steps:
 - name: backend
   image: golang
+  environment:
+    PLUGIN_LOG_LEVEL: info
+    PLUGIN_ARTIFACT_REGION: us-east-1
+    PLUGIN_ARTIFACT_BUCKET_NAME: unified-versioning-bucket
   commands:
   - go build
   - go test
 
 - name: frontend
   image: node
-  commands:
-  - npm install
-  - npm run test
+  settings:
+     dockerfile: docker/docker/Dockerfile.windows.amd64.1809
+     repo: plugins/buildx
+     username:
+       from_secret: docker_username
+     password:
+       from_secret: docker_password
+     auto_tag: true
+     auto_tag_suffix: windows-1809-amd64
+
+
 
 ...
