@@ -167,6 +167,12 @@ func (d *Downgrader) downgrade(src []*v1.Config) ([]byte, error) {
 
 		config.Pipeline.Org = d.pipelineOrg
 		config.Pipeline.Project = d.pipelineProj
+		config.Pipeline.Tags = make(map[string]string)
+		for _, tag := range strings.Split(p.Type, ",") {
+			if tag != "" {
+				config.Pipeline.Tags[tag] = ""
+			}
+		}
 		config.Pipeline.Props.CI.Codebase = v0.Codebase{
 			Name:  d.codebaseName,
 			Conn:  d.codebaseConn,

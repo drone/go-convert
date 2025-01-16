@@ -57,11 +57,23 @@ type ProcessedTools struct {
 	AntProcessed       bool
 	SonarCubeProcessed bool
 	SonarCubePresent   bool
+	Tags               []string
 }
 
 // In a unified pipeline trace, 'sh' types identified as branched/conditional will be pre-fixed with '_unifiedTraceBranch'
 // This is done because we don't want these steps to be merged, so that pipeline analysis is easier.
 const unifiedBranchedShStep = "sh_unifiedTraceBranch"
+
+var tags = []string{
+	"eks", "ec2",
+	"gke", "gcp", "gcloud",
+	"azure",
+	"artifactory", "jfrog", "gcr", "gar",
+	"java", "python", "go ", "ruby", "nodejs", "javascript", "typescript", "scala", "kotlin", "groovy", "csharp", "php", "perl", "bash", "powershell",
+	"docker ", "git ", "npm ", "yarn ", "node ", "maven", "mvn ", "gradle", "sbt ", "bazel", "pip ", "dotnet ", "msbuild",
+	"sfdx ",
+	"hadoop", "mariadb", "mysql", "psql", "mongo", "redis", "jdbc",
+}
 
 var mavenGoals string
 var gradleGoals string
@@ -117,7 +129,7 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	// create the harness pipeline spec
 	dst := &harness.Pipeline{}
 
-	processedTools := &ProcessedTools{false, false, false, false, false, false, false, false, false}
+	processedTools := &ProcessedTools{false, false, false, false, false, false, false, false, false, []string{}}
 	var variable map[string]string
 	recursiveParseJsonToStages(&pipelineJson, dst, processedTools, variable)
 	// create the harness pipeline resource
@@ -125,6 +137,7 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 		Version: 1,
 		Name:    jenkinsjson.SanitizeForName(pipelineJson.Name),
 		Kind:    "pipeline",
+		Type:    strings.Join(processedTools.Tags, ","),
 		Spec:    dst,
 	}
 
@@ -202,6 +215,20 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 				Spec: &harness.StepGroup{
 					Steps: stepsInStage,
 				},
+			}
+
+			// identify technology tags
+			for _, step := range stepsInStage {
+				switch step.Spec.(type) {
+				case *harness.StepExec:
+					exec := step.Spec.(*harness.StepExec)
+					for _, tag := range tags {
+						tagNoSpace := strings.TrimSpace(tag)
+						if strings.Contains(strings.ToLower(exec.Run), tag) || strings.Contains(strings.ToLower(exec.Image), tagNoSpace) {
+							processedTools.Tags = append(processedTools.Tags, tagNoSpace)
+						}
+					}
+				}
 			}
 
 			// Convert stageID to integer and store it with the stage
@@ -480,8 +507,10 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 		}
 	case "emailext":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertEmailext(currentNode, variables, timeout), ID: id})
+		processedTools.Tags = append(processedTools.Tags, "email")
 	case "junit":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJunit(currentNode, variables), ID: id})
+		processedTools.Tags = append(processedTools.Tags, "junit")
 	case "sleep":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSleep(currentNode, variables), ID: id})
 	case "dir":
@@ -750,6 +779,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertKubeCtl(currentNode, currentNode.ParameterMap), ID: id})
 	case "mail":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertMailer(currentNode, currentNode.ParameterMap), ID: id})
+		processedTools.Tags = append(processedTools.Tags, "email")
 
 	case "pagerdutyChangeEvent":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPagerDutyChangeEvent(currentNode, currentNode.ParameterMap), ID: id})
