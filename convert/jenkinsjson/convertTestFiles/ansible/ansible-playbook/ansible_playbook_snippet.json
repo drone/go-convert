@@ -1,0 +1,50 @@
+{
+  "spanId": "b8e0a2f7c38f1346",
+  "traceId": "7f0304d2ba6fa0aaae5d71cc94b3cdfa",
+  "parent": "vani_ansible_test",
+  "all-info": "span(name: ansiblePlaybook, spanId: b8e0a2f7c38f1346, parentSpanId: 4d5eafacc3be8901, traceId: 7f0304d2ba6fa0aaae5d71cc94b3cdfa, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"forks\" : 5,\n  \"hostKeyChecking\" : false,\n  \"disableHostKeyChecking\" : true,\n  \"startAtTask\" : \"\",\n  \"dynamicInventory\" : false,\n  \"extras\" : \"--timeout=30\",\n  \"credentialsId\" : \"\",\n  \"inventory\" : \"inventory\",\n  \"colorized\" : true,\n  \"becomeUser\" : \"root\",\n  \"tags\" : \"\",\n  \"sudoUser\" : \"\",\n  \"vaultCredentialsId\" : \"\",\n  \"checkMode\" : false,\n  \"skippedTags\" : \"\",\n  \"installation\" : \"\",\n  \"vaultTmpPath\" : \"/tmp\",\n  \"limit\" : \"\",\n  \"extraVars\" : {\n    \"custom_var1\" : \"value1\",\n    \"custom_var2\" : \"value2\"\n  },\n  \"sudo\" : false,\n  \"playbook\" : \"playbook.yml\",\n  \"become\" : false\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@55c0f06d:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@55c0f06d;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@17e25555:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@17e25555;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@335e37cf:org.jenkinsci.plugins.workflow.actions.TimingAction@335e37cf;harness-others:;jenkins.pipeline.step.id:17;jenkins.pipeline.step.name:Invoke an ansible playbook;jenkins.pipeline.step.plugin.name:ansible;jenkins.pipeline.step.plugin.version:403.v8d0ca_dcb_b_502;jenkins.pipeline.step.type:ansiblePlaybook;)",
+  "name": "vani_ansible_test #25",
+  "attributesMap": {
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@17e25555": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@17e25555",
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Invoke an ansible playbook",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "17",
+    "jenkins.pipeline.step.type": "ansiblePlaybook",
+    "harness-attribute": "{\n  \"forks\" : 5,\n  \"hostKeyChecking\" : false,\n  \"disableHostKeyChecking\" : true,\n  \"startAtTask\" : \"\",\n  \"dynamicInventory\" : false,\n  \"extras\" : \"--timeout=30\",\n  \"credentialsId\" : \"\",\n  \"inventory\" : \"inventory\",\n  \"colorized\" : true,\n  \"becomeUser\" : \"root\",\n  \"tags\" : \"\",\n  \"sudoUser\" : \"\",\n  \"vaultCredentialsId\" : \"\",\n  \"checkMode\" : false,\n  \"skippedTags\" : \"\",\n  \"installation\" : \"\",\n  \"vaultTmpPath\" : \"/tmp\",\n  \"limit\" : \"\",\n  \"extraVars\" : {\n    \"custom_var1\" : \"value1\",\n    \"custom_var2\" : \"value2\"\n  },\n  \"sudo\" : false,\n  \"playbook\" : \"playbook.yml\",\n  \"become\" : false\n}",
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@55c0f06d": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@55c0f06d",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@335e37cf": "org.jenkinsci.plugins.workflow.actions.TimingAction@335e37cf",
+    "jenkins.pipeline.step.plugin.name": "ansible",
+    "jenkins.pipeline.step.plugin.version": "403.v8d0ca_dcb_b_502"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "4d5eafacc3be8901",
+  "parameterMap": {
+    "forks": 5,
+    "hostKeyChecking": false,
+    "disableHostKeyChecking": true,
+    "startAtTask": "",
+    "dynamicInventory": false,
+    "extras": "--timeout=30",
+    "credentialsId": "",
+    "inventory": "inventory",
+    "colorized": true,
+    "becomeUser": "root",
+    "tags": "",
+    "sudoUser": "",
+    "vaultCredentialsId": "",
+    "checkMode": false,
+    "skippedTags": "",
+    "installation": "",
+    "vaultTmpPath": "/tmp",
+    "limit": "",
+    "extraVars": {
+      "custom_var2": "value2",
+      "custom_var1": "value1"
+    },
+    "sudo": false,
+    "playbook": "playbook.yml",
+    "become": false
+  },
+  "spanName": "ansiblePlaybook"
+}

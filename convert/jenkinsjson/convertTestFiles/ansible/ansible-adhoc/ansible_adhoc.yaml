@@ -1,0 +1,27 @@
+- step:
+    identifier: ansibleadhoc4eb052
+    name: Ansible_Adhoc
+    spec:
+      image: plugins/ansible
+      settings:
+        become: "false"
+        become_user: root
+        dynamic_inventory: "false"
+        extra_vars: ""
+        extras: --timeout=30
+        forks: "5"
+        host_key_checking: "false"
+        hosts: all
+        installation: ""
+        inventory: inventory
+        inventory_content: |-
+          [all]
+          localhost ansible_connection=local
+        mode: adhoc
+        module: ping
+        module_args: ""
+        private_key: ""
+        vault_credentials_key: ""
+        vault_tmp_path: /tmp
+    timeout: ""
+    type: Plugin

@@ -1,0 +1,16 @@
+- step:
+    identifier: ansiblevault60a60b
+    name: Ansible_Vault
+    spec:
+      image: plugins/ansible
+      settings:
+        action: encrypt
+        content: ""
+        input: content_to_encrypt.txt
+        installation: ""
+        mode: vault
+        output: encrypted_content.txt
+        vault_credentials_key: test-vault-id
+        vault_tmp_path: /tmp
+    timeout: ""
+    type: Plugin

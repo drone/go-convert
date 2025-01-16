@@ -769,6 +769,12 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 	case "ansiblePlaybook":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertAnsiblePlaybook(currentNode, currentNode.ParameterMap), ID: id})
 
+	case "ansibleVault":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertAnsibleVault(currentNode, currentNode.ParameterMap), ID: id})
+
+	case "ansibleAdhoc":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertAnsibleAdhoc(currentNode, currentNode.ParameterMap), ID: id})
+
 	case "waitForQualityGate":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSonarQualityGate(currentNode), ID: id})
 

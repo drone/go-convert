@@ -1,68 +1,104 @@
 pipeline {
     agent any
-
-    environment {
-        PATH = "/opt/homebrew/bin:$PATH"
-        VAULT_PASSWORD = 'secretpassword'
-        ANSIBLE_INVENTORY = 'inventory.ini'
-        ANSIBLE_PLAYBOOK = 'test-playbook.yml'
-        ANSIBLE_VAULT_TMP_PATH = '/tmp/vault-password.txt'
-    }
     stages {
-        stage('Install Homebrew') {
+        stage('Setup Inline Playbook and Inventory') {
             steps {
                 script {
-                    sh '''
-                    if ! command -v brew &> /dev/null; then
-                        echo "Homebrew not found. Installing..."
-                        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-                    else
-                        echo "Homebrew is already installed."
-                    fi
-                    '''
+                    // Write the inline playbook
+                    writeFile file: 'playbook.yml', text: '''
+---
+- hosts: all
+  tasks:
+    - name: Ping all hosts
+      ping:
+    - name: Show debug message
+      debug:
+        msg: "This is a simple test of the Ansible Playbook plugin in Jenkins"
+'''
+
+                    // Write the inline inventory
+                    writeFile file: 'inventory', text: '''
+[all]
+localhost ansible_connection=local
+'''
                 }
             }
         }
-
-        stage('Install Ansible') {
-            steps {
-                script {
-                    sh 'brew install ansible'
-                }
-            }
-        }
-
         stage('Run Ansible Playbook') {
             steps {
                 ansiblePlaybook(
-                    playbook: "${ANSIBLE_PLAYBOOK}",
-                    become: true, // Enable privilege escalation
-                    becomeUser: 'root', // Specify user for escalation
-                    checkMode: false, // Disable check mode
-                    colorized: true, // Enable colored output
-                    credentialsId: '', // Optional credentials ID
-                    disableHostKeyChecking: true, // Disable host key checking
-                    dynamicInventory: false, // Use static inventory
-                    extraVars: [ // Specify extra variables
-                        var1: 'value1',
-                        var2: 'value2'
-                    ],
-                    extras: '--diff --timeout=30', // Additional flags
-                    forks: 5, // Number of parallel processes
-                    hostKeyChecking: false, // Alias for disableHostKeyChecking
-                    installation: 'Default', // Specify installation
-                    inventory: 'inventory.ini', // Inventory file path
-                    inventoryContent: '', // Inline inventory content
-                    limit: 'all', // Restrict to specific hosts
-                    skippedTags: 'skip_tag1,skip_tag2', // Tags to skip
-                    startAtTask: 'start_task_name', // Start execution at a specific task
+                    playbook: 'playbook.yml',
+                    inventory: 'inventory',
+                    colorized: true,
+                    become: false,
+                    becomeUser: 'root',
+                    checkMode: false,
+                    credentialsId: '',
+                    disableHostKeyChecking: true,
+                    dynamicInventory: false,
+                    extraVars: [custom_var1: 'value1', custom_var2: 'value2'],
+                    extras: '--timeout=30',
+                    forks: 5,
+                    hostKeyChecking: false,
+                    installation: '',
+                    limit: '',
+                    skippedTags: '',
+                    startAtTask: '',
                     sudo: false,
                     sudoUser: '',
-                    tags: 'tag1,tag2', // Tags to execute
-                    vaultCredentialsId: '', // Vault credentials ID
-                    vaultTmpPath: "${ANSIBLE_VAULT_TMP_PATH}" // Path to vault password file
+                    tags: '',
+                    vaultCredentialsId: '',
+                    vaultTmpPath: '/tmp'
                 )
             }
+        }
+        stage('Run Ansible Ad-Hoc Command') {
+            steps {
+                ansibleAdhoc(
+                    hosts: 'all',
+                    become: false,
+                    becomeUser: 'root',
+                    colorized: true,
+                    credentialsId: '',
+                    dynamicInventory: false,
+                    extraVars: [
+                        [key: 'custom_var1', value: 'value1'],
+                        [key: 'custom_var2', value: 'value2']
+                    ],
+                    extras: '--timeout=30',
+                    forks: 5,
+                    hostKeyChecking: false,
+                    installation: '',
+                    inventory: 'inventory',
+                    inventoryContent: '[all]\nlocalhost ansible_connection=local',
+                    module: 'ping',
+                    moduleArguments: '',
+                    vaultCredentialsId: '',
+                    vaultTmpPath: '/tmp'
+                )
+            }
+        }
+        stage('Test Ansible Vault Plugin') {
+            steps {
+                script {
+                    writeFile file: 'test_vault.txt', text: 'Testing Ansible Vault Plugin functionality.'
+
+                    ansibleVault(
+                        action: 'encrypt',
+                        input: 'test_vault.txt',
+                        vaultCredentialsId: 'test-vault-id',
+                        vaultTmpPath: '/tmp'
+                    )
+
+                    echo "Encryption completed successfully."
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Cleaning up temporary files'
+            sh 'rm -f playbook.yml inventory sample.txt sample.txt.enc sample_decrypted.txt'
         }
     }
 }
