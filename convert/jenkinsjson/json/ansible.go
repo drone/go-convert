@@ -144,6 +144,7 @@ func ConvertAnsibleVault(node Node, arguments map[string]interface{}) *harness.S
 	input, _ := arguments["input"].(string)
 	output, _ := arguments["output"].(string)
 	vaultCredentialsId, _ := arguments["vaultCredentialsId"].(string)
+	newVaultCredentialsId, _ := arguments["newVaultCredentialsId"].(string)
 	vaultTmpPath, _ := arguments["vaultTmpPath"].(string)
 	content, _ := arguments["content"].(string)
 	installation, _ := arguments["installation"].(string)
@@ -163,7 +164,7 @@ func ConvertAnsibleVault(node Node, arguments map[string]interface{}) *harness.S
 		withMap["vault_credentials_key"] = vaultCredentialsId
 	}
 	if _, exists := arguments["newVaultCredentialsId"]; exists {
-		withMap["new_vault_credentials_key"] = vaultCredentialsId
+		withMap["new_vault_credentials_key"] = newVaultCredentialsId
 	}
 	if _, exists := arguments["vaultTmpPath"]; exists {
 		withMap["vault_tmp_path"] = vaultTmpPath
