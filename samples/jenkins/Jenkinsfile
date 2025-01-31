@@ -11,8 +11,14 @@ pipeline {
         DOCKER_IMAGE = 'user1/testimage'
         DOCKER_TAG = 'latest'
         ARTIFACTORY_SERVER = 'artifactory-id'
+        //Ansible Playbook
+        PATH = "/opt/homebrew/bin:$PATH"
+        VAULT_PASSWORD = 'secretpassword'
+        ANSIBLE_INVENTORY = 'inventory.ini'
+        ANSIBLE_PLAYBOOK = 'test-playbook.yml'
+        ANSIBLE_VAULT_TMP_PATH = '/tmp/vault-password.txt'
     }
-
+    
     stages {
         stage('Plugin Build') {
             steps {
@@ -994,5 +1000,77 @@ line3'''
             )
         }
     }
+
+    //Ansible Playbook, ad-hoc, vault
+    stage('Run Ansible Playbook') {
+            steps {
+                ansiblePlaybook(
+                    playbook: 'playbook.yml',
+                    inventory: 'inventory',
+                    colorized: true,
+                    become: false,
+                    becomeUser: 'root',
+                    checkMode: false,
+                    credentialsId: '',
+                    disableHostKeyChecking: true,
+                    dynamicInventory: false,
+                    extraVars: [custom_var1: 'value1', custom_var2: 'value2'],
+                    extras: '--timeout=30',
+                    forks: 5,
+                    hostKeyChecking: false,
+                    installation: '',
+                    limit: '',
+                    skippedTags: '',
+                    startAtTask: '',
+                    sudo: false,
+                    sudoUser: '',
+                    tags: '',
+                    vaultCredentialsId: '',
+                    vaultTmpPath: '/tmp'
+                )
+            }
+        }
+        stage('Run Ansible Ad-Hoc Command') {
+            steps {
+                ansibleAdhoc(
+                    hosts: 'all',
+                    become: false,
+                    becomeUser: 'root',
+                    colorized: true,
+                    credentialsId: '',
+                    dynamicInventory: false,
+                    extraVars: [
+                        [key: 'custom_var1', value: 'value1'],
+                        [key: 'custom_var2', value: 'value2']
+                    ],
+                    extras: '--timeout=30',
+                    forks: 5,
+                    hostKeyChecking: false,
+                    installation: '',
+                    inventory: 'inventory',
+                    inventoryContent: '[all]\nlocalhost ansible_connection=local',
+                    module: 'ping',
+                    moduleArguments: '',
+                    vaultCredentialsId: '',
+                    vaultTmpPath: '/tmp'
+                )
+            }
+        }
+        stage('Test Ansible Vault Plugin') {
+            steps {
+                script {
+                    writeFile file: 'test_vault.txt', text: 'Testing Ansible Vault Plugin functionality.'
+
+                    ansibleVault(
+                        action: 'encrypt',
+                        input: 'test_vault.txt',
+                        vaultCredentialsId: 'test-vault-id',
+                        vaultTmpPath: '/tmp'
+                    )
+
+                    echo "Encryption completed successfully."
+                }
+            }
+        }
     }
 }
