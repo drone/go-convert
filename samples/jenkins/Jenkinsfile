@@ -1073,4 +1073,57 @@ line3'''
             }
         }
     }
+    //Cucumber Pipeline
+    environment {
+        REPO_URL = 'https://github.com/qmetry/cucumber-maven-example.git'
+        BRANCH = 'master'
+    }
+    tools {
+        maven 'maven'
+    }
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: "${BRANCH}", url: "${REPO_URL}"
+            }
+        }
+        stage('Build and Run Tests') {
+            steps {
+                sh 'mvn clean compile test || exit 1'
+            }
+        }
+    }
+    post {
+        always {
+            cucumber jsonReportDirectory: 'target', 
+                     fileIncludePattern: '*/.json', 
+                     fileExcludePattern: '', 
+                     failedAsNotFailingStatus: false,
+                     failedFeaturesNumber: 0,
+                     failedFeaturesPercentage: 0.0,
+                     failedScenariosNumber: 0,
+                     failedScenariosPercentage: 0.0,
+                     failedStepsNumber: 0,
+                     failedStepsPercentage: 0.0,
+                     mergeFeaturesById: false,
+                     pendingAsNotFailingStatus: false,
+                     pendingStepsNumber: 0,
+                     pendingStepsPercentage: 0.0,
+                     skipEmptyJSONFiles: true,
+                     skippedAsNotFailingStatus: false,
+                     skippedStepsNumber: 0,
+                     skippedStepsPercentage: 0.0,
+                     sortingMethod: 'ALPHABETICAL',
+                     stopBuildOnFailedReport: false,
+                     undefinedAsNotFailingStatus: false,
+                     undefinedStepsNumber: 0,
+                     undefinedStepsPercentage: 0.0
+        }
+        success {
+            archiveArtifacts artifacts: 'target/*.json', fingerprint: true
+        }
+        failure {
+            echo 'Build failed. Check test reports for details.'
+        }
+    }
 }

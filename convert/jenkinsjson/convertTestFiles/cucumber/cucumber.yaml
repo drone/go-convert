@@ -1,0 +1,13 @@
+- step:
+    identifier: cucumberf61234
+    name: cucumber
+    spec:
+      image: plugins/cucumber
+      settings:
+        file_include_pattern: '**/*.json'
+        json_report_directory: target
+        level: info
+        skip_empty_json_files: 'true'
+        sorting_method: ALPHABETICAL
+    timeout: ''
+    type: Plugin
