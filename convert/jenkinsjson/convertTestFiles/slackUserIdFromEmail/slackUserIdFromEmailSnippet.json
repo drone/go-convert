@@ -1,0 +1,27 @@
+{
+  "spanId": "9760434ae85df2b2",
+  "traceId": "f8c82f0a872cac6581c73f355cfb770d",
+  "parent": "slack_get_slack_ids_from_emailids_01",
+  "all-info": "span(name: slackUserIdFromEmail, spanId: 9760434ae85df2b2, parentSpanId: 15c7e63f1290c932, traceId: f8c82f0a872cac6581c73f355cfb770d, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"botUser\" : true,\n  \"email\" : \"slack_user_tst223@gmail.com\",\n  \"tokenCredentialId\" : \"slack_id_02_commiter_slack_ids\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@284bb955:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@284bb955;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@6879d6a1:org.jenkinsci.plugins.workflow.actions.TimingAction@6879d6a1;harness-others:;jenkins.pipeline.step.id:11;jenkins.pipeline.step.name:Resolve Slack UserId from Email Address;jenkins.pipeline.step.plugin.name:slack;jenkins.pipeline.step.plugin.version:751.v2e44153c8fe1;jenkins.pipeline.step.type:slackUserIdFromEmail;)",
+  "name": "slack_get_slack_ids_from_emailids_01 #1",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Resolve Slack UserId from Email Address",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "11",
+    "jenkins.pipeline.step.type": "slackUserIdFromEmail",
+    "harness-attribute": "{\n  \"botUser\" : true,\n  \"email\" : \"slack_user_tst223@gmail.com\",\n  \"tokenCredentialId\" : \"slack_id_02_commiter_slack_ids\"\n}",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@284bb955": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@284bb955",
+    "jenkins.pipeline.step.plugin.name": "slack",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@6879d6a1": "org.jenkinsci.plugins.workflow.actions.TimingAction@6879d6a1",
+    "jenkins.pipeline.step.plugin.version": "751.v2e44153c8fe1"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "15c7e63f1290c932",
+  "parameterMap": {
+    "botUser": true,
+    "tokenCredentialId": "slack_id_02_commiter_slack_ids",
+    "email": "slack_user_tst223@gmail.com"
+  },
+  "spanName": "slackUserIdFromEmail"
+}

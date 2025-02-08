@@ -1,0 +1,40 @@
+{
+  "spanId": "80776e9406f1182d",
+  "traceId": "0d5ae3c8d70fcc796d8c394c1394f0b5",
+  "parent": "vani_testng",
+  "all-info": "span(name: testNG, spanId: 80776e9406f1182d, parentSpanId: eae13ca1b719ded1, traceId: 0d5ae3c8d70fcc796d8c394c1394f0b5, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"delegate\" : {\n    \"symbol\" : \"testNG\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"escapeExceptionMsg\" : true,\n      \"escapeTestDescp\" : true,\n      \"failedFails\" : 100,\n      \"failedSkips\" : 100,\n      \"failureOnFailedTestConfig\" : false,\n      \"reportFilenamePattern\" : \"**/testng-results.xml\",\n      \"showFailedBuilds\" : true,\n      \"thresholdMode\" : 1,\n      \"unstableFails\" : 100,\n      \"unstableSkips\" : 100\n    },\n    \"model\" : null\n  }\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@5b47b675:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@5b47b675;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@282c2e8b:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@282c2e8b;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@399a98d8:org.jenkinsci.plugins.workflow.actions.TimingAction@399a98d8;harness-others:-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep;jenkins.pipeline.step.id:16;jenkins.pipeline.step.name:Publish TestNG Results;jenkins.pipeline.step.plugin.name:testng-plugin;jenkins.pipeline.step.plugin.version:835.v51ed3da_fcc35;jenkins.pipeline.step.type:testNG;)",
+  "name": "vani_testng #2",
+  "attributesMap": {
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@5b47b675": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@5b47b675",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@399a98d8": "org.jenkinsci.plugins.workflow.actions.TimingAction@399a98d8",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@282c2e8b": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@282c2e8b",
+    "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+    "jenkins.pipeline.step.name": "Publish TestNG Results",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "16",
+    "jenkins.pipeline.step.type": "testNG",
+    "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"testNG\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"escapeExceptionMsg\" : true,\n      \"escapeTestDescp\" : true,\n      \"failedFails\" : 100,\n      \"failedSkips\" : 100,\n      \"failureOnFailedTestConfig\" : false,\n      \"reportFilenamePattern\" : \"**/testng-results.xml\",\n      \"showFailedBuilds\" : true,\n      \"thresholdMode\" : 1,\n      \"unstableFails\" : 100,\n      \"unstableSkips\" : 100\n    },\n    \"model\" : null\n  }\n}",
+    "jenkins.pipeline.step.plugin.name": "testng-plugin",
+    "jenkins.pipeline.step.plugin.version": "835.v51ed3da_fcc35"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "eae13ca1b719ded1",
+  "parameterMap": {"delegate": {
+    "symbol": "testNG",
+    "klass": null,
+    "arguments": {
+      "escapeTestDescp": true,
+      "escapeExceptionMsg": true,
+      "reportFilenamePattern": "**/testng-results.xml",
+      "showFailedBuilds": true,
+      "failedSkips": 100,
+      "thresholdMode": 1,
+      "unstableSkips": 100,
+      "failedFails": 100,
+      "failureOnFailedTestConfig": false,
+      "unstableFails": 100
+    },
+    "model": null
+  }},
+  "spanName": "testNG"
+}

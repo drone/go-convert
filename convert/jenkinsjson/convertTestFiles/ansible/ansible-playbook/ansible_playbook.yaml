@@ -1,0 +1,31 @@
+- step:
+    identifier: ansibleplaybookb8e0a2
+    name: Ansible_Playbook
+    spec:
+      image: plugins/ansible
+      settings:
+        become: "false"
+        become_user: root
+        check: "false"
+        disable_host_key_checking: "true"
+        dynamic_inventory: "false"
+        extra_vars: ""
+        extras: --timeout=30
+        forks: "5"
+        host_key_checking: "false"
+        installation: ""
+        inventory: inventory
+        inventory_content: ""
+        limit: ""
+        mode: playbook
+        playbook: playbook.yml
+        private_key: ""
+        skip_tags: ""
+        start_at_task: ""
+        sudo: "false"
+        sudo_user: ""
+        tags: ""
+        vault_id: ""
+        vault_tmp_path: /tmp
+    timeout: ""
+    type: Plugin

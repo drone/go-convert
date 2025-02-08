@@ -106,3 +106,135 @@ func mapToNode(raw map[string]interface{}, node *Node) error {
 
 	return nil
 }
+
+func TestExtractGitUrl(t *testing.T) {
+	parameterMap := map[string]any{
+		"scm": map[string]any{
+			"arguments": map[string]any{
+				"userRemoteConfigs": []any{
+					map[string]any{"url": "abc"},
+				},
+			},
+		},
+	}
+	parameterMapWithSubArguments := map[string]any{
+		"scm": map[string]any{
+			"arguments": map[string]any{
+				"userRemoteConfigs": []any{
+					map[string]any{
+						"arguments": map[string]any{
+							"url": "abc",
+						},
+					},
+				},
+			},
+		},
+	}
+	tests := []struct {
+		name  string
+		input Node
+		want  string
+	}{
+		{
+			name: "ReturnUrlFromParameterMapWhenNoUrlInAttributesMap",
+			input: Node{
+				ParameterMap: parameterMap,
+			},
+			want: "abc",
+		},
+		{
+			name: "ReturnUrlFromParameterMapSubArgumentsWhenNoUrlInAttributesMap",
+			input: Node{
+				ParameterMap: parameterMapWithSubArguments,
+			},
+			want: "abc",
+		},
+		{
+			name: "ReturnUrlFromAttributesMapByDefault",
+			input: Node{
+				AttributesMap: map[string]string{
+					"http.url": "def",
+				},
+				ParameterMap: parameterMap,
+			},
+			want: "def",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got := extractGitUrl(tc.input)
+
+			if got != tc.want {
+				t.Errorf("%v failed, got %v expected %v", tc.name, got, tc.want)
+			}
+		})
+	}
+
+}
+
+func TestExtractGitBranch(t *testing.T) {
+	parameterMap := map[string]any{
+		"scm": map[string]any{
+			"arguments": map[string]any{
+				"branches": []any{
+					map[string]any{"name": "main"},
+				},
+			},
+		},
+	}
+	parameterMapWithSubArguments := map[string]any{
+		"scm": map[string]any{
+			"arguments": map[string]any{
+				"branches": []any{
+					map[string]any{
+						"arguments": map[string]any{
+							"name": "main",
+						},
+					},
+				},
+			},
+		},
+	}
+	tests := []struct {
+		name  string
+		input Node
+		want  string
+	}{
+		{
+			name: "ReturnBranchFromParameterMapWhenNoBranchInAttributesMap",
+			input: Node{
+				ParameterMap: parameterMap,
+			},
+			want: "main",
+		},
+		{
+			name: "ReturnBranchFromParameterMapSubArgumentsWhenNoBranchInAttributesMap",
+			input: Node{
+				ParameterMap: parameterMapWithSubArguments,
+			},
+			want: "main",
+		},
+		{
+			name: "ReturnBranchFromAttributesMapByDefault",
+			input: Node{
+				AttributesMap: map[string]string{
+					"git.branch": "def",
+				},
+				ParameterMap: parameterMap,
+			},
+			want: "def",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got := extractGitBranch(tc.input)
+
+			if got != tc.want {
+				t.Errorf("%v failed, got %v expected %v", tc.name, got, tc.want)
+			}
+		})
+	}
+
+}

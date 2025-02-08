@@ -1,0 +1,11 @@
+- step:
+    identifier: slackuseridsfromcommitters0bf200
+    name: slackUserIdsFromCommitters
+    spec:
+      image: plugins/slack
+      settings:
+        access_token: <+input>
+        committers_slack_id: "true"
+        git_repo_path: <+input>
+    timeout: ""
+    type: Plugin

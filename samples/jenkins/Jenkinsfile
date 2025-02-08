@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     tools {
         ant 'AntNew'
         gradle 'GradleNew'
@@ -11,6 +11,12 @@ pipeline {
         DOCKER_IMAGE = 'user1/testimage'
         DOCKER_TAG = 'latest'
         ARTIFACTORY_SERVER = 'artifactory-id'
+        //Ansible Playbook
+        PATH = "/opt/homebrew/bin:$PATH"
+        VAULT_PASSWORD = 'secretpassword'
+        ANSIBLE_INVENTORY = 'inventory.ini'
+        ANSIBLE_PLAYBOOK = 'test-playbook.yml'
+        ANSIBLE_VAULT_TMP_PATH = '/tmp/vault-password.txt'
     }
     
     stages {
@@ -26,18 +32,16 @@ pipeline {
                         submoduleCfg: [],
                         userRemoteConfigs: [[url: 'https://github.com/harness-community/test-jenkins-to-harness.git']]
                     ])
-                    
                     // Use Maven to build
                     withMaven {
                     sh "mvn clean install\
                         package"
                     }
-                    
                     // Use Ant to build
                     withAnt {
                         sh 'ant build'
                     }
-                    
+
                     // Use Gradle to build
                     withGradle {
                         sh 'gradle build'
@@ -45,11 +49,11 @@ pipeline {
                 }
             }
         }
-        
+
         stage('ReadWriteFile') {
             steps {
                 script {
-                    writeFile file: 'output1.txt', text: '''line1 
+                    writeFile file: 'output1.txt', text: '''line1
 
 line2
 
@@ -69,15 +73,15 @@ line3'''
                       touch target/file5.txt
                       touch target/file6.txt
                     '''
-                    
+
                     // List files before deletion
                     sh 'ls'
-                    
+
                     // Delete the target directory
                     dir('target') {
                         deleteDir()
                     }
-                    
+
                     // List files after deletion
                     sh 'ls'
                 }
@@ -98,7 +102,7 @@ line3'''
                 }
             }
         }
-        
+
         stage('Read yaml step') {
             steps {
                 script {
@@ -110,7 +114,7 @@ line3'''
   properties:
     ci:
       codebase:false'''
-                        
+
                     datas = readYaml (file: 'test1.yaml')
                 }
             }
@@ -142,7 +146,7 @@ line3'''
                 script {
                     def files = findFiles(glob: '**/*.txt')
                     echo "${files.length} files"
-                
+
                     for(int i = 0; i < files.length; i++) {
                         echo "${files[i].name} -- ${files[i].path}"
                     }
@@ -305,7 +309,7 @@ line3'''
             steps {
                 fileOperations([
                     fileJoinOperation(
-                        sourceFile: 'file1.txt', 
+                        sourceFile: 'file1.txt',
                         targetFile: 'file2.txt'
                     )
                 ])
@@ -326,7 +330,7 @@ line3'''
             steps {
                 fileOperations([
                     fileJoinOperation(
-                        sourceFile: 'file1.txt', 
+                        sourceFile: 'file1.txt',
                         targetFile: 'file2.txt'
                     )
                 ])
@@ -346,7 +350,7 @@ line3'''
             steps {
                 fileOperations([
                     fileRenameOperation(
-                        source: 'newfile.txt', 
+                        source: 'newfile.txt',
                         destination: 'renamedfile.txt'
                     )
                 ])
@@ -367,8 +371,8 @@ line3'''
             steps {
                 fileOperations([
                     fileTransformOperation(
-                        includes: 'newfile*.txt', 
-                        excludes: 'newfile2.txt', 
+                        includes: 'newfile*.txt',
+                        excludes: 'newfile2.txt',
                         useDefaultExcludes: false
                     )
                 ])
@@ -391,8 +395,8 @@ line3'''
             steps {
                 fileOperations([
                     fileUnTarOperation(
-                        filePath: 'src.tar.gz', 
-                        targetLocation: 'dest/', 
+                        filePath: 'src.tar.gz',
+                        targetLocation: 'dest/',
                         isGZIP: true
                     )
                 ])
@@ -415,7 +419,7 @@ line3'''
             steps {
                 fileOperations([
                     fileUnZipOperation(
-                        filePath: 'src.zip', 
+                        filePath: 'src.zip',
                         targetLocation: 'dest/'
                     )
                 ])
@@ -437,7 +441,7 @@ line3'''
             steps {
                 fileOperations([
                     fileZipOperation(
-                        folderPath: 'src/', 
+                        folderPath: 'src/',
                         outputFolderPath: 'dest/'
                     )
                 ])
@@ -459,7 +463,7 @@ line3'''
             steps {
                 fileOperations([
                     folderCopyOperation(
-                        sourceFolderPath: 'src/', 
+                        sourceFolderPath: 'src/',
                         destinationFolderPath: 'dest'
                     )
                 ])
@@ -494,7 +498,7 @@ line3'''
             steps {
                 fileOperations([
                     folderRenameOperation(
-                        source: 'src/', 
+                        source: 'src/',
                         destination: 'dest/'
                     )
                 ])
@@ -518,6 +522,553 @@ line3'''
 
                     // Extracting the version from the POM file
                     echo "Project Version: ${pom.version}"
+                }
+            }
+        }
+        stage('Publish') {
+            steps {
+                s3Upload entries: [
+                [bucket: 'bucket-1', excludedFile: '2.txxt'
+                 , flatten: false, gzipFiles: false, keepForever: false
+                 , selectedRegion: 'us-west-1', showDirectlyInBrowser: false
+                 , sourceFile: '*.txt', uploadFromSlave: false],
+                [bucket: 'bucket-1'
+                 , flatten: false, gzipFiles: true, keepForever: false
+                 , selectedRegion: 'us-west-1', showDirectlyInBrowser: false
+                 , sourceFile: '*.md', uploadFromSlave: false]
+                ], profileName: 'default'
+            }
+        }
+        stage('Jacoco reports') {
+            steps {
+                jacoco(
+                        classPattern: '**/target/classes, **/WEB-INF/classes',
+                        exclusionPattern: '**/controllers/*.class',
+                        inclusionPattern: '**/*.class',
+                        sourceInclusionPattern: '**/*.java',
+                        sourceExclusionPattern: '**/controllers/*.java',
+                        maximumBranchCoverage: '81',
+                        maximumClassCoverage: '85',
+                        maximumComplexityCoverage: '10',
+                        maximumInstructionCoverage: '80',
+                        maximumLineCoverage: '83',
+                        maximumMethodCoverage: '84'
+                )
+            }
+        }
+        //Allure Jenkins pipeline stages
+        stage('Checkout') {
+            steps {
+                git branch: 'master', url: 'https://github.com/eroshenkoam/allure-example.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh './gradlew clean test'
+            }
+        }
+        stage('Report') {
+            steps {
+                allure([
+                    includeProperties: false,
+                    jdk: '',
+                    properties: [],
+                    reportBuildPolicy: 'ALWAYS',
+                    results: [[path: 'build/allure-results']]
+                ])
+            }
+        }
+        stage('Run NUnit') {
+            steps {
+                script {
+                     xmlFileUrl = 'https://raw.githubusercontent.com/harness-community/test-jenkins-to-harness/refs/heads/main/nunit-test-result.xml'
+                     outputFilePath = 'TestResult.xml'
+
+                    bat """
+                    powershell -Command "Invoke-WebRequest -Uri '${xmlFileUrl}' -OutFile '${outputFilePath}'"
+                    """
+                }
+                nunit testResultsPattern: 'TestResult.xml', failIfNoResults: true, skipJUnitArchiver: false, failedTestsFailBuild: true
+            }
+        }
+
+        // Javadoc Steps
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/spring-guides/gs-rest-service.git', branch: 'main'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'cd complete && gradle clean build --info --stacktrace'
+            }
+        }
+        stage('Generate Javadoc') {
+            steps {
+                sh 'cd complete && gradle javadoc --info --stacktrace'
+            }
+        }
+        stage('Publish Javadoc') {
+            steps {
+                javadoc javadocDir: 'complete/build/docs/javadoc', keepAll: true
+            }
+        }    
+        //Kube-ctl
+        stage('Check Docker') {
+            steps {
+                sh '''
+                    echo "Current PATH: $PATH"
+                    which docker || echo "Docker not found"
+                '''
+            }
+        }
+        stage('Run Kubectl') {
+            steps {
+                withKubeConfig([
+                    credentialsId: 'credentialsId', // Replace with your actual credentials ID
+                    serverUrl: 'https://127.0.0.1:56227' // Replace with your actual server URL
+
+                ]) {
+                    sh 'kubectl get pods' // Run your kubectl command here
+                }
+            }
+        }
+        // Cobertura plugin stage begins
+        stage('Checkout sample code for Cobertura coverage.xml file') {
+            steps {
+                git branch: "main", url: "https://github.com/harness-community/drone-coverage-report.git"
+            }
+        }
+        stage('Publish Cobertura Coverage Report') {  // Cobetura plugin stage
+            steps {
+                cobertura coberturaReportFile: '**/coverage.xml',
+                        autoUpdateHealth: false,
+                        autoUpdateStability: false,
+                        failUnhealthy: false,
+                        failUnstable: false,
+                        lineCoverageTargets: '80, 0, 0',
+                        methodCoverageTargets: '80, 0, 0',
+                        classCoverageTargets: '70, 0, 0',
+                        conditionalCoverageTargets: '65, 0, 0'
+            }
+        }
+        // slackFileUpload plugin stage begins here
+        stage('Generate Temp File') {
+            steps {
+                script {
+                    def words = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig', 'grape']
+                    def randomWords = (1..5).collect { words[new Random().nextInt(words.size())] }.join(' ')
+                    writeFile file: 'b.txt', text: randomWords
+                    echo "Temp file created with content: ${randomWords}"
+                }
+            }
+        }
+        stage('Upload to Slack') {
+            steps {
+                slackUploadFile(
+                    channel: 'C07TL1KNV8Q',
+                    credentialId: 'SlackChannelCreds',
+                    failOnError: true,
+                    filePath: 'b.txt',
+                    initialComment: 'jenkins file upload test'
+                )
+            }
+        }
+        // slackSend plugin stage begins here
+        stage('Send Slack Notification') {
+            steps {
+                slackSend channel: 'dev',
+                          color: 'good',
+                          iconEmoji: ':rocket:',
+                          message: 'hi, the test msg slack now test ...',
+                          teamDomain: 'jenkins-bot-testing',
+                          tokenCredentialId: 'slackcreds03',
+                          username: 'jenkins-test-user'
+            }
+        }
+        //Pagerduty plugin
+        post {
+        success {
+            echo 'Job succeeded!'
+            pagerduty(
+                resolve: true,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Succeeded for ${env.JOB_NAME}",
+                incidentSeverity: "info",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+        failure {
+            echo 'Job failed!'
+            pagerduty(
+                resolve: false,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Failed for ${env.JOB_NAME}",
+                incidentSeverity: "critical",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+        aborted {
+            echo 'Job was aborted!'
+            pagerduty(
+                resolve: false,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Aborted for ${env.JOB_NAME}",
+                incidentSeverity: "warning",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+        unstable {
+            echo 'Job is unstable!'
+            pagerduty(
+                resolve: false,
+                routingKey: "${env.PAGERDUTY_ROUTING_KEY}",
+                dedupKey: "${env.PAGERDUTY_DEDUP_KEY}",
+                incidentSummary: "Build Unstable for ${env.JOB_NAME}",
+                incidentSeverity: "warning",
+                incidentSource: "${env.JOB_NAME}"
+            )
+        }
+    }
+    //pagerduty plugin change event
+    post {
+        always {
+            // Create a change event in PagerDuty after the job completes, regardless of outcome
+            pagerdutyChangeEvent(
+                integrationKey: "${env.PAGERDUTY_INTEGRATION_KEY}",
+                summaryText: "Job ${env.JOB_NAME} completed with status ${currentBuild.currentResult}",
+                customDetails: [
+                    buildNumber: "${env.BUILD_NUMBER}",
+                    jobName: "${env.JOB_NAME}",
+                    jobURL: "${env.BUILD_URL}"
+                ]
+            )
+        }
+    }
+        // publishHTML plugin stage begins
+        stage('Generate HTML Reports') {
+            steps {
+                script {
+                    sh 'mkdir -p reports'
+                    writeFile file: 'reports/index.html', text: '''
+                        <html>
+                        <head><title>Sample Report</title></head>
+                        <body>
+                            <h1>Main Report</h1>
+                            <p>This is the main report page.</p>
+                        </body>
+                        </html>
+                    '''
+                }
+            }
+        }
+        stage('Publish HTML Report') {
+            steps {
+                publishHTML(target: [
+                        reportName : 'Sample HTML Report',
+                        reportDir  : 'reports',
+                        reportFiles: 'index.html',
+                        includes   : '**/*.html,**/*.css'
+                ])
+            }
+        }
+        //mailer
+        stage('Test') {
+            steps {
+                script {
+                    // Set the build result to test email notifications
+                    currentBuild.result = 'FAILED' // Change to 'UNSTABLE' or 'SUCCESS' as needed
+                }
+            }
+        }
+         post {
+            always {
+                mail(
+                    to: "test.uyser@testmail.com",
+                    subject: "Jenkins Build - ${currentBuild.fullDisplayName}",
+                    body: """
+                    Build Status: ${currentBuild.currentResult}
+                    Check console output at: ${env.BUILD_URL}console
+                    """
+                )
+            }
+        }
+        // nexusArtifactUploader plugin stage begins
+        stage('Generate File') {
+            steps {
+                writeFile file: 'fruit_names.txt', text: 'apple\nbanana\ncherry\ndate\nelderberry\nfig\ngrape\nhoneydew\nkiwi\nlemon'
+                echo "Generated file: fruit_names.txt"
+            }
+        }
+
+        stage('Upload to Nexus') {
+            steps {
+                nexusArtifactUploader artifacts: [[
+                    artifactId: 'fruit-names-v0.1',
+                    file: 'fruit_names.txt',
+                    type: 'txt'
+                ]],
+                credentialsId: 'nexus-hnstest01-creds',
+                groupId: 'test01',
+                nexusUrl: '4.24.1.21:9192/',
+                repository: 'plg01maven2',
+                version: '1.12'
+            }
+        }
+        //Nodejs conversion Step
+        stage('Install Packages') {
+            steps {
+                withSonarQubeEnv('SonarCloud') { // Matches the name in Jenkins configuration
+                    sh "${SONAR_SCANNER}  -Dsonar.projectKey=vanisrikanithi_Test-Sonarqube" +
+               '-Dsonar.organization=vanisrikanithi' +
+               '-Dsonar.login=b751ddb91e11f466d7cdfa0abd65b4a6c393d938 ' +
+               '-Dsonar.sources=src ' +
+               '-Dsonar.java.binaries=target/classes'
+                }
+            }
+        }
+        stage('Quality Gate') {
+            steps {
+                script {
+                    def qualityGate = waitForQualityGate()
+                    // If the quality gate fails, log the status but don't abort the pipeline
+                    if (qualityGate.status != 'OK' && qualityGate.status != 'NONE') {
+                        echo "Quality Gate failed with status: ${qualityGate.status}. Continuing the pipeline."
+            } else if (qualityGate.status == 'NONE') {
+                        echo 'Quality Gate status is NONE. Check SonarQube configuration.'
+            } else {
+                        echo "Quality Gate passed with status: ${qualityGate.status}."
+                    }
+                }
+            }
+        }
+        //Unarchive Stage
+        stage('Unarchive Files') {
+            steps {
+                script {
+                    // Directory to store unarchived files
+                    def extractDir = 'unarchived_files'
+
+                    // Ensure the directory exists
+                    sh "mkdir -p ${extractDir}"
+
+                    // Define the mapping for unarchiving files
+                    def mappings = [
+                        'archive.zip': "${extractDir}/zip/",
+                    ]
+
+                    // Loop through the mappings and unarchive files
+                    for (archive in mappings.keySet()) {
+                        def targetDir = mappings[archive]
+                        echo "Unarchiving: ${archive} into ${targetDir}"
+                        unarchive mapping: ["${archive}": targetDir]
+                    }
+
+                    // Verify the unarchived files
+                    sh "ls -l ${extractDir}"
+                }
+            }
+        }
+        //Gatling
+        stage('Checkout Code') {
+            steps {
+              git url: 'https://github.com/gatling/gatling-maven-plugin-demo.git', branch: 'main'
+
+            }
+        }
+        stage('Run Gatling Simulation') {
+            steps {
+                sh 'mvn clean gatling:test'// Run the simulation using Maven
+            }
+        }
+        stage('Publish Results') {
+            steps {
+                gatlingArchive() // or archiveArtifacts(artifacts: 'target/gatling/index.html')
+            }
+        }
+        // slackUserIdFromEmail
+        stage('Retrieve Slack User ID') {
+            steps {
+                script {
+                    SLACK_USER_ID = slackUserIdFromEmail(
+                        botUser: true,
+                        email: 'slack_user@gmail.com',
+                        tokenCredentialId: 'slack_token_01'
+                    )
+                    echo "Slack User ID for email slack_user@gmail.com: ${SLACK_USER_ID}"
+                }
+            }
+        }
+        stage('Use Slack User ID') {
+            steps {
+                echo "Perform actions using Slack User ID: ${SLACK_USER_ID}"
+            }
+        }
+        // slackUserIdsFromCommitters
+        stage('Get Slack User IDs from Committers') {
+            steps {
+                script {
+                    def slackUserIds = slackUserIdsFromCommitters(
+                            botUser: true,
+                            tokenCredentialId: 'slack_creds_01'
+                    )
+                    echo "Slack User IDs: ${slackUserIds ?: 'No IDs found'}"
+                }
+            }
+        }
+        //Notify Endpoints
+        post {
+            always {
+                script {
+                    notifyEndpoints(
+                            endpoint: env.NOTIFICATION_ENDPOINT,
+
+                            notes: env.BUILD_NOTES,
+                            phase: 'COMPLETED',
+                            loglines: '10'
+                    )
+                }
+            }
+
+            // flywayrunner
+            stage('Flyway Migration: Apple Orange') {
+                steps {
+                    script {
+                        flywayrunner(
+                                credentialsId: "mysql_creds_01",
+                                url: 'jdbc:mysql://3.4.19.21:3306/flyway_test',
+                                flywayCommand: 'migrate',
+                                installationName: 'flyway03',
+                                locations: '/opt/hns/harness-plugins/flyway-test-files/migration_files',
+                                commandLineArgs: '-X'
+                        )
+                    }
+                }
+            }
+        }
+
+        //TestNG
+        stages {
+        stage('Generate Sample TestNG Results') {
+            steps {
+                script {
+                    // Create a sample testng-results.xml inline
+                    def testngResults = '''<?xml version="1.0" encoding="UTF-8"?>
+                    <testng-results skipped="0" failed="1" ignored="0" total="3" passed="2">
+                      <suite name="Sample Suite" duration-ms="58" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z">
+                        <test name="Sample Test" duration-ms="58" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z">
+                          <class name="com.example.TestClass">
+                            <test-method status="PASS" name="testMethod1" duration-ms="10" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z"/>
+                            <test-method status="PASS" name="testMethod2" duration-ms="15" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z"/>
+                            <test-method status="FAIL" name="testMethod3" duration-ms="20" started-at="2024-11-04T10:00:00Z" finished-at="2024-11-04T10:00:00Z">
+                              <exception class="java.lang.AssertionError">
+                                <message><![CDATA[expected [true] but found [false]]]></message>
+                                <full-stacktrace><![CDATA[java.lang.AssertionError: expected [true] but found [false]
+                                    at org.testng.Assert.fail(Assert.java:99)
+                                    at com.example.TestClass.testMethod3(TestClass.java:25)]]></full-stacktrace>
+                              </exception>
+                            </test-method>
+                          </class>
+                        </test>
+                      </suite>
+                    </testng-results>'''
+
+                    // Write the XML content to testng-results.xml in the workspace
+                    writeFile(file: 'testng-results.xml', text: testngResults)
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Publish TestNG results
+            testNG(
+                reportFilenamePattern: '**/testng-results.xml',
+                failedFails: 100,
+                failedSkips: 100,
+                unstableFails: 100,
+                unstableSkips: 100,
+                showFailedBuilds: true,
+                failureOnFailedTestConfig: false,
+                escapeTestDescp: true,
+                escapeExceptionMsg: true,
+                thresholdMode: 1
+            )
+        }
+    }
+
+    //Ansible Playbook, ad-hoc, vault
+    stage('Run Ansible Playbook') {
+            steps {
+                ansiblePlaybook(
+                    playbook: 'playbook.yml',
+                    inventory: 'inventory',
+                    colorized: true,
+                    become: false,
+                    becomeUser: 'root',
+                    checkMode: false,
+                    credentialsId: '',
+                    disableHostKeyChecking: true,
+                    dynamicInventory: false,
+                    extraVars: [custom_var1: 'value1', custom_var2: 'value2'],
+                    extras: '--timeout=30',
+                    forks: 5,
+                    hostKeyChecking: false,
+                    installation: '',
+                    limit: '',
+                    skippedTags: '',
+                    startAtTask: '',
+                    sudo: false,
+                    sudoUser: '',
+                    tags: '',
+                    vaultCredentialsId: '',
+                    vaultTmpPath: '/tmp'
+                )
+            }
+        }
+        stage('Run Ansible Ad-Hoc Command') {
+            steps {
+                ansibleAdhoc(
+                    hosts: 'all',
+                    become: false,
+                    becomeUser: 'root',
+                    colorized: true,
+                    credentialsId: '',
+                    dynamicInventory: false,
+                    extraVars: [
+                        [key: 'custom_var1', value: 'value1'],
+                        [key: 'custom_var2', value: 'value2']
+                    ],
+                    extras: '--timeout=30',
+                    forks: 5,
+                    hostKeyChecking: false,
+                    installation: '',
+                    inventory: 'inventory',
+                    inventoryContent: '[all]\nlocalhost ansible_connection=local',
+                    module: 'ping',
+                    moduleArguments: '',
+                    vaultCredentialsId: '',
+                    vaultTmpPath: '/tmp'
+                )
+            }
+        }
+        stage('Test Ansible Vault Plugin') {
+            steps {
+                script {
+                    writeFile file: 'test_vault.txt', text: 'Testing Ansible Vault Plugin functionality.'
+
+                    ansibleVault(
+                        action: 'encrypt',
+                        input: 'test_vault.txt',
+                        vaultCredentialsId: 'test-vault-id',
+                        vaultTmpPath: '/tmp'
+                    )
+
+                    echo "Encryption completed successfully."
                 }
             }
         }

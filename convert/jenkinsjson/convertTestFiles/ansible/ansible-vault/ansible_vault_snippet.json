@@ -1,0 +1,30 @@
+{
+  "spanId": "60a60b177ce71179",
+  "traceId": "7f0304d2ba6fa0aaae5d71cc94b3cdfa",
+  "parent": "vani_ansible_test",
+  "all-info": "span(name: ansibleVault, spanId: 60a60b177ce71179, parentSpanId: 43a7cba65433cdbc, traceId: 7f0304d2ba6fa0aaae5d71cc94b3cdfa, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"output\" : \"encrypted_content.txt\",\n  \"action\" : \"encrypt\",\n  \"input\" : \"content_to_encrypt.txt\",\n  \"vaultCredentialsId\" : \"test-vault-id\",\n  \"vaultTmpPath\" : \"/tmp\"\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@5ee5a554:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@5ee5a554;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@33637909:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@33637909;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@3b4ac42d:org.jenkinsci.plugins.workflow.actions.TimingAction@3b4ac42d;harness-others:;jenkins.pipeline.step.id:30;jenkins.pipeline.step.name:Invoke ansible vault;jenkins.pipeline.step.plugin.name:ansible;jenkins.pipeline.step.plugin.version:403.v8d0ca_dcb_b_502;jenkins.pipeline.step.type:ansibleVault;)",
+  "name": "vani_ansible_test #25",
+  "attributesMap": {
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@33637909": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@33637909",
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@5ee5a554": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@5ee5a554",
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Invoke ansible vault",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "30",
+    "jenkins.pipeline.step.type": "ansibleVault",
+    "harness-attribute": "{\n  \"output\" : \"encrypted_content.txt\",\n  \"action\" : \"encrypt\",\n  \"input\" : \"content_to_encrypt.txt\",\n  \"vaultCredentialsId\" : \"test-vault-id\",\n  \"vaultTmpPath\" : \"/tmp\"\n}",
+    "jenkins.pipeline.step.plugin.name": "ansible",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@3b4ac42d": "org.jenkinsci.plugins.workflow.actions.TimingAction@3b4ac42d",
+    "jenkins.pipeline.step.plugin.version": "403.v8d0ca_dcb_b_502"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "43a7cba65433cdbc",
+  "parameterMap": {
+    "output": "encrypted_content.txt",
+    "input": "content_to_encrypt.txt",
+    "vaultCredentialsId": "test-vault-id",
+    "vaultTmpPath": "/tmp",
+    "action": "encrypt"
+  },
+  "spanName": "ansibleVault"
+}

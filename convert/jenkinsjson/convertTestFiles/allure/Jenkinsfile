@@ -1,0 +1,26 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'master', url: 'https://github.com/eroshenkoam/allure-example.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh './gradlew clean test'
+            }
+        }
+        stage('Report') {
+            steps {
+                allure([
+                    includeProperties: false,
+                    jdk: '',
+                    properties: [],
+                    reportBuildPolicy: 'ALWAYS',
+                    results: [[path: 'build/allure-results']]
+                ])
+            }
+        }
+    }
+}

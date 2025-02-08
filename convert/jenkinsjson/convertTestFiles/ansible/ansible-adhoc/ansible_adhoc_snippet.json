@@ -1,0 +1,51 @@
+{
+  "spanId": "4eb052213ca082c4",
+  "traceId": "7f0304d2ba6fa0aaae5d71cc94b3cdfa",
+  "parent": "vani_ansible_test",
+  "all-info": "span(name: ansibleAdhoc, spanId: 4eb052213ca082c4, parentSpanId: 8066bc0151e6b1a9, traceId: 7f0304d2ba6fa0aaae5d71cc94b3cdfa, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"forks\" : 5,\n  \"hostKeyChecking\" : false,\n  \"moduleArguments\" : \"\",\n  \"hosts\" : \"all\",\n  \"dynamicInventory\" : false,\n  \"module\" : \"ping\",\n  \"extras\" : \"--timeout=30\",\n  \"credentialsId\" : \"\",\n  \"inventory\" : \"inventory\",\n  \"becomeUser\" : \"root\",\n  \"colorized\" : true,\n  \"inventoryContent\" : \"[all]\\nlocalhost ansible_connection=local\",\n  \"vaultCredentialsId\" : \"\",\n  \"installation\" : \"\",\n  \"vaultTmpPath\" : \"/tmp\",\n  \"extraVars\" : [ {\n    \"key\" : \"custom_var1\",\n    \"value\" : \"value1\"\n  }, {\n    \"key\" : \"custom_var2\",\n    \"value\" : \"value2\"\n  } ],\n  \"become\" : false\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3e51500e:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3e51500e;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@53198870:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@53198870;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@75f30ace:org.jenkinsci.plugins.workflow.actions.TimingAction@75f30ace;harness-others:;jenkins.pipeline.step.id:22;jenkins.pipeline.step.name:Invoke an ansible adhoc command;jenkins.pipeline.step.plugin.name:ansible;jenkins.pipeline.step.plugin.version:403.v8d0ca_dcb_b_502;jenkins.pipeline.step.type:ansibleAdhoc;)",
+  "name": "vani_ansible_test #25",
+  "attributesMap": {
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3e51500e": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3e51500e",
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Invoke an ansible adhoc command",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "22",
+    "jenkins.pipeline.step.type": "ansibleAdhoc",
+    "harness-attribute": "{\n  \"forks\" : 5,\n  \"hostKeyChecking\" : false,\n  \"moduleArguments\" : \"\",\n  \"hosts\" : \"all\",\n  \"dynamicInventory\" : false,\n  \"module\" : \"ping\",\n  \"extras\" : \"--timeout=30\",\n  \"credentialsId\" : \"\",\n  \"inventory\" : \"inventory\",\n  \"becomeUser\" : \"root\",\n  \"colorized\" : true,\n  \"inventoryContent\" : \"[all]\\nlocalhost ansible_connection=local\",\n  \"vaultCredentialsId\" : \"\",\n  \"installation\" : \"\",\n  \"vaultTmpPath\" : \"/tmp\",\n  \"extraVars\" : [ {\n    \"key\" : \"custom_var1\",\n    \"value\" : \"value1\"\n  }, {\n    \"key\" : \"custom_var2\",\n    \"value\" : \"value2\"\n  } ],\n  \"become\" : false\n}",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@75f30ace": "org.jenkinsci.plugins.workflow.actions.TimingAction@75f30ace",
+    "jenkins.pipeline.step.plugin.name": "ansible",
+    "jenkins.pipeline.step.plugin.version": "403.v8d0ca_dcb_b_502",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@53198870": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@53198870"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "8066bc0151e6b1a9",
+  "parameterMap": {
+    "forks": 5,
+    "hostKeyChecking": false,
+    "moduleArguments": "",
+    "hosts": "all",
+    "dynamicInventory": false,
+    "module": "ping",
+    "extras": "--timeout=30",
+    "credentialsId": "",
+    "inventory": "inventory",
+    "becomeUser": "root",
+    "colorized": true,
+    "inventoryContent": "[all]\nlocalhost ansible_connection=local",
+    "vaultCredentialsId": "",
+    "installation": "",
+    "vaultTmpPath": "/tmp",
+    "extraVars": [
+      {
+        "value": "value1",
+        "key": "custom_var1"
+      },
+      {
+        "value": "value2",
+        "key": "custom_var2"
+      }
+    ],
+    "become": false
+  },
+  "spanName": "ansibleAdhoc"
+}

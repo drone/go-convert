@@ -1,0 +1,104 @@
+pipeline {
+    agent any
+    stages {
+        stage('Setup Inline Playbook and Inventory') {
+            steps {
+                script {
+                    // Write the inline playbook
+                    writeFile file: 'playbook.yml', text: '''
+---
+- hosts: all
+  tasks:
+    - name: Ping all hosts
+      ping:
+    - name: Show debug message
+      debug:
+        msg: "This is a simple test of the Ansible Playbook plugin in Jenkins"
+'''
+
+                    // Write the inline inventory
+                    writeFile file: 'inventory', text: '''
+[all]
+localhost ansible_connection=local
+'''
+                }
+            }
+        }
+        stage('Run Ansible Playbook') {
+            steps {
+                ansiblePlaybook(
+                    playbook: 'playbook.yml',
+                    inventory: 'inventory',
+                    colorized: true,
+                    become: false,
+                    becomeUser: 'root',
+                    checkMode: false,
+                    credentialsId: '',
+                    disableHostKeyChecking: true,
+                    dynamicInventory: false,
+                    extraVars: [custom_var1: 'value1', custom_var2: 'value2'],
+                    extras: '--timeout=30',
+                    forks: 5,
+                    hostKeyChecking: false,
+                    installation: '',
+                    limit: '',
+                    skippedTags: '',
+                    startAtTask: '',
+                    sudo: false,
+                    sudoUser: '',
+                    tags: '',
+                    vaultCredentialsId: '',
+                    vaultTmpPath: '/tmp'
+                )
+            }
+        }
+        stage('Run Ansible Ad-Hoc Command') {
+            steps {
+                ansibleAdhoc(
+                    hosts: 'all',
+                    become: false,
+                    becomeUser: 'root',
+                    colorized: true,
+                    credentialsId: '',
+                    dynamicInventory: false,
+                    extraVars: [
+                        [key: 'custom_var1', value: 'value1'],
+                        [key: 'custom_var2', value: 'value2']
+                    ],
+                    extras: '--timeout=30',
+                    forks: 5,
+                    hostKeyChecking: false,
+                    installation: '',
+                    inventory: 'inventory',
+                    inventoryContent: '[all]\nlocalhost ansible_connection=local',
+                    module: 'ping',
+                    moduleArguments: '',
+                    vaultCredentialsId: '',
+                    vaultTmpPath: '/tmp'
+                )
+            }
+        }
+        stage('Test Ansible Vault Plugin') {
+            steps {
+                script {
+                    writeFile file: 'test_vault.txt', text: 'Testing Ansible Vault Plugin functionality.'
+
+                    ansibleVault(
+                        action: 'encrypt',
+                        input: 'test_vault.txt',
+                        vaultCredentialsId: 'test-vault-id',
+                        vaultTmpPath: '/tmp'
+                    )
+
+                    echo "Encryption completed successfully."
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Cleaning up temporary files'
+            sh 'rm -f playbook.yml inventory sample.txt sample.txt.enc sample_decrypted.txt'
+        }
+    }
+}

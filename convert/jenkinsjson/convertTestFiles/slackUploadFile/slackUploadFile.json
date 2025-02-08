@@ -1,0 +1,29 @@
+{
+  "spanId":"b5f5077d148d4a3a",
+  "traceId":"917fd9bb9cbc1404dbe74381e7e88a66",
+  "parent":"slack-file-upload-test01",
+  "all-info":"span(name: slackUploadFile, spanId: b5f5077d148d4a3a, parentSpanId: 794561a8316029b8, traceId: 917fd9bb9cbc1404dbe74381e7e88a66, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"channel\" : \"C07TL1KNV8Q\",\n  \"credentialId\" : \"SlackToken01\",\n  \"failOnError\" : true,\n  \"initialComment\" : \"jenkins file upload test\",\n  \"filePath\" : \"b.txt\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@45aa67ab:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@45aa67ab;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@50acc2d:org.jenkinsci.plugins.workflow.actions.TimingAction@50acc2d;harness-others:;jenkins.pipeline.step.id:19;jenkins.pipeline.step.name:Upload file to slack;jenkins.pipeline.step.plugin.name:slack;jenkins.pipeline.step.plugin.version:751.v2e44153c8fe1;jenkins.pipeline.step.type:slackUploadFile;)",
+  "name":"slack-file-upload-test01 #1",
+  "attributesMap":{
+    "harness-others":"",
+    "jenkins.pipeline.step.name":"Upload file to slack",
+    "ci.pipeline.run.user":"SYSTEM",
+    "jenkins.pipeline.step.id":"19",
+    "jenkins.pipeline.step.type":"slackUploadFile",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@45aa67ab":"io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@45aa67ab",
+    "harness-attribute":"{\n  \"channel\" : \"C07TL1KNV8Q\",\n  \"credentialId\" : \"SlackToken01\",\n  \"failOnError\" : true,\n  \"initialComment\" : \"jenkins file upload test\",\n  \"filePath\" : \"b.txt\"\n}",
+    "jenkins.pipeline.step.plugin.name":"slack",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@50acc2d":"org.jenkinsci.plugins.workflow.actions.TimingAction@50acc2d",
+    "jenkins.pipeline.step.plugin.version":"751.v2e44153c8fe1"
+  },
+  "type":"Run Phase Span",
+  "parentSpanId":"794561a8316029b8",
+  "parameterMap":{
+    "initialComment":"jenkins file upload test",
+    "filePath":"b.txt",
+    "channel":"C07TL1KNV8Q",
+    "credentialId":"SlackToken01",
+    "failOnError":true
+  },
+  "spanName":"slackUploadFile"
+}

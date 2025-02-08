@@ -1,0 +1,15 @@
+- step:
+    identifier: slacksend8962b0
+    name: slackSend
+    spec:
+      image: plugins/slack
+      settings:
+        access_token: slackcreds03
+        channel: dev
+        color: good
+        icon_emoji: ':rocket:'
+        message: hi, this is tst msg
+        username: jenkins-test-user
+        committers_slack_id: "true"
+    timeout: ""
+    type: Plugin

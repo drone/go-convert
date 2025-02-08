@@ -1,0 +1,42 @@
+---
+steps:
+  - step:
+      type: Run
+      name: Write File
+      identifier: Write_File
+      spec:
+        connectorRef: Public_Docker_Hub
+        image: alpine
+        shell: Sh
+        command: >-
+          echo "Pipeline Execution: <+pipeline.executionId>" >
+          pipeline-<+pipeline.executionId>.txt
+
+          echo "Sequence: <+pipeline.sequenceId>" > pipeline-<+pipeline.sequenceId>.txt
+  - step:
+      type: Plugin
+      name: Plugin_0
+      identifier: Plugin_0
+      spec:
+        connectorRef: <+input>
+        image: plugins/archive
+        settings:
+          source: .
+          target: s3Upload.gzip
+          glob: *.txt
+          exclude: 2.txt
+  - step:
+      type: Plugin
+      name: Upload to S3
+      identifier: Upload_to_S3
+      spec:
+        connectorRef: Public_Docker_Hub
+        image: plugins/s3:1.4.1
+        settings:
+          bucket: jenkins-migration
+          source: "s3Upload.gzip"
+          target: <+pipeline.identifier>/
+          access_key: kYD12C6fHi9yfRKdkxzZ
+          secret_key: <+secrets.getValue("SecretKey_for_MinIO_on_FRCD")>
+          endpoint: https://minio.frcd.com.br
+          path_style: "true"

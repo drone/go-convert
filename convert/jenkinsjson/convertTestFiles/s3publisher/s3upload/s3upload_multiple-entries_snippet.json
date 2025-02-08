@@ -1,0 +1,66 @@
+{
+  "spanId": "1ec902dbd864116c",
+  "traceId": "f03b61a089e2ec4d5e81778ca44190e8",
+  "parent": "S3 Publisher-1",
+  "all-info": "span(name: s3Upload, spanId: 1ec902dbd864116c, parentSpanId: 31b6240c3095e9f3, traceId: f03b61a089e2ec4d5e81778ca44190e8, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"delegate\" : {\n    \"symbol\" : \"s3Upload\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"consoleLogLevel\" : \"INFO\",\n      \"dontSetBuildResultOnFailure\" : false,\n      \"dontWaitForConcurrentBuildCompletion\" : false,\n      \"entries\" : [ {\n        \"bucket\" : \"bucket-1\",\n        \"excludedFile\" : \"2.txxt\",\n        \"flatten\" : false,\n        \"gzipFiles\" : false,\n        \"keepForever\" : false,\n        \"managedArtifacts\" : false,\n        \"noUploadOnFailure\" : false,\n        \"selectedRegion\" : \"us-west-1\",\n        \"showDirectlyInBrowser\" : false,\n        \"sourceFile\" : \"*.txt\",\n        \"storageClass\" : \"STANDARD\",\n        \"uploadFromSlave\" : false,\n        \"useServerSideEncryption\" : false\n      } ],\n      \"pluginFailureResultConstraint\" : \"FAILURE\",\n      \"profileName\" : \"default\",\n      \"userMetadata\" : [ ]\n    },\n    \"model\" : null\n  }\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2e8f827b:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2e8f827b;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@593f0a9:org.jenkinsci.plugins.workflow.actions.TimingAction@593f0a9;harness-others:-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep;jenkins.pipeline.step.id:7;jenkins.pipeline.step.name:Publish artifacts to S3 Bucket;jenkins.pipeline.step.plugin.name:s3;jenkins.pipeline.step.plugin.version:483.vcb_db_3dcee68f;jenkins.pipeline.step.type:s3Upload;)",
+  "name": "S3 Publisher-1 #2",
+  "attributesMap": {
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@593f0a9": "org.jenkinsci.plugins.workflow.actions.TimingAction@593f0a9",
+    "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+    "jenkins.pipeline.step.name": "Publish artifacts to S3 Bucket",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "7",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2e8f827b": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2e8f827b",
+    "jenkins.pipeline.step.type": "s3Upload",
+    "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"s3Upload\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"consoleLogLevel\" : \"INFO\",\n      \"dontSetBuildResultOnFailure\" : false,\n      \"dontWaitForConcurrentBuildCompletion\" : false,\n      \"entries\" : [ {\n        \"bucket\" : \"bucket-1\",\n        \"excludedFile\" : \"2.txxt\",\n        \"flatten\" : false,\n        \"gzipFiles\" : false,\n        \"keepForever\" : false,\n        \"managedArtifacts\" : false,\n        \"noUploadOnFailure\" : false,\n        \"selectedRegion\" : \"us-west-1\",\n        \"showDirectlyInBrowser\" : false,\n        \"sourceFile\" : \"*.txt\",\n        \"storageClass\" : \"STANDARD\",\n        \"uploadFromSlave\" : false,\n        \"useServerSideEncryption\" : false\n      } ],\n      \"pluginFailureResultConstraint\" : \"FAILURE\",\n      \"profileName\" : \"default\",\n      \"userMetadata\" : [ ]\n    },\n    \"model\" : null\n  }\n}",
+    "jenkins.pipeline.step.plugin.name": "s3",
+    "jenkins.pipeline.step.plugin.version": "483.vcb_db_3dcee68f"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "31b6240c3095e9f3",
+  "parameterMap": {"delegate": {
+    "symbol": "s3Upload",
+    "klass": null,
+    "arguments": {
+      "profileName": "default",
+      "dontSetBuildResultOnFailure": false,
+      "dontWaitForConcurrentBuildCompletion": false,
+      "entries": [{
+        "excludedFile": "2.txt",
+        "uploadFromSlave": false,
+        "managedArtifacts": false,
+        "keepForever": false,
+        "gzipFiles": false,
+        "sourceFile": "*.txt",
+        "bucket": "bucket-1",
+        "flatten": false,
+        "noUploadOnFailure": false,
+        "storageClass": "STANDARD",
+        "selectedRegion": "us-west-1",
+        "showDirectlyInBrowser": false,
+        "useServerSideEncryption": false
+      },
+	  {
+        "excludedFile": "2.txt",
+        "uploadFromSlave": false,
+        "managedArtifacts": false,
+        "keepForever": false,
+        "gzipFiles": true,
+        "sourceFile": "*.txt",
+        "bucket": "bucket-2",
+        "flatten": false,
+        "noUploadOnFailure": false,
+        "storageClass": "STANDARD",
+        "selectedRegion": "us-west-1",
+        "showDirectlyInBrowser": false,
+        "useServerSideEncryption": false
+      }],
+      "consoleLogLevel": "INFO",
+      "pluginFailureResultConstraint": "FAILURE",
+      "userMetadata": []
+    },
+    "model": null
+  }},
+  "spanName": "s3Upload"
+}
+ 
