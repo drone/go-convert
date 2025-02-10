@@ -1,0 +1,14 @@
+inputSet:
+  name: event-PR
+  identifier: eventpr
+  orgIdentifier: default
+  projectIdentifier: Drone_Plugins
+  pipeline:
+    identifier: dronegoconvert
+    properties:
+      ci:
+        codebase:
+          build:
+            type: PR
+            spec:
+              number: <+trigger.prNumber>
