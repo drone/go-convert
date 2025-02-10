@@ -1,0 +1,57 @@
+pipeline:
+  name: go-convert
+  identifier: goconvert
+  projectIdentifier: Drone_Plugins
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: GitHub_Drone_Org
+        repoName: go-convert
+        build: <+input>
+  stages:
+    - stage:
+        name: Linux
+        identifier: Linux
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+          buildIntelligence:
+            enabled: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: test
+                  identifier: test
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: golang:1.19
+                    shell: Sh
+                    command: |-
+                      go test -coverprofile=cover.out ./...
+                      go tool cover -func=cover.out
+              - step:
+                  type: Run
+                  name: build
+                  identifier: build
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: golang:1.19
+                    shell: Sh
+                    command: |-
+                      GOOS=linux   GOARCH=amd64   go build -o release/plugin-linux-amd64
+                      GOOS=linux   GOARCH=arm64   go build -o release/plugin-linux-arm64
+                      GOOS=darwin  GOARCH=amd64   go build -o release/plugin-darwin-amd64
+                      GOOS=darwin  GOARCH=arm64   go build -o release/plugin-darwin-arm64
+                      GOOS=windows GOARCH=amd64   go build -o release/plugin-windows-amd64.exe
