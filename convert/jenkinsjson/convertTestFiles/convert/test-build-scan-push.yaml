@@ -1,6 +1,6 @@
 version: 1
 kind: pipeline
-type: ""
+type: junit,docker,mvn,docker,docker,artifactory,docker,docker,docker,docker,git
 name: Pipelines org project ci_branch_277
 spec:
   stages:
