@@ -1,6 +1,6 @@
 version: 1
 kind: pipeline
-type: ""
+type: powershell,powershell,powershell,powershell,git,powershell,git,powershell,git,powershell,git,powershell,git,powershell,git,powershell,powershell,powershell,powershell
 name: ExampleProcessing workflows application develop_17
 spec:
   stages:

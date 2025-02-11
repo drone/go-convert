@@ -1,0 +1,14 @@
+inputSet:
+  name: eventPUSH
+  identifier: eventPUSH
+  orgIdentifier: default
+  projectIdentifier: Drone_Plugins
+  pipeline:
+    identifier: dronegoconvert
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>

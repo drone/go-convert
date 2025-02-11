@@ -1,0 +1,14 @@
+inputSet:
+  name: event-TAG
+  identifier: eventTAG
+  orgIdentifier: default
+  projectIdentifier: Drone_Plugins
+  pipeline:
+    identifier: dronegoconvert
+    properties:
+      ci:
+        codebase:
+          build:
+            type: tag
+            spec:
+              tag: <+trigger.tag>
