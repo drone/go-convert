@@ -1,0 +1,53 @@
+{
+    "spanId": "f61234ca98d798b1",
+    "traceId": "b449c97c83d7ad28bd08ee0771a08c9a",
+    "parent": "cucumber_reports",
+    "all-info": "span(name: cucumber, spanId: f61234ca98d798b1, parentSpanId: 28addea58c50afac, traceId: b449c97c83d7ad28bd08ee0771a08c9a, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"delegate\" : {\n    \"symbol\" : \"cucumber\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"failedAsNotFailingStatus\" : false,\n      \"failedFeaturesNumber\" : 0,\n      \"failedFeaturesPercentage\" : 0,\n      \"failedScenariosNumber\" : 0,\n      \"failedScenariosPercentage\" : 0,\n      \"failedStepsNumber\" : 0,\n      \"failedStepsPercentage\" : 0,\n      \"fileExcludePattern\" : \"\",\n      \"fileIncludePattern\" : \"**/*.json\",\n      \"jsonReportDirectory\" : \"target\",\n      \"mergeFeaturesById\" : false,\n      \"pendingAsNotFailingStatus\" : false,\n      \"pendingStepsNumber\" : 0,\n      \"pendingStepsPercentage\" : 0,\n      \"skipEmptyJSONFiles\" : true,\n      \"skippedAsNotFailingStatus\" : false,\n      \"skippedStepsNumber\" : 0,\n      \"skippedStepsPercentage\" : 0,\n      \"sortingMethod\" : \"ALPHABETICAL\",\n      \"stopBuildOnFailedReport\" : false,\n      \"undefinedAsNotFailingStatus\" : false,\n      \"undefinedStepsNumber\" : 0,\n      \"undefinedStepsPercentage\" : 0\n    },\n    \"model\" : null\n  }\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@679ea287:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@679ea287;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1082ce27:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1082ce27;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@24c9792c:org.jenkinsci.plugins.workflow.actions.TimingAction@24c9792c;harness-others:-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep;jenkins.pipeline.step.id:39;jenkins.pipeline.step.name:Cucumber reports;jenkins.pipeline.step.plugin.name:cucumber-reports;jenkins.pipeline.step.plugin.version:5.8.5;jenkins.pipeline.step.type:cucumber;)",
+    "name": "cucumber_reports #13",
+    "attributesMap": {
+      "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@679ea287": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@679ea287",
+      "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+      "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@24c9792c": "org.jenkinsci.plugins.workflow.actions.TimingAction@24c9792c",
+      "jenkins.pipeline.step.name": "Cucumber reports",
+      "ci.pipeline.run.user": "SYSTEM",
+      "jenkins.pipeline.step.id": "39",
+      "jenkins.pipeline.step.type": "cucumber",
+      "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"cucumber\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"failedAsNotFailingStatus\" : false,\n      \"failedFeaturesNumber\" : 0,\n      \"failedFeaturesPercentage\" : 0,\n      \"failedScenariosNumber\" : 0,\n      \"failedScenariosPercentage\" : 0,\n      \"failedStepsNumber\" : 0,\n      \"failedStepsPercentage\" : 0,\n      \"fileExcludePattern\" : \"\",\n      \"fileIncludePattern\" : \"**/*.json\",\n      \"jsonReportDirectory\" : \"target\",\n      \"mergeFeaturesById\" : false,\n      \"pendingAsNotFailingStatus\" : false,\n      \"pendingStepsNumber\" : 0,\n      \"pendingStepsPercentage\" : 0,\n      \"skipEmptyJSONFiles\" : true,\n      \"skippedAsNotFailingStatus\" : false,\n      \"skippedStepsNumber\" : 0,\n      \"skippedStepsPercentage\" : 0,\n      \"sortingMethod\" : \"ALPHABETICAL\",\n      \"stopBuildOnFailedReport\" : false,\n      \"undefinedAsNotFailingStatus\" : false,\n      \"undefinedStepsNumber\" : 0,\n      \"undefinedStepsPercentage\" : 0\n    },\n    \"model\" : null\n  }\n}",
+      "jenkins.pipeline.step.plugin.name": "cucumber-reports",
+      "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1082ce27": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1082ce27",
+      "jenkins.pipeline.step.plugin.version": "5.8.5"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "28addea58c50afac",
+    "parameterMap": {"delegate": {
+      "symbol": "cucumber",
+      "klass": null,
+      "arguments": {
+        "failedFeaturesPercentage": 0,
+        "failedAsNotFailingStatus": false,
+        "undefinedStepsPercentage": 0,
+        "skippedAsNotFailingStatus": false,
+        "mergeFeaturesById": false,
+        "sortingMethod": "ALPHABETICAL",
+        "failedStepsNumber": 0,
+        "undefinedStepsNumber": 0,
+        "fileExcludePattern": "",
+        "failedScenariosPercentage": 0,
+        "pendingStepsNumber": 0,
+        "pendingAsNotFailingStatus": false,
+        "jsonReportDirectory": "target",
+        "undefinedAsNotFailingStatus": false,
+        "stopBuildOnFailedReport": false,
+        "fileIncludePattern": "**/*.json",
+        "skippedStepsNumber": 0,
+        "failedScenariosNumber": 0,
+        "pendingStepsPercentage": 0,
+        "skipEmptyJSONFiles": true,
+        "skippedStepsPercentage": 0,
+        "failedFeaturesNumber": 0,
+        "failedStepsPercentage": 0
+      },
+      "model": null
+    }},
+    "spanName": "cucumber"
+  }
