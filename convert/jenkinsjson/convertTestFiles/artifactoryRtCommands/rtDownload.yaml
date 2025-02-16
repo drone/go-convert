@@ -1,0 +1,15 @@
+- step:
+    identifier: rtdownload22c8b2
+    name: rtDownload
+    spec:
+      image: plugins/artifactory
+      settings:
+        build_name: <+input>
+        build_number: <+input>
+        command: download
+        module: <+input>
+        password: <+input>
+        project: <+input>
+        spec_path: <+input>
+        url: <+input>
+        username: <+input>

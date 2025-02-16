@@ -1,0 +1,19 @@
+- step:
+  identifier: rtmavenrundac366
+  name: rtMavenRun
+  spec:
+    image: plugins/artifactory
+    settings:
+      access_token: <+input>
+      build_name: <+input>
+      build_number: <+input>
+      build_tool: mvn
+      deployer_id: <+input>
+      goals: clean install
+      password: <+input>
+      resolve_release_repo: <+input>
+      resolve_snapshot_repo: <+input>
+      resolver_id: <+input>
+      source: pom.xml
+      url: <+input>
+      username: <+input>
