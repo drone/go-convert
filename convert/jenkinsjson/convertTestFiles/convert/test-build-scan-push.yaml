@@ -1,0 +1,820 @@
+version: 1
+kind: pipeline
+type: junit,docker,mvn,docker,docker,artifactory,docker,docker,docker,docker,git
+name: Pipelines org project ci_branch_277
+spec:
+  stages:
+  - desc: ""
+    id: build
+    name: build
+    strategy: null
+    delegate: []
+    status: null
+    type: ci
+    when: null
+    failure: null
+    inputs: {}
+    spec:
+      cache: null
+      clone: null
+      platform: null
+      runtime: null
+      steps:
+      - id: Declarative_Checkout_SCM6f36e3
+        name: Declarative Checkout SCM
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: checkout_github_com_example_repoc17799
+            name: 'checkout: github.com/example/repo'
+            desc: ""
+            type: plugin
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: plugins/drone-git:latest
+              name: ""
+              uses: ""
+              connector: ""
+              pull: ""
+              envs: {}
+              reports: []
+              privileged: false
+              user: ""
+              group: ""
+              network: ""
+              with:
+                branch: ci/branch
+                depth: ""
+                git_url: https://github.com/example/repo.git
+                platform: github.com
+              inputs: {}
+              outputs: []
+              resources: null
+              mount: []
+      - id: CleanWorkspace92be6c
+        name: CleanWorkspace
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: getContext2db972
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Checkout_app7bfa66
+        name: Checkout app
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: checkout_github_com_example_repoe9d325
+            name: 'checkout: github.com/example/repo'
+            desc: ""
+            type: plugin
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: plugins/drone-git:latest
+              name: ""
+              uses: ""
+              connector: ""
+              pull: ""
+              envs: {}
+              reports: []
+              privileged: false
+              user: ""
+              group: ""
+              network: ""
+              with:
+                branch: ci/branch
+                depth: ""
+                git_url: https://github.com/example/repo.git
+                platform: github.com
+              inputs: {}
+              outputs: []
+              resources: null
+              mount: []
+      - id: Unit_Test_Build_Appef575c
+        name: Unit Test Build App
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: Stage_nullb62b0b
+            name: Dir
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs:
+                GIT_BRANCH: ci/branch
+                GIT_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_SUCCESSFUL_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_URL: https://github.com/example/repo.git
+                app_directory: /opt/app
+                app_name: org-app-name
+                artifact_jar: org-app-name-1.0.jar
+                clean_ws: "false"
+                dockerimage_name: docker.io/org/app
+                dockerimage_version: restclient:latest
+                domain: org-domain
+                git_branch: tip_restClient_guanxi_S3
+                git_url: https://github.com/project/org-app-name.git
+                java_version: "17"
+                project_key: project.org-app-name
+                subdomain: project
+              run: mkdir -p app && cd app
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: sh3695a8
+            name: sh
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: docker.io/org/app:label
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs:
+                GIT_BRANCH: ci/branch
+                GIT_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_SUCCESSFUL_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_URL: https://github.com/example/repo.git
+                app_directory: /opt/app
+                app_name: org-app-name
+                artifact_jar: org-app-name-1.0.jar
+                clean_ws: "false"
+                dockerimage_name: docker.io/org/app
+                dockerimage_version: restclient:latest
+                domain: org-domain
+                git_branch: tip_restClient_guanxi_S3
+                git_url: https://github.com/project/org-app-name.git
+                java_version: "17"
+                project_key: project.org-app-name
+                subdomain: project
+              run: mvn clean package -s ../settings.xml
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: junite67260
+            name: junit
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs:
+                GIT_BRANCH: ci/branch
+                GIT_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_SUCCESSFUL_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_URL: https://github.com/example/repo.git
+                app_directory: /opt/app
+                app_name: org-app-name
+                artifact_jar: org-app-name-1.0.jar
+                clean_ws: "false"
+                dockerimage_name: docker.io/org/app
+                dockerimage_version: restclient:latest
+                domain: org-domain
+                git_branch: tip_restClient_guanxi_S3
+                git_url: https://github.com/project/org-app-name.git
+                java_version: "17"
+                project_key: project.org-app-name
+                subdomain: project
+              run: echo 'This Step is to Upload JUNIT Reports'
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports:
+              - path:
+                - target/surefire-reports/reports.xml
+                type: junit
+              outputs: []
+              resources: null
+              mount: []
+          - id: she730e2
+            name: sh
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: alpine
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs:
+                GIT_BRANCH: ci/branch
+                GIT_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_SUCCESSFUL_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_URL: https://github.com/example/repo.git
+                JD_ID: docker.io/org/app:label
+                JD_TO_RUN: docker.io/org/app:label
+                app_directory: /opt/app
+                app_name: org-app-name
+                artifact_jar: org-app-name-1.0.jar
+                clean_ws: "false"
+                dockerimage_name: docker.io/org/app
+                dockerimage_version: restclient:latest
+                domain: org-domain
+                git_branch: tip_restClient_guanxi_S3
+                git_url: https://github.com/project/org-app-name.git
+                java_version: "17"
+                project_key: project.org-app-name
+                subdomain: project
+              run: docker inspect -f . "$JD_TO_RUN"
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: sh728646
+            name: sh
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: alpine
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs:
+                GIT_BRANCH: ci/branch
+                GIT_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_SUCCESSFUL_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_URL: https://github.com/example/repo.git
+                JD_ID: docker.io/org/app:label
+                JD_TO_PULL: docker.io/org/app:label
+                JD_TO_RUN: docker.io/org/app:label
+                app_directory: /opt/app
+                app_name: org-app-name
+                artifact_jar: org-app-name-1.0.jar
+                clean_ws: "false"
+                dockerimage_name: docker.io/org/app
+                dockerimage_version: restclient:latest
+                domain: org-domain
+                git_branch: tip_restClient_guanxi_S3
+                git_url: https://github.com/project/org-app-name.git
+                java_version: "17"
+                project_key: project.org-app-name
+                subdomain: project
+              run: docker pull "$JD_TO_PULL"
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: getContextaf5498
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: SonarQube_Scan040f7f
+        name: SonarQube Scan
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: Stage_nullc2dc60
+            name: Dir
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs:
+                GIT_BRANCH: ci/branch
+                GIT_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_SUCCESSFUL_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_URL: https://github.com/example/repo.git
+                app_directory: /opt/app
+                app_name: org-app-name
+                artifact_jar: org-app-name-1.0.jar
+                clean_ws: "false"
+                dockerimage_name: docker.io/org/app
+                dockerimage_version: restclient:latest
+                domain: org-domain
+                git_branch: tip_restClient_guanxi_S3
+                git_url: https://github.com/project/org-app-name.git
+                java_version: "17"
+                project_key: project.org-app-name
+                subdomain: project
+              run: mkdir -p app && cd app
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: Stage_null153369
+            name: sonarCube
+            desc: ""
+            type: plugin
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: aosapps/drone-sonar-plugin
+              name: ""
+              uses: ""
+              connector: c.docker
+              pull: ""
+              envs:
+                GIT_BRANCH: ci/branch
+                GIT_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_SUCCESSFUL_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_URL: https://github.com/example/repo.git
+                app_directory: /opt/app
+                app_name: org-app-name
+                artifact_jar: org-app-name-1.0.jar
+                clean_ws: "false"
+                dockerimage_name: docker.io/org/app
+                dockerimage_version: restclient:latest
+                domain: org-domain
+                git_branch: tip_restClient_guanxi_S3
+                git_url: https://github.com/project/org-app-name.git
+                java_version: "17"
+                project_key: project.org-app-name
+                subdomain: project
+              reports: []
+              privileged: false
+              user: ""
+              group: ""
+              network: ""
+              with:
+                sonar_host: <+input>
+                sonar_token: <+input>
+              inputs: {}
+              outputs: []
+              resources: null
+              mount: []
+          - id: she95952
+            name: sh
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: alpine
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs:
+                GIT_BRANCH: ci/branch
+                GIT_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_SUCCESSFUL_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_URL: https://github.com/example/repo.git
+                JD_ID: docker.io/images/sonar
+                JD_TO_RUN: docker.io/images/sonar
+                app_directory: /opt/app
+                app_name: org-app-name
+                artifact_jar: org-app-name-1.0.jar
+                clean_ws: "false"
+                dockerimage_name: docker.io/org/app
+                dockerimage_version: restclient:latest
+                domain: org-domain
+                git_branch: tip_restClient_guanxi_S3
+                git_url: https://github.com/project/org-app-name.git
+                java_version: "17"
+                project_key: project.org-app-name
+                subdomain: project
+              run: docker inspect -f . "$JD_TO_RUN"
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: shce446c
+            name: sh
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: alpine
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs:
+                GIT_BRANCH: ci/branch
+                GIT_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_SUCCESSFUL_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_URL: https://github.com/example/repo.git
+                JD_ID: docker.io/images/sonar
+                JD_TO_PULL: docker.io/images/sonar
+                JD_TO_RUN: docker.io/images/sonar
+                app_directory: /opt/app
+                app_name: org-app-name
+                artifact_jar: org-app-name-1.0.jar
+                clean_ws: "false"
+                dockerimage_name: docker.io/org/app
+                dockerimage_version: restclient:latest
+                domain: org-domain
+                git_branch: tip_restClient_guanxi_S3
+                git_url: https://github.com/project/org-app-name.git
+                java_version: "17"
+                project_key: project.org-app-name
+                subdomain: project
+              run: docker pull "$JD_TO_PULL"
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+          - id: getContext3d7e17
+            name: getContext
+            desc: 'This is a place holder for: getContext'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: getContext"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "type": "UNSERIALIZABLE"
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Build_Docker_image8d83fa
+        name: Build Docker image
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: shb93a4f
+            name: sh
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: alpine
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs:
+                GIT_BRANCH: ci/branch
+                GIT_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_SUCCESSFUL_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_URL: https://github.com/example/repo.git
+                app_directory: /opt/app
+                app_name: org-app-name
+                artifact_jar: org-app-name-1.0.jar
+                clean_ws: "false"
+                dockerimage_name: docker.io/org/app
+                dockerimage_version: restclient:latest
+                domain: org-domain
+                git_branch: tip_restClient_guanxi_S3
+                git_url: https://github.com/project/org-app-name.git
+                java_version: "17"
+                project_key: project.org-app-name
+                subdomain: project
+              run: docker build -t docker.io/org/app:latest -t docker.io/org/app:restclient:latest
+                -f Dockerfile --build-arg gitRepo=https://github.com/project/org-app-name.git
+                --build-arg appName=org-app-name --build-arg gitBranch=tip_restClient_guanxi_S3
+                --build-arg artifactJar=org-app-name-1.0.jar --build-arg gitCommit=48be320554618e9ead2e3314eed687ce4e8bf160
+                --build-arg buildServer=https://jenkins.example.com/ --build-arg buildName=Pipelines/org/project/ci%2Fbranch
+                --build-arg buildNumber=277 --build-arg buildDate=2024-11-28-14:17:28-UTC
+                --build-arg appDirectory=/opt/app .
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: AquaScan_Docker_image9b58f7
+        name: AquaScan Docker image
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: aquaf93bcf
+            name: aqua
+            desc: 'This is a place holder for: aqua'
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: ""
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs: {}
+              run: |-
+                echo "This is a place holder for: aqua"
+
+                # Here is the parameterMap for this function:
+                # {
+                #   "delegate": {
+                #     "arguments": {
+                #       "containerRuntime": "docker",
+                #       "customFlags": "",
+                #       "hideBase": false,
+                #       "hostedImage": "",
+                #       "localImage": "docker.io/org/app:restclient:latest",
+                #       "locationType": "local",
+                #       "notCompliesCmd": "",
+                #       "onDisallowed": "ignore",
+                #       "policies": "",
+                #       "register": false,
+                #       "registry": "docker.io/org",
+                #       "showNegligible": false
+                #     },
+                #     "klass": null,
+                #     "model": null,
+                #     "symbol": "aqua"
+                #   }
+                # }
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      - id: Publish_Docker_image42f3a2
+        name: Publish Docker image
+        desc: ""
+        type: group
+        timeout: ""
+        strategy: null
+        when: null
+        failure: null
+        inputs: {}
+        spec:
+          steps:
+          - id: sh6d6f3c
+            name: sh_sh_sh_sh
+            desc: ""
+            type: script
+            timeout: ""
+            strategy: null
+            when: null
+            failure: null
+            inputs: {}
+            spec:
+              image: alpine
+              connector: ""
+              user: ""
+              group: ""
+              pull: ""
+              shell: sh
+              envs:
+                ArtifactoryPass: <+pipeline.variables.ArtifactoryPass>
+                ArtifactoryUser: <+pipeline.variables.ArtifactoryUser>
+                GIT_BRANCH: ci/branch
+                GIT_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_PREVIOUS_SUCCESSFUL_COMMIT: 48be320554618e9ead2e3314eed687ce4e8bf160
+                GIT_URL: https://github.com/example/repo.git
+                app_directory: /opt/app
+                app_name: org-app-name
+                artifact_jar: org-app-name-1.0.jar
+                clean_ws: "false"
+                dockerimage_name: docker.io/org/app
+                dockerimage_version: restclient:latest
+                domain: org-domain
+                git_branch: tip_restClient_guanxi_S3
+                git_url: https://github.com/project/org-app-name.git
+                java_version: "17"
+                project_key: project.org-app-name
+                subdomain: project
+              run: |-
+                docker logout docker.io/org
+                docker login --username ${ArtifactoryUser} --password ${ArtifactoryPass} https://docker.io
+                docker push docker.io/org/app:restclient:latest
+                docker push docker.io/org/app
+              entrypoint: ""
+              args: []
+              privileged: false
+              network: ""
+              reports: []
+              outputs: []
+              resources: null
+              mount: []
+      envs: {}
+      volumes: []
+  inputs: {}
+  options: null

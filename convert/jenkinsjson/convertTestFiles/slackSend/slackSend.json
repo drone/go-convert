@@ -1,0 +1,33 @@
+{
+  "spanId": "8962b08404b2209e",
+  "traceId": "2e9439648e22ea59041adc5bb53aba4b",
+  "parent": "senthil-slack-file-send-03_dec10",
+  "all-info": "span(name: slackSend, spanId: 8962b08404b2209e, parentSpanId: 2e4d9e9ce74c4c3f, traceId: 2e9439648e22ea59041adc5bb53aba4b, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"iconEmoji\" : \":rocket:\",\n  \"color\" : \"good\",\n  \"channel\" : \"dev\",\n  \"teamDomain\" : \"jenkins-bot-testing\",\n  \"tokenCredentialId\" : \"slackcreds03\",\n  \"message\" : \"hi, this is senthil-slack-file-send-03_dec10\",\n  \"notifyCommitters\" : true,\n  \"username\" : \"jenkins-test-user\"\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@5e400c23:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@5e400c23;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7ccf14d:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7ccf14d;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@350d8b05:org.jenkinsci.plugins.workflow.actions.TimingAction@350d8b05;harness-others:;jenkins.pipeline.step.id:7;jenkins.pipeline.step.name:Send Slack Message;jenkins.pipeline.step.plugin.name:slack;jenkins.pipeline.step.plugin.version:741.v00f9591c586d;jenkins.pipeline.step.type:slackSend;)",
+  "name": "senthil-slack-file-send-03_dec10 #1",
+  "attributesMap": {
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@350d8b05": "org.jenkinsci.plugins.workflow.actions.TimingAction@350d8b05",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7ccf14d": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7ccf14d",
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Send Slack Message",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "7",
+    "jenkins.pipeline.step.type": "slackSend",
+    "harness-attribute": "{\n  \"iconEmoji\" : \":rocket:\",\n  \"color\" : \"good\",\n  \"channel\" : \"dev\",\n  \"teamDomain\" : \"jenkins-bot-testing\",\n  \"tokenCredentialId\" : \"slackcreds03\",\n  \"message\" : \"hi, this is senthil-slack-file-send-03_dec10\",\n  \"notifyCommitters\" : true,\n  \"username\" : \"jenkins-test-user\"\n}",
+    "jenkins.pipeline.step.plugin.name": "slack",
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@5e400c23": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@5e400c23",
+    "jenkins.pipeline.step.plugin.version": "741.v00f9591c586d"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "2e4d9e9ce74c4c3f",
+  "parameterMap": {
+    "iconEmoji": ":rocket:",
+    "color": "good",
+    "channel": "dev",
+    "teamDomain": "jenkins-bot-testing",
+    "tokenCredentialId": "slackcreds03",
+    "message": "hi, this is tst msg",
+    "notifyCommitters": true,
+    "username": "jenkins-test-user"
+  },
+  "spanName": "slackSend"
+}

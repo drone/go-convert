@@ -1,0 +1,20 @@
+- step:
+    identifier: mail0fb620
+    name: Mailer
+    spec:
+      image: plugins/email
+      settings:
+        body:
+          "\n                    Build Status: FAILURE\n                    Check
+          console output at: http://localhost:8080/job/Mail_Pipeline/15/console\n
+          \                   "
+
+        from.address: <+input>
+        host: <+input>
+        password: <+input>
+        port: <+input>
+        recipients: test.user@testmail.com
+        subject: "Jenkins Build - Mail_Pipeline #15"
+        username: <+input>
+    timeout: ""
+    type: Plugin

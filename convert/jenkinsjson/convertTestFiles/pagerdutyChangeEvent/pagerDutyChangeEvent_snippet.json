@@ -1,0 +1,31 @@
+{
+  "spanId": "499434b70188dc78",
+  "traceId": "6d2b4c2026d5c84a377d2dd97898ad1a",
+  "parent": "test-pager-duty",
+  "all-info": "span(name: pagerdutyChangeEvent, spanId: 499434b70188dc78, parentSpanId: d948447763f8ffaa, traceId: 6d2b4c2026d5c84a377d2dd97898ad1a, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\r\n  \"customDetails\" : {\r\n    \"buildNumber\" : \"22\",\r\n    \"jobName\" : \"test-pager-duty\",\r\n    \"jobURL\" : \"http://localhost:8080/job/test-pager-duty/22/\"\r\n  },\r\n  \"summaryText\" : \"Job test-pager-duty completed with status SUCCESS\",\r\n  \"integrationKey\" : \"a666ad1326f34605d06c0dbd4d87c1cb\"\r\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4a32f3a7:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4a32f3a7;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@a2cf09d:org.jenkinsci.plugins.workflow.actions.TimingAction@a2cf09d;harness-others:;jenkins.pipeline.step.id:24;jenkins.pipeline.step.name:PagerDuty Change Event step;jenkins.pipeline.step.plugin.name:pagerduty;jenkins.pipeline.step.plugin.version:0.7.1;jenkins.pipeline.step.type:pagerdutyChangeEvent;)",
+  "name": "test-pager-duty #22",
+  "attributesMap": {
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4a32f3a7": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4a32f3a7",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@a2cf09d": "org.jenkinsci.plugins.workflow.actions.TimingAction@a2cf09d",
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "PagerDuty Change Event step",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "24",
+    "jenkins.pipeline.step.type": "pagerdutyChangeEvent",
+    "harness-attribute": "{\r\n  \"customDetails\" : {\r\n    \"buildNumber\" : \"22\",\r\n    \"jobName\" : \"test-pager-duty\",\r\n    \"jobURL\" : \"http://localhost:8080/job/test-pager-duty/22/\"\r\n  },\r\n  \"summaryText\" : \"Job test-pager-duty completed with status SUCCESS\",\r\n  \"integrationKey\" : \"a666ad1326f34605d06c0dbd4d87c1cb\"\r\n}",
+    "jenkins.pipeline.step.plugin.name": "pagerduty",
+    "jenkins.pipeline.step.plugin.version": "0.7.1"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "d948447763f8ffaa",
+  "parameterMap": {
+    "summaryText": "Job test-pager-duty completed with status SUCCESS",
+    "customDetails": {
+      "jobName": "test-pager-duty",
+      "jobURL": "http://localhost:8080/job/test-pager-duty/22/",
+      "buildNumber": "22"
+    },
+    "integrationKey": "a666ad1326f34605d06c0dbd4d87c1cb"
+  },
+  "spanName": "pagerdutyChangeEvent"
+}

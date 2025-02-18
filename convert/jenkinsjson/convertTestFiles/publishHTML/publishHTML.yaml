@@ -1,0 +1,16 @@
+- step:
+    identifier: uploadpublish43d688
+    name: Upload and Publish
+    spec:
+      image: harnesscommunity/drone-s3-upload-publish
+      settings:
+        artifact_file: artifact.txt
+        aws_access_key_id: <+input>
+        aws_bucket: <+input>
+        aws_default_region: <+input>
+        aws_secret_access_key: <+input>
+        include: '**/*.html,**/*.css'
+        source: reports
+        target: <+pipeline.sequenceId>
+    timeout: ''
+    type: Plugin

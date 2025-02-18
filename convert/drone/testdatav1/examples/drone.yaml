@@ -1,0 +1,23 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: backend
+  image: golang
+  environment:
+    PLUGIN_LOG_LEVEL: info
+    PLUGIN_ARTIFACT_REGION: us-east-1
+    PLUGIN_ARTIFACT_BUCKET_NAME: unified-versioning-bucket
+  commands:
+  - go build
+  - go test
+
+- name: frontend
+  image: node
+  commands:
+  - npm install
+  - npm run test
+
+...

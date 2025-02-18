@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+    stages {
+        stage('Flyway Migration: Apple Orange') {
+            steps {
+                script {
+                    flywayrunner(
+                        credentialsId: "mysql_creds_01",
+                        url: 'jdbc:mysql://3.4.19.21:3306/flyway_test',
+                        flywayCommand: 'migrate',
+                        installationName: 'flyway03',
+                        locations: '/opt/hns/harness-plugins/flyway-test-files/migration_files',
+                        commandLineArgs: '-X'
+                    )
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo 'Flyway migration completed successfully!'
+        }
+        failure {
+            echo 'Flyway migration failed!'
+        }
+    }
+}

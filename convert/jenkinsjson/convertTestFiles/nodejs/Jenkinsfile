@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Generate package.json') {
+            steps {
+                script {
+                    // Create a valid JSON package.json file without comments
+                    def packageJson = '''{
+                      "name": "test-nodejs-plugin",
+                      "version": "1.0.0",
+                      "description": "Sample project to test NodeJS plugin in Jenkins",
+                      "scripts": {
+                        "test": "echo \\"Running tests...\\" && exit 0"
+                      },
+                      "dependencies": {
+                        "lodash": "^4.17.21"
+                      }
+                    }'''
+                    writeFile(file: 'package.json', text: packageJson)
+                }
+
+            }
+        }
+
+        stage('Install Packages') {
+            steps {
+                // Set up the NodeJS environment
+                nodejs(nodeJSInstallationName: 'node') {
+                    sh '''
+                        # Ensure npm uses the public registry
+                        echo "registry=https://registry.npmjs.org/" > .npmrc
+                        npm install
+                    '''
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                nodejs(nodeJSInstallationName: 'node') {
+                    // Run npm test to execute the "test" script in package.json
+                    sh 'npm test'
+                }
+            }
+        }
+    }
+}

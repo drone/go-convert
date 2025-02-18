@@ -1,0 +1,55 @@
+pipeline {
+
+  agent any
+	
+  tools {
+    maven 'M3'
+    jdk 'jdk8'
+  }
+	
+  stages {
+    stage('checkout scm') {
+      steps {
+        checkout([$class: 'GitSCM',
+          branches: [
+            [name: "*/master"]
+          ],
+          doGenerateSubmoduleConfigurations: false,
+          extensions: [
+            [$class: 'CleanCheckout']
+          ],
+          submoduleCfg: [],
+          userRemoteConfigs: [
+            [url: 'https://github.com/syamv/game-of-life.git']
+          ]
+        ])
+      }
+    }
+
+    stage('maven build') {
+      steps {
+        sh 'mvn clean verify org.jacoco:jacoco-maven-plugin:prepare-agent package jacoco:report'
+      }
+
+    }
+
+    stage('Jacoco reports') {
+      steps {
+        jacoco(
+          classPattern: '**/target/classes, **/WEB-INF/classes',
+          exclusionPattern: '**/controllers/*.class',
+          inclusionPattern: '**/*.class',
+          sourceInclusionPattern: '**/*.java',
+          sourceExclusionPattern: '**/controllers/*.java',
+          maximumBranchCoverage: '81',
+          maximumClassCoverage: '85',
+          maximumComplexityCoverage: '10',
+          maximumInstructionCoverage: '80',
+          maximumLineCoverage: '83',
+          maximumMethodCoverage: '84'
+        )
+      }
+    }
+
+  }
+}

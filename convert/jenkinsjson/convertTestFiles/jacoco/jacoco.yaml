@@ -1,0 +1,21 @@
+- step:
+    type: Plugin
+    name: jacoco01
+    identifier: jacoco01
+    spec:
+      connectorRef: dockerhub_connector
+      image: plugins/coverage-report
+      settings:
+        class_directories: "**/target/classes"
+        class_exclusion_pattern: "**/test/**"
+        fail_on_threshold: "true"
+        reports_path_pattern: "**/target/jacoco.exec"
+        source_directories: "**/src/main/java"
+        threshold_branch: "11"
+        threshold_class: "12"
+        threshold_complexity: "100"
+        threshold_instruction: "13"
+        threshold_line: "14"
+        threshold_method: "15"
+        tool: jacoco
+    description: jacoco01

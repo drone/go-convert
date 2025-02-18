@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    environment {
+        NOTIFICATION_ENDPOINT = "https://webhook.site/9ffae84b-a338-43ef-9283-319d70574bf4"
+        NOTIFICATION_PROTOCOL = "HTTP"
+        NOTIFICATION_FORMAT = "JSON"
+        BUILD_NOTES = "Build metrics for analysis"
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                echo "Running build stage..."
+                sh 'echo "Compiling source code..."'
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                echo "Running tests..."
+                sh 'echo "Running test suite..."'
+            }
+        }
+
+        stage('Notify') {
+            steps {
+                script {
+                    notifyEndpoints(
+                        endpoint: env.NOTIFICATION_ENDPOINT,
+                        notes: env.BUILD_NOTES,
+                        phase: 'COMPLETED',
+                        loglines: '1'
+                    )
+                }
+            }
+        }
+    }
+        post {
+        always {
+            script {
+                notifyEndpoints(
+                    endpoint: env.NOTIFICATION_ENDPOINT,
+                  
+                    notes: env.BUILD_NOTES,
+                    phase: 'COMPLETED',
+                    loglines: '10'
+                )
+            }
+        }
+    }
+
+ 
+}

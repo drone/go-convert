@@ -57,10 +57,28 @@ type ProcessedTools struct {
 	AntProcessed       bool
 	SonarCubeProcessed bool
 	SonarCubePresent   bool
+	Tags               []string
+}
+
+// In a unified pipeline trace, 'sh' types identified as branched/conditional will be pre-fixed with '_unifiedTraceBranch'
+// This is done because we don't want these steps to be merged, so that pipeline analysis is easier.
+const unifiedBranchedShStep = "sh_unifiedTraceBranch"
+
+var tags = []string{
+	"eks", "ec2",
+	"gke", "gcp", "gcloud",
+	"azure",
+	"artifactory", "jfrog", "gcr", "gar",
+	"java", "python", "go ", "ruby", "nodejs", "javascript", "typescript", "scala", "kotlin", "groovy", "csharp", "php", "perl", "bash", "powershell",
+	"docker ", "git ", "npm ", "yarn ", "node ", "maven", "mvn ", "gradle", "sbt ", "bazel", "pip ", "dotnet ", "msbuild",
+	"sfdx ",
+	"hadoop", "mariadb", "mysql", "psql", "mongo", "redis", "jdbc",
 }
 
 var mavenGoals string
 var gradleGoals string
+
+var defaultWindowsImage string = "mcr.microsoft.com/powershell"
 
 // Converter converts a jenkinsjson pipeline to a Harness
 // v1 pipeline.
@@ -111,13 +129,15 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 	// create the harness pipeline spec
 	dst := &harness.Pipeline{}
 
-	processedTools := &ProcessedTools{false, false, false, false, false, false, false, false, false}
+	processedTools := &ProcessedTools{false, false, false, false, false, false, false, false, false, []string{}}
 	var variable map[string]string
 	recursiveParseJsonToStages(&pipelineJson, dst, processedTools, variable)
 	// create the harness pipeline resource
 	config := &harness.Config{
 		Version: 1,
+		Name:    jenkinsjson.SanitizeForName(pipelineJson.Name),
 		Kind:    "pipeline",
+		Type:    strings.Join(processedTools.Tags, ","),
 		Spec:    dst,
 	}
 
@@ -160,50 +180,68 @@ func recursiveParseJsonToStages(jsonNode *jenkinsjson.Node, dst *harness.Pipelin
 }
 
 func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTools, stepGroupWithId *[]StepGroupWithID, variables map[string]string, dockerImage string) {
-	for _, childNode := range jsonNode.Children {
+	if jsonNode.AttributesMap["jenkins.pipeline.step.type"] == "withDockerContainer" {
+		if img, ok := jsonNode.ParameterMap["image"].(string); ok {
+			dockerImage = img // Update Docker image from the node
+		}
+	}
 
-		if childNode.AttributesMap["jenkins.pipeline.step.type"] == "withDockerContainer" {
-			if img, ok := childNode.ParameterMap["image"].(string); ok {
-				dockerImage = img // Update Docker image from the node
-			}
+	if jsonNode.AttributesMap["jenkins.pipeline.step.type"] == "stage" || jsonNode.AttributesMap["jenkins.pipeline.step.type"] == "node" {
+
+		stageName := searchChildNodesForStageName(jsonNode)
+		if stageName == "" {
+			stageName = "Unnamed Stage"
 		}
 
-		if childNode.AttributesMap["jenkins.pipeline.step.type"] == "stage" {
+		// Skip stages with the name "Declarative Tool Install" since this does not contain any step
+		if stageName == "Declarative: Tool Install" {
+			return
+		}
 
-			stageName, ok := childNode.ParameterMap["name"].(string)
-			if !ok || stageName == "" {
-				stageName = "Unnamed Stage"
-			}
+		stageID := searchChildNodesForStageId(jsonNode, stageName)
 
-			// Skip stages with the name "Declarative Tool Install" since this does not contain any step
-			if stageName == "Declarative: Tool Install" {
-				continue
-			}
+		stepsInStage := make([]*harness.Step, 0)
+		for _, childNode := range jsonNode.Children {
+			// Recursively process the children
+			recursiveParseJsonToSteps(childNode, stepGroupWithId, &stepsInStage, processedTools, variables, dockerImage)
+		}
 
-			stageID := searchChildNodesForStageId(&childNode, stageName)
-
-			stepsInStage := make([]*harness.Step, 0)
-			recursiveParseJsonToSteps(childNode, &stepsInStage, processedTools, variables, dockerImage)
-
+		if len(stepsInStage) > 0 {
 			// Create the stepGroup for the new stage
 			dstStep := &harness.Step{
-				Name: stageName,
-				Id:   SanitizeForId(childNode.SpanName, childNode.SpanId),
+				Name: jenkinsjson.SanitizeForName(stageName),
+				Id:   jenkinsjson.SanitizeForId(stageName, jsonNode.SpanId),
 				Type: "group",
 				Spec: &harness.StepGroup{
 					Steps: stepsInStage,
 				},
 			}
 
+			// identify technology tags
+			for _, step := range stepsInStage {
+				switch step.Spec.(type) {
+				case *harness.StepExec:
+					exec := step.Spec.(*harness.StepExec)
+					for _, tag := range tags {
+						tagNoSpace := strings.TrimSpace(tag)
+						if strings.Contains(strings.ToLower(exec.Run), tag) || strings.Contains(strings.ToLower(exec.Image), tagNoSpace) {
+							processedTools.Tags = append(processedTools.Tags, tagNoSpace)
+						}
+					}
+				}
+			}
+
 			// Convert stageID to integer and store it with the stage
 			id, err := strconv.Atoi(stageID)
 			if err != nil {
-				fmt.Println("Error converting stage ID to integer:", err)
+				fmt.Printf("Error converting stage ID to integer, spanId=%s: %v\n", jsonNode.SpanId, err)
 				id = 0
 			}
 
 			*stepGroupWithId = append(*stepGroupWithId, StepGroupWithID{Step: dstStep, ID: id})
-		} else {
+		}
+	} else {
+		for _, childNode := range jsonNode.Children {
 			// Recursively process the children
 			collectStagesWithID(&childNode, processedTools, stepGroupWithId, variables, dockerImage)
 		}
@@ -211,16 +249,31 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 }
 
 func searchChildNodesForStageId(node *jenkinsjson.Node, stageName string) string {
+	name, ok := node.AttributesMap["jenkins.pipeline.step.name"]
+	if ok && name == stageName {
+		return node.AttributesMap["jenkins.pipeline.step.id"]
+	}
+
 	for _, childNode := range node.Children {
-		if childNode.AttributesMap["jenkins.pipeline.step.type"] == "stage" {
-			name, ok := childNode.AttributesMap["jenkins.pipeline.step.name"]
-			if ok && name == stageName {
-				return childNode.AttributesMap["jenkins.pipeline.step.id"]
-			}
-		}
 		// Recursively search in the children
 		if id := searchChildNodesForStageId(&childNode, stageName); id != "" {
 			return id
+		}
+	}
+	return ""
+}
+
+func searchChildNodesForStageName(node *jenkinsjson.Node) string {
+	if name, ok := node.ParameterMap["name"]; ok {
+		return name.(string)
+	}
+	if name, ok := node.AttributesMap["jenkins.pipeline.step.name"]; ok {
+		return name
+	}
+	for _, childNode := range node.Children {
+		// Recursively search in the children
+		if name := searchChildNodesForStageName(&childNode); name != "" {
+			return name
 		}
 	}
 	return ""
@@ -267,13 +320,12 @@ func extractToolType(fullToolType string) string {
 	return fullToolType
 }
 
-func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.Step, processedTools *ProcessedTools, variables map[string]string, dockerImage string) (*harness.CloneStage, *harness.Repository) {
+func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGroupWithID, steps *[]*harness.Step, processedTools *ProcessedTools, variables map[string]string, dockerImage string) (*harness.CloneStage, *harness.Repository) {
 	stepWithIDList := make([]StepWithID, 0)
 
 	var timeout string
 	// Collect all steps with their IDs
-	collectStepsWithID(currentNode, &stepWithIDList, processedTools, variables, timeout, dockerImage)
-
+	collectStepsWithID(currentNode, stepGroupWithId, &stepWithIDList, processedTools, variables, timeout, dockerImage)
 	// Sort the steps based on their IDs
 	sort.Slice(stepWithIDList, func(i, j int) bool {
 		return stepWithIDList[i].ID < stepWithIDList[j].ID
@@ -291,10 +343,13 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, steps *[]*harness.S
 	return nil, nil
 }
 
-func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWithID, processedTools *ProcessedTools, variables map[string]string, timeout string, dockerImage string) (*harness.CloneStage, *harness.Repository) {
+func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGroupWithID, stepWithIDList *[]StepWithID, processedTools *ProcessedTools, variables map[string]string, timeout string, dockerImage string) (*harness.CloneStage, *harness.Repository) {
 	var clone *harness.CloneStage
 	var repo *harness.Repository
 
+	// parameterMap and harness-attribute are now aligned in recent trace files and always contain identical data.
+	// However, if older traces can only contain harness-attribute, let's update parameterMap manually as we
+	// use it exclusively for lookups below.
 	if len(currentNode.ParameterMap) == 0 {
 		if harnessAttr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
 			var paramMap map[string]interface{}
@@ -304,12 +359,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			} else {
 				fmt.Println("Error parsing harness-attribute:", err)
 			}
-		}
-	}
-
-	if len(currentNode.AttributesMap) == 0 {
-		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout, dockerImage)
 		}
 	}
 
@@ -327,37 +376,40 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	}
 
 	switch currentNode.AttributesMap["jenkins.pipeline.step.type"] {
-	case "node", "parallel", "script":
-		// node, parallel, withEnv, and withMaven are wrapper layers to hold actual steps
-		// parallel should be handled at its parent
-		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout, dockerImage)
-		}
+	case "node":
+		collectStagesWithID(&currentNode, processedTools, stepGroupWithId, variables, dockerImage)
+		return clone, repo
+	case "", "parallel", "script", "withAnt", "tool", "envVarsForTool", "ws", "ansiColor", "newBuildInfo", "getArtifactoryServer":
+		// for spans where we should ignore its content and just process the children
+
 	case "withEnv":
 		var1 := ExtractEnvironmentVariables(currentNode)
-		combinedVariables := mergeMaps(variables, var1)
+		variables = mergeMaps(variables, var1)
 
-		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, combinedVariables, timeout, dockerImage)
-		}
+	case "withCredentials":
+		withCredentialsVars := jenkinsjson.ConvertWithCredentials(currentNode)
+		variables = mergeMaps(variables, withCredentialsVars)
 
 	case "withDockerContainer":
 		if img, ok := currentNode.ParameterMap["image"].(string); ok {
 			dockerImage = img
-			// fmt.Println(dockerImage1)
-		}
-		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout, dockerImage)
 		}
 
 	case "stage":
 		// this is technically a step group, we treat it as just steps for now
 		if len(currentNode.Children) > 1 {
 			// handle parallel from parent
-			if currentNode.Children[0].AttributesMap["jenkins.pipeline.step.type"] == "parallel" {
+			var hasParallelStep = false
+			for _, child := range currentNode.Children {
+				if child.AttributesMap["jenkins.pipeline.step.type"] == "parallel" {
+					hasParallelStep = true
+				}
+			}
+
+			if hasParallelStep {
 				parallelStepItemsWithID := make([]StepWithID, 0)
 				for _, child := range currentNode.Children {
-					clone, repo = collectStepsWithID(child, &parallelStepItemsWithID, processedTools, variables, timeout, dockerImage)
+					clone, repo = collectStepsWithID(child, stepGroupWithId, &parallelStepItemsWithID, processedTools, variables, timeout, dockerImage)
 				}
 				// Storing the Parallel Steps
 				sort.Slice(parallelStepItemsWithID, func(i, j int) bool {
@@ -370,7 +422,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 				}
 				parallelStep := &harness.Step{
 					Name: currentNode.SpanName,
-					Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Id:   jenkinsjson.SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 					Type: "parallel",
 					Spec: &harness.StepParallel{
 						Steps: sortedParallelSteps,
@@ -378,20 +430,21 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 				}
 				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: parallelStep, ID: id})
 			} else {
-				for _, child := range currentNode.Children {
-					clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout, dockerImage)
-				}
+				collectStagesWithID(&currentNode, processedTools, stepGroupWithId, variables, dockerImage)
 			}
-		} else {
-			for _, child := range currentNode.Children {
-				clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout, dockerImage)
-			}
+			return clone, repo
 		}
+
 	case "sh":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage), ID: id})
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage, ""), ID: id})
+	case unifiedBranchedShStep:
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage, "_unifiedTraceBranch"), ID: id})
+	case "bat":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertBat(currentNode, variables, timeout, defaultWindowsImage), ID: id})
 	case "pwsh":
-		dockerImage = "mcr.microsoft.com/powershell"
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPwsh(currentNode, variables, timeout, dockerImage), ID: id})
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPwsh(currentNode, variables, timeout, defaultWindowsImage), ID: id})
+	case "powershell":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPowerShell(currentNode, variables, timeout, defaultWindowsImage), ID: id})
 	case "timeout":
 		if len(currentNode.ParameterMap) > 0 {
 			var unit string
@@ -445,10 +498,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 				fmt.Println("Time key does not exist in ParameterMap or its value is not a recognized type.")
 			}
 		}
-		for _, child := range currentNode.Children {
-			clone, repo = collectStepsWithID(child, stepWithIDList, processedTools, variables, timeout, dockerImage)
-		}
-	case "checkout":
+	case "git", "checkout":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertCheckout(currentNode, variables), ID: id})
 	case "archiveArtifacts":
 		archiveSteps := jenkinsjson.ConvertArchive(currentNode)
@@ -457,13 +507,17 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		}
 	case "emailext":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertEmailext(currentNode, variables, timeout), ID: id})
+		processedTools.Tags = append(processedTools.Tags, "email")
 	case "junit":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJunit(currentNode, variables), ID: id})
-	case "git":
+		processedTools.Tags = append(processedTools.Tags, "junit")
 	case "sleep":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSleep(currentNode, variables), ID: id})
 	case "dir":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDir(currentNode, variables), ID: id})
+		// dir can have repeated dir steps in its children, these do not include the ParametersMap
+		if dirStep, ok := jenkinsjson.ConvertDir(currentNode, variables); ok {
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: dirStep, ID: id})
+		}
 	case "deleteDir":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDeleteDir(currentNode, variables), ID: id})
 	case "writeYaml":
@@ -491,21 +545,36 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "verifySha256":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertVerifySha256(currentNode, variables, dockerImage), ID: id})
 	case "artifactoryUpload":
-		attr, ok := currentNode.AttributesMap["harness-attribute"]
+		specStr, ok := currentNode.ParameterMap["spec"].(string)
 		if !ok {
-			return nil, nil
+			fmt.Println("Invalid or missing 'spec' in ParameterMap for artifactoryUpload")
+			break
 		}
-		fileSpecs, err := jenkinsjson.ParseHarnessAttribute(attr)
+
+		var spec jenkinsjson.Spec
+		err := json.Unmarshal([]byte(specStr), &spec)
 		if err != nil {
-			return nil, nil
+			fmt.Println("Error unmarshalling 'spec' for artifactoryUpload:", err)
+			break
 		}
-		for _, fileSpec := range fileSpecs {
+
+		// Iterate over each file specification
+		for _, fileSpec := range spec.Files {
+			// Create a new node with 'pattern' and 'target' in ParameterMap
 			newNode := currentNode
-			newNode.AttributesMap = map[string]string{
-				"pattern": fileSpec.Pattern,
-				"target":  fileSpec.Target,
+			newNode.ParameterMap["pattern"] = fileSpec.Pattern
+			newNode.ParameterMap["target"] = fileSpec.Target
+
+			// Convert and append the Artifactory Upload step
+			convertedStep := jenkinsjson.ConvertArtifactUploadJfrog(newNode, variables, timeout)
+			if convertedStep != nil {
+				*stepWithIDList = append(*stepWithIDList, StepWithID{
+					Step: convertedStep,
+					ID:   id,
+				})
+			} else {
+				fmt.Println("Failed to convert artifactoryUpload step")
 			}
-			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertArtifactUploadJfrog(newNode, variables, timeout), ID: id})
 		}
 
 	case "anchore":
@@ -514,23 +583,21 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "dockerPushStep", "rtDockerPush":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertDockerPushStep(currentNode, variables, timeout), ID: id})
 
-	case "newBuildInfo", "getArtifactoryServer":
-		return nil, nil
-	case "":
-	case "withAnt", "tool", "envVarsForTool":
 	case "withMaven":
-		clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "maven", "maven", "harnesscommunitytest/maven-plugin:latest", variables, timeout)
+		clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "maven", "maven", "maven:latest", variables, timeout)
 	case "withGradle":
-		clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "gradle", "gradle", "harnesscommunitytest/gradle-plugin:latest", variables, timeout)
+		clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "gradle", "gradle", "gradle:latest", variables, timeout)
 	case "wrap":
 		if !processedTools.SonarCubeProcessed && !processedTools.SonarCubePresent {
 			clone, repo = recursiveHandleSonarCube(currentNode, stepWithIDList, processedTools, "sonarCube", "sonarCube", "aosapps/drone-sonar-plugin", variables, timeout)
 		}
 		if processedTools.AntPresent {
-			clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "ant", "ant", "harnesscommunitytest/ant-plugin:latest", variables, timeout)
+			clone, repo = recursiveHandleWithTool(currentNode, stepWithIDList, processedTools, "ant", "ant", "frekele/ant:latest", variables, timeout)
 		}
-	case "powershell":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPowerShell(currentNode, variables, timeout), ID: id})
+		if symbol, ok := currentNode.ParameterMap["delegate"].(map[string]interface{})["symbol"]; ok && symbol == "nodejs" {
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertNodejs(currentNode), ID: id})
+		}
+		return clone, repo
 
 	case "zip":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertZip(currentNode, variables), ID: id})
@@ -540,9 +607,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 
 	case "findFiles":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFindFiles(currentNode), ID: id})
-
-	case "bat":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertBat(currentNode, variables, timeout), ID: id})
 
 	case "tar":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertTar(currentNode, variables), ID: id})
@@ -624,8 +688,35 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			}
 		}
 
+	case "publishHTML":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPublishHtml(currentNode, variables), ID: id})
+
 	case "httpRequest":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertHttpRequest(currentNode, variables), ID: id})
+
+	case "jacoco":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJacoco(currentNode, variables), ID: id})
+
+	case "cobertura":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertCobertura(currentNode, variables), ID: id})
+
+	case "slackSend":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSlackSend(currentNode, variables), ID: id})
+
+	case "slackUploadFile":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSlackUploadFile(currentNode, variables), ID: id})
+
+	case "flywayrunner":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertFlywayRunner(currentNode, variables), ID: id})
+
+	case "slackUserIdFromEmail":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSlackUserIdFromEmail(currentNode, variables), ID: id})
+
+	case "slackUserIdsFromCommitters":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSlackUserIdsFromCommitters(currentNode, variables), ID: id})
+
+	case "nexusArtifactUploader":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertNexusArtifactUploader(currentNode, variables), ID: id})
 
 	case "readMavenPom":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertReadMavenPom(currentNode), ID: id})
@@ -636,6 +727,93 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 	case "jiraSendDeploymentInfo":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertJiraDeploymentInfo(currentNode, variables), ID: id})
 
+	case "nunit":
+		// Step 1: Extract the 'delegate' map from the 'parameterMap'
+		delegate, ok := currentNode.ParameterMap["delegate"].(map[string]interface{})
+		if !ok {
+			fmt.Println("Missing 'delegate' in parameterMap")
+			break
+		}
+
+		// Step 2: Extract the 'arguments' map from the 'delegate'
+		arguments, ok := delegate["arguments"].(map[string]interface{})
+		if !ok {
+			fmt.Println("Missing 'arguments' in delegate map")
+			break
+		}
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertNunit(currentNode, arguments), ID: id})
+
+	case "s3Upload":
+		entries := jenkinsjson.ExtractEntries(currentNode)
+		if entries == nil {
+			fmt.Println("No entries exists for s3Upload:collectStepsWithID")
+			break
+		}
+		// Initialize an index counter
+		index := 0
+		// Iterate over each entry
+		for _, entry := range entries {
+			gzipFlag, ok := entry["gzipFiles"].(bool)
+			if !ok {
+				// Set default value to false if the key does not exist or has an invalid value
+				gzipFlag = false
+			}
+
+			// Call function to handle gzip and upload logic
+			if gzipFlag {
+				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3Archive(currentNode, entry, index), ID: id})
+			}
+
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.Converts3Upload(currentNode, entry, index), ID: id})
+			// Increment the index for each entry
+			index++
+		}
+
+	case "allure":
+		steps := jenkinsjson.ConvertAllureSteps(currentNode)
+		for _, step := range steps {
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: step, ID: id})
+		}
+
+	case "withKubeConfig":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertKubeCtl(currentNode, currentNode.ParameterMap), ID: id})
+	case "mail":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertMailer(currentNode, currentNode.ParameterMap), ID: id})
+		processedTools.Tags = append(processedTools.Tags, "email")
+
+	case "pagerdutyChangeEvent":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPagerDutyChangeEvent(currentNode, currentNode.ParameterMap), ID: id})
+
+	case "pagerduty":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertPagerDuty(currentNode, currentNode.ParameterMap), ID: id})
+
+	case "notifyEndpoints":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertNotification(currentNode, currentNode.ParameterMap), ID: id})
+
+	case "gatlingArchive":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertGatling(currentNode), ID: id})
+
+	case "unarchive":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertUnarchive(currentNode, currentNode.ParameterMap), ID: id})
+
+	case "ansiblePlaybook":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertAnsiblePlaybook(currentNode, currentNode.ParameterMap), ID: id})
+
+	case "ansibleVault":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertAnsibleVault(currentNode, currentNode.ParameterMap), ID: id})
+
+	case "ansibleAdhoc":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertAnsibleAdhoc(currentNode, currentNode.ParameterMap), ID: id})
+
+	case "waitForQualityGate":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSonarQualityGate(currentNode), ID: id})
+
+	case "testNG":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertTestng(currentNode, currentNode.ParameterMap), ID: id})
+
+	case "cucumber":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertCucumber(currentNode, currentNode.ParameterMap), ID: id})
+
 	default:
 		placeholderStr := fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"])
 		b, err := json.MarshalIndent(currentNode.ParameterMap, "", "  ")
@@ -644,8 +822,8 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 		}
 		placeholderStr += "\n" + prependCommentHashToLines(string(b))
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: &harness.Step{
-			Name: currentNode.SpanName,
-			Id:   SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+			Name: jenkinsjson.SanitizeForName(currentNode.SpanName),
+			Id:   jenkinsjson.SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 			Type: "script",
 			Spec: &harness.StepExec{
 				Shell: "sh",
@@ -654,6 +832,11 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepWithIDList *[]StepWith
 			Desc: "This is a place holder for: " + currentNode.AttributesMap["jenkins.pipeline.step.type"],
 		}, ID: id})
 	}
+
+	for _, child := range currentNode.Children {
+		clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage)
+	}
+
 	return clone, repo
 }
 func mergeMaps(dest, src map[string]string) map[string]string {
@@ -693,13 +876,13 @@ func ExtractEnvironmentVariables(node jenkinsjson.Node) map[string]string {
 	return envVars
 }
 
-func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]StepWithID, processedTools *ProcessedTools, toolType string, pluginName string, pluginImage string, variables map[string]string, timeout string) (*harness.CloneStage, *harness.Repository) {
+func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]StepWithID, processedTools *ProcessedTools, toolType string, buildName string, buildImage string, variables map[string]string, timeout string) (*harness.CloneStage, *harness.Repository) {
 	var clone *harness.CloneStage
 	var repo *harness.Repository
 	for _, child := range currentNode.Children {
 		// Check if this child contains the type "sh"
 		stepType, ok := child.AttributesMap["jenkins.pipeline.step.type"]
-		if ok && stepType == "sh" {
+		if ok && (stepType == "sh" || stepType == unifiedBranchedShStep) {
 			script, scriptOk := child.ParameterMap["script"]
 			if scriptOk {
 				// Check if the tool is not processed
@@ -733,18 +916,18 @@ func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]Ste
 				goals = strings.Join(words[1:], " ")
 
 				toolStep := &harness.Step{
-					Name:    pluginName,
+					Name:    buildName,
 					Timeout: timeout,
-					Id:      SanitizeForId(currentNode.SpanName, currentNode.SpanId),
-					Type:    "plugin",
-					Spec: &harness.StepPlugin{
-						Connector: "c.docker",
-						Image:     pluginImage,
-						With:      map[string]interface{}{"Goals": goals},
+					Id:      jenkinsjson.SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Type:    "script",
+					Spec: &harness.StepExec{
+						Shell: "sh",
+						Image: buildImage,
+						Run:   value,
 					},
 				}
 				if len(variables) > 0 {
-					toolStep.Spec.(*harness.StepPlugin).Envs = variables
+					toolStep.Spec.(*harness.StepExec).Envs = variables
 				}
 				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: toolStep, ID: id})
 
@@ -762,7 +945,7 @@ func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]Ste
 				return clone, repo
 			}
 		}
-		clone, repo = recursiveHandleWithTool(child, stepWithIDList, processedTools, toolType, pluginName, pluginImage, variables, timeout)
+		clone, repo = recursiveHandleWithTool(child, stepWithIDList, processedTools, toolType, buildName, buildImage, variables, timeout)
 	}
 	return clone, repo
 }
@@ -770,27 +953,25 @@ func recursiveHandleWithTool(currentNode jenkinsjson.Node, stepWithIDList *[]Ste
 func handleTool(currentNode jenkinsjson.Node, processedTools *ProcessedTools) {
 	// Check if this node is a "tool" node
 	if stepType, ok := currentNode.AttributesMap["jenkins.pipeline.step.type"]; ok && stepType == "tool" {
-		if attr, ok := currentNode.AttributesMap["harness-attribute"]; ok {
-			toolAttributes := make(map[string]string)
-			if err := json.Unmarshal([]byte(attr), &toolAttributes); err == nil {
-				fullToolType := toolAttributes["type"]
-				toolType := ""
-				if parts := strings.Split(fullToolType, "$"); len(parts) > 1 {
-					toolType = parts[1]
-				} else {
-					toolType = extractToolType(fullToolType)
-				}
+		typeVal, typeExists := currentNode.ParameterMap["type"].(string)
+		if typeExists {
+			toolType := ""
+			// Determine the tool type from 'typeVal'
+			if parts := strings.Split(typeVal, "$"); len(parts) > 1 {
+				toolType = parts[1]
+			} else {
+				toolType = extractToolType(typeVal)
+			}
 
-				switch toolType {
-				case "MavenInstallation":
-					processedTools.MavenPresent = true
-				case "GradleInstallation":
-					processedTools.GradlePresent = true
-				case "AntInstallation":
-					processedTools.AntPresent = true
-				default:
-					processedTools.ToolProcessed = true
-				}
+			switch toolType {
+			case "MavenInstallation":
+				processedTools.MavenPresent = true
+			case "GradleInstallation":
+				processedTools.GradlePresent = true
+			case "AntInstallation":
+				processedTools.AntPresent = true
+			default:
+				processedTools.ToolProcessed = true
 			}
 		}
 	}
@@ -817,7 +998,7 @@ func recursiveHandleSonarCube(currentNode jenkinsjson.Node, stepWithIDList *[]St
 				toolStep := &harness.Step{
 					Name:    pluginName,
 					Timeout: timeout,
-					Id:      SanitizeForId(currentNode.SpanName, currentNode.SpanId),
+					Id:      jenkinsjson.SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 					Type:    "plugin",
 					Spec: &harness.StepPlugin{
 						Connector: "c.docker",
@@ -871,28 +1052,22 @@ func mergeRunSteps(steps *[]StepWithID) {
 
 	merged := []StepWithID{}
 	cursor := (*steps)[0]
-	pushed := false
 	for i := 1; i < len(*steps); i++ {
 		current := (*steps)[i]
 		// if can merge, store all current content in cursor
-
 		if canMergeSteps(cursor.Step, current.Step) {
 			previousExec := cursor.Step.Spec.(*harness.StepExec)
 			currentExec := current.Step.Spec.(*harness.StepExec)
 			previousExec.Run += "\n" + currentExec.Run
-			cursor.Step.Name += "_" + current.Step.Name
-			pushed = false
+			cursor.Step.Name = jenkinsjson.SanitizeForName(cursor.Step.Name + "_" + current.Step.Name)
 		} else {
 			// if not able to merge, push cursor and reset cursor to current one
 			merged = append(merged, cursor)
 			cursor = current
-			pushed = true
 		}
 	}
 
-	if !pushed {
-		merged = append(merged, cursor)
-	}
+	merged = append(merged, cursor)
 	*steps = merged
 }
 

@@ -1,0 +1,11 @@
+- step:
+    identifier: stagenull99086b
+    name: Nodejs
+    spec:
+      command: |
+        npm --version
+        npm install
+      image: node:latest
+      shell: Sh
+    timeout: ""
+    type: Run

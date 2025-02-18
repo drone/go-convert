@@ -1,0 +1,34 @@
+{
+  "spanId": "b46a9af1ec4917e0",
+  "traceId": "e8b3f3552913bf43d7e996061510c899",
+  "parent": "Allure-3",
+  "all-info": "span(name: allure, spanId: b46a9af1ec4917e0, parentSpanId: d35ac0c58fd12117, traceId: e8b3f3552913bf43d7e996061510c899, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"delegate\" : {\n    \"symbol\" : \"allure\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"includeProperties\" : false,\n      \"jdk\" : \"\",\n      \"properties\" : [ ],\n      \"reportBuildPolicy\" : \"ALWAYS\",\n      \"results\" : [ {\n        \"path\" : \"build/allure-results\"\n      } ]\n    },\n    \"model\" : null\n  }\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7e6a0a20:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7e6a0a20;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@7e8d37b3:org.jenkinsci.plugins.workflow.actions.TimingAction@7e8d37b3;harness-others:-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep;jenkins.pipeline.step.id:17;jenkins.pipeline.step.name:Allure Report;jenkins.pipeline.step.plugin.name:allure-jenkins-plugin;jenkins.pipeline.step.plugin.version:2.31.1;jenkins.pipeline.step.type:allure;)",
+  "name": "Allure-3 #3",
+  "attributesMap": {
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7e6a0a20": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7e6a0a20",
+    "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+    "jenkins.pipeline.step.name": "Allure Report",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "17",
+    "jenkins.pipeline.step.type": "allure",
+    "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"allure\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"includeProperties\" : false,\n      \"jdk\" : \"\",\n      \"properties\" : [ ],\n      \"reportBuildPolicy\" : \"ALWAYS\",\n      \"results\" : [ {\n        \"path\" : \"build/allure-results\"\n      } ]\n    },\n    \"model\" : null\n  }\n}",
+    "jenkins.pipeline.step.plugin.name": "allure-jenkins-plugin",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@7e8d37b3": "org.jenkinsci.plugins.workflow.actions.TimingAction@7e8d37b3",
+    "jenkins.pipeline.step.plugin.version": "2.31.1"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "d35ac0c58fd12117",
+    "parameterMap": {"delegate": {
+      "symbol": "allure",
+      "klass": null,
+      "arguments": {
+        "jdk": "",
+        "reportBuildPolicy": "ALWAYS",
+        "results": [{"path": "build/allure-results"}],
+        "includeProperties": false,
+        "properties": []
+      },
+      "model": null
+    }},
+  "spanName": "allure"
+}
