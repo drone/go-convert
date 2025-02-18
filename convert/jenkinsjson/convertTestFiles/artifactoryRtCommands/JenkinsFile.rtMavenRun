@@ -1,0 +1,67 @@
+
+pipeline {
+    agent any
+    environment {
+        MAVEN_HOME = '/opt/apache-maven-3.9.6'
+        PATH = "${MAVEN_HOME}/bin:$PATH"
+    }
+
+    stages {
+        stage('Git Clone') {
+            steps {
+                git branch: 'master', url: 'https://github.com/senthilhns/mvn-test-01.git'
+            }
+        }
+
+        stage('Configure Maven Deployer') {
+            steps {
+                script {
+                    rtMavenDeployer(
+                        id: 'deployer-jf03',
+                        releaseRepo: 'mvn_repo_deploy_releases_01',
+                        snapshotRepo: 'mvn_repo_deploy_snapshots_01',
+                        serverId: 'jf03',
+                        customBuildName: 'my-maven-project',
+                        deployArtifacts: true,
+                        deployEvenIfUnstable: false,
+                        excludePatterns: ['**/*.tmp', '**/*.log'],
+                        includePatterns: ['**/*.jar', '**/*.war'],
+                        includeEnvVars: true,
+                        properties: ['env=prod', 'type=maven'],
+                        threads: 3
+                    )
+                }
+            }
+        }
+
+        stage('Configure Maven Resolver') {
+            steps {
+                script {
+                    rtMavenResolver(
+                        id: 'resolver-jf03',
+                        releaseRepo: 'mvn_repo_resolve_releases_01',
+                        snapshotRepo: 'mvn_repo_resolve_snapshots_01',
+                        serverId: 'jf03'
+                    )
+                }
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                script {
+                    rtMavenRun(
+                        pom: 'pom.xml',
+                        goals: 'clean install',
+                        buildName: 'sample-app',
+                        buildNumber: '1',
+                        deployerId: 'deployer-jf03',
+                        resolverId: 'resolver-jf03',
+                        opts: '-DskipTests=true',
+                        useWrapper: false
+                    )
+                }
+            }
+        }
+    }
+}

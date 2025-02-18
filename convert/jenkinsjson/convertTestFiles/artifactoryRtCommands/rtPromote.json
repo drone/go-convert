@@ -1,0 +1,29 @@
+{
+  "spanId": "d6c65e1c6551a21b",
+  "traceId": "1641b6c5959e2c7a2485712108a3a022",
+  "parent": "artifactory_promote_senthil_07",
+  "all-info": "span(name: rtPromote, spanId: d6c65e1c6551a21b, parentSpanId: c58a119b35159eee, traceId: 1641b6c5959e2c7a2485712108a3a022, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"buildName\" : \"mvn02\",\n  \"targetRepo\" : \"tst-libs-snapshot\",\n  \"serverId\" : \"jf001\",\n  \"buildNumber\" : \"2\",\n  \"status\" : \"released\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7dee120a:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7dee120a;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@4de9769e:org.jenkinsci.plugins.workflow.actions.TimingAction@4de9769e;harness-others:-STEP_NAME-staticField org.jfrog.hudson.pipeline.declarative.steps.PromoteBuildStep STEP_NAME-org.jfrog.hudson.pipeline.declarative.steps.PromoteBuildStep.STEP_NAME-class java.lang.String;jenkins.pipeline.step.id:10;jenkins.pipeline.step.name:Promote build;jenkins.pipeline.step.plugin.name:artifactory;jenkins.pipeline.step.plugin.version:4.0.8;jenkins.pipeline.step.type:rtPromote;)",
+  "name": "artifactory_promote_senthil_07 #2",
+  "attributesMap": {
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7dee120a": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7dee120a",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@4de9769e": "org.jenkinsci.plugins.workflow.actions.TimingAction@4de9769e",
+    "harness-others": "-STEP_NAME-staticField org.jfrog.hudson.pipeline.declarative.steps.PromoteBuildStep STEP_NAME-org.jfrog.hudson.pipeline.declarative.steps.PromoteBuildStep.STEP_NAME-class java.lang.String",
+    "jenkins.pipeline.step.name": "Promote build",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "10",
+    "jenkins.pipeline.step.type": "rtPromote",
+    "harness-attribute": "{\n  \"buildName\" : \"mvn02\",\n  \"targetRepo\" : \"tst-libs-snapshot\",\n  \"serverId\" : \"jf001\",\n  \"buildNumber\" : \"2\",\n  \"status\" : \"released\"\n}",
+    "jenkins.pipeline.step.plugin.name": "artifactory",
+    "jenkins.pipeline.step.plugin.version": "4.0.8"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "c58a119b35159eee",
+  "parameterMap": {
+    "buildName": "mvn02",
+    "targetRepo": "tst-libs-snapshot",
+    "serverId": "jf001",
+    "buildNumber": "2",
+    "status": "released"
+  },
+  "spanName": "rtPromote"
+}
