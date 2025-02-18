@@ -20,7 +20,7 @@ var expectedRtDownloadStep = `{
             "build_number": "\u003c+input\u003e",
             "command": "download",
             "module": "\u003c+input\u003e",
-            "password": "\u003c+input\u003e",
+            "access_token": "\u003c+input\u003e",
             "project": "\u003c+input\u003e",
             "spec_path": "\u003c+input\u003e",
             "url": "\u003c+input\u003e",
@@ -31,7 +31,7 @@ var expectedRtDownloadStep = `{
             "build_number": "\u003c+input\u003e",
             "command": "download",
             "module": "\u003c+input\u003e",
-            "password": "\u003c+input\u003e",
+            "access_token": "\u003c+input\u003e",
             "project": "\u003c+input\u003e",
             "spec_path": "\u003c+input\u003e",
             "url": "\u003c+input\u003e",
@@ -87,7 +87,6 @@ const expectedRtMavenRunStep = `{
             "build_tool": "mvn",
             "deployer_id": "\u003c+input\u003e",
             "goals": "clean install",
-            "password": "\u003c+input\u003e",
             "resolve_release_repo": "\u003c+input\u003e",
             "resolve_snapshot_repo": "\u003c+input\u003e",
             "resolver_id": "\u003c+input\u003e",
@@ -102,7 +101,6 @@ const expectedRtMavenRunStep = `{
             "build_tool": "mvn",
             "deployer_id": "\u003c+input\u003e",
             "goals": "clean install",
-            "password": "\u003c+input\u003e",
             "resolve_release_repo": "\u003c+input\u003e",
             "resolve_snapshot_repo": "\u003c+input\u003e",
             "resolver_id": "\u003c+input\u003e",
@@ -148,40 +146,38 @@ func TestRtMavenRun(t *testing.T) {
 }
 
 const expectedRtGradleRunStep = `{
-  "id": "rtGradleRun110fc6",
-  "name": "rtGradleRun",
-  "type": "plugin",
-  "spec": {
-    "image": "plugins/artifactory",
-    "with": {
-      "access_token": "\u003c+input\u003e",
-      "build_name": "\u003c+input\u003e",
-      "build_number": "\u003c+input\u003e",
-      "build_tool": "gradle",
-      "deployer_id": "\u003c+input\u003e",
-      "password": "\u003c+input\u003e",
-      "repo_deploy": "\u003c+input\u003e",
-      "repo_resolve": "\u003c+input\u003e",
-      "resolver_id": "\u003c+input\u003e",
-      "tasks": "clean build",
-      "url": "\u003c+input\u003e",
-      "username": "\u003c+input\u003e"
-    },
-    "inputs": {
-      "access_token": "\u003c+input\u003e",
-      "build_name": "\u003c+input\u003e",
-      "build_number": "\u003c+input\u003e",
-      "build_tool": "gradle",
-      "deployer_id": "\u003c+input\u003e",
-      "password": "\u003c+input\u003e",
-      "repo_deploy": "\u003c+input\u003e",
-      "repo_resolve": "\u003c+input\u003e",
-      "resolver_id": "\u003c+input\u003e",
-      "tasks": "clean build",
-      "url": "\u003c+input\u003e",
-      "username": "\u003c+input\u003e"
+    "id": "rtGradleRun110fc6",
+    "name": "rtGradleRun",
+    "type": "plugin",
+    "spec": {
+        "image": "plugins/artifactory",
+        "with": {
+            "access_token": "\u003c+input\u003e",
+            "build_name": "\u003c+input\u003e",
+            "build_number": "\u003c+input\u003e",
+            "build_tool": "gradle",
+            "deployer_id": "\u003c+input\u003e",
+            "repo_deploy": "\u003c+input\u003e",
+            "repo_resolve": "\u003c+input\u003e",
+            "resolver_id": "\u003c+input\u003e",
+            "tasks": "clean build",
+            "url": "\u003c+input\u003e",
+            "username": "\u003c+input\u003e"
+        },
+        "inputs": {
+            "access_token": "\u003c+input\u003e",
+            "build_name": "\u003c+input\u003e",
+            "build_number": "\u003c+input\u003e",
+            "build_tool": "gradle",
+            "deployer_id": "\u003c+input\u003e",
+            "repo_deploy": "\u003c+input\u003e",
+            "repo_resolve": "\u003c+input\u003e",
+            "resolver_id": "\u003c+input\u003e",
+            "tasks": "clean build",
+            "url": "\u003c+input\u003e",
+            "username": "\u003c+input\u003e"
+        }
     }
-  }
 }`
 
 func TestRtGradleRun(t *testing.T) {
@@ -219,38 +215,36 @@ func TestRtGradleRun(t *testing.T) {
 }
 
 const expectedPublishBuildInfoStep = `{
-  "id": "publishBuildInfo66c280",
-  "name": "publishBuildInfo",
-  "type": "plugin",
-  "spec": {
-    "image": "plugins/artifactory",
-    "with": {
-      "access_token": "\u003c+input\u003e",
-      "build_name": "\u003c+input\u003e",
-      "build_number": "\u003c+input\u003e",
-      "build_tool": "\u003c+input\u003e",
-      "command": "publish",
-      "deploy_release_repo": "\u003c+input\u003e",
-      "deploy_snapshot_repo": "\u003c+input\u003e",
-      "deployer_id": "\u003c+input\u003e",
-      "password": "\u003c+input\u003e",
-      "url": "\u003c+input\u003e",
-      "username": "\u003c+input\u003e"
-    },
-    "inputs": {
-      "access_token": "\u003c+input\u003e",
-      "build_name": "\u003c+input\u003e",
-      "build_number": "\u003c+input\u003e",
-      "build_tool": "\u003c+input\u003e",
-      "command": "publish",
-      "deploy_release_repo": "\u003c+input\u003e",
-      "deploy_snapshot_repo": "\u003c+input\u003e",
-      "deployer_id": "\u003c+input\u003e",
-      "password": "\u003c+input\u003e",
-      "url": "\u003c+input\u003e",
-      "username": "\u003c+input\u003e"
+    "id": "publishBuildInfo66c280",
+    "name": "publishBuildInfo",
+    "type": "plugin",
+    "spec": {
+        "image": "plugins/artifactory",
+        "with": {
+            "access_token": "\u003c+input\u003e",
+            "build_name": "\u003c+input\u003e",
+            "build_number": "\u003c+input\u003e",
+            "build_tool": "\u003c+input\u003e",
+            "command": "publish",
+            "deploy_release_repo": "\u003c+input\u003e",
+            "deploy_snapshot_repo": "\u003c+input\u003e",
+            "deployer_id": "\u003c+input\u003e",
+            "url": "\u003c+input\u003e",
+            "username": "\u003c+input\u003e"
+        },
+        "inputs": {
+            "access_token": "\u003c+input\u003e",
+            "build_name": "\u003c+input\u003e",
+            "build_number": "\u003c+input\u003e",
+            "build_tool": "\u003c+input\u003e",
+            "command": "publish",
+            "deploy_release_repo": "\u003c+input\u003e",
+            "deploy_snapshot_repo": "\u003c+input\u003e",
+            "deployer_id": "\u003c+input\u003e",
+            "url": "\u003c+input\u003e",
+            "username": "\u003c+input\u003e"
+        }
     }
-  }
 }`
 
 func TestPublishBuildInfo(t *testing.T) {
@@ -288,34 +282,32 @@ func TestPublishBuildInfo(t *testing.T) {
 }
 
 const expectedRtPromoteStep = `{
-  "id": "rtPromoted6c65e",
-  "name": "rtPromote",
-  "type": "plugin",
-  "spec": {
-    "image": "plugins/artifactory",
-    "with": {
-      "access_token": "\u003c+input\u003e",
-      "build_name": "mvn02",
-      "build_number": "2",
-      "command": "promote",
-      "copy": "\u003c+input\u003e",
-      "password": "\u003c+input\u003e",
-      "target": "tst-libs-snapshot",
-      "url": "\u003c+input\u003e",
-      "username": "\u003c+input\u003e"
-    },
-    "inputs": {
-      "access_token": "\u003c+input\u003e",
-      "build_name": "mvn02",
-      "build_number": "2",
-      "command": "promote",
-      "copy": "\u003c+input\u003e",
-      "password": "\u003c+input\u003e",
-      "target": "tst-libs-snapshot",
-      "url": "\u003c+input\u003e",
-      "username": "\u003c+input\u003e"
+    "id": "rtPromoted6c65e",
+    "name": "rtPromote",
+    "type": "plugin",
+    "spec": {
+        "image": "plugins/artifactory",
+        "with": {
+            "access_token": "\u003c+input\u003e",
+            "build_name": "mvn02",
+            "build_number": "2",
+            "command": "promote",
+            "copy": "\u003c+input\u003e",
+            "target": "tst-libs-snapshot",
+            "url": "\u003c+input\u003e",
+            "username": "\u003c+input\u003e"
+        },
+        "inputs": {
+            "access_token": "\u003c+input\u003e",
+            "build_name": "mvn02",
+            "build_number": "2",
+            "command": "promote",
+            "copy": "\u003c+input\u003e",
+            "target": "tst-libs-snapshot",
+            "url": "\u003c+input\u003e",
+            "username": "\u003c+input\u003e"
+        }
     }
-  }
 }`
 
 func TestRtPromote(t *testing.T) {
@@ -353,30 +345,28 @@ func TestRtPromote(t *testing.T) {
 }
 
 const expectedXrayScanStep = `{
-  "id": "xrayScan673cd5",
-  "name": "xrayScan",
-  "type": "plugin",
-  "spec": {
-    "image": "plugins/artifactory",
-    "with": {
-      "access_token": "\u003c+input\u003e",
-      "build_name": "mvn02",
-      "build_number": "2",
-      "command": "scan",
-      "password": "\u003c+input\u003e",
-      "url": "\u003c+input\u003e",
-      "username": "\u003c+input\u003e"
-    },
-    "inputs": {
-      "access_token": "\u003c+input\u003e",
-      "build_name": "mvn02",
-      "build_number": "2",
-      "command": "scan",
-      "password": "\u003c+input\u003e",
-      "url": "\u003c+input\u003e",
-      "username": "\u003c+input\u003e"
+    "id": "xrayScan673cd5",
+    "name": "xrayScan",
+    "type": "plugin",
+    "spec": {
+        "image": "plugins/artifactory",
+        "with": {
+            "access_token": "\u003c+input\u003e",
+            "build_name": "mvn02",
+            "build_number": "2",
+            "command": "scan",
+            "url": "\u003c+input\u003e",
+            "username": "\u003c+input\u003e"
+        },
+        "inputs": {
+            "access_token": "\u003c+input\u003e",
+            "build_name": "mvn02",
+            "build_number": "2",
+            "command": "scan",
+            "url": "\u003c+input\u003e",
+            "username": "\u003c+input\u003e"
+        }
     }
-  }
 }`
 
 func TestXrayScan(t *testing.T) {

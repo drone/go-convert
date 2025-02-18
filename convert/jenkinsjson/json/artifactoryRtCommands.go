@@ -27,6 +27,8 @@ func ConvertArtifactoryRtCommand(stepType string, node Node, variables map[strin
 		return convertRtPromote(node, variables)
 	case "xrayScan":
 		return convertXrayScan(node, variables)
+	default:
+		fmt.Printf("Error: Unrecognized stepType '%s' encountered during conversion\n", stepType)
 	}
 	return nil
 }
@@ -53,7 +55,7 @@ func convertRtMavenRun(node Node, variables map[string]string) *harness.Step {
 		tmpStepPlugin.With = map[string]interface{}{}
 	}
 	tmpStepPlugin.With["build_tool"] = MvnTool
-	attributesList := []string{"url", "username", "password", "access_token",
+	attributesList := []string{"url", "username", "access_token",
 		"resolver_id", "deployer_id", "resolve_release_repo", "resolve_snapshot_repo"}
 
 	if _, ok := tmpStepPlugin.With["build_name"]; !ok {
@@ -94,7 +96,7 @@ func convertRtGradleRun(node Node, variables map[string]string) *harness.Step {
 
 	tmpStepPlugin.With["build_tool"] = GradleTool
 
-	attributesList := []string{"url", "username", "password", "access_token", "build_name",
+	attributesList := []string{"url", "username", "access_token", "build_name",
 		"build_number", "resolver_id", "deployer_id", "repo_resolve", "repo_deploy"}
 	if _, ok := tmpStepPlugin.With["build_name"]; !ok {
 		attributesList = append(attributesList, "build_name")
@@ -125,7 +127,7 @@ func convertPublishBuildInfo(node Node, variables map[string]string) *harness.St
 		tmpStepPlugin.With = map[string]interface{}{}
 	}
 	tmpStepPlugin.With["command"] = "publish"
-	attributesList := []string{"build_tool", "url", "username", "password", "access_token", "build_name",
+	attributesList := []string{"build_tool", "url", "username", "access_token", "build_name",
 		"build_number", "deployer_id", "deploy_release_repo", "deploy_snapshot_repo"}
 
 	err := SetRtCommandAttributesToInputPlaceHolder(tmpStepPlugin, attributesList)
@@ -159,7 +161,7 @@ func convertRtDownload(node Node, variables map[string]string) *harness.Step {
 	}
 
 	tmpStepPlugin.With["command"] = "download"
-	attributesList := []string{"url", "username", "password", "module", "project"}
+	attributesList := []string{"url", "username", "access_token", "module", "project"}
 	if _, ok := tmpStepPlugin.With["build_name"]; !ok {
 		attributesList = append(attributesList, "build_name")
 	}
@@ -200,7 +202,7 @@ func convertRtPromote(node Node, variables map[string]string) *harness.Step {
 		tmpStepPlugin.With = map[string]interface{}{}
 	}
 	tmpStepPlugin.With["command"] = "promote"
-	attributesList := []string{"url", "username", "password", "access_token"}
+	attributesList := []string{"url", "username", "access_token"}
 
 	if _, ok := tmpStepPlugin.With["build_name"]; !ok {
 		attributesList = append(attributesList, "build_name")
@@ -249,7 +251,7 @@ func convertXrayScan(node Node, variables map[string]string) *harness.Step {
 	if _, ok := tmpStepPlugin.With["build_number"]; !ok {
 		tmpStepPlugin.With["build_number"] = InputPlaceHolder
 	}
-	attributesList := []string{"url", "username", "password", "access_token"}
+	attributesList := []string{"url", "username", "access_token"}
 	err := SetRtCommandAttributesToInputPlaceHolder(tmpStepPlugin, attributesList)
 	if err != nil {
 		fmt.Println("Error: failed to set attributes to input placeholder")
