@@ -1,0 +1,34 @@
+pipeline {
+    agent any
+    stages {
+  
+
+        stage('Run Robot Tests') {
+            steps {
+                sh '''
+                mkdir -p results
+                python3 -m robot --outputdir results tests/hello_world.robot
+                '''
+            }
+        }
+             stage('Publish Results') {
+            steps {
+                robot(
+                    outputPath: "results",
+                    archiveDirName: "robot_archive",   // Optional, archives artifacts
+                    countSkippedTests: true,          // Include skipped tests in pass/fail count
+                    disableArchiveOutput: true,       // Prevents archiving of output.xml
+                    enableCache: false,               // Disable caching to avoid memory pressure
+                    logFileName: "log.html",          // Log file with wildcard support
+                    onlyCritical: false,              // Include non-critical tests in results
+                    otherFiles: "*/screenshot-.png", // Include additional test artifacts
+                    outputFileName: "output.xml",     // Robot output file
+                    overwriteXAxisLabel: "${currentBuild.number}",  // Custom x-axis label for trend graphs
+                    passThreshold: 90.0,              // Min. pass percentage for success
+                    reportFileName: "report.html",    // Robot report file
+                    unstableThreshold: 70.0           // Below this, build is marked as unstable
+                )
+            }
+        }
+    }
+}
