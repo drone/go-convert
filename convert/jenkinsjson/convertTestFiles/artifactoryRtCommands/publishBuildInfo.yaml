@@ -12,6 +12,5 @@
         deploy_release_repo: <+input>
         deploy_snapshot_repo: <+input>
         deployer_id: <+input>
-        password: <+input>
         url: <+input>
         username: <+input>

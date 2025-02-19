@@ -8,6 +8,5 @@
         build_name: mvn02
         build_number: "2"
         command: scan
-        password: <+input>
         url: <+input>
         username: <+input>

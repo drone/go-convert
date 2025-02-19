@@ -11,61 +11,117 @@ const (
 	InputPlaceHolder                 = "<+input>"
 	MvnTool                          = "mvn"
 	GradleTool                       = "gradle"
+	UrlStr                           = "url"
+	UseNameStr                       = "username"
+	AccessTokenStr                   = "access_token"
+	ModuleStr                        = "module"
+	ResolverIdStr                    = "resolver_id"
+	DeployerIdStr                    = "deployer_id"
+	ProjectStr                       = "project"
+	BuildNameStr                     = "build_name"
+	BuildNumberStr                   = "build_number"
+	BuildToolStr                     = "build_tool"
+	SpecPath                         = "spec_path"
+	TargetStr                        = "target"
+	CopyStr                          = "copy"
+
+	// command defs
+	rtDownloadCmd       = "rtDownload"
+	rtMavenRunCmd       = "rtMavenRun"
+	rtGradleRunCmd      = "rtGradleRun"
+	publishBuildInfoCmd = "rtPublishBuildInfo"
+	rtPromoteCmd        = "rtPromote"
+	xrayScanCmd         = "xrayScan"
 )
 
+var (
+	// rtDownloadAttributesList defines
+	rtDownloadAttributesList = []string{UrlStr, UseNameStr, AccessTokenStr, ModuleStr,
+		ProjectStr, BuildNameStr, BuildNumberStr, SpecPath}
+	rtMavenRunAttributesList = []string{UrlStr, UseNameStr, AccessTokenStr, ResolverIdStr, DeployerIdStr,
+		"resolve_release_repo", "resolve_snapshot_repo", BuildNameStr, BuildNumberStr}
+	rtGradleRunAttributesList = []string{UrlStr, UseNameStr, AccessTokenStr, ResolverIdStr, DeployerIdStr,
+		"repo_resolve", "repo_deploy", BuildNameStr, BuildNumberStr}
+	publishBuildInfoAttributesList = []string{BuildToolStr, UrlStr, UseNameStr, AccessTokenStr, BuildNameStr,
+		BuildNumberStr, DeployerIdStr, "deploy_release_repo", "deploy_snapshot_repo"}
+	rtPromoteAttributesList = []string{UrlStr, UseNameStr, AccessTokenStr, BuildNameStr,
+		BuildNumberStr, TargetStr, CopyStr}
+	xrayScanAttributesList = []string{UrlStr, UseNameStr, AccessTokenStr, BuildNameStr, BuildNumberStr}
+
+	// ConvertRtMavenRunParamMapperList defines
+	ConvertRtMavenRunParamMapperList = []JenkinsToDroneParamMapper{
+		{"pom", "source", StringType, nil},
+		{"goals", "goals", StringType, nil},
+		{"buildName", BuildNameStr, StringType, nil},
+		{"buildNumber", BuildNumberStr, StringType, nil},
+	}
+	ConvertRtGradleRunParamMapperList = []JenkinsToDroneParamMapper{
+		{"buildName", BuildNameStr, StringType, nil},
+		{"buildNumber", BuildNumberStr, StringType, nil},
+		{"tasks", "tasks", StringType, nil},
+	}
+	ConvertRtDownloadParamMapperList = []JenkinsToDroneParamMapper{
+		{"buildName", BuildNameStr, StringType, nil},
+		{"buildNumber", BuildNumberStr, StringType, nil},
+		{ModuleStr, ModuleStr, StringType, nil},
+		{"specPath", SpecPath, StringType, nil},
+	}
+	ConvertRtPromoteParamMapperList = []JenkinsToDroneParamMapper{
+		{"buildName", BuildNameStr, StringType, nil},
+		{"buildNumber", BuildNumberStr, StringType, nil},
+		{"targetRepo", TargetStr, StringType, nil},
+		{CopyStr, CopyStr, StringType, nil},
+	}
+	ConvertXrayScanParamMapperList = []JenkinsToDroneParamMapper{
+		{"buildName", BuildNameStr, StringType, nil},
+		{"buildNumber", BuildNumberStr, StringType, nil},
+	}
+)
+
+type RtCommandParams struct {
+	StepType                      string
+	Tool                          string
+	Command                       string
+	JenkinsToDroneParamMapperList []JenkinsToDroneParamMapper
+	AttributesList                []string
+}
+
+var RtCommandParamsDef = map[string]RtCommandParams{
+	rtDownloadCmd:       {rtDownloadCmd, "", "download", ConvertRtDownloadParamMapperList, rtDownloadAttributesList},
+	rtMavenRunCmd:       {rtMavenRunCmd, MvnTool, "", ConvertRtMavenRunParamMapperList, rtMavenRunAttributesList},
+	rtGradleRunCmd:      {rtGradleRunCmd, GradleTool, "", ConvertRtGradleRunParamMapperList, rtGradleRunAttributesList},
+	publishBuildInfoCmd: {publishBuildInfoCmd, "", "publish", nil, publishBuildInfoAttributesList},
+	rtPromoteCmd:        {rtPromoteCmd, "", "promote", ConvertRtPromoteParamMapperList, rtPromoteAttributesList},
+	xrayScanCmd:         {xrayScanCmd, "", "scan", ConvertXrayScanParamMapperList, xrayScanAttributesList},
+}
+
 func ConvertArtifactoryRtCommand(stepType string, node Node, variables map[string]string) *harness.Step {
-	switch stepType {
-	case "rtDownload":
-		return convertRtDownload(node, variables)
-	case "rtMavenRun":
-		return convertRtMavenRun(node, variables)
-	case "rtGradleRun":
-		return convertRtGradleRun(node, variables)
-	case "publishBuildInfo":
-		return convertPublishBuildInfo(node, variables)
-	case "rtPromote":
-		return convertRtPromote(node, variables)
-	case "xrayScan":
-		return convertXrayScan(node, variables)
-	default:
-		fmt.Printf("Error: Unrecognized stepType '%s' encountered during conversion\n", stepType)
+	rtCommandParams, ok := RtCommandParamsDef[stepType]
+	if !ok {
+		fmt.Println("Error: failed to convert ", stepType)
+		return nil
 	}
-	return nil
+	step := convertRtStep(rtCommandParams.StepType, rtCommandParams.Tool, rtCommandParams.Command, node,
+		rtCommandParams.JenkinsToDroneParamMapperList, rtCommandParams.AttributesList)
+	return step
 }
 
-var ConvertRtMavenRunParamMapperList = []JenkinsToDroneParamMapper{
-	{"pom", "source", StringType, nil},
-	{"goals", "goals", StringType, nil},
-	{"buildName", "build_name", StringType, nil},
-	{"buildNumber", "build_number", StringType, nil},
-}
-
-func convertRtMavenRun(node Node, variables map[string]string) *harness.Step {
-	step := GetStepWithProperties(&node, ConvertRtMavenRunParamMapperList, ArtifactoryRtCommandsPluginImage)
+func convertRtStep(stepType string, tool string, command string, node Node,
+	jenkinsToDroneParamMapper []JenkinsToDroneParamMapper, attributesList []string) *harness.Step {
+	step := GetStepWithProperties(&node, jenkinsToDroneParamMapper, ArtifactoryRtCommandsPluginImage)
 	if step == nil {
-		fmt.Println("Error: failed to convert rtMavenRun")
+		fmt.Println("Error: failed to convert ", stepType)
 		return nil
 	}
 	tmpStepPlugin, ok := step.Spec.(*harness.StepPlugin)
 	if !ok {
-		fmt.Println("Error: failed to convert rtMavenRun")
+		fmt.Println("Error: failed to convert to StepPlugin ", stepType)
 		return nil
 	}
 	if tmpStepPlugin.With == nil {
 		tmpStepPlugin.With = map[string]interface{}{}
 	}
-	tmpStepPlugin.With["build_tool"] = MvnTool
-	attributesList := []string{"url", "username", "access_token",
-		"resolver_id", "deployer_id", "resolve_release_repo", "resolve_snapshot_repo"}
-
-	if _, ok := tmpStepPlugin.With["build_name"]; !ok {
-		attributesList = append(attributesList, "build_name")
-	}
-	if _, ok := tmpStepPlugin.With["build_number"]; !ok {
-		attributesList = append(attributesList, "build_number")
-	}
-
-	err := SetRtCommandAttributesToInputPlaceHolder(tmpStepPlugin, attributesList)
+	err := SetRtCommandAttributes(tool, command, tmpStepPlugin, attributesList)
 	if err != nil {
 		fmt.Println("Error: failed to set attributes to input placeholder")
 		return nil
@@ -73,202 +129,25 @@ func convertRtMavenRun(node Node, variables map[string]string) *harness.Step {
 	return step
 }
 
-var ConvertRtGradleRunParamMapperList = []JenkinsToDroneParamMapper{
-	{"buildName", "build_name", StringType, nil},
-	{"buildNumber", "build_number", StringType, nil},
-	{"tasks", "tasks", StringType, nil},
-}
-
-func convertRtGradleRun(node Node, variables map[string]string) *harness.Step {
-	step := GetStepWithProperties(&node, ConvertRtGradleRunParamMapperList, ArtifactoryRtCommandsPluginImage)
-	if step == nil {
-		fmt.Println("Error: failed to convert rtGradleRun")
-		return nil
-	}
-	tmpStepPlugin, ok := step.Spec.(*harness.StepPlugin)
-	if !ok {
-		fmt.Println("Error: failed to convert rtGradleRun")
-		return nil
-	}
-	if tmpStepPlugin.With == nil {
-		tmpStepPlugin.With = map[string]interface{}{}
-	}
-
-	tmpStepPlugin.With["build_tool"] = GradleTool
-
-	attributesList := []string{"url", "username", "access_token", "build_name",
-		"build_number", "resolver_id", "deployer_id", "repo_resolve", "repo_deploy"}
-	if _, ok := tmpStepPlugin.With["build_name"]; !ok {
-		attributesList = append(attributesList, "build_name")
-	}
-	if _, ok := tmpStepPlugin.With["build_number"]; !ok {
-		attributesList = append(attributesList, "build_number")
-	}
-	err := SetRtCommandAttributesToInputPlaceHolder(tmpStepPlugin, attributesList)
-	if err != nil {
-		fmt.Println("Error: failed to set attributes to input placeholder")
-		return nil
-	}
-	return step
-}
-
-func convertPublishBuildInfo(node Node, variables map[string]string) *harness.Step {
-	step := GetStepWithProperties(&node, nil, ArtifactoryRtCommandsPluginImage)
-	if step == nil {
-		fmt.Println("Error: failed to convert publishBuildInfo")
-		return nil
-	}
-	tmpStepPlugin, ok := step.Spec.(*harness.StepPlugin)
-	if !ok {
-		fmt.Println("Error: failed to convert publishBuildInfo")
-		return nil
-	}
-	if tmpStepPlugin.With == nil {
-		tmpStepPlugin.With = map[string]interface{}{}
-	}
-	tmpStepPlugin.With["command"] = "publish"
-	attributesList := []string{"build_tool", "url", "username", "access_token", "build_name",
-		"build_number", "deployer_id", "deploy_release_repo", "deploy_snapshot_repo"}
-
-	err := SetRtCommandAttributesToInputPlaceHolder(tmpStepPlugin, attributesList)
-	if err != nil {
-		fmt.Println("Error: failed to set attributes to input placeholder")
-		return nil
-	}
-	return step
-}
-
-var ConvertRtDownloadParamMapperList = []JenkinsToDroneParamMapper{
-	{"buildName", "build_name", StringType, nil},
-	{"buildNumber", "build_number", StringType, nil},
-	{"module", "module", StringType, nil},
-	{"specPath", "spec_path", StringType, nil},
-}
-
-func convertRtDownload(node Node, variables map[string]string) *harness.Step {
-	step := GetStepWithProperties(&node, ConvertRtDownloadParamMapperList, ArtifactoryRtCommandsPluginImage)
-	if step == nil {
-		fmt.Println("Error: failed to convert rtDownload")
-		return nil
-	}
-	tmpStepPlugin, ok := step.Spec.(*harness.StepPlugin)
-	if !ok {
-		fmt.Println("Error: failed to convert rtDownload")
-		return nil
-	}
-	if tmpStepPlugin.With == nil {
-		tmpStepPlugin.With = map[string]interface{}{}
-	}
-
-	tmpStepPlugin.With["command"] = "download"
-	attributesList := []string{"url", "username", "access_token", "module", "project"}
-	if _, ok := tmpStepPlugin.With["build_name"]; !ok {
-		attributesList = append(attributesList, "build_name")
-	}
-	if _, ok := tmpStepPlugin.With["build_number"]; !ok {
-		attributesList = append(attributesList, "build_number")
-	}
-	if _, ok := tmpStepPlugin.With["spec_path"]; !ok {
-		attributesList = append(attributesList, "spec_path")
-	}
-
-	err := SetRtCommandAttributesToInputPlaceHolder(tmpStepPlugin, attributesList)
-	if err != nil {
-		fmt.Println("Error: failed to set attributes to input placeholder")
-		return nil
-	}
-	return step
-}
-
-var ConvertRtPromoteParamMapperList = []JenkinsToDroneParamMapper{
-	{"buildName", "build_name", StringType, nil},
-	{"buildNumber", "build_number", StringType, nil},
-	{"targetRepo", "target", StringType, nil},
-	{"copy", "copy", StringType, nil},
-}
-
-func convertRtPromote(node Node, variables map[string]string) *harness.Step {
-	step := GetStepWithProperties(&node, ConvertRtPromoteParamMapperList, ArtifactoryRtCommandsPluginImage)
-	if step == nil {
-		fmt.Println("Error: failed to convert rtPromote")
-		return nil
-	}
-	tmpStepPlugin, ok := step.Spec.(*harness.StepPlugin)
-	if !ok {
-		fmt.Println("Error: failed to convert rtPromote")
-		return nil
-	}
-	if tmpStepPlugin.With == nil {
-		tmpStepPlugin.With = map[string]interface{}{}
-	}
-	tmpStepPlugin.With["command"] = "promote"
-	attributesList := []string{"url", "username", "access_token"}
-
-	if _, ok := tmpStepPlugin.With["build_name"]; !ok {
-		attributesList = append(attributesList, "build_name")
-	}
-	if _, ok := tmpStepPlugin.With["build_number"]; !ok {
-		attributesList = append(attributesList, "build_number")
-	}
-	if _, ok := tmpStepPlugin.With["target"]; !ok {
-		attributesList = append(attributesList, "target")
-	}
-	if _, ok := tmpStepPlugin.With["copy"]; !ok {
-		attributesList = append(attributesList, "copy")
-	}
-
-	err := SetRtCommandAttributesToInputPlaceHolder(tmpStepPlugin, attributesList)
-	if err != nil {
-		fmt.Println("Error: failed to set attributes to input placeholder")
-		return nil
-	}
-	return step
-}
-
-var ConvertXrayScanParamMapperList = []JenkinsToDroneParamMapper{
-	{"buildName", "build_name", StringType, nil},
-	{"buildNumber", "build_number", StringType, nil},
-}
-
-func convertXrayScan(node Node, variables map[string]string) *harness.Step {
-	step := GetStepWithProperties(&node, ConvertXrayScanParamMapperList, ArtifactoryRtCommandsPluginImage)
-	if step == nil {
-		fmt.Println("Error: failed to convert xrayScan")
-		return nil
-	}
-	tmpStepPlugin, ok := step.Spec.(*harness.StepPlugin)
-	if !ok {
-		fmt.Println("Error: failed to convert xrayScan")
-		return nil
-	}
-	if tmpStepPlugin.With == nil {
-		tmpStepPlugin.With = map[string]interface{}{}
-	}
-	tmpStepPlugin.With["command"] = "scan"
-	if _, ok := tmpStepPlugin.With["build_name"]; !ok {
-		tmpStepPlugin.With["build_name"] = InputPlaceHolder
-	}
-	if _, ok := tmpStepPlugin.With["build_number"]; !ok {
-		tmpStepPlugin.With["build_number"] = InputPlaceHolder
-	}
-	attributesList := []string{"url", "username", "access_token"}
-	err := SetRtCommandAttributesToInputPlaceHolder(tmpStepPlugin, attributesList)
-	if err != nil {
-		fmt.Println("Error: failed to set attributes to input placeholder")
-		return nil
-	}
-	return step
-}
-
-func SetRtCommandAttributesToInputPlaceHolder(tmpStepPlugin *harness.StepPlugin, attributeValues []string) error {
+func SetRtCommandAttributes(toolName string, command string,
+	tmpStepPlugin *harness.StepPlugin, attributeValues []string) error {
 	if tmpStepPlugin == nil {
 		errStr := "error: rtCommand StepPlugin is nil"
 		fmt.Println(errStr)
 		return errors.New(errStr)
 	}
 
+	if toolName != "" {
+		tmpStepPlugin.With[BuildToolStr] = toolName
+	}
+
+	if command != "" {
+		tmpStepPlugin.With["command"] = command
+	}
 	for _, attribute := range attributeValues {
-		tmpStepPlugin.With[attribute] = InputPlaceHolder
+		if _, ok := tmpStepPlugin.With[attribute]; !ok {
+			tmpStepPlugin.With[attribute] = InputPlaceHolder
+		}
 	}
 	return nil
 }

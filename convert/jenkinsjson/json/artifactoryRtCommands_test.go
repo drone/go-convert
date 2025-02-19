@@ -41,7 +41,6 @@ var expectedRtDownloadStep = `{
 }`
 
 func TestRtDownload(t *testing.T) {
-	variables := make(map[string]string)
 	jsonFilePath := "../convertTestFiles/artifactoryRtCommands/rtDownload.json"
 
 	workingDir, err := os.Getwd()
@@ -61,7 +60,9 @@ func TestRtDownload(t *testing.T) {
 		t.Fatalf("Failed to decode JSON: %v", err)
 	}
 
-	tmpTestStep := convertRtDownload(node, variables)
+	tmpTestStep := convertRtStep("rtDownload", "", "download", node,
+		ConvertRtDownloadParamMapperList, rtDownloadAttributesList)
+
 	wantStep, err := ToStructFromJsonString[harness.Step](expectedRtDownloadStep)
 	if err != nil {
 		t.Fatalf("want step : %v", err)
@@ -112,7 +113,6 @@ const expectedRtMavenRunStep = `{
 }`
 
 func TestRtMavenRun(t *testing.T) {
-	variables := make(map[string]string)
 	jsonFilePath := "../convertTestFiles/artifactoryRtCommands/rtMavenRun.json"
 
 	workingDir, err := os.Getwd()
@@ -132,7 +132,8 @@ func TestRtMavenRun(t *testing.T) {
 		t.Fatalf("Failed to decode JSON: %v", err)
 	}
 
-	tmpTestStep := convertRtMavenRun(node, variables)
+	tmpTestStep := convertRtStep("rtMavenRun", "mvn", "",
+		node, ConvertRtMavenRunParamMapperList, rtMavenRunAttributesList)
 	wantStep, err := ToStructFromJsonString[harness.Step](expectedRtMavenRunStep)
 	if err != nil {
 		t.Fatalf("want step : %v", err)
@@ -181,7 +182,6 @@ const expectedRtGradleRunStep = `{
 }`
 
 func TestRtGradleRun(t *testing.T) {
-	variables := make(map[string]string)
 	jsonFilePath := "../convertTestFiles/artifactoryRtCommands/rtGradleRun.json"
 
 	workingDir, err := os.Getwd()
@@ -201,7 +201,8 @@ func TestRtGradleRun(t *testing.T) {
 		t.Fatalf("Failed to decode JSON: %v", err)
 	}
 
-	tmpTestStep := convertRtGradleRun(node, variables)
+	tmpTestStep := convertRtStep("rtGradleRun", "gradle", "", node,
+		ConvertRtGradleRunParamMapperList, rtGradleRunAttributesList)
 	wantStep, err := ToStructFromJsonString[harness.Step](expectedRtGradleRunStep)
 	if err != nil {
 		t.Fatalf("want step : %v", err)
@@ -248,7 +249,6 @@ const expectedPublishBuildInfoStep = `{
 }`
 
 func TestPublishBuildInfo(t *testing.T) {
-	variables := make(map[string]string)
 	jsonFilePath := "../convertTestFiles/artifactoryRtCommands/publishBuildInfo.json"
 
 	workingDir, err := os.Getwd()
@@ -268,7 +268,7 @@ func TestPublishBuildInfo(t *testing.T) {
 		t.Fatalf("Failed to decode JSON: %v", err)
 	}
 
-	tmpTestStep := convertPublishBuildInfo(node, variables)
+	tmpTestStep := convertRtStep("publishBuildInfo", "", "", node, nil, publishBuildInfoAttributesList)
 	wantStep, err := ToStructFromJsonString[harness.Step](expectedPublishBuildInfoStep)
 	if err != nil {
 		t.Fatalf("want step : %v", err)
@@ -311,7 +311,6 @@ const expectedRtPromoteStep = `{
 }`
 
 func TestRtPromote(t *testing.T) {
-	variables := make(map[string]string)
 	jsonFilePath := "../convertTestFiles/artifactoryRtCommands/rtPromote.json"
 
 	workingDir, err := os.Getwd()
@@ -331,7 +330,7 @@ func TestRtPromote(t *testing.T) {
 		t.Fatalf("Failed to decode JSON: %v", err)
 	}
 
-	tmpTestStep := convertRtPromote(node, variables)
+	tmpTestStep := convertRtStep("rtPromote", "", "", node, ConvertRtPromoteParamMapperList, rtPromoteAttributesList)
 	wantStep, err := ToStructFromJsonString[harness.Step](expectedRtPromoteStep)
 	if err != nil {
 		t.Fatalf("want step : %v", err)
@@ -370,7 +369,6 @@ const expectedXrayScanStep = `{
 }`
 
 func TestXrayScan(t *testing.T) {
-	variables := make(map[string]string)
 	jsonFilePath := "../convertTestFiles/artifactoryRtCommands/xrayScan.json"
 
 	workingDir, err := os.Getwd()
@@ -390,7 +388,8 @@ func TestXrayScan(t *testing.T) {
 		t.Fatalf("Failed to decode JSON: %v", err)
 	}
 
-	tmpTestStep := convertXrayScan(node, variables)
+	tmpTestStep := convertRtStep("xrayScan", "", "", node, ConvertXrayScanParamMapperList, xrayScanAttributesList)
+
 	wantStep, err := ToStructFromJsonString[harness.Step](expectedXrayScanStep)
 	if err != nil {
 		t.Fatalf("want step : %v", err)

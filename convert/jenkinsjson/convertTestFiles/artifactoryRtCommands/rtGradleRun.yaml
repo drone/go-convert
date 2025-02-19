@@ -9,7 +9,6 @@
         build_number: <+input>
         build_tool: gradle
         deployer_id: <+input>
-        password: <+input>
         repo_deploy: <+input>
         repo_resolve: <+input>
         resolver_id: <+input>

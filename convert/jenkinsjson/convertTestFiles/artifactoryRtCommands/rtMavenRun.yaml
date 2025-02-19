@@ -10,7 +10,6 @@
       build_tool: mvn
       deployer_id: <+input>
       goals: clean install
-      password: <+input>
       resolve_release_repo: <+input>
       resolve_snapshot_repo: <+input>
       resolver_id: <+input>

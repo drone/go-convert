@@ -8,7 +8,7 @@
         build_number: <+input>
         command: download
         module: <+input>
-        password: <+input>
+        access_token: <+input>
         project: <+input>
         spec_path: <+input>
         url: <+input>

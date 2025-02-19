@@ -724,7 +724,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 		fallthrough
 	case "rtGradleRun":
 		fallthrough
-	case "publishBuildInfo":
+	case "rtPublishBuildInfo":
 		fallthrough
 	case "rtPromote":
 		fallthrough

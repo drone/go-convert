@@ -20,7 +20,6 @@
                         build_number: "2"
                         command: promote
                         copy: <+input>
-                        password: <+input>
                         target: tst-libs-snapshot
                         url: <+input>
                         username: <+input>
