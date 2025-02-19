@@ -154,8 +154,8 @@ const expectedRtGradleRunStep = `{
         "image": "plugins/artifactory",
         "with": {
             "access_token": "\u003c+input\u003e",
-            "build_name": "\u003c+input\u003e",
-            "build_number": "\u003c+input\u003e",
+            "build_name": "gradle02",
+            "build_number": "2",
             "build_tool": "gradle",
             "deployer_id": "\u003c+input\u003e",
             "repo_deploy": "\u003c+input\u003e",
@@ -167,8 +167,8 @@ const expectedRtGradleRunStep = `{
         },
         "inputs": {
             "access_token": "\u003c+input\u003e",
-            "build_name": "\u003c+input\u003e",
-            "build_number": "\u003c+input\u003e",
+            "build_name": "gradle02",
+            "build_number": "2",
             "build_tool": "gradle",
             "deployer_id": "\u003c+input\u003e",
             "repo_deploy": "\u003c+input\u003e",
@@ -268,7 +268,7 @@ func TestPublishBuildInfo(t *testing.T) {
 		t.Fatalf("Failed to decode JSON: %v", err)
 	}
 
-	tmpTestStep := convertRtStep("publishBuildInfo", "", "", node, nil, publishBuildInfoAttributesList)
+	tmpTestStep := convertRtStep(publishBuildInfoCmd, "", "publish", node, nil, publishBuildInfoAttributesList)
 	wantStep, err := ToStructFromJsonString[harness.Step](expectedPublishBuildInfoStep)
 	if err != nil {
 		t.Fatalf("want step : %v", err)
@@ -330,7 +330,7 @@ func TestRtPromote(t *testing.T) {
 		t.Fatalf("Failed to decode JSON: %v", err)
 	}
 
-	tmpTestStep := convertRtStep("rtPromote", "", "", node, ConvertRtPromoteParamMapperList, rtPromoteAttributesList)
+	tmpTestStep := convertRtStep("rtPromote", "", "promote", node, ConvertRtPromoteParamMapperList, rtPromoteAttributesList)
 	wantStep, err := ToStructFromJsonString[harness.Step](expectedRtPromoteStep)
 	if err != nil {
 		t.Fatalf("want step : %v", err)
@@ -388,7 +388,7 @@ func TestXrayScan(t *testing.T) {
 		t.Fatalf("Failed to decode JSON: %v", err)
 	}
 
-	tmpTestStep := convertRtStep("xrayScan", "", "", node, ConvertXrayScanParamMapperList, xrayScanAttributesList)
+	tmpTestStep := convertRtStep("xrayScan", "", "scan", node, ConvertXrayScanParamMapperList, xrayScanAttributesList)
 
 	wantStep, err := ToStructFromJsonString[harness.Step](expectedXrayScanStep)
 	if err != nil {
