@@ -1,0 +1,17 @@
+- step:
+    identifier: rtgradlerun110fc6
+    name: rtGradleRun
+    spec:
+      image: plugins/artifactory
+      settings:
+        access_token: <+input>
+        build_name: <+input>
+        build_number: <+input>
+        build_tool: gradle
+        deployer_id: <+input>
+        repo_deploy: <+input>
+        repo_resolve: <+input>
+        resolver_id: <+input>
+        tasks: clean build
+        url: <+input>
+        username: <+input>
