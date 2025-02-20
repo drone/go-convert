@@ -5,6 +5,20 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
+var QualityGatesMap = map[string]interface{}{
+	"MODULE":             "threshold_module",
+	"CLASS":              "threshold_class",
+	"FILE":               "threshold_file",
+	"PACKAGE":            "threshold_package",
+	"LINE":               "threshold_line",
+	"METHOD":             "threshold_method",
+	"INSTRUCTION":        "threshold_instruction",
+	"BRANCH":             "threshold_branch",
+	"COMPLEXITY":         "threshold_complexity",
+	"COMPLEXITY_DENSITY": "threshold_complexity_density",
+	"LOC":                "threshold_loc",
+}
+
 func ConvertRecordCoverage(node Node, variables map[string]string) []*harness.Step {
 
 	s, err := ToJsonStringFromStruct(node)
@@ -36,33 +50,15 @@ func ConvertRecordCoverage(node Node, variables map[string]string) []*harness.St
 		}
 		stepMap["source_code_encoding"] = "UTF-8"
 		stepMap["fail_on_threshold"] = rcn.ParameterMap.EnabledForFailure
+
 		for _, qualityGate := range rcn.ParameterMap.QualityGates {
-			if qualityGate.Metric == "MODULE" {
-				stepMap["threshold_module"] = qualityGate.Threshold
-			} else if qualityGate.Metric == "CLASS" {
-				stepMap["threshold_class"] = qualityGate.Threshold
-			} else if qualityGate.Metric == "FILE" {
-				stepMap["threshold_file"] = qualityGate.Threshold
-			} else if qualityGate.Metric == "PACKAGE" {
-				stepMap["threshold_package"] = qualityGate.Threshold
-			} else if qualityGate.Metric == "LINE" {
-				stepMap["threshold_line"] = qualityGate.Threshold
-			} else if qualityGate.Metric == "METHOD" {
-				stepMap["threshold_method"] = qualityGate.Threshold
-			} else if qualityGate.Metric == "INSTRUCTION" {
-				stepMap["threshold_instruction"] = qualityGate.Threshold
-			} else if qualityGate.Metric == "BRANCH" {
-				stepMap["threshold_branch"] = qualityGate.Threshold
-			} else if qualityGate.Metric == "COMPLEXITY" {
-				stepMap["threshold_complexity"] = qualityGate.Threshold
-			} else if qualityGate.Metric == "COMPLEXITY_DENSITY" {
-				stepMap["threshold_complexity_density"] = qualityGate.Threshold
-			} else if qualityGate.Metric == "LOC" {
-				stepMap["threshold_loc"] = qualityGate.Threshold
+			if val, ok := QualityGatesMap[qualityGate.Metric]; ok {
+				stepMap[val.(string)] = qualityGate.Threshold
 			} else {
 				fmt.Println("Unknown metric:", qualityGate.Metric)
 			}
 		}
+
 		stepsMap = append(stepsMap, stepMap)
 	}
 

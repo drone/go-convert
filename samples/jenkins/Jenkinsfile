@@ -18,7 +18,7 @@ pipeline {
         ANSIBLE_PLAYBOOK = 'test-playbook.yml'
         ANSIBLE_VAULT_TMP_PATH = '/tmp/vault-password.txt'
     }
-    
+
     stages {
         stage('Plugin Build') {
             steps {
@@ -119,7 +119,7 @@ line3'''
                 }
             }
         }
-    
+
         stage('Code Analysis') {
             environment {
                 scannerHome = tool 'Sonar'
@@ -612,7 +612,7 @@ line3'''
             steps {
                 javadoc javadocDir: 'complete/build/docs/javadoc', keepAll: true
             }
-        }    
+        }
         //Kube-ctl
         stage('Check Docker') {
             steps {
@@ -1095,9 +1095,9 @@ line3'''
     }
     post {
         always {
-            cucumber jsonReportDirectory: 'target', 
-                     fileIncludePattern: '*/.json', 
-                     fileExcludePattern: '', 
+            cucumber jsonReportDirectory: 'target',
+                     fileIncludePattern: '*/.json',
+                     fileExcludePattern: '',
                      failedAsNotFailingStatus: false,
                      failedFeaturesNumber: 0,
                      failedFeaturesPercentage: 0.0,
@@ -1124,6 +1124,206 @@ line3'''
         }
         failure {
             echo 'Build failed. Check test reports for details.'
+        }
+    }
+
+    // rtDownload
+    environment {
+        ARTIFACTORY_SERVER_ID = 'jf001'
+        ARTIFACTORY_REPO = 'tst-libs-snapshot/'
+        FILE_NAME = 'sample.txt'
+    }
+    stages {
+        stage('Create Text File') {
+            steps {
+                script {
+                    writeFile file: "${FILE_NAME}", text: 'This is a sample text file for Artifactory upload/download demo.'
+                    echo "Created file: ${FILE_NAME}"
+                }
+            }
+        }
+        stage('Upload Text File to Artifactory') {
+            steps {
+                script {
+                    rtUpload(
+                        serverId: ARTIFACTORY_SERVER_ID,
+                        spec: """{
+                            "files": [
+                                {
+                                    "pattern": "${FILE_NAME}",
+                                    "target": "${ARTIFACTORY_REPO}${FILE_NAME}"
+                                }
+                            ]
+                        }"""
+                    )
+                    echo "File uploaded to Artifactory."
+                }
+            }
+        }
+        stage('Download Text File from Artifactory') {
+            steps {
+                script {
+                    rtDownload(
+                        serverId: ARTIFACTORY_SERVER_ID,
+                        spec: """{
+                            "files": [
+                                {
+                                    "pattern": "${ARTIFACTORY_REPO}${FILE_NAME}",
+                                    "target": "./downloaded/"
+                                }
+                            ]
+                        }"""
+                    )
+                    echo "File downloaded from Artifactory."
+                }
+            }
+        }
+        stage('Verify Download') {
+            steps {
+                script {
+                    def downloadedContent = readFile "downloaded/${FILE_NAME}"
+                    echo "Downloaded File Content: ${downloadedContent}"
+                }
+            }
+        }
+    }
+
+    // rtGradleRun
+    environment {
+        GRADLE_HOME = '/opt/gradle-7.6.2'
+        PATH = "${GRADLE_HOME}/bin:$PATH"
+    }
+    stages {
+        stage('Git Clone') {
+            steps {
+                git branch: 'master', url: 'https://github.com/senthilhns/gradle-test-01.git'
+            }
+        }
+        stage('Gradle Build with Artifactory') {
+            steps {
+                script {
+                    def artifactoryServer = Artifactory.server('jf001')
+                    def buildInfo = Artifactory.newBuildInfo()
+                    rtGradleRun(
+                        buildName: 'gradle02',
+                        buildNumber: '2',
+                        tasks: 'clean build',
+                        usesPlugin: false
+                    )
+                }
+            }
+        }
+    }
+
+    // rtMavenRun
+    environment {
+        MAVEN_HOME = '/opt/apache-maven-3.9.6'
+        PATH = "${MAVEN_HOME}/bin:$PATH"
+    }
+    stages {
+        stage('Git Clone') {
+            steps {
+                git branch: 'master', url: 'https://github.com/senthilhns/mvn-test-01.git'
+            }
+        }
+
+        stage('Configure Maven Deployer') {
+            steps {
+                script {
+                    rtMavenDeployer(
+                        id: 'deployer-jf03',
+                        releaseRepo: 'mvn_repo_deploy_releases_01',
+                        snapshotRepo: 'mvn_repo_deploy_snapshots_01',
+                        serverId: 'jf03',
+                        customBuildName: 'my-maven-project',
+                        deployArtifacts: true,
+                        deployEvenIfUnstable: false,
+                        excludePatterns: ['**/*.tmp', '**/*.log'],
+                        includePatterns: ['**/*.jar', '**/*.war'],
+                        includeEnvVars: true,
+                        properties: ['env=prod', 'type=maven'],
+                        threads: 3
+                    )
+                }
+            }
+        }
+        stage('Configure Maven Resolver') {
+            steps {
+                script {
+                    rtMavenResolver(
+                        id: 'resolver-jf03',
+                        releaseRepo: 'mvn_repo_resolve_releases_01',
+                        snapshotRepo: 'mvn_repo_resolve_snapshots_01',
+                        serverId: 'jf03'
+                    )
+                }
+            }
+        }
+        stage('Build with Maven') {
+            steps {
+                script {
+                    rtMavenRun(
+                        pom: 'pom.xml',
+                        goals: 'clean install',
+                        buildName: 'sample-app',
+                        buildNumber: '1',
+                        deployerId: 'deployer-jf03',
+                        resolverId: 'resolver-jf03',
+                        opts: '-DskipTests=true',
+                        useWrapper: false
+                    )
+                }
+            }
+        }
+    }
+
+    // rtPromote
+    stages {
+        stage('Promote Build in Artifactory') {
+            steps {
+                script {
+                    def artifactoryServer = Artifactory.server('jf001')
+                    rtPromote(
+                        serverId: 'jf001',
+                        buildName: 'mvn02',
+                        buildNumber: '2',
+                        targetRepo: 'tst-libs-snapshot',
+                        status: 'released'
+                    )
+                }
+            }
+        }
+    }
+
+    // rtPublishBuildInfo
+    stage('Publish Build Info to Artifactory') {
+        steps {
+            script {
+                def buildInfo = rtPublishBuildInfo(
+                    serverId: ARTIFACTORY_SERVER_ID,
+                    buildName: BUILD_NAME,
+                    buildNumber: BUILD_NUMBER
+                )
+                echo "Build Info Published: ${buildInfo}"
+            }
+        }
+    }
+
+    // xrayScan
+    stages {
+        stage('Xray Scan in Artifactory') {
+            steps {
+                script {
+                    def artifactoryServer = Artifactory.server('jf001')
+                    xrayScan(
+                        serverId: 'jf001',
+                        buildName: 'mvn02',
+                        buildNumber: '2',
+                        failBuild: false,
+                        printTable: true
+                    )
+                }
+            }
         }
     }
 
@@ -1169,5 +1369,4 @@ line3'''
             }
         }
     }
-
 }
