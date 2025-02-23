@@ -1,0 +1,12 @@
+- step:
+    identifier: xrayscan673cd5
+    name: xrayScan
+    spec:
+      image: plugins/artifactory
+      settings:
+        access_token: <+input>
+        build_name: mvn02
+        build_number: "2"
+        command: scan
+        url: <+input>
+        username: <+input>
