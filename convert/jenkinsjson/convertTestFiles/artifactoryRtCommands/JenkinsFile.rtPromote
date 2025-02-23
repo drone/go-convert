@@ -1,0 +1,19 @@
+pipeline {
+    agent any
+    stages {
+        stage('Promote Build in Artifactory') {
+            steps {
+                script {
+                    def artifactoryServer = Artifactory.server('jf001')
+                    rtPromote(
+                        serverId: 'jf001',
+                        buildName: 'mvn02',
+                        buildNumber: '2',
+                        targetRepo: 'tst-libs-snapshot',
+                        status: 'released'
+                    )
+                }
+            }
+        }
+    }
+}

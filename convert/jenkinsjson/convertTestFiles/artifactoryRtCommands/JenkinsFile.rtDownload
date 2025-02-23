@@ -1,0 +1,28 @@
+pipeline {
+    agent any
+    environment {
+        ARTIFACTORY_SERVER_ID = 'jf001'
+        ARTIFACTORY_REPO = 'tst-libs-snapshot/'
+        FILE_NAME = 'sample.txt'
+    }
+    stages {
+        stage('Download Text File from Artifactory') {
+            steps {
+                script {
+                    rtDownload(
+                        serverId: ARTIFACTORY_SERVER_ID,
+                        spec: """{
+                            "files": [
+                                {
+                                    "pattern": "${ARTIFACTORY_REPO}${FILE_NAME}",
+                                    "target": "./downloaded/"
+                                }
+                            ]
+                        }"""
+                    )
+                    echo "File downloaded from Artifactory."
+                }
+            }
+        }
+    }
+}
