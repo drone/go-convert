@@ -1,0 +1,15 @@
+- step:
+    identifier: robot27f6e9
+    name: robot
+    spec:
+      image: plugins/robot
+      settings:
+        count_skipped_tests: 'true'
+        level: info
+        only_critical: 'false'
+        pass_threshold: '90'
+        report_directory: results
+        report_file_name_pattern: output.xml
+        unstable_threshold: '70'
+    timeout: ''
+    type: Plugin
