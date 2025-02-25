@@ -829,7 +829,6 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertCucumber(currentNode, currentNode.ParameterMap), ID: id})
 
 	default:
-		fmt.Println(`currentNode.AttributesMap["jenkins.pipeline.step.type"] ==  `, currentNode.AttributesMap["jenkins.pipeline.step.type"])
 		placeholderStr := fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"])
 		b, err := json.MarshalIndent(currentNode.ParameterMap, "", "  ")
 		if err != nil {
