@@ -1,0 +1,25 @@
+- stage:
+    identifier: build
+    name: build
+    spec:
+      cloneCodebase: true
+      execution:
+        steps:
+          - stepGroup:
+              identifier: Promote_Build_in_Artifactory75cad8
+              name: Promote Build in Artifactory
+              steps:
+                - step:
+                    identifier: rtpromoted6c65e
+                    name: rtPromote
+                    spec:
+                      image: plugins/artifactory
+                      settings:
+                        access_token: <+input>
+                        build_name: mvn02
+                        build_number: "2"
+                        command: promote
+                        copy: <+input>
+                        target: tst-libs-snapshot
+                        url: <+input>
+                        username: <+input>

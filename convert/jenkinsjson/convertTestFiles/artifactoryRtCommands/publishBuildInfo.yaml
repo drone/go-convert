@@ -1,0 +1,16 @@
+- step:
+    identifier: publishbuildinfo66c280
+    name: publishBuildInfo
+    spec:
+      image: plugins/artifactory
+      settings:
+        access_token: <+input>
+        build_name: <+input>
+        build_number: <+input>
+        build_tool: <+input>
+        command: publish
+        deploy_release_repo: <+input>
+        deploy_snapshot_repo: <+input>
+        deployer_id: <+input>
+        url: <+input>
+        username: <+input>

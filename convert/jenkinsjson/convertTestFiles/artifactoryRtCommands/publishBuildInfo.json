@@ -1,0 +1,26 @@
+{
+  "spanId": "66c2802246f06332",
+  "traceId": "1b6a06b5be5744e46ce33d98174c8ffd",
+  "parent": "artifactory-senthil-maven-build-001",
+  "all-info": "span(name: publishBuildInfo, spanId: 66c2802246f06332, parentSpanId: 84cbaab29a3a079a, traceId: 1b6a06b5be5744e46ce33d98174c8ffd, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"buildInfo\" : \"UNSERIALIZABLE\",\n  \"server\" : \"UNSERIALIZABLE\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2c3c0a0d:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2c3c0a0d;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@52306b41:org.jenkinsci.plugins.workflow.actions.TimingAction@52306b41;harness-others:;jenkins.pipeline.step.id:19;jenkins.pipeline.step.name:Publish build Info to Artifactory;jenkins.pipeline.step.plugin.name:artifactory;jenkins.pipeline.step.plugin.version:4.0.8;jenkins.pipeline.step.type:publishBuildInfo;)",
+  "name": "artifactory-senthil-maven-build-001 #5",
+  "attributesMap": {
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2c3c0a0d": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2c3c0a0d",
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Publish build Info to Artifactory",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "19",
+    "jenkins.pipeline.step.type": "publishBuildInfo",
+    "harness-attribute": "{\n  \"buildInfo\" : \"UNSERIALIZABLE\",\n  \"server\" : \"UNSERIALIZABLE\"\n}",
+    "jenkins.pipeline.step.plugin.name": "artifactory",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@52306b41": "org.jenkinsci.plugins.workflow.actions.TimingAction@52306b41",
+    "jenkins.pipeline.step.plugin.version": "4.0.8"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "84cbaab29a3a079a",
+  "parameterMap": {
+    "server": "UNSERIALIZABLE",
+    "buildInfo": "UNSERIALIZABLE"
+  },
+  "spanName": "publishBuildInfo"
+}

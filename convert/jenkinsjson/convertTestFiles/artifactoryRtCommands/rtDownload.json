@@ -1,0 +1,26 @@
+{
+  "spanId": "c4112c86dac23f69",
+  "traceId": "b44b9792b1ae387e816f35c4aed93c41",
+  "parent": "artifactory_upload_download_senthil_05",
+  "all-info": "span(name: rtUpload, spanId: c4112c86dac23f69, parentSpanId: 0fa9c43ddd41bc35, traceId: b44b9792b1ae387e816f35c4aed93c41, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"serverId\" : \"jf001\",\n  \"spec\" : \"{\\n                            \\\"files\\\": [\\n                                {\\n                                    \\\"pattern\\\": \\\"sample.txt\\\",\\n                                    \\\"target\\\": \\\"tst-libs-snapshot/sample.txt\\\"\\n                                }\\n                            ]\\n                        }\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6ba38e96:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6ba38e96;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@36f21f77:org.jenkinsci.plugins.workflow.actions.TimingAction@36f21f77;harness-others:;jenkins.pipeline.step.id:21;jenkins.pipeline.step.name:Upload artifacts;jenkins.pipeline.step.plugin.name:artifactory;jenkins.pipeline.step.plugin.version:4.0.8;jenkins.pipeline.step.type:rtUpload;)",
+  "name": "artifactory_upload_download_senthil_05 #3",
+  "attributesMap": {
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Upload artifacts",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "21",
+    "jenkins.pipeline.step.type": "rtUpload",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@36f21f77": "org.jenkinsci.plugins.workflow.actions.TimingAction@36f21f77",
+    "harness-attribute": "{\n  \"serverId\" : \"jf001\",\n  \"spec\" : \"{\\n                            \\\"files\\\": [\\n                                {\\n                                    \\\"pattern\\\": \\\"sample.txt\\\",\\n                                    \\\"target\\\": \\\"tst-libs-snapshot/sample.txt\\\"\\n                                }\\n                            ]\\n                        }\"\n}",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6ba38e96": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6ba38e96",
+    "jenkins.pipeline.step.plugin.name": "artifactory",
+    "jenkins.pipeline.step.plugin.version": "4.0.8"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "0fa9c43ddd41bc35",
+  "parameterMap": {
+    "serverId": "jf001",
+    "spec": "{\n                            \"files\": [\n                                {\n                                    \"pattern\": \"sample.txt\",\n                                    \"target\": \"tst-libs-snapshot/sample.txt\"\n                                }\n                            ]\n                        }"
+  },
+  "spanName": "rtUpload"
+}
