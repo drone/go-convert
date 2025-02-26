@@ -1,0 +1,27 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Generate File') {
+            steps {
+                writeFile file: 'fruit_names.txt', text: 'apple\nbanana\ncherry\ndate\nelderberry\nfig\ngrape\nhoneydew\nkiwi\nlemon'
+                echo "Generated file: fruit_names.txt"
+            }
+        }
+
+        stage('Upload to Nexus') {
+            steps {
+                nexusArtifactUploader artifacts: [[
+                    artifactId: 'fruit-names-v0.1',
+                    file: 'fruit_names.txt',
+                    type: 'txt'
+                ]],
+                credentialsId: 'nexus-hnstest01-creds',
+                groupId: 'test01',
+                nexusUrl: '4.24.1.21:9192/',
+                repository: 'plg01maven2',
+                version: '0.12hrns'
+            }
+        }
+    }
+}

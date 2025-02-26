@@ -1,0 +1,22 @@
+{
+  "spanId": "6278c948712d469b",
+  "traceId": "cabb36d4166869b97fa171bad088089e",
+  "parent": "vani_sonar",
+  "all-info": "span(name: waitForQualityGate, spanId: 6278c948712d469b, parentSpanId: 946f9b55ba22bc28, traceId: cabb36d4166869b97fa171bad088089e, attr: ci.pipeline.run.user:SYSTEM;harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@41a4035:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@41a4035;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5a518db2:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5a518db2;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@17761c17:org.jenkinsci.plugins.workflow.actions.TimingAction@17761c17;harness-others:;jenkins.pipeline.step.id:92;jenkins.pipeline.step.name:Wait for SonarQube analysis to be completed and return quality gate status;jenkins.pipeline.step.plugin.name:sonar;jenkins.pipeline.step.plugin.version:2.17.2;jenkins.pipeline.step.type:waitForQualityGate;)",
+  "name": "vani_sonar #13",
+  "attributesMap": {
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5a518db2": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5a518db2",
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Wait for SonarQube analysis to be completed and return quality gate status",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "92",
+    "jenkins.pipeline.step.type": "waitForQualityGate",
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@41a4035": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@41a4035",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@17761c17": "org.jenkinsci.plugins.workflow.actions.TimingAction@17761c17",
+    "jenkins.pipeline.step.plugin.name": "sonar",
+    "jenkins.pipeline.step.plugin.version": "2.17.2"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "946f9b55ba22bc28",
+  "spanName": "waitForQualityGate"
+}

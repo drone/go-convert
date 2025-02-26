@@ -45,6 +45,7 @@ func TestConvertPowerShell(t *testing.T) {
 				Id:      "powershell1d3281",
 				Type:    "script",
 				Spec: &harness.StepExec{
+					Image: "abc.example.com/image:tag",
 					Shell: "Powershell",
 					Run:   "\n                Write-Output \"Running a PowerShell command\"\n                ",
 				},
@@ -63,6 +64,7 @@ func TestConvertPowerShell(t *testing.T) {
 				Id:      "powershell1d3281",
 				Type:    "script",
 				Spec: &harness.StepExec{
+					Image: "abc.example.com/image:tag",
 					Shell: "Powershell",
 					Run:   "\n                Write-Output \"Running a PowerShell command\"\n                ",
 					Envs: map[string]string{
@@ -76,7 +78,7 @@ func TestConvertPowerShell(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := ConvertPowerShell(tt.input, tt.variables, "10m")
+			got := ConvertPowerShell(tt.input, tt.variables, "10m", "abc.example.com/image:tag")
 			if diff := cmp.Diff(got, tt.want); diff != "" {
 				t.Errorf("ConvertPowerShell() mismatch (-want +got):\n%s", diff)
 			}

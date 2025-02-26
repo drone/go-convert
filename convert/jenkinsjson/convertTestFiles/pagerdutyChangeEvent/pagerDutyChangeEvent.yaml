@@ -1,0 +1,14 @@
+- step:
+    identifier: pagerdutychangeevent499434
+    name: Pagerduty_Change_Event
+    spec:
+      image: plugins/pagerduty
+      settings:
+        custom_details: '{"buildNumber":"22","jobName":"test-pager-duty","jobURL":"http://localhost:8080/job/test-pager-duty/22/"}'
+        incident_source: ''
+        incident_summary: Job test-pager-duty completed with status SUCCESS
+        log_level: debug
+        routing_key: a666ad1326f34605d06c0dbd4d87c1cb
+        create_change_event: "true"
+    timeout: ''
+    type: Plugin

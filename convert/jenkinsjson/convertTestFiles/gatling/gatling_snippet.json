@@ -1,0 +1,22 @@
+{
+  "spanId": "c8e1d81f6fdc8414",
+  "traceId": "f910bad9b2b5508152cc9ff9b44556b0",
+  "parent": "vani_gatling",
+  "all-info": "span(name: gatlingArchive, spanId: c8e1d81f6fdc8414, parentSpanId: 279afaab0392bb32, traceId: f910bad9b2b5508152cc9ff9b44556b0, attr: ci.pipeline.run.user:SYSTEM;harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@4c5cb52f:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@4c5cb52f;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5d52c2a5:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5d52c2a5;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@387911bd:org.jenkinsci.plugins.workflow.actions.TimingAction@387911bd;harness-others:;jenkins.pipeline.step.id:41;jenkins.pipeline.step.name:Archive Gatling reports;jenkins.pipeline.step.plugin.name:gatling;jenkins.pipeline.step.plugin.version:1.3.0;jenkins.pipeline.step.type:gatlingArchive;)",
+  "name": "vani_gatling #2",
+  "attributesMap": {
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@387911bd": "org.jenkinsci.plugins.workflow.actions.TimingAction@387911bd",
+    "harness-others": "",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5d52c2a5": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5d52c2a5",
+    "jenkins.pipeline.step.name": "Archive Gatling reports",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "41",
+    "jenkins.pipeline.step.type": "gatlingArchive",
+    "jenkins.pipeline.step.plugin.name": "gatling",
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@4c5cb52f": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@4c5cb52f",
+    "jenkins.pipeline.step.plugin.version": "1.3.0"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "279afaab0392bb32",
+  "spanName": "gatlingArchive"
+}

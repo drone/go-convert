@@ -6,9 +6,9 @@ import (
 	harness "github.com/drone/spec/dist/go"
 )
 
-func ConvertSh(node Node, variables map[string]string, timeout string, dockerImage string) *harness.Step {
+func ConvertSh(node Node, variables map[string]string, timeout string, dockerImage string, label string) *harness.Step {
 	shStep := &harness.Step{
-		Name:    node.SpanName,
+		Name:    SanitizeForName(node.SpanName) + label,
 		Timeout: timeout,
 		Id:      SanitizeForId(node.SpanName, node.SpanId),
 		Type:    "script",

@@ -1,0 +1,16 @@
+- step:
+    identifier: gatlingarchivec8e1d8
+    name: Gatling_Publish
+    spec:
+      image: harnesscommunity/drone-s3-upload-publish
+      settings:
+        artifact_file: artifact.txt
+        aws_access_key_id: <+secrets.getValue('S3_access')>
+        aws_bucket: <+input>
+        aws_default_region: <+input>
+        aws_secret_access_key: <+secrets.getValue('S3_secret')>
+        glob: "**/*.html, **/*.css"
+        source: <+input>
+        target: <+input>
+    timeout: ""
+    type: Plugin

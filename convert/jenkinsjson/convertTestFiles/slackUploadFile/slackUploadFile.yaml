@@ -1,0 +1,13 @@
+- step:
+    identifier: slackuploadfileb5f507
+    name: slackUploadFile
+    spec:
+      image: plugins/slack
+      settings:
+        channel: C07TL1KNV8Q
+        credential_id: SlackToken01
+        fail_on_error: 'true'
+        file_path: b.txt
+        initial_comment: jenkins file upload test
+    timeout: ''
+    type: Plugin

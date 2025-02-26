@@ -1,0 +1,14 @@
+- step:
+    identifier: testng80776e
+    name: testng
+    spec:
+      image: plugins/testng
+      settings:
+        failed_fails: "100"
+        failed_skips: "100"
+        failure_on_failed_test_config: "false"
+        level: info
+        report_filename_pattern: "**/testng-results.xml"
+        threshold_mode: absolute
+    timeout: ""
+    type: Plugin

@@ -8,22 +8,33 @@ import (
 	"github.com/tidwall/gjson"
 )
 
+type Spec struct {
+	Files []FileSpec `json:"files"`
+}
+
 type FileSpec struct {
 	Pattern string `json:"pattern"`
 	Target  string `json:"target"`
 }
 
 func ConvertArtifactUploadJfrog(node Node, variables map[string]string, timeout string) *harness.Step {
+	pattern, ok1 := node.ParameterMap["pattern"].(string)
+	target, ok2 := node.ParameterMap["target"].(string)
+	if !ok1 || !ok2 {
+		fmt.Println("Missing 'pattern' or 'target' in artifactoryUpload step")
+		return nil
+	}
+
 	step := &harness.Step{
-		Name:    node.SpanName,
+		Name:    SanitizeForName(node.SpanName),
 		Timeout: timeout,
 		Id:      SanitizeForId(node.SpanName, node.SpanId),
 		Type:    "plugin",
 		Spec: &harness.StepPlugin{
 			Image: "plugins/artifactory:latest",
 			With: map[string]interface{}{
-				"source": node.AttributesMap["pattern"],
-				"target": node.AttributesMap["target"],
+				"source": pattern,
+				"target": target,
 			},
 		},
 	}

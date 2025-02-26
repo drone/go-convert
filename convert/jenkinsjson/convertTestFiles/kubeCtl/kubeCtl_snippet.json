@@ -1,0 +1,103 @@
+{
+    "spanId": "ed0166b86044d93b",
+    "traceId": "0d1c6615b37ed3e4ab4a441419c417b3",
+    "parent": "kube",
+    "all-info": "span(name: Stage: null, spanId: ed0166b86044d93b, parentSpanId: 0ed2afd54f64053f, traceId: 0d1c6615b37ed3e4ab4a441419c417b3, attr: harness-attribute:{\n  \"namespace\" : \"default\",\n  \"contextName\" : \"context-name\",\n  \"credentialsId\" : \"credentialsId\",\n  \"caCertificate\" : \"\",\n  \"serverUrl\" : \"https://127.0.0.1:56227\",\n  \"clusterName\" : \"cluster-name\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1e824cae:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1e824cae;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@36d14716:org.jenkinsci.plugins.workflow.actions.TimingAction@36d14716;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@2fa91a3d:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@2fa91a3d;harness-others:-serverUrl-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep serverUrl-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.serverUrl-class java.lang.String-credentialsId-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep credentialsId-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.credentialsId-class java.lang.String-caCertificate-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep caCertificate-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.caCertificate-class java.lang.String-contextName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep contextName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.contextName-class java.lang.String-clusterName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep clusterName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.clusterName-class java.lang.String-namespace-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep namespace-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.namespace-class java.lang.String-restrictKubeConfigAccess-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep restrictKubeConfigAccess-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.restrictKubeConfigAccess-class java.lang.Boolean;jenkins.pipeline.step.type:withKubeConfig;)",
+    "children": [
+      {
+        "spanId": "12f0157a79d67dc9",
+        "traceId": "0d1c6615b37ed3e4ab4a441419c417b3",
+        "parent": "kube",
+        "all-info": "span(name: Stage: null, spanId: 12f0157a79d67dc9, parentSpanId: ed0166b86044d93b, traceId: 0d1c6615b37ed3e4ab4a441419c417b3, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@49a6a117:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@49a6a117;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@127dcd39:org.jenkinsci.plugins.workflow.actions.TimingAction@127dcd39;harness-others:-serverUrl-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep serverUrl-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.serverUrl-class java.lang.String-credentialsId-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep credentialsId-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.credentialsId-class java.lang.String-caCertificate-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep caCertificate-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.caCertificate-class java.lang.String-contextName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep contextName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.contextName-class java.lang.String-clusterName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep clusterName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.clusterName-class java.lang.String-namespace-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep namespace-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.namespace-class java.lang.String-restrictKubeConfigAccess-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep restrictKubeConfigAccess-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.restrictKubeConfigAccess-class java.lang.Boolean;jenkins.pipeline.step.type:withKubeConfig;)",
+        "name": "kube #34",
+        "attributesMap": {
+          "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@127dcd39": "org.jenkinsci.plugins.workflow.actions.TimingAction@127dcd39",
+          "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@49a6a117": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@49a6a117",
+          "harness-others": "-serverUrl-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep serverUrl-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.serverUrl-class java.lang.String-credentialsId-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep credentialsId-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.credentialsId-class java.lang.String-caCertificate-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep caCertificate-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.caCertificate-class java.lang.String-contextName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep contextName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.contextName-class java.lang.String-clusterName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep clusterName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.clusterName-class java.lang.String-namespace-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep namespace-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.namespace-class java.lang.String-restrictKubeConfigAccess-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep restrictKubeConfigAccess-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.restrictKubeConfigAccess-class java.lang.Boolean",
+          "jenkins.pipeline.step.type": "withKubeConfig"
+        },
+        "type": "Run Phase Span",
+        "parentSpanId": "ed0166b86044d93b",
+        "spanName": "Stage: null"
+      },
+      {
+        "spanId": "e382a52ee792e976",
+        "traceId": "0d1c6615b37ed3e4ab4a441419c417b3",
+        "parent": "kube",
+        "all-info": "span(name: Stage: null, spanId: e382a52ee792e976, parentSpanId: ed0166b86044d93b, traceId: 0d1c6615b37ed3e4ab4a441419c417b3, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4f7d72e2:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4f7d72e2;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@52b8f1de:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@52b8f1de;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@5f20a1d3:org.jenkinsci.plugins.workflow.actions.TimingAction@5f20a1d3;harness-others:-serverUrl-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep serverUrl-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.serverUrl-class java.lang.String-credentialsId-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep credentialsId-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.credentialsId-class java.lang.String-caCertificate-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep caCertificate-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.caCertificate-class java.lang.String-contextName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep contextName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.contextName-class java.lang.String-clusterName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep clusterName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.clusterName-class java.lang.String-namespace-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep namespace-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.namespace-class java.lang.String-restrictKubeConfigAccess-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep restrictKubeConfigAccess-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.restrictKubeConfigAccess-class java.lang.Boolean;jenkins.pipeline.step.type:withKubeConfig;)",
+        "children": [
+          {
+            "spanId": "4f244ccb56e3311d",
+            "traceId": "0d1c6615b37ed3e4ab4a441419c417b3",
+            "parent": "kube",
+            "all-info": "span(name: Stage: null, spanId: 4f244ccb56e3311d, parentSpanId: e382a52ee792e976, traceId: 0d1c6615b37ed3e4ab4a441419c417b3, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7b086020:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7b086020;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@14e40a96:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@14e40a96;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2d79fca1:org.jenkinsci.plugins.workflow.actions.TimingAction@2d79fca1;harness-others:-serverUrl-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep serverUrl-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.serverUrl-class java.lang.String-credentialsId-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep credentialsId-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.credentialsId-class java.lang.String-caCertificate-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep caCertificate-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.caCertificate-class java.lang.String-contextName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep contextName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.contextName-class java.lang.String-clusterName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep clusterName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.clusterName-class java.lang.String-namespace-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep namespace-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.namespace-class java.lang.String-restrictKubeConfigAccess-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep restrictKubeConfigAccess-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.restrictKubeConfigAccess-class java.lang.Boolean;jenkins.pipeline.step.type:withKubeConfig;)",
+            "name": "kube #34",
+            "attributesMap": {
+              "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2d79fca1": "org.jenkinsci.plugins.workflow.actions.TimingAction@2d79fca1",
+              "harness-others": "-serverUrl-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep serverUrl-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.serverUrl-class java.lang.String-credentialsId-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep credentialsId-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.credentialsId-class java.lang.String-caCertificate-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep caCertificate-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.caCertificate-class java.lang.String-contextName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep contextName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.contextName-class java.lang.String-clusterName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep clusterName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.clusterName-class java.lang.String-namespace-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep namespace-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.namespace-class java.lang.String-restrictKubeConfigAccess-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep restrictKubeConfigAccess-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.restrictKubeConfigAccess-class java.lang.Boolean",
+              "jenkins.pipeline.step.type": "withKubeConfig",
+              "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@14e40a96": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@14e40a96",
+              "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7b086020": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7b086020"
+            },
+            "type": "Run Phase Span",
+            "parentSpanId": "e382a52ee792e976",
+            "spanName": "Stage: null"
+          },
+          {
+            "spanId": "4b20fb7157119cf7",
+            "traceId": "0d1c6615b37ed3e4ab4a441419c417b3",
+            "parent": "kube",
+            "all-info": "span(name: sh, spanId: 4b20fb7157119cf7, parentSpanId: e382a52ee792e976, traceId: 0d1c6615b37ed3e4ab4a441419c417b3, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"script\" : \"kubectl get pods\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2441dbed:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2441dbed;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1d587a6:org.jenkinsci.plugins.workflow.actions.TimingAction@1d587a6;harness-others:-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long;jenkins.pipeline.step.id:16;jenkins.pipeline.step.name:Shell Script;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1371.vb_7cec8f3b_95e;jenkins.pipeline.step.type:sh;)",
+            "name": "kube #34",
+            "attributesMap": {
+              "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2441dbed": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2441dbed",
+              "harness-others": "-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long",
+              "jenkins.pipeline.step.name": "Shell Script",
+              "ci.pipeline.run.user": "SYSTEM",
+              "jenkins.pipeline.step.id": "16",
+              "jenkins.pipeline.step.type": "sh",
+              "harness-attribute": "{\n  \"script\" : \"kubectl get pods\"\n}",
+              "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
+              "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1d587a6": "org.jenkinsci.plugins.workflow.actions.TimingAction@1d587a6",
+              "jenkins.pipeline.step.plugin.version": "1371.vb_7cec8f3b_95e"
+            },
+            "type": "Run Phase Span",
+            "parentSpanId": "e382a52ee792e976",
+            "parameterMap": {"script": "kubectl get pods"},
+            "spanName": "sh"
+          }
+        ],
+        "name": "kube #34",
+        "attributesMap": {
+          "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@52b8f1de": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@52b8f1de",
+          "harness-others": "-serverUrl-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep serverUrl-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.serverUrl-class java.lang.String-credentialsId-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep credentialsId-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.credentialsId-class java.lang.String-caCertificate-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep caCertificate-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.caCertificate-class java.lang.String-contextName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep contextName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.contextName-class java.lang.String-clusterName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep clusterName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.clusterName-class java.lang.String-namespace-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep namespace-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.namespace-class java.lang.String-restrictKubeConfigAccess-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep restrictKubeConfigAccess-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.restrictKubeConfigAccess-class java.lang.Boolean",
+          "jenkins.pipeline.step.type": "withKubeConfig",
+          "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@5f20a1d3": "org.jenkinsci.plugins.workflow.actions.TimingAction@5f20a1d3",
+          "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4f7d72e2": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4f7d72e2"
+        },
+        "type": "Run Phase Span",
+        "parentSpanId": "ed0166b86044d93b",
+        "spanName": "Stage: null"
+      }
+    ],
+    "name": "kube #34",
+    "attributesMap": {
+      "harness-others": "-serverUrl-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep serverUrl-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.serverUrl-class java.lang.String-credentialsId-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep credentialsId-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.credentialsId-class java.lang.String-caCertificate-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep caCertificate-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.caCertificate-class java.lang.String-contextName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep contextName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.contextName-class java.lang.String-clusterName-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep clusterName-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.clusterName-class java.lang.String-namespace-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep namespace-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.namespace-class java.lang.String-restrictKubeConfigAccess-field org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep restrictKubeConfigAccess-org.jenkinsci.plugins.kubernetes.cli.KubectlBuildStep.restrictKubeConfigAccess-class java.lang.Boolean",
+      "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@36d14716": "org.jenkinsci.plugins.workflow.actions.TimingAction@36d14716",
+      "jenkins.pipeline.step.type": "withKubeConfig",
+      "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@2fa91a3d": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@2fa91a3d",
+      "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1e824cae": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1e824cae",
+      "harness-attribute": "{\n  \"namespace\" : \"default\",\n  \"contextName\" : \"context-name\",\n  \"credentialsId\" : \"credentialsId\",\n  \"caCertificate\" : \"\",\n  \"serverUrl\" : \"https://127.0.0.1:56227\",\n  \"clusterName\" : \"cluster-name\"\n}"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "0ed2afd54f64053f",
+    "parameterMap": {
+      "contextName": "context-name",
+      "serverUrl": "https://127.0.0.1:56227",
+      "clusterName": "cluster-name",
+      "namespace": "default",
+      "credentialsId": "credentialsId",
+      "caCertificate": ""
+    },
+    "spanName": "null"
+  }
