@@ -19,9 +19,10 @@ pipeline:
         spec:
           cloneCodebase: true
           caching:
-            enabled: true
+            enabled: false
+            paths: []
           buildIntelligence:
-            enabled: true
+            enabled: false
           platform:
             os: Linux
             arch: Amd64
@@ -55,4 +56,11 @@ pipeline:
                       GOOS=darwin  GOARCH=amd64   go build -o release/plugin-darwin-amd64
                       GOOS=darwin  GOARCH=arm64   go build -o release/plugin-darwin-arm64
                       GOOS=windows GOARCH=amd64   go build -o release/plugin-windows-amd64.exe
+              - step:
+                  type: Run
+                  name: test_jenkins_conversion
+                  identifier: test_jenkins_conversion
+                  spec:
+                    shell: Sh
+                    command: ./release/plugin-linux-amd64 jenkinsjson -downgrade ./samples/jenkins/jenkins_pipeline_trace.json
   allowStageExecutions: true

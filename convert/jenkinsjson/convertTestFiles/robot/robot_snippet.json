@@ -1,0 +1,38 @@
+{
+    "spanId": "27f6e912c1273049",
+    "traceId": "4882be588683b4e8e5e7fb69fa88daf4",
+    "parent": "robot_framework",
+    "all-info": "span(name: robot, spanId: 27f6e912c1273049, parentSpanId: 5b5c88e721903d76, traceId: 4882be588683b4e8e5e7fb69fa88daf4, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"overwriteXAxisLabel\" : \"27\",\n  \"outputFileName\" : \"output.xml\",\n  \"archiveDirName\" : \"robot_archive\",\n  \"passThreshold\" : 9E+1,\n  \"disableArchiveOutput\" : true,\n  \"countSkippedTests\" : true,\n  \"reportFileName\" : \"report.html\",\n  \"outputPath\" : \"results\",\n  \"logFileName\" : \"log.html\",\n  \"unstableThreshold\" : 7E+1,\n  \"otherFiles\" : \"**/screenshot-*.png\",\n  \"enableCache\" : false,\n  \"onlyCritical\" : false\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@2a1d0e73:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@2a1d0e73;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@76c8e7a7:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@76c8e7a7;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@26f97a7a:org.jenkinsci.plugins.workflow.actions.TimingAction@26f97a7a;harness-others:;jenkins.pipeline.step.id:22;jenkins.pipeline.step.name:Configure robot framework report collection;jenkins.pipeline.step.plugin.name:robot;jenkins.pipeline.step.plugin.version:5.0.0;jenkins.pipeline.step.type:robot;)",
+    "name": "robot_framework #27",
+    "attributesMap": {
+      "harness-others": "",
+      "jenkins.pipeline.step.name": "Configure robot framework report collection",
+      "ci.pipeline.run.user": "SYSTEM",
+      "jenkins.pipeline.step.id": "22",
+      "jenkins.pipeline.step.type": "robot",
+      "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@76c8e7a7": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@76c8e7a7",
+      "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@26f97a7a": "org.jenkinsci.plugins.workflow.actions.TimingAction@26f97a7a",
+      "harness-attribute": "{\n  \"overwriteXAxisLabel\" : \"27\",\n  \"outputFileName\" : \"output.xml\",\n  \"archiveDirName\" : \"robot_archive\",\n  \"passThreshold\" : 9E+1,\n  \"disableArchiveOutput\" : true,\n  \"countSkippedTests\" : true,\n  \"reportFileName\" : \"report.html\",\n  \"outputPath\" : \"results\",\n  \"logFileName\" : \"log.html\",\n  \"unstableThreshold\" : 7E+1,\n  \"otherFiles\" : \"**/screenshot-*.png\",\n  \"enableCache\" : false,\n  \"onlyCritical\" : false\n}",
+      "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@2a1d0e73": "com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@2a1d0e73",
+      "jenkins.pipeline.step.plugin.name": "robot",
+      "jenkins.pipeline.step.plugin.version": "5.0.0"
+    },
+    "type": "Run Phase Span",
+    "parentSpanId": "5b5c88e721903d76",
+    "parameterMap": {
+      "overwriteXAxisLabel": "27",
+      "outputFileName": "output.xml",
+      "archiveDirName": "robot_archive",
+      "passThreshold": 90,
+      "disableArchiveOutput": true,
+      "countSkippedTests": true,
+      "reportFileName": "report.html",
+      "outputPath": "results",
+      "logFileName": "log.html",
+      "unstableThreshold": 70,
+      "otherFiles": "**/screenshot-*.png",
+      "enableCache": false,
+      "onlyCritical": false
+    },
+    "spanName": "robot"
+}

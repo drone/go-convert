@@ -1127,6 +1127,37 @@ line3'''
         }
     }
 
+    //Robot Framework
+    stages {
+        stage('Run Robot Tests') {
+            steps {
+                sh '''
+                mkdir -p results
+                python3 -m robot --outputdir results tests/hello_world.robot
+                '''
+            }
+        }
+        stage('Publish Results') {
+            steps {
+                robot(
+                        outputPath: "results",
+                        archiveDirName: "robot_archive",   // Optional, archives artifacts
+                        countSkippedTests: true,          // Include skipped tests in pass/fail count
+                        disableArchiveOutput: true,       // Prevents archiving of output.xml
+                        enableCache: false,               // Disable caching to avoid memory pressure
+                        logFileName: "log.html",          // Log file with wildcard support
+                        onlyCritical: false,              // Include non-critical tests in results
+                        otherFiles: "*/screenshot-.png", // Include additional test artifacts
+                        outputFileName: "output.xml",     // Robot output file
+                        overwriteXAxisLabel: "${currentBuild.number}",  // Custom x-axis label for trend graphs
+                        passThreshold: 90.0,              // Min. pass percentage for success
+                        reportFileName: "report.html",    // Robot report file
+                        unstableThreshold: 70.0           // Below this, build is marked as unstable
+                )
+            }
+        }
+    }
+
     // rtDownload
     environment {
         ARTIFACTORY_SERVER_ID = 'jf001'
@@ -1146,8 +1177,8 @@ line3'''
             steps {
                 script {
                     rtUpload(
-                        serverId: ARTIFACTORY_SERVER_ID,
-                        spec: """{
+                            serverId: ARTIFACTORY_SERVER_ID,
+                            spec: """{
                             "files": [
                                 {
                                     "pattern": "${FILE_NAME}",
@@ -1164,8 +1195,8 @@ line3'''
             steps {
                 script {
                     rtDownload(
-                        serverId: ARTIFACTORY_SERVER_ID,
-                        spec: """{
+                            serverId: ARTIFACTORY_SERVER_ID,
+                            spec: """{
                             "files": [
                                 {
                                     "pattern": "${ARTIFACTORY_REPO}${FILE_NAME}",
@@ -1205,10 +1236,10 @@ line3'''
                     def artifactoryServer = Artifactory.server('jf001')
                     def buildInfo = Artifactory.newBuildInfo()
                     rtGradleRun(
-                        buildName: 'gradle02',
-                        buildNumber: '2',
-                        tasks: 'clean build',
-                        usesPlugin: false
+                            buildName: 'gradle02',
+                            buildNumber: '2',
+                            tasks: 'clean build',
+                            usesPlugin: false
                     )
                 }
             }
@@ -1231,18 +1262,18 @@ line3'''
             steps {
                 script {
                     rtMavenDeployer(
-                        id: 'deployer-jf03',
-                        releaseRepo: 'mvn_repo_deploy_releases_01',
-                        snapshotRepo: 'mvn_repo_deploy_snapshots_01',
-                        serverId: 'jf03',
-                        customBuildName: 'my-maven-project',
-                        deployArtifacts: true,
-                        deployEvenIfUnstable: false,
-                        excludePatterns: ['**/*.tmp', '**/*.log'],
-                        includePatterns: ['**/*.jar', '**/*.war'],
-                        includeEnvVars: true,
-                        properties: ['env=prod', 'type=maven'],
-                        threads: 3
+                            id: 'deployer-jf03',
+                            releaseRepo: 'mvn_repo_deploy_releases_01',
+                            snapshotRepo: 'mvn_repo_deploy_snapshots_01',
+                            serverId: 'jf03',
+                            customBuildName: 'my-maven-project',
+                            deployArtifacts: true,
+                            deployEvenIfUnstable: false,
+                            excludePatterns: ['**/*.tmp', '**/*.log'],
+                            includePatterns: ['**/*.jar', '**/*.war'],
+                            includeEnvVars: true,
+                            properties: ['env=prod', 'type=maven'],
+                            threads: 3
                     )
                 }
             }
@@ -1251,10 +1282,10 @@ line3'''
             steps {
                 script {
                     rtMavenResolver(
-                        id: 'resolver-jf03',
-                        releaseRepo: 'mvn_repo_resolve_releases_01',
-                        snapshotRepo: 'mvn_repo_resolve_snapshots_01',
-                        serverId: 'jf03'
+                            id: 'resolver-jf03',
+                            releaseRepo: 'mvn_repo_resolve_releases_01',
+                            snapshotRepo: 'mvn_repo_resolve_snapshots_01',
+                            serverId: 'jf03'
                     )
                 }
             }
@@ -1263,14 +1294,14 @@ line3'''
             steps {
                 script {
                     rtMavenRun(
-                        pom: 'pom.xml',
-                        goals: 'clean install',
-                        buildName: 'sample-app',
-                        buildNumber: '1',
-                        deployerId: 'deployer-jf03',
-                        resolverId: 'resolver-jf03',
-                        opts: '-DskipTests=true',
-                        useWrapper: false
+                            pom: 'pom.xml',
+                            goals: 'clean install',
+                            buildName: 'sample-app',
+                            buildNumber: '1',
+                            deployerId: 'deployer-jf03',
+                            resolverId: 'resolver-jf03',
+                            opts: '-DskipTests=true',
+                            useWrapper: false
                     )
                 }
             }
@@ -1284,11 +1315,11 @@ line3'''
                 script {
                     def artifactoryServer = Artifactory.server('jf001')
                     rtPromote(
-                        serverId: 'jf001',
-                        buildName: 'mvn02',
-                        buildNumber: '2',
-                        targetRepo: 'tst-libs-snapshot',
-                        status: 'released'
+                            serverId: 'jf001',
+                            buildName: 'mvn02',
+                            buildNumber: '2',
+                            targetRepo: 'tst-libs-snapshot',
+                            status: 'released'
                     )
                 }
             }
@@ -1300,9 +1331,9 @@ line3'''
         steps {
             script {
                 def buildInfo = rtPublishBuildInfo(
-                    serverId: ARTIFACTORY_SERVER_ID,
-                    buildName: BUILD_NAME,
-                    buildNumber: BUILD_NUMBER
+                        serverId: ARTIFACTORY_SERVER_ID,
+                        buildName: BUILD_NAME,
+                        buildNumber: BUILD_NUMBER
                 )
                 echo "Build Info Published: ${buildInfo}"
             }
@@ -1316,11 +1347,11 @@ line3'''
                 script {
                     def artifactoryServer = Artifactory.server('jf001')
                     xrayScan(
-                        serverId: 'jf001',
-                        buildName: 'mvn02',
-                        buildNumber: '2',
-                        failBuild: false,
-                        printTable: true
+                            serverId: 'jf001',
+                            buildName: 'mvn02',
+                            buildNumber: '2',
+                            failBuild: false,
+                            printTable: true
                     )
                 }
             }
