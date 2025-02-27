@@ -817,6 +817,14 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 	case "robot":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertRobot(currentNode, currentNode.ParameterMap), ID: id})
 
+	case "browserstack":
+		if _, exists := currentNode.ParameterMap["credentialsId"]; exists {
+			*stepWithIDList = append(*stepWithIDList, StepWithID{
+				Step: jenkinsjson.ConvertBrowserStack(currentNode),
+				ID:   id,
+			})
+		}
+
 	default:
 		placeholderStr := fmt.Sprintf("echo %q", "This is a place holder for: "+currentNode.AttributesMap["jenkins.pipeline.step.type"])
 		b, err := json.MarshalIndent(currentNode.ParameterMap, "", "  ")
