@@ -1,0 +1,16 @@
+- step:
+    identifier: stagenull9dcf46
+    name: Browserstack
+    spec:
+      command: |-
+        npm install selenium-webdriver
+        node test.js
+      envVariables:
+        BROWSERSTACK_ACCESS_KEY: <+secrets.getValue("browserstack_accesskey")>
+        BROWSERSTACK_BUILD_IDENTIFIER: <+pipeline.executionId>
+        BROWSERSTACK_BUILD_NAME: <+pipeline.sequenceId>-<+pipeline.executionId>
+        BROWSERSTACK_USERNAME: <+secrets.getValue("browserstack_username")>
+      image: harnesscommunity/browserstack
+      shell: Sh
+    timeout: ''
+    type: Run

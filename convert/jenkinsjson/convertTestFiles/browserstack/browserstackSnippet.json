@@ -1,0 +1,131 @@
+{
+  "spanId":"9dcf4636ebda52ee",
+  "traceId":"0c760abdd972fb19e37018a2be8664de",
+  "parent":"bs6",
+  "all-info":"span(name: Stage: null, spanId: 9dcf4636ebda52ee, parentSpanId: 52f506da5f4c92b1, traceId: 0c760abdd972fb19e37018a2be8664de, attr: harness-attribute:{\n  \"credentialsId\" : \"c9af6ff3-8585-465f-baa2-89018ddce3b6\"\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@127b96ef:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@127b96ef;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@91989dc:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@91989dc;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@32473b32:org.jenkinsci.plugins.workflow.actions.TimingAction@32473b32;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@5323e3d0:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@5323e3d0;harness-others:-credentialsId-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep credentialsId-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.credentialsId-class java.lang.String-localConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep localConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.localConfig-class com.browserstack.automate.ci.jenkins.local.LocalConfig-observabilityConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep observabilityConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.observabilityConfig-class com.browserstack.automate.ci.jenkins.observability.ObservabilityConfig;jenkins.pipeline.step.type:browserstack;)",
+  "children":[
+    {
+      "spanId":"2e64e2f60bf8b2ba",
+      "traceId":"0c760abdd972fb19e37018a2be8664de",
+      "parent":"bs6",
+      "all-info":"span(name: Stage: null, spanId: 2e64e2f60bf8b2ba, parentSpanId: 9dcf4636ebda52ee, traceId: 0c760abdd972fb19e37018a2be8664de, attr: harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@b5d5429:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@b5d5429;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7e5f8767:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7e5f8767;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@4ac079f0:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@4ac079f0;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@12f951d8:org.jenkinsci.plugins.workflow.actions.TimingAction@12f951d8;harness-others:-credentialsId-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep credentialsId-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.credentialsId-class java.lang.String-localConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep localConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.localConfig-class com.browserstack.automate.ci.jenkins.local.LocalConfig-observabilityConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep observabilityConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.observabilityConfig-class com.browserstack.automate.ci.jenkins.observability.ObservabilityConfig;jenkins.pipeline.step.type:browserstack;)",
+      "children":[
+        {
+          "spanId":"ef8de5c78c21eb34",
+          "traceId":"0c760abdd972fb19e37018a2be8664de",
+          "parent":"bs6",
+          "all-info":"span(name: Stage: null, spanId: ef8de5c78c21eb34, parentSpanId: 2e64e2f60bf8b2ba, traceId: 0c760abdd972fb19e37018a2be8664de, attr: harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@329e5168:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@329e5168;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fbe9c6d:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fbe9c6d;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@e936a8b:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@e936a8b;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@f0eab72:org.jenkinsci.plugins.workflow.actions.TimingAction@f0eab72;harness-others:-credentialsId-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep credentialsId-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.credentialsId-class java.lang.String-localConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep localConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.localConfig-class com.browserstack.automate.ci.jenkins.local.LocalConfig-observabilityConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep observabilityConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.observabilityConfig-class com.browserstack.automate.ci.jenkins.observability.ObservabilityConfig;jenkins.pipeline.step.type:browserstack;)",
+          "name":"bs6 #1",
+          "attributesMap":{
+            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@f0eab72":"org.jenkinsci.plugins.workflow.actions.TimingAction@f0eab72",
+            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fbe9c6d":"io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fbe9c6d",
+            "harness-others":"-credentialsId-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep credentialsId-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.credentialsId-class java.lang.String-localConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep localConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.localConfig-class com.browserstack.automate.ci.jenkins.local.LocalConfig-observabilityConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep observabilityConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.observabilityConfig-class com.browserstack.automate.ci.jenkins.observability.ObservabilityConfig",
+            "jenkins.pipeline.step.type":"browserstack",
+            "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@329e5168":"com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@329e5168",
+            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@e936a8b":"org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@e936a8b"
+          },
+          "type":"Run Phase Span",
+          "parentSpanId":"2e64e2f60bf8b2ba",
+          "spanName":"Stage: null"
+        },
+        {
+          "spanId":"489814b95c3f5713",
+          "traceId":"0c760abdd972fb19e37018a2be8664de",
+          "parent":"bs6",
+          "all-info":"span(name: sh, spanId: 489814b95c3f5713, parentSpanId: 2e64e2f60bf8b2ba, traceId: 0c760abdd972fb19e37018a2be8664de, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"script\" : \"npm install selenium-webdriver\"\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@34235a0a:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@34235a0a;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5f2c871:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5f2c871;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@61f81f21:org.jenkinsci.plugins.workflow.actions.TimingAction@61f81f21;harness-others:-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long;jenkins.pipeline.step.id:40;jenkins.pipeline.step.name:Shell Script;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1378.v6a_3e903058a_3;jenkins.pipeline.step.type:sh;)",
+          "name":"bs6 #1",
+          "attributesMap":{
+            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5f2c871":"io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5f2c871",
+            "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@34235a0a":"com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@34235a0a",
+            "harness-others":"-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long",
+            "jenkins.pipeline.step.name":"Shell Script",
+            "ci.pipeline.run.user":"SYSTEM",
+            "jenkins.pipeline.step.id":"40",
+            "jenkins.pipeline.step.type":"sh",
+            "harness-attribute":"{\n  \"script\" : \"npm install selenium-webdriver\"\n}",
+            "jenkins.pipeline.step.plugin.name":"workflow-durable-task-step",
+            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@61f81f21":"org.jenkinsci.plugins.workflow.actions.TimingAction@61f81f21",
+            "jenkins.pipeline.step.plugin.version":"1378.v6a_3e903058a_3"
+          },
+          "type":"Run Phase Span",
+          "parentSpanId":"2e64e2f60bf8b2ba",
+          "parameterMap":{
+            "script":"npm install selenium-webdriver"
+          },
+          "spanName":"sh"
+        },
+        {
+          "spanId":"1c2b45c3a25ae1b0",
+          "traceId":"0c760abdd972fb19e37018a2be8664de",
+          "parent":"bs6",
+          "all-info":"span(name: sh, spanId: 1c2b45c3a25ae1b0, parentSpanId: 2e64e2f60bf8b2ba, traceId: 0c760abdd972fb19e37018a2be8664de, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"script\" : \"node test.js\"\n};harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@57c2bafa:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@57c2bafa;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@681810e5:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@681810e5;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@102bb268:org.jenkinsci.plugins.workflow.actions.TimingAction@102bb268;harness-others:-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long;jenkins.pipeline.step.id:41;jenkins.pipeline.step.name:Shell Script;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1378.v6a_3e903058a_3;jenkins.pipeline.step.type:sh;)",
+          "name":"bs6 #1",
+          "attributesMap":{
+            "harness-others":"-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long",
+            "jenkins.pipeline.step.name":"Shell Script",
+            "ci.pipeline.run.user":"SYSTEM",
+            "jenkins.pipeline.step.id":"41",
+            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@681810e5":"io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@681810e5",
+            "jenkins.pipeline.step.type":"sh",
+            "harness-attribute":"{\n  \"script\" : \"node test.js\"\n}",
+            "jenkins.pipeline.step.plugin.name":"workflow-durable-task-step",
+            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@102bb268":"org.jenkinsci.plugins.workflow.actions.TimingAction@102bb268",
+            "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@57c2bafa":"com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@57c2bafa",
+            "jenkins.pipeline.step.plugin.version":"1378.v6a_3e903058a_3"
+          },
+          "type":"Run Phase Span",
+          "parentSpanId":"2e64e2f60bf8b2ba",
+          "parameterMap":{
+            "script":"node test.js"
+          },
+          "spanName":"sh"
+        }
+      ],
+      "name":"bs6 #1",
+      "attributesMap":{
+        "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@b5d5429":"com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@b5d5429",
+        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@12f951d8":"org.jenkinsci.plugins.workflow.actions.TimingAction@12f951d8",
+        "harness-others":"-credentialsId-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep credentialsId-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.credentialsId-class java.lang.String-localConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep localConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.localConfig-class com.browserstack.automate.ci.jenkins.local.LocalConfig-observabilityConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep observabilityConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.observabilityConfig-class com.browserstack.automate.ci.jenkins.observability.ObservabilityConfig",
+        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7e5f8767":"io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7e5f8767",
+        "jenkins.pipeline.step.type":"browserstack",
+        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@4ac079f0":"org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@4ac079f0"
+      },
+      "type":"Run Phase Span",
+      "parentSpanId":"9dcf4636ebda52ee",
+      "spanName":"Stage: null"
+    },
+    {
+      "spanId":"f80e259bb3ace035",
+      "traceId":"0c760abdd972fb19e37018a2be8664de",
+      "parent":"bs6",
+      "all-info":"span(name: Stage: null, spanId: f80e259bb3ace035, parentSpanId: 9dcf4636ebda52ee, traceId: 0c760abdd972fb19e37018a2be8664de, attr: harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3de0694c:com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3de0694c;harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7188da56:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7188da56;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@4a8a18bb:org.jenkinsci.plugins.workflow.actions.TimingAction@4a8a18bb;harness-others:-credentialsId-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep credentialsId-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.credentialsId-class java.lang.String-localConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep localConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.localConfig-class com.browserstack.automate.ci.jenkins.local.LocalConfig-observabilityConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep observabilityConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.observabilityConfig-class com.browserstack.automate.ci.jenkins.observability.ObservabilityConfig;jenkins.pipeline.step.type:browserstack;)",
+      "name":"bs6 #1",
+      "attributesMap":{
+        "harness-others":"-credentialsId-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep credentialsId-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.credentialsId-class java.lang.String-localConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep localConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.localConfig-class com.browserstack.automate.ci.jenkins.local.LocalConfig-observabilityConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep observabilityConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.observabilityConfig-class com.browserstack.automate.ci.jenkins.observability.ObservabilityConfig",
+        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7188da56":"io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7188da56",
+        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@4a8a18bb":"org.jenkinsci.plugins.workflow.actions.TimingAction@4a8a18bb",
+        "jenkins.pipeline.step.type":"browserstack",
+        "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3de0694c":"com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@3de0694c"
+      },
+      "type":"Run Phase Span",
+      "parentSpanId":"9dcf4636ebda52ee",
+      "spanName":"Stage: null"
+    }
+  ],
+  "name":"bs6 #1",
+  "attributesMap":{
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@5323e3d0":"org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@5323e3d0",
+    "harness-others":"-credentialsId-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep credentialsId-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.credentialsId-class java.lang.String-localConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep localConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.localConfig-class com.browserstack.automate.ci.jenkins.local.LocalConfig-observabilityConfig-field com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep observabilityConfig-com.browserstack.automate.ci.jenkins.pipeline.BrowserStackPipelineStep.observabilityConfig-class com.browserstack.automate.ci.jenkins.observability.ObservabilityConfig",
+    "harness-attribute-extra-pip: com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@127b96ef":"com.cloudbees.workflow.rest.endpoints.FlowNodeAPI@127b96ef",
+    "jenkins.pipeline.step.type":"browserstack",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@32473b32":"org.jenkinsci.plugins.workflow.actions.TimingAction@32473b32",
+    "harness-attribute":"{\n  \"credentialsId\" : \"c9af6ff3-8585-465f-baa2-89018ddce3b6\"\n}",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@91989dc":"io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@91989dc"
+  },
+  "type":"Run Phase Span",
+  "parentSpanId":"52f506da5f4c92b1",
+  "parameterMap":{
+    "credentialsId":"c9af6ff3-8585-465f-baa2-89018ddce3b6"
+  },
+  "spanName":"Stage: null"
+}
