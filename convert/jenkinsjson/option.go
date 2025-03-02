@@ -33,3 +33,24 @@ func WithKubernetes(namespace, connector string) Option {
 		d.kubeConnector = connector
 	}
 }
+
+// WithInfrastructure returns an option to set the infrastructure type.
+func WithInfrastructure(infra string) Option {
+	return func(d *Converter) {
+		d.infrastructure = infra
+	}
+}
+
+// WithOS returns an option to set the operating system.
+func WithOS(os string) Option {
+	return func(d *Converter) {
+		d.os = os
+	}
+}
+
+// WithArch returns an option to set the CPU architecture.
+func WithArch(arch string) Option {
+	return func(d *Converter) {
+		d.arch = arch
+	}
+}
