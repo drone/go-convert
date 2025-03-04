@@ -88,6 +88,11 @@ type Converter struct {
 	kubeConnector string
 	dockerhubConn string
 	identifiers   *store.Identifiers
+
+	// Infrastructure configuration
+	infrastructure string // "cloud", "kubernetes", or "local"
+	os             string // "linux", "mac", or "windows"
+	arch           string // "amd64" or "arm64"
 }
 
 // New creates a new Converter that converts a jenkinsjson
@@ -121,6 +126,11 @@ func New(options ...Option) *Converter {
 
 // Convert downgrades a v1 pipeline.
 func (d *Converter) Convert(r io.Reader) ([]byte, error) {
+	// Validate infrastructure options first
+	if err := d.ValidateInfrastructureOptions(); err != nil {
+		return nil, err
+	}
+
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r)
 	var pipelineJson jenkinsjson.Node
@@ -131,7 +141,7 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 
 	processedTools := &ProcessedTools{false, false, false, false, false, false, false, false, false, []string{}}
 	var variable map[string]string
-	recursiveParseJsonToStages(&pipelineJson, dst, processedTools, variable)
+	d.recursiveParseJsonToStages(&pipelineJson, dst, processedTools, variable)
 	// create the harness pipeline resource
 	config := &harness.Config{
 		Version: 1,
@@ -150,7 +160,7 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 }
 
 // Recursive function to parse JSON nodes into stages and steps
-func recursiveParseJsonToStages(jsonNode *jenkinsjson.Node, dst *harness.Pipeline, processedTools *ProcessedTools, variables map[string]string) {
+func (d *Converter) recursiveParseJsonToStages(jsonNode *jenkinsjson.Node, dst *harness.Pipeline, processedTools *ProcessedTools, variables map[string]string) {
 	stepGroupWithID := make([]StepGroupWithID, 0)
 	var defaultDockerImage string = "alpine" // Default Docker Image
 	// Collect all stages with their IDs
@@ -167,6 +177,42 @@ func recursiveParseJsonToStages(jsonNode *jenkinsjson.Node, dst *harness.Pipelin
 	// Create the StageCI spec with the sorted steps
 	spec := &harness.StageCI{
 		Steps: sortedSteps,
+	}
+
+	// Only add infrastructure configuration if any of the CLI options are specified
+	if d.infrastructure != "" || d.os != "" || d.arch != "" {
+		// Add Platform if OS or Arch is specified
+		if d.os != "" || d.arch != "" {
+			spec.Platform = &harness.Platform{}
+			if d.os != "" {
+				// Normalize OS names
+				switch d.os {
+				case "mac", "darwin", "macos":
+					spec.Platform.Os = "macos"
+				default:
+					spec.Platform.Os = strings.ToLower(d.os)
+				}
+			}
+			if d.arch != "" {
+				spec.Platform.Arch = strings.ToLower(d.arch)
+			}
+		}
+
+		// Add Runtime based on infrastructure type
+		switch d.infrastructure {
+		case "kubernetes", "k8s":
+			spec.Runtime = &harness.Runtime{
+				Type: "kubernetes",
+			}
+		case "local", "shell", "docker":
+			spec.Runtime = &harness.Runtime{
+				Type: "shell",
+			}
+		default: // "cloud"
+			spec.Runtime = &harness.Runtime{
+				Type: "cloud",
+			}
+		}
 	}
 
 	stage := &harness.Stage{
@@ -264,8 +310,8 @@ func searchChildNodesForStageId(node *jenkinsjson.Node, stageName string) string
 }
 
 func searchChildNodesForStageName(node *jenkinsjson.Node) string {
-	if name, ok := node.ParameterMap["name"]; ok {
-		return name.(string)
+	if name, ok := node.ParameterMap["name"].(string); ok {
+		return name
 	}
 	if name, ok := node.AttributesMap["jenkins.pipeline.step.name"]; ok {
 		return name
@@ -451,27 +497,22 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 			unitExists := false
 
 			// Extract unit safely
-			if val, ok := currentNode.ParameterMap["unit"]; ok {
-				if unitStr, ok := val.(string); ok {
-					unit = unitStr
-					unitExists = true
-				}
+			if val, ok := currentNode.ParameterMap["unit"].(string); ok {
+				unit = val
+				unitExists = true
 			}
 
 			// Extract and handle time safely
 			var time int
 			timeExists := false
-			if val, ok := currentNode.ParameterMap["time"]; ok {
-				switch v := val.(type) {
-				case int:
-					time = v
-					timeExists = true
-				case float64:
-					time = int(v)
-					timeExists = true
-				default:
-					fmt.Println("time is of a type I don't know how to handle")
-				}
+			if val, ok := currentNode.ParameterMap["time"].(int); ok {
+				time = val
+				timeExists = true
+			} else if val, ok := currentNode.ParameterMap["time"].(float64); ok {
+				time = int(val)
+				timeExists = true
+			} else {
+				fmt.Println("time is of a type I don't know how to handle")
 			}
 
 			if timeExists {
@@ -1118,4 +1159,39 @@ func ARGSslicesEqual(s1, s2 []string) bool {
 		}
 	}
 	return true
+}
+
+// ValidateInfrastructureOptions validates the infrastructure configuration options
+func (d *Converter) ValidateInfrastructureOptions() error {
+	// Validate infrastructure type
+	if d.infrastructure != "" {
+		switch d.infrastructure {
+		case "cloud", "kubernetes", "k8s", "local":
+			// valid values
+		default:
+			return fmt.Errorf("invalid infrastructure type: %s. Must be one of: cloud, kubernetes, k8s, local", d.infrastructure)
+		}
+	}
+
+	// Validate architecture
+	if d.arch != "" {
+		switch d.arch {
+		case "amd64", "arm64":
+			// valid values
+		default:
+			return fmt.Errorf("invalid architecture: %s. Must be one of: amd64, arm64", d.arch)
+		}
+	}
+
+	// Validate operating system
+	if d.os != "" {
+		switch d.os {
+		case "linux", "windows", "mac", "darwin":
+			// valid values
+		default:
+			return fmt.Errorf("invalid operating system: %s. Must be one of: linux, windows, mac, darwin", d.os)
+		}
+	}
+
+	return nil
 }

@@ -469,7 +469,9 @@ func TestRecursiveParseJsonToStages(t *testing.T) {
 	processedTools := &ProcessedTools{}
 	variables := map[string]string{}
 
-	recursiveParseJsonToStages(&mockNode, dst, processedTools, variables)
+	// create a converter object and call recursiveParseJsonToStages method
+	d := &Converter{}
+	d.recursiveParseJsonToStages(&mockNode, dst, processedTools, variables)
 
 	if len(dst.Stages) == 0 {
 		t.Error("Expected stages to be populated, got none")
@@ -800,7 +802,7 @@ func TestS3UploadWithGzipDisabled(t *testing.T) {
 	stepGroupWithId := []StepGroupWithID{}
 	stepWithIDList := []StepWithID{}
 	processedTools := &ProcessedTools{}
-	variables := make(map[string]string)
+	variables := map[string]string{}
 	timeout := "10m"
 	dockerImage := "plugin/s3upload"
 
@@ -935,5 +937,78 @@ func TestCollectStepsWithIDS3UploadMultipleEntry(t *testing.T) {
 	}
 	if thirdStep.Spec.(*harness.StepPlugin).With["exclude"] != "2.txt" {
 		t.Errorf("Expected target '2.txt', but got '%s'", thirdStep.Spec.(*harness.StepPlugin).With["exclude"])
+	}
+}
+
+// Test for infrastructure configuration specified in the CLI
+func TestInfrastructureOptions(t *testing.T) {
+	tests := []struct {
+		name           string
+		infrastructure string
+		arch           string
+		os             string
+		expectedErr    bool
+	}{
+		{
+			name:           "Valid infrastructure",
+			infrastructure: "k8s",
+			arch:           "amd64",
+			os:             "linux",
+			expectedErr:    false,
+		},
+		{
+			name:           "Invalid infrastructure",
+			infrastructure: "invalid",
+			arch:           "amd64",
+			os:             "linux",
+			expectedErr:    true,
+		},
+		{
+			name:           "Valid arch",
+			infrastructure: "k8s",
+			arch:           "arm64",
+			os:             "linux",
+			expectedErr:    false,
+		},
+		{
+			name:           "Invalid arch",
+			infrastructure: "k8s",
+			arch:           "invalid",
+			os:             "linux",
+			expectedErr:    true,
+		},
+		{
+			name:           "Valid os",
+			infrastructure: "k8s",
+			arch:           "amd64",
+			os:             "darwin",
+			expectedErr:    false,
+		},
+		{
+			name:           "Invalid os",
+			infrastructure: "k8s",
+			arch:           "amd64",
+			os:             "invalid",
+			expectedErr:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			converter := New(
+				WithInfrastructure(tt.infrastructure),
+				WithOS(tt.os),
+				WithArch(tt.arch),
+			)
+
+			err := converter.ValidateInfrastructureOptions()
+
+			if tt.expectedErr && err == nil {
+				t.Errorf("Expected an error, but got none")
+			}
+			if !tt.expectedErr && err != nil {
+				t.Errorf("Unexpected error: %v", err)
+			}
+		})
 	}
 }

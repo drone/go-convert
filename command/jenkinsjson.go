@@ -18,12 +18,13 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/drone/go-convert/convert/harness"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/drone/go-convert/convert/harness"
 
 	"github.com/drone/go-convert/convert/harness/downgrader"
 	"github.com/drone/go-convert/convert/jenkinsjson"
@@ -42,6 +43,11 @@ type JenkinsJson struct {
 	dockerConn   string
 	defaultImage string
 
+	// Infrastructure configuration
+	infrastructure string
+	os             string
+	arch           string
+
 	downgrade   bool
 	beforeAfter bool
 	outputDir   string
@@ -50,7 +56,7 @@ type JenkinsJson struct {
 func (*JenkinsJson) Name() string     { return "jenkinsjson" }
 func (*JenkinsJson) Synopsis() string { return "converts a jenkinsjson pipeline" }
 func (*JenkinsJson) Usage() string {
-	return `jenkinsjson [-downgrade] [jenkinsjson.json]
+	return `jenkinsjson [-downgrade] [-infrastructure cloud|kubernetes|local] [-os linux|mac|windows] [-arch amd64|arm64] [jenkinsjson.json]
 `
 }
 
@@ -68,6 +74,11 @@ func (c *JenkinsJson) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.kubeName, "kube-namespace", "", "kubernets namespace")
 	f.StringVar(&c.dockerConn, "docker-connector", "", "dockerhub connector")
 	f.StringVar(&c.defaultImage, "default-image", "alpine", "default image for run step")
+
+	// Infrastructure configuration flags
+	f.StringVar(&c.infrastructure, "infrastructure", "cloud", "infrastructure type (cloud, kubernetes, local)")
+	f.StringVar(&c.os, "os", "linux", "operating system (linux, mac, windows)")
+	f.StringVar(&c.arch, "arch", "amd64", "CPU architecture (amd64, arm64)")
 }
 
 func (c *JenkinsJson) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
@@ -236,20 +247,29 @@ func (c *JenkinsJson) processFile(filePath string, file *os.File) subcommands.Ex
 		return subcommands.ExitFailure
 	}
 
-	// convert the pipeline yaml from the jenkinsjson
-	// format to the harness yaml format.
-	converter := jenkinsjson.New(
-		jenkinsjson.WithDockerhub(c.dockerConn),
-		jenkinsjson.WithKubernetes(c.kubeName, c.kubeConn),
-	)
+	// create converter with options
+	options := []jenkinsjson.Option{}
+
+	// add infrastructure options if specified
+	if c.infrastructure != "" {
+		options = append(options, jenkinsjson.WithInfrastructure(c.infrastructure))
+	}
+	if c.os != "" {
+		options = append(options, jenkinsjson.WithOS(c.os))
+	}
+	if c.arch != "" {
+		options = append(options, jenkinsjson.WithArch(c.arch))
+	}
+
+	// convert the pipeline yaml from the jenkinsjson format to the harness yaml format
+	converter := jenkinsjson.New(options...)
 	after, err := converter.ConvertBytes(before)
 	if err != nil {
 		log.Println(err)
 		return subcommands.ExitFailure
 	}
 
-	// downgrade from the v1 harness yaml format
-	// to the v0 harness yaml format.
+	// downgrade from the v1 harness yaml format to the v0 harness yaml format
 	if c.downgrade {
 		// downgrade to the v0 yaml
 		d := downgrader.New(
@@ -268,6 +288,7 @@ func (c *JenkinsJson) processFile(filePath string, file *os.File) subcommands.Ex
 		}
 	}
 
+	// Write the YAML
 	file.WriteString("\n---\n")
 	if c.beforeAfter {
 		file.Write(before)
