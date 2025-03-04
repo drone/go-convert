@@ -759,6 +759,20 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 	case "nexusArtifactUploader":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertNexusArtifactUploader(currentNode, variables), ID: id})
 
+	case "rtDownload":
+		fallthrough
+	case "rtMavenRun":
+		fallthrough
+	case "rtGradleRun":
+		fallthrough
+	case "rtPublishBuildInfo":
+		fallthrough
+	case "rtPromote":
+		fallthrough
+	case "xrayScan":
+		step := jenkinsjson.ConvertArtifactoryRtCommand(currentNode.AttributesMap["jenkins.pipeline.step.type"], currentNode, variables)
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: step, ID: id})
+
 	case "readMavenPom":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertReadMavenPom(currentNode), ID: id})
 
