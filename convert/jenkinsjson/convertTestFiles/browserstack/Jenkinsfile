@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+    tools { nodejs "Node 22" } // Ensure Node.js is installed in Jenkins
+
+    stages {
+        stage('Setup Test Environment') {
+            steps {
+                script {
+                    echo "✅ Setting up test environment"
+
+                    // Create test.js inline using sh (Linux shell)
+                    sh '''
+                    echo "const { Builder, By, Key, until } = require('selenium-webdriver');" > test.js
+                    echo "const USERNAME = process.env.BROWSERSTACK_USERNAME;" >> test.js
+                    echo "const ACCESS_KEY = process.env.BROWSERSTACK_ACCESS_KEY;" >> test.js
+                    echo "const BROWSERSTACK_URL = 'https://' + USERNAME + ':' + ACCESS_KEY + '@hub-cloud.browserstack.com/wd/hub';" >> test.js
+
+                    echo "const capabilities = [" >> test.js
+                    echo "   { browserName: 'chrome', os: 'Windows', os_version: '10', name: 'Chrome Test', build: 'Jenkins_BS_Test' }," >> test.js
+                    echo "   { browserName: 'firefox', os: 'Windows', os_version: '10', name: 'Firefox Test', build: 'Jenkins_BS_Test' }" >> test.js
+                    echo "];" >> test.js
+
+                    echo "async function runTest(caps) {" >> test.js
+                    echo "   let driver = new Builder().usingServer(BROWSERSTACK_URL).withCapabilities(caps).build();" >> test.js
+                    echo "   try {" >> test.js
+                    echo "       await driver.get('https://www.google.com');" >> test.js
+                    echo "       let searchBox = await driver.findElement(By.name('q'));" >> test.js
+                    echo "       await searchBox.sendKeys('BrowserStack', Key.RETURN);" >> test.js
+                    echo "       await driver.wait(until.titleContains('BrowserStack'), 5000);" >> test.js
+                    echo "       console.log('✅ Test Passed on ' + caps.browserName);" >> test.js
+                    echo "   } catch (error) {" >> test.js
+                    echo "       console.error('❌ Test Failed on ' + caps.browserName, error);" >> test.js
+                    echo "   } finally {" >> test.js
+                    echo "       await driver.quit();" >> test.js
+                    echo "   }" >> test.js
+                    echo "}" >> test.js
+
+                    echo "(async function() {" >> test.js
+                    echo "   await Promise.all(capabilities.map(runTest));" >> test.js
+                    echo "})();" >> test.js
+                    '''
+                }
+            }
+        }
+
+        stage('Install Dependencies & Run Tests') {
+            steps {
+                script {
+                    browserstack(credentialsId: 'c9af6ff3-8585-465f-baa2-89018ddce3b6') {
+                        echo "✅ BrowserStack Plugin Configured Successfully"
+                        
+                        // Install Selenium WebDriver
+                        sh 'npm install selenium-webdriver'
+
+                        // Run the test
+                        sh 'node test.js'
+                    }
+                }
+            }
+        }
+    }
+}
