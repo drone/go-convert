@@ -265,6 +265,9 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 
 			// identify technology tags
 			for _, step := range stepsInStage {
+				if step == nil {
+					continue
+				}
 				switch step.Spec.(type) {
 				case *harness.StepExec:
 					exec := step.Spec.(*harness.StepExec)
