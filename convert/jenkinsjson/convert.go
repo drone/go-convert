@@ -1138,6 +1138,9 @@ func mergeRunSteps(steps *[]StepWithID) {
 }
 
 func canMergeSteps(step1, step2 *harness.Step) bool {
+	if step1 == nil || step2 == nil {
+		return false
+	}
 	if step1.Type != "script" || step2.Type != "script" {
 		return false
 	}
