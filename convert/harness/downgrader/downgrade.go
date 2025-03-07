@@ -383,6 +383,9 @@ func convertMatrix(v1Matrix *v1.Matrix) map[string]interface{} {
 // TODO matrix strategy
 // TODO when
 func (d *Downgrader) convertStep(src *v1.Step) *v0.Steps {
+	if src == nil {
+		return nil
+	}
 	switch src.Spec.(type) {
 	case *v1.StepExec:
 		return &v0.Steps{Step: d.convertStepRun(src)}
