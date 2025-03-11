@@ -265,6 +265,9 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 
 			// identify technology tags
 			for _, step := range stepsInStage {
+				if step == nil {
+					continue
+				}
 				switch step.Spec.(type) {
 				case *harness.StepExec:
 					exec := step.Spec.(*harness.StepExec)
@@ -1138,6 +1141,9 @@ func mergeRunSteps(steps *[]StepWithID) {
 }
 
 func canMergeSteps(step1, step2 *harness.Step) bool {
+	if step1 == nil || step2 == nil {
+		return false
+	}
 	if step1.Type != "script" || step2.Type != "script" {
 		return false
 	}
