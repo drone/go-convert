@@ -1,0 +1,40 @@
+{
+  "spanId": "01c08da8822dc11e",
+  "traceId": "73b7e80c8e49a1fb9746b2018ded03ee",
+  "parent": "test-result-aggregator-03",
+  "all-info": "span(name: testResultsAggregator, spanId: 01c08da8822dc11e, parentSpanId: 5a447cde483c8a90, traceId: 73b7e80c8e49a1fb9746b2018ded03ee, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"delegate\" : {\n    \"symbol\" : \"testResultsAggregator\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"compareWithPreviousRun\" : false,\n      \"influxdbBucket\" : \"\",\n      \"influxdbOrg\" : \"\",\n      \"influxdbToken\" : \"\",\n      \"influxdbUrl\" : \"\",\n      \"jobs\" : [ {\n        \"jobName\" : \"JUnit Tests\"\n      } ],\n      \"recipientsList\" : \"mail3@gmail.com\",\n      \"recipientsListBCC\" : \"mail3@gmail.com\",\n      \"recipientsListCC\" : \"mail3@gmail.com\",\n      \"subject\" : \"Aggregated Test Results\",\n      \"theme\" : \"light\"\n    },\n    \"model\" : null\n  }\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@28ed13b6:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@28ed13b6;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@5212336a:org.jenkinsci.plugins.workflow.actions.TimingAction@5212336a;harness-others:-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep;jenkins.pipeline.step.id:30;jenkins.pipeline.step.name:Aggregate Test Results;jenkins.pipeline.step.plugin.name:test-results-aggregator;jenkins.pipeline.step.plugin.version:2.2;jenkins.pipeline.step.type:testResultsAggregator;)",
+  "name": "test-result-aggregator-03 #2",
+  "attributesMap": {
+    "harness-others": "-delegate-field org.jenkinsci.plugins.workflow.steps.CoreStep delegate-org.jenkinsci.plugins.workflow.steps.CoreStep.delegate-interface jenkins.tasks.SimpleBuildStep",
+    "jenkins.pipeline.step.name": "Aggregate Test Results",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "30",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@5212336a": "org.jenkinsci.plugins.workflow.actions.TimingAction@5212336a",
+    "jenkins.pipeline.step.type": "testResultsAggregator",
+    "harness-attribute": "{\n  \"delegate\" : {\n    \"symbol\" : \"testResultsAggregator\",\n    \"klass\" : null,\n    \"arguments\" : {\n      \"compareWithPreviousRun\" : false,\n      \"influxdbBucket\" : \"\",\n      \"influxdbOrg\" : \"\",\n      \"influxdbToken\" : \"\",\n      \"influxdbUrl\" : \"\",\n      \"jobs\" : [ {\n        \"jobName\" : \"JUnit Tests\"\n      } ],\n      \"recipientsList\" : \"mail3@gmail.com\",\n      \"recipientsListBCC\" : \"mail3@gmail.com\",\n      \"recipientsListCC\" : \"mail3@gmail.com\",\n      \"subject\" : \"Aggregated Test Results\",\n      \"theme\" : \"light\"\n    },\n    \"model\" : null\n  }\n}",
+    "jenkins.pipeline.step.plugin.name": "test-results-aggregator",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@28ed13b6": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@28ed13b6",
+    "jenkins.pipeline.step.plugin.version": "2.2"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "5a447cde483c8a90",
+  "parameterMap": {"delegate": {
+    "symbol": "testResultsAggregator",
+    "klass": null,
+    "arguments": {
+      "influxdbToken": "",
+      "influxdbOrg": "",
+      "compareWithPreviousRun": false,
+      "influxdbBucket": "",
+      "subject": "Aggregated Test Results",
+      "jobs": [{"jobName": "JUnit Tests"}],
+      "recipientsListCC": "mail3@gmail.com",
+      "theme": "light",
+      "recipientsListBCC": "mail3@gmail.com",
+      "influxdbUrl": "",
+      "recipientsList": "mail3@gmail.com"
+    },
+    "model": null
+  }},
+  "spanName": "testResultsAggregator"
+}

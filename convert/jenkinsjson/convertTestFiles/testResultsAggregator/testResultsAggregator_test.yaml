@@ -1,0 +1,12 @@
+- step:
+    identifier: testresultsaggregator01c08d
+    name: testResultsAggregator
+    spec:
+      image: plugins/test-results-aggregator
+      settings:
+        group: <+input>
+        include_pattern: <+input>
+        reports_dir: <+input>
+        tool: <+input>
+    timeout: ""
+    type: Plugin
