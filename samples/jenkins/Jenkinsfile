@@ -1357,5 +1357,48 @@ line3'''
             }
         }
     }
+
+    // testResultsAggregator
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git url: 'https://github.com/senthilhns/sample-test-projects.git', branch: 'main'
+            }
+        }
+        stage('Run JUnit Tests') {
+            steps {
+                dir('test-results-aggregator/SampleJavaProject') {
+                    sh 'mvn test -Dtest=AppJUnitTest'
+                }
+            }
+        }
+        stage('Run TestNG Tests') {
+            steps {
+                dir('test-results-aggregator/SampleJavaProject') {
+                    sh 'mvn test -Dtest=AppTestNGTest'
+                }
+            }
+        }
+        stage('Aggregate Results') {
+            steps {
+                testResultsAggregator(
+                    jobs: [
+                        [jobName: 'JUnit Tests'],
+                        [jobName: 'TestNG Tests']
+                    ],
+                    recipientsList: 'mail1@gmail.com',
+                    recipientsListCC: 'mail2@gmail.com',
+                    recipientsListBCC: 'mail3@gmail.com',
+                    subject: 'Aggregated Test Results',
+                    theme: 'light',
+                    compareWithPreviousRun: false,
+                    influxdbUrl: "",
+                    influxdbToken: "",
+                    influxdbBucket: "",
+                    influxdbOrg: ""
+                )
+            }
+        }
+    }
 }
 

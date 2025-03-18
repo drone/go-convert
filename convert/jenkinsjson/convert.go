@@ -776,6 +776,10 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 		step := jenkinsjson.ConvertArtifactoryRtCommand(currentNode.AttributesMap["jenkins.pipeline.step.type"], currentNode, variables)
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: step, ID: id})
 
+	case "testResultsAggregator":
+		*stepWithIDList = append(*stepWithIDList,
+			StepWithID{Step: jenkinsjson.ConvertTestResultsAggregator(currentNode, variables), ID: id})
+
 	case "readMavenPom":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertReadMavenPom(currentNode), ID: id})
 
