@@ -39,14 +39,15 @@ type (
 
 	// StageCI defines a continuous integration stage.
 	StageCI struct {
-		Cache          *Cache          `json:"caching,omitempty"             yaml:"caching,omitempty"`
-		Clone          bool            `json:"cloneCodebase,omitempty"       yaml:"cloneCodebase,omitempty"`
-		Execution      Execution       `json:"execution,omitempty"           yaml:"execution,omitempty"`
-		Infrastructure *Infrastructure `json:"infrastructure,omitempty"      yaml:"infrastructure,omitempty"`
-		Platform       *Platform       `json:"platform,omitempty"            yaml:"platform,omitempty"`
-		Runtime        *Runtime        `json:"runtime,omitempty"            yaml:"runtime,omitempty"`
-		Services       []*Service      `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
-		SharedPaths    []string        `json:"sharedPaths,omitempty"         yaml:"sharedPaths,omitempty"`
+		BuildIntelligence *BuildIntelligence `json:"buildIntelligence,omitempty"   yaml:"buildIntelligence,omitempty"`
+		Cache             *Cache             `json:"caching,omitempty"             yaml:"caching,omitempty"`
+		Clone             bool               `json:"cloneCodebase,omitempty"       yaml:"cloneCodebase,omitempty"`
+		Execution         Execution          `json:"execution,omitempty"           yaml:"execution,omitempty"`
+		Infrastructure    *Infrastructure    `json:"infrastructure,omitempty"      yaml:"infrastructure,omitempty"`
+		Platform          *Platform          `json:"platform,omitempty"            yaml:"platform,omitempty"`
+		Runtime           *Runtime           `json:"runtime,omitempty"            yaml:"runtime,omitempty"`
+		Services          []*Service         `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
+		SharedPaths       []string           `json:"sharedPaths,omitempty"         yaml:"sharedPaths,omitempty"`
 	}
 
 	// StageDeployment defines a deployment stage.

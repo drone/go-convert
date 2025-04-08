@@ -35,18 +35,19 @@ import (
 // Downgrader downgrades pipelines from the v0 harness
 // configuration format to the v1 configuration format.
 type Downgrader struct {
-	codebaseName  string
-	codebaseConn  string
-	dockerhubConn string
-	kubeConnector string
-	kubeNamespace string
-	kubeEnabled   bool
-	pipelineId    string
-	pipelineName  string
-	pipelineOrg   string
-	pipelineProj  string
-	defaultImage  string
-	identifiers   *store.Identifiers
+	codebaseName    string
+	codebaseConn    string
+	dockerhubConn   string
+	kubeConnector   string
+	kubeNamespace   string
+	kubeEnabled     bool
+	pipelineId      string
+	pipelineName    string
+	pipelineOrg     string
+	pipelineProj    string
+	defaultImage    string
+	useIntelligence bool
+	identifiers     *store.Identifiers
 }
 
 const MaxDepth = 100
@@ -316,11 +317,12 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		Name: convertName(stage.Name),
 		Type: v0.StageTypeCI,
 		Spec: v0.StageCI{
-			Cache:          convertCache(spec.Cache),
-			Clone:          enableClone,
-			Infrastructure: infra,
-			Platform:       convertPlatform(spec.Platform, runtime),
-			Runtime:        runtime,
+			BuildIntelligence: d.convertUseIntelligence(),
+			Cache:             convertCache(spec.Cache),
+			Clone:             enableClone,
+			Infrastructure:    infra,
+			Platform:          convertPlatform(spec.Platform, runtime),
+			Runtime:           runtime,
 			Execution: v0.Execution{
 				Steps: steps,
 			},
@@ -464,7 +466,7 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 	return &v0.Step{
 		ID:      id,
 		Name:    convertName(src.Name),
-		Type:    v0.StepTypeRun,
+		Type:    d.convertStepType(spec_),
 		Timeout: convertTimeout(src.Timeout),
 		Spec: &v0.StepRun{
 			Env:             spec_.Envs,
@@ -481,6 +483,31 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 		When:     convertStepWhen(src.When, id),
 		Strategy: convertStrategy(src.Strategy),
 	}
+}
+
+func (d *Downgrader) convertStepType(spec_ *v1.StepExec) string {
+	stepType := v0.StepTypeRun
+	if d.shouldUseTestIntelligence(spec_) {
+		stepType = v0.StepTypeTest
+	}
+	return stepType
+}
+
+func (d *Downgrader) shouldUseTestIntelligence(spec_ *v1.StepExec) bool {
+	if !d.useIntelligence {
+		return false
+	}
+	if spec_ == nil || spec_.Run == "" {
+		return false
+	}
+
+	tiTools := []string{"mvn ", "gradle ", "sbt ", "bazel ", "pytest", "rspec"}
+	for _, substr := range tiTools {
+		if strings.Contains(spec_.Run, substr) {
+			return true
+		}
+	}
+	return false
 }
 
 // helper function to convert reports from the v1 to v0
@@ -743,6 +770,15 @@ func convertPorts(ports []string) map[string]string {
 		}
 	}
 	return bindings
+}
+
+func (d *Downgrader) convertUseIntelligence() *v0.BuildIntelligence {
+	if !d.useIntelligence {
+		return nil
+	}
+	return &v0.BuildIntelligence{
+		Enabled: true,
+	}
 }
 
 func convertCache(src *v1.Cache) *v0.Cache {

@@ -48,20 +48,22 @@ type JenkinsJson struct {
 	os             string
 	arch           string
 
-	downgrade   bool
-	beforeAfter bool
-	outputDir   string
+	downgrade       bool
+	useIntelligence bool
+	beforeAfter     bool
+	outputDir       string
 }
 
 func (*JenkinsJson) Name() string     { return "jenkinsjson" }
 func (*JenkinsJson) Synopsis() string { return "converts a jenkinsjson pipeline" }
 func (*JenkinsJson) Usage() string {
-	return `jenkinsjson [-downgrade] [-infrastructure cloud|kubernetes|local] [-os linux|mac|windows] [-arch amd64|arm64] [jenkinsjson.json]
+	return `jenkinsjson [-downgrade] [-intelligence] [-infrastructure cloud|kubernetes|local] [-os linux|mac|windows] [-arch amd64|arm64] [jenkinsjson.json]
 `
 }
 
 func (c *JenkinsJson) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&c.downgrade, "downgrade", false, "downgrade to the legacy yaml format")
+	f.BoolVar(&c.useIntelligence, "intelligence", false, "Use Harness intelligence features")
 	f.BoolVar(&c.beforeAfter, "before-after", false, "print the befor and after")
 	f.StringVar(&c.outputDir, "output-dir", "", "directory where the output should be saved")
 
@@ -197,9 +199,9 @@ func isOutputToStdout(c *JenkinsJson) bool {
 func createOutputFile(c *JenkinsJson, inputFile string) *os.File {
 	fileInfo, err := os.Stat(c.outputDir)
 	if os.IsNotExist(err) {
-		log.Fatalf("Provided output directory does not exist: %s", inputFile)
+		log.Fatalf("Provided output directory does not exist: %s", fileInfo)
 	} else if !fileInfo.IsDir() {
-		log.Fatalf("Provided output path is not a directory: %s", inputFile)
+		log.Fatalf("Provided output path is not a directory: %s", fileInfo)
 	} else if err != nil {
 		log.Fatalln(err)
 	}
@@ -249,6 +251,7 @@ func (c *JenkinsJson) processFile(filePath string, file *os.File) subcommands.Ex
 
 	// create converter with options
 	options := []jenkinsjson.Option{}
+	options = append(options, jenkinsjson.WithUseIntelligence(c.useIntelligence))
 
 	// add infrastructure options if specified
 	if c.infrastructure != "" {
@@ -280,6 +283,7 @@ func (c *JenkinsJson) processFile(filePath string, file *os.File) subcommands.Ex
 			downgrader.WithOrganization(c.org),
 			downgrader.WithProject(c.proj),
 			downgrader.WithDefaultImage(c.defaultImage),
+			downgrader.WithIntelligence(c.useIntelligence),
 		)
 		after, err = d.Downgrade(after)
 		if err != nil {

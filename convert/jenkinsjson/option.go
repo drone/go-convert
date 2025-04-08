@@ -54,3 +54,9 @@ func WithArch(arch string) Option {
 		d.arch = arch
 	}
 }
+
+func WithUseIntelligence(useIntelligence bool) Option {
+	return func(d *Converter) {
+		d.useIntelligence = useIntelligence
+	}
+}

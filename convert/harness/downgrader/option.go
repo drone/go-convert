@@ -79,3 +79,9 @@ func WithDefaultImage(image string) Option {
 		d.defaultImage = image
 	}
 }
+
+func WithIntelligence(useIntelligence bool) Option {
+	return func(d *Downgrader) {
+		d.useIntelligence = useIntelligence
+	}
+}
