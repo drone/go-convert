@@ -458,7 +458,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 			// handle parallel from parent
 			var hasParallelStep = false
 			for _, child := range currentNode.Children {
-				if child.AttributesMap["jenkins.pipeline.step.type"] == "parallel" || strings.HasPrefix(child.SpanName, "Parallel branch:") {
+				if child.AttributesMap["jenkins.pipeline.step.type"] == "parallel" {
 					hasParallelStep = true
 					break
 				}
