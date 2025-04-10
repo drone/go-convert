@@ -7,7 +7,7 @@ import (
 )
 
 func ConvertSh(node Node, variables map[string]string, timeout string, dockerImage string, label string) *harness.Step {
-	// "The JD variables are Jenkins Docker built in variable name"
+	// The JD variables are Jenkins Docker built in variable name
 	if node.ParameterMap["script"] == "docker push \"$JD_TAGGED_IMAGE_NAME\"" {
 		step := &harness.Step{
 			Name:    node.SpanName,
