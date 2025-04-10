@@ -609,9 +609,10 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 			Type: v0.StepTypeGitClone,
 
 			Spec: &v0.StepGitClone{
-				Repository:     setting["git_url"].(string),
-				BuildType:      "<+input>",
-				CloneDirectory: setting["branch"].(string),
+				Repository: setting["git_url"].(string),
+				BuildType:  "<+input>",
+				// TODO this directory should be populated differently for each clone
+				CloneDirectory: "./",
 			},
 			When: convertStepWhen(src.When, id),
 		}
