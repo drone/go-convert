@@ -435,7 +435,13 @@ func (d *Downgrader) convertStepParallel(src *v1.Step) []*v0.Steps {
 	var steps []*v0.Steps
 	for _, step := range spec_.Steps {
 		if dst := d.convertStep(step); dst != nil {
-			steps = append(steps, &v0.Steps{Step: dst.Step})
+			if dst.Step != nil {
+				steps = append(steps, &v0.Steps{Step: dst.Step})
+			} else {
+				if dstg := d.convertStepGroup(step); dstg != nil {
+					steps = append(steps, &v0.Steps{StepGroup: dstg})
+				}
+			}
 		}
 	}
 	return steps
