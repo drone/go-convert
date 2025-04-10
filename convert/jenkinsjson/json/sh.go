@@ -17,8 +17,8 @@ func ConvertSh(node Node, variables map[string]string, timeout string, dockerIma
 			Spec: &harness.StepPlugin{
 				Image: "plugins/kaniko:latest",
 				With: map[string]interface{}{
-					"repo": "$DOCKER_IMAGE",
-					"tags": "$DOCKER_TAG",
+					"repo": variables["DOCKER_IMAGE"],
+					"tags": variables["DOCKER_TAG"],
 				},
 			},
 		}
