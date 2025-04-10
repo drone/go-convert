@@ -2,6 +2,7 @@ package jenkinsjson
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -45,6 +46,7 @@ func TestConvert(t *testing.T) {
 				t.Error("Failed to read the expected output file", tc.want, err)
 			}
 
+			fmt.Println(got)
 			if diff := cmp.Diff(want, got); diff != "" {
 				t.Errorf("TestConvert mismatch (-want +got):\n%s", diff)
 			}
