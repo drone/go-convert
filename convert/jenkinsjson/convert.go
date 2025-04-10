@@ -515,7 +515,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 				unitExists = true
 			}
 
-			// Extract and handle time safelyd
+			// Extract and handle time safely
 			var time int
 			timeExists := false
 			if val, ok := currentNode.ParameterMap["time"].(int); ok {
