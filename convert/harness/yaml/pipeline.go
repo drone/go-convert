@@ -44,6 +44,11 @@ type (
 		Codebase Codebase `json:"codebase,omitempty" yaml:"codebase,omitempty"`
 	}
 
+	// BuildIntelligence defines the build intelligence settings.
+	BuildIntelligence struct {
+		Enabled bool `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+	}
+
 	// Cache defines the cache settings.
 	Cache struct {
 		Enabled bool     `json:"enabled,omitempty" yaml:"enabled,omitempty"`

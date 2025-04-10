@@ -93,6 +93,8 @@ type Converter struct {
 	infrastructure string // "cloud", "kubernetes", or "local"
 	os             string // "linux", "mac", or "windows"
 	arch           string // "amd64" or "arm64"
+
+	useIntelligence bool
 }
 
 // New creates a new Converter that converts a jenkinsjson
@@ -177,6 +179,12 @@ func (d *Converter) recursiveParseJsonToStages(jsonNode *jenkinsjson.Node, dst *
 	// Create the StageCI spec with the sorted steps
 	spec := &harness.StageCI{
 		Steps: sortedSteps,
+	}
+
+	if d.useIntelligence {
+		spec.Cache = &harness.Cache{
+			Enabled: true,
+		}
 	}
 
 	// Only add infrastructure configuration if any of the CLI options are specified
