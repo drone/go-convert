@@ -454,35 +454,34 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 
 	case "stage":
 		// this is technically a step group, we treat it as just steps for now
-		if len(currentNode.Children) > 1 {
+		if len(currentNode.Children) > 0 {
 			// handle parallel from parent
 			var hasParallelStep = false
 			for _, child := range currentNode.Children {
 				if child.AttributesMap["jenkins.pipeline.step.type"] == "parallel" {
 					hasParallelStep = true
+					break
 				}
 			}
 
 			if hasParallelStep {
-				parallelStepItemsWithID := make([]StepWithID, 0)
-				for _, child := range currentNode.Children {
-					clone, repo = collectStepsWithID(child, stepGroupWithId, &parallelStepItemsWithID, processedTools, variables, timeout, dockerImage)
-				}
-				// Storing the Parallel Steps
-				sort.Slice(parallelStepItemsWithID, func(i, j int) bool {
-					return parallelStepItemsWithID[i].ID < parallelStepItemsWithID[j].ID
+				parallelStepGroupWithID := make([]StepGroupWithID, 0)
+				collectStagesWithID(&currentNode, processedTools, &parallelStepGroupWithID, variables, dockerImage)
+				sort.Slice(parallelStepGroupWithID, func(i, j int) bool {
+					return parallelStepGroupWithID[i].ID < parallelStepGroupWithID[j].ID
 				})
 
-				sortedParallelSteps := make([]*harness.Step, len(parallelStepItemsWithID))
-				for i, step := range parallelStepItemsWithID {
-					sortedParallelSteps[i] = step.Step
+				sortedSteps := make([]*harness.Step, len(parallelStepGroupWithID))
+				for i, stepGroup := range parallelStepGroupWithID {
+					sortedSteps[i] = stepGroup.Step
 				}
+
 				parallelStep := &harness.Step{
 					Name: currentNode.SpanName,
 					Id:   jenkinsjson.SanitizeForId(currentNode.SpanName, currentNode.SpanId),
 					Type: "parallel",
 					Spec: &harness.StepParallel{
-						Steps: sortedParallelSteps,
+						Steps: sortedSteps,
 					},
 				}
 				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: parallelStep, ID: id})
@@ -493,7 +492,10 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 		}
 
 	case "sh":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage, ""), ID: id})
+		step := jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage, "")
+		if step != nil {
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: step, ID: id})
+		}
 	case unifiedBranchedShStep:
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage, "_unifiedTraceBranch"), ID: id})
 	case "bat":

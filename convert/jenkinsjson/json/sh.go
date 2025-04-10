@@ -7,7 +7,7 @@ import (
 )
 
 func ConvertSh(node Node, variables map[string]string, timeout string, dockerImage string, label string) *harness.Step {
-	// "docker push \"$JD_TAGGED_IMAGE_NAME\""
+	// The JD variables are Jenkins Docker built in variable name
 	if node.ParameterMap["script"] == "docker push \"$JD_TAGGED_IMAGE_NAME\"" {
 		step := &harness.Step{
 			Name:    node.SpanName,
@@ -17,8 +17,8 @@ func ConvertSh(node Node, variables map[string]string, timeout string, dockerIma
 			Spec: &harness.StepPlugin{
 				Image: "plugins/kaniko:latest",
 				With: map[string]interface{}{
-					"repo": "$DOCKER_IMAGE",
-					"tags": "$DOCKER_TAG",
+					"repo": variables["DOCKER_IMAGE"],
+					"tags": variables["DOCKER_TAG"],
 				},
 			},
 		}
@@ -26,6 +26,8 @@ func ConvertSh(node Node, variables map[string]string, timeout string, dockerIma
 			step.Spec.(*harness.StepPlugin).Envs = variables
 		}
 		return step
+	} else if node.ParameterMap["script"] == "docker build -t \"$JD_IMAGE\" ." || node.ParameterMap["script"] == "docker tag \"$JD_ID\" \"$JD_TAGGED_IMAGE_NAME\"" {
+		return nil
 	}
 
 	shStep := &harness.Step{

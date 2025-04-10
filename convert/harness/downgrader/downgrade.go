@@ -435,7 +435,13 @@ func (d *Downgrader) convertStepParallel(src *v1.Step) []*v0.Steps {
 	var steps []*v0.Steps
 	for _, step := range spec_.Steps {
 		if dst := d.convertStep(step); dst != nil {
-			steps = append(steps, &v0.Steps{Step: dst.Step})
+			if dst.Step != nil {
+				steps = append(steps, &v0.Steps{Step: dst.Step})
+			} else {
+				if dstg := d.convertStepGroup(step); dstg != nil {
+					steps = append(steps, &v0.Steps{StepGroup: dstg})
+				}
+			}
 		}
 	}
 	return steps
@@ -603,9 +609,10 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 			Type: v0.StepTypeGitClone,
 
 			Spec: &v0.StepGitClone{
-				Repository:     setting["git_url"].(string),
-				BuildType:      "<+input>",
-				CloneDirectory: setting["branch"].(string),
+				Repository: setting["git_url"].(string),
+				BuildType:  "<+input>",
+				// TODO this directory should be populated differently for each clone
+				CloneDirectory: "./",
 			},
 			When: convertStepWhen(src.When, id),
 		}
@@ -703,6 +710,7 @@ func (d *Downgrader) convertStepPluginToDocker(src *v1.Step) *v0.Step {
 		Timeout: convertTimeout(src.Timeout),
 		Spec:    stepDocker,
 		When:    convertStepWhen(src.When, id),
+		Env:     spec_.Envs,
 	}
 }
 
