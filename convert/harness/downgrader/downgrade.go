@@ -709,6 +709,7 @@ func (d *Downgrader) convertStepPluginToDocker(src *v1.Step) *v0.Step {
 		Timeout: convertTimeout(src.Timeout),
 		Spec:    stepDocker,
 		When:    convertStepWhen(src.When, id),
+		Env:     spec_.Envs,
 	}
 }
 
