@@ -26,6 +26,8 @@ func ConvertSh(node Node, variables map[string]string, timeout string, dockerIma
 			step.Spec.(*harness.StepPlugin).Envs = variables
 		}
 		return step
+	} else if node.ParameterMap["script"] == "docker build -t \"$JD_IMAGE\" ." || node.ParameterMap["script"] == "docker tag \"$JD_ID\" \"$JD_TAGGED_IMAGE_NAME\"" {
+		return nil
 	}
 
 	shStep := &harness.Step{

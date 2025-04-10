@@ -458,8 +458,9 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 			// handle parallel from parent
 			var hasParallelStep = false
 			for _, child := range currentNode.Children {
-				if child.AttributesMap["jenkins.pipeline.step.type"] == "parallel" {
+				if child.AttributesMap["jenkins.pipeline.step.type"] == "parallel" || strings.HasPrefix(child.SpanName, "Parallel branch:") {
 					hasParallelStep = true
+					break
 				}
 			}
 
@@ -487,13 +488,18 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 				}
 				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: parallelStep, ID: id})
 			} else {
-				collectStagesWithID(&currentNode, processedTools, stepGroupWithId, variables, dockerImage)
+				for _, child := range currentNode.Children {
+					clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage)
+				}
 			}
 			return clone, repo
 		}
 
 	case "sh":
-		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage, ""), ID: id})
+		step := jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage, "")
+		if step != nil {
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: step, ID: id})
+		}
 	case unifiedBranchedShStep:
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSh(currentNode, variables, timeout, dockerImage, "_unifiedTraceBranch"), ID: id})
 	case "bat":
