@@ -507,7 +507,7 @@ func (d *Downgrader) shouldUseTestIntelligence(spec_ *v1.StepExec) bool {
 		return false
 	}
 
-	tiTools := []string{"mvn ", "gradle ", "sbt ", "bazel ", "pytest", "rspec"}
+	tiTools := []string{"mvn ", "gradle ", "gradlew ", "sbt ", "bazel ", "pytest", "rspec"}
 	for _, substr := range tiTools {
 		if strings.Contains(spec_.Run, substr) {
 			return true
