@@ -468,16 +468,21 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 	for _, output := range spec_.Outputs {
 		outputs = append(outputs, convertOutput(output))
 	}
+	connectorRef := d.dockerhubConn
+	if spec_.Connector != "" {
+		connectorRef = spec_.Connector
+	}
 
 	return &v0.Step{
 		ID:      id,
 		Name:    convertName(src.Name),
 		Type:    d.convertStepType(spec_),
 		Timeout: convertTimeout(src.Timeout),
+
 		Spec: &v0.StepRun{
 			Env:             spec_.Envs,
 			Command:         spec_.Run,
-			ConnRef:         d.dockerhubConn,
+			ConnRef:         connectorRef,
 			Image:           convertImage(spec_.Image, d.defaultImage),
 			ImagePullPolicy: convertImagePull(spec_.Pull),
 			Outputs:         outputs, // Add this line

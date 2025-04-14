@@ -36,9 +36,10 @@ func ConvertSh(node Node, variables map[string]string, timeout string, dockerIma
 		Id:      SanitizeForId(node.SpanName, node.SpanId),
 		Type:    "script",
 		Spec: &harness.StepExec{
-			Image: dockerImage,
-			Shell: "sh",
-			Run:   fmt.Sprintf("%v", node.ParameterMap["script"]),
+			Image:     dockerImage,
+			Connector: "account.harnessImage",
+			Shell:     "sh",
+			Run:       fmt.Sprintf("%v", node.ParameterMap["script"]),
 		},
 	}
 	if len(variables) > 0 {
