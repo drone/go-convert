@@ -76,8 +76,8 @@ func TestOptions_Defaults(t *testing.T) {
 	if got, want := p.pipelineName, "default"; got != want {
 		t.Errorf("Want pipeline name %q, got %q", want, got)
 	}
-	if got, notWanted := p.pipelineId, "default"; got == notWanted {
-		t.Errorf("Want random pipeline id %q, got %q", notWanted, got)
+	if got, want := p.pipelineId, "default"; got != want {
+		t.Errorf("Want pipeline id %q, got %q", want, got)
 	}
 	if got, want := p.pipelineOrg, "default"; got != want {
 		t.Errorf("Want pipeline org %q, got %q", want, got)
