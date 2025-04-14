@@ -16,6 +16,7 @@
 package slug
 
 import (
+	"github.com/drone/go-convert/internal/rand"
 	"strings"
 	"unicode"
 
@@ -40,4 +41,10 @@ func Create(s string) string {
 	s = norm.NFKD.String(s)
 	s = strings.Map(safe, s)
 	return s
+}
+
+// Generate creates a randomly generated slug.
+func Generate() string {
+	s256Bits := rand.Alpha(1) + rand.Alphanumeric(31)
+	return s256Bits
 }
