@@ -43,8 +43,7 @@ func Create(s string) string {
 	return s
 }
 
-// Generate creates a randomly generated slug.
-func Generate() string {
-	s256Bits := rand.Alpha(1) + rand.Alphanumeric(31)
-	return s256Bits
+// CreateWithRandom creates a slug, appending a random identifier.
+func CreateWithRandom(s string) string {
+	return Create(s) + "_" + rand.Alphanumeric(8)
 }

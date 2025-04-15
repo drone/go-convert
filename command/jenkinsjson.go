@@ -50,7 +50,7 @@ type JenkinsJson struct {
 
 	downgrade       bool
 	useIntelligence bool
-	randomId        bool
+	noRandomId      bool
 	beforeAfter     bool
 	outputDir       string
 }
@@ -58,14 +58,14 @@ type JenkinsJson struct {
 func (*JenkinsJson) Name() string     { return "jenkinsjson" }
 func (*JenkinsJson) Synopsis() string { return "converts a jenkinsjson pipeline" }
 func (*JenkinsJson) Usage() string {
-	return `jenkinsjson [-downgrade] [-intelligence] [-random-id] [-infrastructure cloud|kubernetes|local] [-os linux|mac|windows] [-arch amd64|arm64] [jenkinsjson.json]
+	return `jenkinsjson [-downgrade] [--intelligence] [--no-random-id] [-infrastructure cloud|kubernetes|local] [-os linux|mac|windows] [-arch amd64|arm64] [jenkinsjson.json]
 `
 }
 
 func (c *JenkinsJson) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&c.downgrade, "downgrade", false, "downgrade to the legacy yaml format")
 	f.BoolVar(&c.useIntelligence, "intelligence", false, "Use Harness intelligence features")
-	f.BoolVar(&c.randomId, "random-id", false, "Generate random ID for pipeline")
+	f.BoolVar(&c.noRandomId, "no-random-id", false, "Generate random ID for pipeline")
 	f.BoolVar(&c.beforeAfter, "before-after", false, "print the befor and after")
 	f.StringVar(&c.outputDir, "output-dir", "", "directory where the output should be saved")
 
@@ -286,7 +286,7 @@ func (c *JenkinsJson) processFile(filePath string, file *os.File) subcommands.Ex
 			downgrader.WithProject(c.proj),
 			downgrader.WithDefaultImage(c.defaultImage),
 			downgrader.WithIntelligence(c.useIntelligence),
-			downgrader.WithRandomId(c.randomId),
+			downgrader.WithRandomId(!c.noRandomId),
 		)
 		after, err = d.Downgrade(after)
 		if err != nil {

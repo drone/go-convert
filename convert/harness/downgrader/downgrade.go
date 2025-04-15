@@ -98,7 +98,7 @@ func New(options ...Option) *Downgrader {
 	// set the default pipeline id.
 	if d.pipelineId == "" {
 		if d.randomId {
-			d.pipelineId = slug.Generate()
+			d.pipelineId = slug.CreateWithRandom(d.pipelineName)
 		} else {
 			d.pipelineId = slug.Create(d.pipelineName)
 		}
