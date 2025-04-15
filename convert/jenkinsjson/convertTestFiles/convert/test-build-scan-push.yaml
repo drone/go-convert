@@ -210,7 +210,7 @@ spec:
             inputs: {}
             spec:
               image: docker.io/org/app:label
-              connector: ""
+              connector: account.harnessImage
               user: ""
               group: ""
               pull: ""
@@ -299,7 +299,7 @@ spec:
             inputs: {}
             spec:
               image: alpine
-              connector: ""
+              connector: account.harnessImage
               user: ""
               group: ""
               pull: ""
@@ -344,7 +344,7 @@ spec:
             inputs: {}
             spec:
               image: alpine
-              connector: ""
+              connector: account.harnessImage
               user: ""
               group: ""
               pull: ""
@@ -521,7 +521,7 @@ spec:
             inputs: {}
             spec:
               image: alpine
-              connector: ""
+              connector: account.harnessImage
               user: ""
               group: ""
               pull: ""
@@ -566,7 +566,7 @@ spec:
             inputs: {}
             spec:
               image: alpine
-              connector: ""
+              connector: account.harnessImage
               user: ""
               group: ""
               pull: ""
@@ -655,7 +655,7 @@ spec:
             inputs: {}
             spec:
               image: alpine
-              connector: ""
+              connector: account.harnessImage
               user: ""
               group: ""
               pull: ""
@@ -776,7 +776,7 @@ spec:
             inputs: {}
             spec:
               image: alpine
-              connector: ""
+              connector: account.harnessImage
               user: ""
               group: ""
               pull: ""
