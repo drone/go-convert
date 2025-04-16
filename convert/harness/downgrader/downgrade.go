@@ -47,6 +47,7 @@ type Downgrader struct {
 	pipelineProj    string
 	defaultImage    string
 	useIntelligence bool
+	randomId        bool
 	identifiers     *store.Identifiers
 }
 
@@ -96,7 +97,11 @@ func New(options ...Option) *Downgrader {
 
 	// set the default pipeline id.
 	if d.pipelineId == "" {
-		d.pipelineId = slug.Create(d.pipelineName)
+		if d.randomId {
+			d.pipelineId = slug.CreateWithRandom(d.pipelineName)
+		} else {
+			d.pipelineId = slug.Create(d.pipelineName)
+		}
 	}
 
 	// set the default pipeline org.

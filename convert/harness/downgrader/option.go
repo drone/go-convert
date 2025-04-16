@@ -85,3 +85,9 @@ func WithIntelligence(useIntelligence bool) Option {
 		d.useIntelligence = useIntelligence
 	}
 }
+
+func WithRandomId(randomId bool) Option {
+	return func(d *Downgrader) {
+		d.randomId = randomId
+	}
+}

@@ -35,7 +35,9 @@ func TestConvert(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test, func(t *testing.T) {
 			// convert the yaml file from github to harness
-			downgrader := New()
+			downgrader := New(
+				WithIdentifier("default"),
+			)
 			tmp1, err := downgrader.DowngradeFile(test)
 			if err != nil {
 				t.Error(err)
@@ -68,7 +70,7 @@ func TestConvert(t *testing.T) {
 			want = normalizeMap(want)
 
 			// compare the converted yaml to the golden file
-			if diff := cmp.Diff(got, want); diff != "" {
+			if diff := cmp.Diff(want, got); diff != "" {
 				t.Errorf("Unexpected conversion result")
 				t.Log(diff)
 			}
