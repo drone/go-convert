@@ -55,6 +55,8 @@ spec:
               with:
                 branch: ci/branch
                 depth: ""
+                git.repository: workflow-automation/org-dockerizer
+                git.username: scm-user
                 git_url: https://github.com/example/repo.git
                 platform: github.com
               inputs: {}
@@ -139,6 +141,8 @@ spec:
               with:
                 branch: ci/branch
                 depth: ""
+                git.repository: workflow-automation/org-dockerizer
+                git.username: scm-user
                 git_url: https://github.com/example/repo.git
                 platform: github.com
               inputs: {}

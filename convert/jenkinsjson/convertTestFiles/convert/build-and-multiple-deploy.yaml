@@ -55,6 +55,8 @@ spec:
               with:
                 branch: develop
                 depth: ""
+                git.repository: ExampleProcessing/application
+                git.username: gitbot
                 git_url: https://github.com/example/repo.git
                 platform: github.com
               inputs: {}
@@ -1407,6 +1409,8 @@ spec:
               with:
                 branch: develop
                 depth: ""
+                git.repository: ExampleProcessing/application
+                git.username: gitbot
                 git_url: https://github.com/example/repo.git
                 platform: github.com
               inputs: {}

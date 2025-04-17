@@ -214,16 +214,7 @@ func (d *Downgrader) downgrade(src []*v1.Config) ([]byte, error) {
 				Stage: d.convertStage(stage),
 			})
 		}
-		if config.GitConnector != nil {
-			out, err := yaml.Marshal(v0.Config{GitConnector: config.GitConnector})
-			if err != nil {
-				return nil, err
-			}
-			buf.Write(out)
-			buf.WriteString("\n---\n")
-		}
-
-		out, err := yaml.Marshal(config.Pipeline)
+		out, err := yaml.Marshal(config)
 		if err != nil {
 			return nil, err
 		}
@@ -244,7 +235,8 @@ func (d *Downgrader) populateGitConnectorIfApplicable(p *v1.Config, config *v0.C
 		spec := stage.Spec.(*v1.StageCI)
 		gitConnector := d.extractGitConnectorConfig(spec.Steps)
 		if gitConnector != nil {
-			config.GitConnector = gitConnector
+			//config.GitConnector = gitConnector
+			config.Pipeline.Props.CI.Codebase.Name = gitConnector.Spec.Url
 		}
 	}
 }
