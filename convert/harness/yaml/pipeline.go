@@ -17,7 +17,8 @@ package yaml
 type (
 	// Config defines resource configuration.
 	Config struct {
-		Pipeline Pipeline `json:"pipeline" yaml:"pipeline"`
+		Pipeline     Pipeline      `json:"pipeline"            yaml:"pipeline"`
+		GitConnector *GitConnector `json:"connector,omitempty" yaml:"connector,omitempty"`
 	}
 
 	// Pipeline defines a pipeline.

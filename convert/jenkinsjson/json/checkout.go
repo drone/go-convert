@@ -1,21 +1,24 @@
 package json
 
 import (
-	harness "github.com/drone/spec/dist/go"
+	"github.com/drone/go-convert/convert/harness"
+	spec "github.com/drone/spec/dist/go"
 )
 
-func ConvertCheckout(node Node, variables map[string]string) *harness.Step {
-	step := &harness.Step{
+func ConvertCheckout(node Node, variables map[string]string) *spec.Step {
+	step := &spec.Step{
 		Name: node.SpanName,
 		Id:   SanitizeForId(node.SpanName, node.SpanId),
 		Type: "plugin",
-		Spec: &harness.StepPlugin{
-			Image: "plugins/drone-git:latest",
+		Spec: &spec.StepPlugin{
+			Image: harness.GitPluginImage,
 			With: map[string]interface{}{
-				"platform": node.AttributesMap["peer.service"],
-				"git_url":  extractGitUrl(node),
-				"branch":   extractGitBranch(node),
-				"depth":    node.AttributesMap["git.clone.depth"],
+				"platform":       node.AttributesMap["peer.service"],
+				"git_url":        extractGitUrl(node),
+				"branch":         extractGitBranch(node),
+				"depth":          node.AttributesMap["git.clone.depth"],
+				"git.repository": node.AttributesMap["git.repository"],
+				"git.username":   node.AttributesMap["git.username"],
 			},
 		},
 	}
