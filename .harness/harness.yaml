@@ -37,7 +37,7 @@ pipeline:
                   identifier: test
                   spec:
                     connectorRef: account.harnessImage
-                    image: golang:1.19
+                    image: golang:1.21
                     shell: Sh
                     command: |-
                       go test -coverprofile=cover.out ./...
@@ -48,7 +48,7 @@ pipeline:
                   identifier: build
                   spec:
                     connectorRef: account.harnessImage
-                    image: golang:1.19
+                    image: golang:1.21
                     shell: Sh
                     command: |-
                       GOOS=linux   GOARCH=amd64   go build -o release/plugin-linux-amd64

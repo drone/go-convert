@@ -17,7 +17,11 @@ package downgrader
 import (
 	"bytes"
 	"fmt"
+	"github.com/drone/go-convert/convert/jenkinsjson/json"
+	"github.com/drone/go-convert/internal/rand"
 	"io/ioutil"
+	"regexp"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -189,6 +193,8 @@ func (d *Downgrader) downgrade(src []*v1.Config) ([]byte, error) {
 			config.Pipeline.Variables = convertVariables(p.Spec.(*v1.Pipeline).Options.Envs)
 		}
 
+		d.populateGitConnectorIfApplicable(p, config)
+
 		// convert stages
 		// FIXME: this is subject to a nil pointer
 		for _, stage := range p.Spec.(*v1.Pipeline).Stages {
@@ -218,6 +224,141 @@ func (d *Downgrader) downgrade(src []*v1.Config) ([]byte, error) {
 		buf.Write(out)
 	}
 	return buf.Bytes(), nil
+}
+
+func (d *Downgrader) populateGitConnectorIfApplicable(p *v1.Config, config *v0.Config) {
+	if !d.isGitCloneFirstAndOnly(p) {
+		return
+	}
+
+	for _, stage := range p.Spec.(*v1.Pipeline).Stages {
+		spec := stage.Spec.(*v1.StageCI)
+		gitConnector := d.extractGitConnectorConfig(spec.Steps)
+		if gitConnector != nil {
+			//config.GitConnector = gitConnector
+			config.Pipeline.Props.CI.Codebase.Name = gitConnector.Spec.Url
+		}
+	}
+}
+
+func (d *Downgrader) isGitCloneFirstAndOnly(p *v1.Config) bool {
+	pipeline, ok := p.Spec.(*v1.Pipeline)
+	if !ok {
+		return false
+	}
+	if !d.hasExactlyOneGitClone(pipeline) {
+		return false
+	}
+
+	return d.isGitCloneFirstStep(pipeline)
+}
+
+func (d *Downgrader) isGitCloneFirstStep(pipeline *v1.Pipeline) bool {
+	if len(pipeline.Stages) == 0 {
+		return false
+	}
+
+	spec, ok := pipeline.Stages[0].Spec.(*v1.StageCI)
+	if !ok {
+		return false
+	}
+	if len(spec.Steps) == 0 {
+		return false
+	}
+
+	step := spec.Steps[0]
+	if step.Type == "group" {
+		spec := step.Spec.(*v1.StepGroup)
+		if len(spec.Steps) == 0 {
+			return false
+		}
+		step = spec.Steps[0]
+	}
+
+	if isGitCloneStep(step) {
+		return true
+	}
+	return false
+}
+
+func isGitCloneStep(step *v1.Step) bool {
+	if step.Type != "plugin" {
+		return false
+	}
+	pluginSpec, ok := step.Spec.(*v1.StepPlugin)
+	return ok && pluginSpec.Image == harness.GitPluginImage
+}
+
+func (d *Downgrader) hasExactlyOneGitClone(pipeline *v1.Pipeline) bool {
+	gitConnectorCount := 0
+	for _, stage := range pipeline.Stages {
+		spec, ok := stage.Spec.(*v1.StageCI)
+		if !ok {
+			continue
+		}
+		gitConnectorCount += d.countGitConnectors(spec.Steps)
+	}
+
+	return gitConnectorCount == 1
+}
+
+func (d *Downgrader) countGitConnectors(steps []*v1.Step) int {
+	gitConnectorCount := 0
+	for _, step := range steps {
+		if step.Type == "group" {
+			spec := step.Spec.(*v1.StepGroup)
+			gitConnectorCount += d.countGitConnectors(spec.Steps)
+		} else if isGitCloneStep(step) {
+			gitConnectorCount++
+		}
+	}
+	return gitConnectorCount
+}
+
+func (d *Downgrader) extractGitConnectorConfig(steps []*v1.Step) *v0.GitConnector {
+	for stepIdx, step := range steps {
+		if step.Type == "group" {
+			spec := step.Spec.(*v1.StepGroup)
+			connector := d.extractGitConnectorConfig(spec.Steps)
+			if connector != nil {
+				return connector
+			}
+		} else if isGitCloneStep(step) {
+			pluginSpec := step.Spec.(*v1.StepPlugin)
+			gitUrl, ok := pluginSpec.With["git_url"].(string)
+			if !ok {
+				break
+			}
+
+			r := regexp.MustCompile(".*/([\\w-.]+)(.git)?")
+			repoNameMatch := r.FindStringSubmatch(gitUrl)
+			if len(repoNameMatch) <= 1 {
+				break
+			}
+			repoName := json.SanitizeForName(repoNameMatch[1])
+
+			username, ok := pluginSpec.With["git.username"].(string)
+			gitConnector := &v0.GitConnector{
+				ID:      json.SanitizeForId(repoName, rand.Alphanumeric(8)),
+				Name:    repoName,
+				Org:     d.pipelineOrg,
+				Project: d.pipelineProj,
+				Type:    "Git",
+				Spec: &v0.GitConnectorSpec{
+					Url:            gitUrl,
+					Type:           "Http",
+					ConnectionType: "Repo",
+					Spec: &v0.GitConnectionSpec{
+						Username:    username,
+						PasswordRef: "account." + repoName,
+					},
+				},
+			}
+			steps = slices.Delete(steps, stepIdx, stepIdx+1)
+			return gitConnector
+		}
+	}
+	return nil
 }
 
 // helper function converts a drone pipeline stage to a
@@ -611,7 +752,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 	}
 
 	switch spec_.Image {
-	case "plugins/drone-git:latest":
+	case harness.GitPluginImage:
 		setting := convertSettings(spec_.With)
 		return &v0.Step{
 			ID:   id,

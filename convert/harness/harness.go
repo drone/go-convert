@@ -15,3 +15,5 @@
 package harness
 
 var DefaultName = "default"
+
+const GitPluginImage = "plugins/drone-git:latest"
