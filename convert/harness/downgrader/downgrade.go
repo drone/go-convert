@@ -17,14 +17,15 @@ package downgrader
 import (
 	"bytes"
 	"fmt"
-	"github.com/drone/go-convert/convert/jenkinsjson/json"
-	"github.com/drone/go-convert/internal/rand"
 	"io/ioutil"
 	"regexp"
 	"slices"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/drone/go-convert/convert/jenkinsjson/json"
+	"github.com/drone/go-convert/internal/rand"
 
 	"github.com/drone/go-convert/convert/harness"
 	"github.com/drone/go-convert/internal/slug"
@@ -321,6 +322,7 @@ func (d *Downgrader) extractGitConnectorConfig(steps []*v1.Step) *v0.GitConnecto
 			spec := step.Spec.(*v1.StepGroup)
 			connector := d.extractGitConnectorConfig(spec.Steps)
 			if connector != nil {
+				steps = slices.Delete(steps, stepIdx, stepIdx+1)
 				return connector
 			}
 		} else if isGitCloneStep(step) {
