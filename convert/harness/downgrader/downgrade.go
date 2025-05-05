@@ -17,14 +17,15 @@ package downgrader
 import (
 	"bytes"
 	"fmt"
-	"github.com/drone/go-convert/convert/jenkinsjson/json"
-	"github.com/drone/go-convert/internal/rand"
 	"io/ioutil"
 	"regexp"
 	"slices"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/drone/go-convert/convert/jenkinsjson/json"
+	"github.com/drone/go-convert/internal/rand"
 
 	"github.com/drone/go-convert/convert/harness"
 	"github.com/drone/go-convert/internal/slug"
@@ -233,7 +234,8 @@ func (d *Downgrader) populateGitConnectorIfApplicable(p *v1.Config, config *v0.C
 
 	for _, stage := range p.Spec.(*v1.Pipeline).Stages {
 		spec := stage.Spec.(*v1.StageCI)
-		gitConnector := d.extractGitConnectorConfig(spec.Steps)
+		gitConnector, newSteps := d.extractGitConnectorConfig(spec.Steps)
+		spec.Steps = newSteps
 		if gitConnector != nil {
 			//config.GitConnector = gitConnector
 			config.Pipeline.Props.CI.Codebase.Name = gitConnector.Spec.Url
@@ -315,13 +317,15 @@ func (d *Downgrader) countGitConnectors(steps []*v1.Step) int {
 	return gitConnectorCount
 }
 
-func (d *Downgrader) extractGitConnectorConfig(steps []*v1.Step) *v0.GitConnector {
+func (d *Downgrader) extractGitConnectorConfig(steps []*v1.Step) (*v0.GitConnector, []*v1.Step) {
 	for stepIdx, step := range steps {
 		if step.Type == "group" {
 			spec := step.Spec.(*v1.StepGroup)
-			connector := d.extractGitConnectorConfig(spec.Steps)
+			connector, newSteps := d.extractGitConnectorConfig(spec.Steps)
+			spec.Steps = newSteps
 			if connector != nil {
-				return connector
+				steps = slices.Delete(steps, stepIdx, stepIdx+1)
+				return connector, steps
 			}
 		} else if isGitCloneStep(step) {
 			pluginSpec := step.Spec.(*v1.StepPlugin)
@@ -355,10 +359,10 @@ func (d *Downgrader) extractGitConnectorConfig(steps []*v1.Step) *v0.GitConnecto
 				},
 			}
 			steps = slices.Delete(steps, stepIdx, stepIdx+1)
-			return gitConnector
+			return gitConnector, steps
 		}
 	}
-	return nil
+	return nil, steps
 }
 
 // helper function converts a drone pipeline stage to a
