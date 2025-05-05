@@ -54,6 +54,7 @@ const (
 	StepTypeBackground                 = "Background"
 	StepTypeBitrise                    = "Bitrise"
 	StepTypeBuildAndPushDockerRegistry = "BuildAndPushDockerRegistry"
+	StepTypeAquaTrivy                  = "AquaTrivy"
 	StepTypeBuildAndPushECR            = "BuildAndPushECR"
 	StepTypeBuildAndPushGCR            = "BuildAndPushGCR"
 	StepTypeFlagConfiguration          = "FlagConfiguration"
