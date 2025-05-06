@@ -901,7 +901,7 @@ func (d *Downgrader) convertStepPluginToTrivy(src *v1.Step) *v0.Step {
 		image.Name = imageInterface
 	}
 
-	if tagsInterface, ok := spec_.With["tags"].(string); ok {
+	if tagsInterface, ok := spec_.With["tag"].(string); ok {
 		image.Tag = tagsInterface
 	}
 	stepTrivy := &v0.StepTrivy{

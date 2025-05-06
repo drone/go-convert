@@ -122,7 +122,7 @@ type (
 	}
 
 	STOAdvancedLog struct {
-		Level string `json:"lvel" yaml:"level,omitempty"`
+		Level string `json:"level" yaml:"level,omitempty"`
 	}
 
 	STOImage struct {
