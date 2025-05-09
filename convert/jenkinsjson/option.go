@@ -60,3 +60,9 @@ func WithUseIntelligence(useIntelligence bool) Option {
 		d.useIntelligence = useIntelligence
 	}
 }
+
+func WithConfigFile(configFile string) Option {
+	return func(d *Converter) {
+		d.configFile = configFile
+	}
+}
