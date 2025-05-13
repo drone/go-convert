@@ -95,6 +95,7 @@ type Converter struct {
 	arch           string // "amd64" or "arm64"
 
 	useIntelligence bool
+	configFile      string
 }
 
 // New creates a new Converter that converts a jenkinsjson
