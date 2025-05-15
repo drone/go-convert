@@ -112,6 +112,25 @@ type (
 		Spec *ReportJunit `json:"spec" yaml:"spec,omitempty"` // TODO
 	}
 
+	STOTarget struct {
+		Type      string `json:"type" yaml:"type,omitempty"`
+		Detection string `json:"detection" yaml:"detection,omitempty"`
+	}
+
+	STOAdvanced struct {
+		Log *STOAdvancedLog `json:"log" yaml:"log,omitempty"`
+	}
+
+	STOAdvancedLog struct {
+		Level string `json:"level" yaml:"level,omitempty"`
+	}
+
+	STOImage struct {
+		Tag  string `json:"tag,omitempty"   yaml:"tag,omitempty"`
+		Name string `json:"name,omitempty"         yaml:"name,omitempty"`
+		Type string `json:"type,omitempty"         yaml:"type,omitempty"`
+	}
+
 	ReportJunit struct {
 		Paths []string `json:"paths" yaml:"paths,omitempty"`
 	}

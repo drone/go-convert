@@ -103,6 +103,15 @@ type (
 		// TODO
 	}
 
+	StepTrivy struct {
+		Mode       string       `json:"mode,omitempty"    yaml:"mode,omitempty"`
+		Config     string       `json:"config,omitempty"         yaml:"config,omitempty"`
+		Target     *STOTarget   `json:"target,omitempty"         yaml:"target,omitempty"`
+		Advanced   *STOAdvanced `json:"advanced,omitempty"         yaml:"advanced,omitempty"`
+		Privileged bool         `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
+		Image      *STOImage    `json:"image,omitempty"      yaml:"image,omitempty"`
+	}
+
 	StepDocker struct {
 		BuildsArgs      map[string]string `json:"buildArgs,omitempty"       yaml:"buildArgs,omitempty"`
 		ConnectorRef    string            `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
