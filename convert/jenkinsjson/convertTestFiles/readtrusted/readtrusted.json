@@ -1,0 +1,25 @@
+{
+  "spanId": "d6067084e3fe02d8",
+  "traceId": "f5eb510b560085315925dc8a5253bde8",
+  "parent": "readTrusted/jenkins",
+  "all-info": "span(name: readTrusted, spanId: d6067084e3fe02d8, parentSpanId: 7975974bb3b4fd40, traceId: f5eb510b560085315925dc8a5253bde8, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"path\" : \"README.md\"\n};harness-attribute-extra-pip: io.jenkins.plugins.harnessmigration.MigrateHarnessUrlChildAction@2ea5d91c:io.jenkins.plugins.harnessmigration.MigrateHarnessUrlChildAction@2ea5d91c;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@27680b8e:org.jenkinsci.plugins.workflow.actions.TimingAction@27680b8e;harness-others:;jenkins.pipeline.step.id:21;jenkins.pipeline.step.name:Read trusted file from SCM;jenkins.pipeline.step.plugin.name:workflow-multibranch;jenkins.pipeline.step.plugin.version:803.v08103b_87c280;jenkins.pipeline.step.type:readTrusted;)",
+  "name": "display-name » jenkins #9",
+  "attributesMap": {
+    "harness-attribute-extra-pip: io.jenkins.plugins.harnessmigration.MigrateHarnessUrlChildAction@2ea5d91c": "io.jenkins.plugins.harnessmigration.MigrateHarnessUrlChildAction@2ea5d91c",
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Read trusted file from SCM",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "21",
+    "jenkins.pipeline.step.type": "readTrusted",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@27680b8e": "org.jenkinsci.plugins.workflow.actions.TimingAction@27680b8e",
+    "harness-attribute": "{\n  \"path\" : \"README.md\"\n}",
+    "jenkins.pipeline.step.plugin.name": "workflow-multibranch",
+    "jenkins.pipeline.step.plugin.version": "803.v08103b_87c280"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "7975974bb3b4fd40",
+  "parameterMap": {
+    "path": "README.md"
+  },
+  "spanName": "readTrusted"
+}
