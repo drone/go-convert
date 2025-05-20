@@ -1,0 +1,11 @@
+- step:
+    identifier: readtrusted
+    name: read_trusted
+    spec:
+      image: plugins/read-trusted
+      settings:
+        file_path: README.md
+        git_pat: <+input>
+        trusted_branch: <+input>
+    timeout: ""
+    type: Plugin
