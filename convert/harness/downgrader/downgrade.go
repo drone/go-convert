@@ -747,6 +747,10 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 		return d.convertStepPluginToDocker(src)
 	}
 
+	if strings.Contains(spec_.Image, "plugins/trivy:latest") {
+		return d.convertStepPluginToTrivy(src)
+	}
+
 	var id = d.identifiers.Generate(
 		slug.Create(src.Id),
 		slug.Create(src.Name),
@@ -864,6 +868,57 @@ func (d *Downgrader) convertStepPluginToDocker(src *v1.Step) *v0.Step {
 		Type:    v0.StepTypeBuildAndPushDockerRegistry,
 		Timeout: convertTimeout(src.Timeout),
 		Spec:    stepDocker,
+		When:    convertStepWhen(src.When, id),
+		Env:     spec_.Envs,
+	}
+}
+
+func (d *Downgrader) convertStepPluginToTrivy(src *v1.Step) *v0.Step {
+	spec_ := src.Spec.(*v1.StepPlugin)
+	var id = d.identifiers.Generate(
+		slug.Create(src.Id),
+		slug.Create(src.Name),
+		slug.Create(src.Type))
+	if src.Name == "" {
+		src.Name = id
+	}
+
+	target := &v0.STOTarget{
+		Type:      "container",
+		Detection: "auto",
+	}
+	advanced := &v0.STOAdvanced{
+		Log: &v0.STOAdvancedLog{
+			Level: "info",
+		},
+	}
+
+	image := &v0.STOImage{
+		Type: "docker_v2",
+	}
+
+	if imageInterface, ok := spec_.With["image"].(string); ok {
+		image.Name = imageInterface
+	}
+
+	if tagsInterface, ok := spec_.With["tag"].(string); ok {
+		image.Tag = tagsInterface
+	}
+	stepTrivy := &v0.StepTrivy{
+		Mode:       "orchestration",
+		Config:     "default",
+		Privileged: true,
+		Target:     target,
+		Advanced:   advanced,
+		Image:      image,
+	}
+
+	return &v0.Step{
+		ID:      id,
+		Name:    src.Name,
+		Type:    v0.StepTypeAquaTrivy,
+		Timeout: convertTimeout(src.Timeout),
+		Spec:    stepTrivy,
 		When:    convertStepWhen(src.When, id),
 		Env:     spec_.Envs,
 	}

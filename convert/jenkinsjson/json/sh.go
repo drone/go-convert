@@ -2,6 +2,7 @@ package json
 
 import (
 	"fmt"
+	"strings"
 
 	harness "github.com/drone/spec/dist/go"
 )
@@ -28,6 +29,31 @@ func ConvertSh(node Node, variables map[string]string, timeout string, dockerIma
 		return step
 	} else if node.ParameterMap["script"] == "docker build -t \"$JD_IMAGE\" ." || node.ParameterMap["script"] == "docker tag \"$JD_ID\" \"$JD_TAGGED_IMAGE_NAME\"" {
 		return nil
+	}
+
+	trivy_prefix := "trivy image"
+	if strings.HasPrefix(fmt.Sprintf("%v", node.ParameterMap["script"]), trivy_prefix) {
+		image_raw := fmt.Sprintf("%v", node.ParameterMap["script"])
+		image := strings.TrimSpace(strings.TrimPrefix(image_raw, trivy_prefix))
+		image = strings.TrimSpace(image)
+		parts := strings.Split(image, ":")
+		step := &harness.Step{
+			Name:    node.SpanName,
+			Timeout: timeout,
+			Id:      SanitizeForId(node.SpanName, node.SpanId),
+			Type:    "plugin",
+			Spec: &harness.StepPlugin{
+				Image: "plugins/trivy:latest", // placeholder for sto
+				With: map[string]interface{}{
+					"image": parts[0],
+					"tag":   parts[1],
+				},
+			},
+		}
+		if len(variables) > 0 {
+			step.Spec.(*harness.StepPlugin).Envs = variables
+		}
+		return step
 	}
 
 	shStep := &harness.Step{
