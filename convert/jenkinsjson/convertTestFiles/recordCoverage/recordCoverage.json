@@ -1,0 +1,49 @@
+{
+  "spanId": "6ecee1eddbe32116",
+  "traceId": "12d895e96975a48dda404a618ab650f5",
+  "parent": "recordCoverage01",
+  "all-info": "span(name: recordCoverage, spanId: 6ecee1eddbe32116, parentSpanId: 74da9c1de6070122, traceId: 12d895e96975a48dda404a618ab650f5, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"name\" : \"JaCoCo Coverage\",\n  \"qualityGates\" : [ {\n    \"threshold\" : 6E+1,\n    \"metric\" : \"LINE\",\n    \"baseline\" : \"PROJECT\",\n    \"unstable\" : true\n  }, {\n    \"threshold\" : 6E+1,\n    \"metric\" : \"BRANCH\",\n    \"baseline\" : \"PROJECT\",\n    \"unstable\" : true\n  } ],\n  \"enabledForFailure\" : true,\n  \"id\" : \"jacoco\",\n  \"tools\" : [ {\n    \"parser\" : \"JACOCO\"\n  }, {\n    \"parser\" : \"COBERTURA\",\n    \"pattern\" : \"**/coverage.xml\"\n  } ],\n  \"sourceCodeRetention\" : \"EVERY_BUILD\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7784a684:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7784a684;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@163a6de0:org.jenkinsci.plugins.workflow.actions.TimingAction@163a6de0;harness-others:;jenkins.pipeline.step.id:50;jenkins.pipeline.step.name:Record code coverage results;jenkins.pipeline.step.plugin.name:coverage;jenkins.pipeline.step.plugin.version:1.16.1;jenkins.pipeline.step.type:recordCoverage;)",
+  "name": "recordCoverage01 #5",
+  "attributesMap": {
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@163a6de0": "org.jenkinsci.plugins.workflow.actions.TimingAction@163a6de0",
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Record code coverage results",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "50",
+    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7784a684": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7784a684",
+    "jenkins.pipeline.step.type": "recordCoverage",
+    "harness-attribute": "{\n  \"name\" : \"JaCoCo Coverage\",\n  \"qualityGates\" : [ {\n    \"threshold\" : 6E+1,\n    \"metric\" : \"LINE\",\n    \"baseline\" : \"PROJECT\",\n    \"unstable\" : true\n  }, {\n    \"threshold\" : 6E+1,\n    \"metric\" : \"BRANCH\",\n    \"baseline\" : \"PROJECT\",\n    \"unstable\" : true\n  } ],\n  \"enabledForFailure\" : true,\n  \"id\" : \"jacoco\",\n  \"tools\" : [ {\n    \"parser\" : \"JACOCO\"\n  }, {\n    \"parser\" : \"COBERTURA\",\n    \"pattern\" : \"**/coverage.xml\"\n  } ],\n  \"sourceCodeRetention\" : \"EVERY_BUILD\"\n}",
+    "jenkins.pipeline.step.plugin.name": "coverage",
+    "jenkins.pipeline.step.plugin.version": "1.16.1"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "74da9c1de6070122",
+  "parameterMap": {
+    "sourceCodeRetention": "EVERY_BUILD",
+    "name": "JaCoCo Coverage",
+    "qualityGates": [
+      {
+        "unstable": true,
+        "metric": "LINE",
+        "threshold": 60,
+        "baseline": "PROJECT"
+      },
+      {
+        "unstable": true,
+        "metric": "BRANCH",
+        "threshold": 60,
+        "baseline": "PROJECT"
+      }
+    ],
+    "enabledForFailure": true,
+    "id": "jacoco",
+    "tools": [
+      {"parser": "JACOCO"},
+      {
+        "parser": "COBERTURA",
+        "pattern": "**/coverage.xml"
+      }
+    ]
+  },
+  "spanName": "recordCoverage"
+}

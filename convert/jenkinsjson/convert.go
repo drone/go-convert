@@ -755,6 +755,12 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 	case "cobertura":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertCobertura(currentNode, variables), ID: id})
 
+	case "recordCoverage":
+		stepsList := jenkinsjson.ConvertRecordCoverage(currentNode, variables)
+		for _, step := range stepsList {
+			*stepWithIDList = append(*stepWithIDList, StepWithID{Step: step, ID: id})
+		}
+
 	case "slackSend":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertSlackSend(currentNode, variables), ID: id})
 
