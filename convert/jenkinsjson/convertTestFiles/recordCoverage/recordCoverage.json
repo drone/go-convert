@@ -1,0 +1,1303 @@
+{
+  "traceId": "785103c7208238535c79f3a9ad42a710",
+  "spanId": "f1d1d6052fbb7e4b",
+  "harnessVersion": "2.18.13-SNAPSHOT",
+  "children": [
+    {
+      "spanId": "f2cb42f2aa203329",
+      "traceId": "785103c7208238535c79f3a9ad42a710",
+      "parent": "recordCoverage01",
+      "all-info": "span(name: Phase: Run, spanId: f2cb42f2aa203329, parentSpanId: f1d1d6052fbb7e4b, traceId: 785103c7208238535c79f3a9ad42a710, attr: )",
+      "children": [
+        {
+          "spanId": "00641b3d839c2f20",
+          "traceId": "785103c7208238535c79f3a9ad42a710",
+          "parent": "recordCoverage01",
+          "all-info": "span(name: Agent, spanId: 00641b3d839c2f20, parentSpanId: f2cb42f2aa203329, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1a7a3aed:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1a7a3aed;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@6f68e027:org.jenkinsci.plugins.workflow.actions.TimingAction@6f68e027;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3a79c3a9:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3a79c3a9;harness-others:;jenkins.credentials.id:[org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3a79c3a9, org.jenkinsci.plugins.workflow.actions.TimingAction@6f68e027, io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6b7af7b];jenkins.pipeline.step.id:3;jenkins.pipeline.step.name:agent;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1405.v1fcd4a_d00096;jenkins.pipeline.step.type:node;)",
+          "children": [
+            {
+              "spanId": "9b71b4a3320a9c27",
+              "traceId": "785103c7208238535c79f3a9ad42a710",
+              "parent": "recordCoverage01",
+              "all-info": "span(name: Stage: null, spanId: 9b71b4a3320a9c27, parentSpanId: 00641b3d839c2f20, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute:{\n  \"name\" : \"Declarative: Tool Install\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3d608d98:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3d608d98;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@4f880071:org.jenkinsci.plugins.workflow.actions.TimingAction@4f880071;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@1c18ff8b:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@1c18ff8b;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
+              "children": [
+                {
+                  "spanId": "8067f7288de994e3",
+                  "traceId": "785103c7208238535c79f3a9ad42a710",
+                  "parent": "recordCoverage01",
+                  "all-info": "span(name: Stage: Declarative: Tool Install, spanId: 8067f7288de994e3, parentSpanId: 9b71b4a3320a9c27, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@758728c8:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@758728c8;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6f9686b4:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6f9686b4;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.LabelAction@4243e40c:org.jenkinsci.plugins.workflow.actions.LabelAction@4243e40c;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2e51240b:org.jenkinsci.plugins.workflow.actions.TimingAction@2e51240b;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.id:6;jenkins.pipeline.step.name:Declarative: Tool Install;jenkins.pipeline.step.plugin.name:pipeline-stage-step;jenkins.pipeline.step.plugin.version:312.v8cd10304c27a_;jenkins.pipeline.step.type:stage;)",
+                  "children": [
+                    {
+                      "spanId": "7aa291549d522af1",
+                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                      "parent": "recordCoverage01",
+                      "all-info": "span(name: tool, spanId: 7aa291549d522af1, parentSpanId: 8067f7288de994e3, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"name\" : \"M3\",\n  \"type\" : \"hudson.tasks.Maven$MavenInstallation\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@409d9e8e:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@409d9e8e;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1b0054e7:org.jenkinsci.plugins.workflow.actions.TimingAction@1b0054e7;harness-others:;jenkins.pipeline.step.id:7;jenkins.pipeline.step.name:Use a tool from a predefined Tool Installation;jenkins.pipeline.step.plugin.name:workflow-basic-steps;jenkins.pipeline.step.plugin.version:1079.vce64b_a_929c5a_;jenkins.pipeline.step.type:tool;)",
+                      "name": "recordCoverage01 #4",
+                      "attributesMap": {
+                        "harness-others": "",
+                        "jenkins.pipeline.step.name": "Use a tool from a predefined Tool Installation",
+                        "ci.pipeline.run.user": "SYSTEM",
+                        "jenkins.pipeline.step.id": "7",
+                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1b0054e7": "org.jenkinsci.plugins.workflow.actions.TimingAction@1b0054e7",
+                        "jenkins.pipeline.step.type": "tool",
+                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@409d9e8e": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@409d9e8e",
+                        "harness-attribute": "{\n  \"name\" : \"M3\",\n  \"type\" : \"hudson.tasks.Maven$MavenInstallation\"\n}",
+                        "jenkins.pipeline.step.plugin.name": "workflow-basic-steps",
+                        "jenkins.pipeline.step.plugin.version": "1079.vce64b_a_929c5a_"
+                      },
+                      "type": "Run Phase Span",
+                      "parentSpanId": "8067f7288de994e3",
+                      "parameterMap": {
+                        "name": "M3",
+                        "type": "hudson.tasks.Maven$MavenInstallation"
+                      },
+                      "spanName": "tool"
+                    },
+                    {
+                      "spanId": "45955fbc440e868c",
+                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                      "parent": "recordCoverage01",
+                      "all-info": "span(name: envVarsForTool, spanId: 45955fbc440e868c, parentSpanId: 8067f7288de994e3, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"toolId\" : \"hudson.model.JDK\",\n  \"toolVersion\" : \"jdk8\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@76304941:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@76304941;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@560de8f1:org.jenkinsci.plugins.workflow.actions.TimingAction@560de8f1;harness-others:;jenkins.pipeline.step.id:10;jenkins.pipeline.step.name:Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.;jenkins.pipeline.step.plugin.name:pipeline-model-definition;jenkins.pipeline.step.plugin.version:2.2221.vc657003fb_d93;jenkins.pipeline.step.type:envVarsForTool;)",
+                      "name": "recordCoverage01 #4",
+                      "attributesMap": {
+                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@560de8f1": "org.jenkinsci.plugins.workflow.actions.TimingAction@560de8f1",
+                        "harness-others": "",
+                        "jenkins.pipeline.step.name": "Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.",
+                        "ci.pipeline.run.user": "SYSTEM",
+                        "jenkins.pipeline.step.id": "10",
+                        "jenkins.pipeline.step.type": "envVarsForTool",
+                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@76304941": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@76304941",
+                        "harness-attribute": "{\n  \"toolId\" : \"hudson.model.JDK\",\n  \"toolVersion\" : \"jdk8\"\n}",
+                        "jenkins.pipeline.step.plugin.name": "pipeline-model-definition",
+                        "jenkins.pipeline.step.plugin.version": "2.2221.vc657003fb_d93"
+                      },
+                      "type": "Run Phase Span",
+                      "parentSpanId": "8067f7288de994e3",
+                      "parameterMap": {
+                        "toolId": "hudson.model.JDK",
+                        "toolVersion": "jdk8"
+                      },
+                      "spanName": "envVarsForTool"
+                    },
+                    {
+                      "spanId": "9add83bdc7cfd298",
+                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                      "parent": "recordCoverage01",
+                      "all-info": "span(name: Stage: null, spanId: 9add83bdc7cfd298, parentSpanId: 8067f7288de994e3, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@59df05b3:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@59df05b3;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1f163a2b:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1f163a2b;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@539b1f4e:org.jenkinsci.plugins.workflow.actions.TimingAction@539b1f4e;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
+                      "name": "recordCoverage01 #4",
+                      "attributesMap": {
+                        "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                        "jenkins.pipeline.step.type": "stage",
+                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1f163a2b": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1f163a2b",
+                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@539b1f4e": "org.jenkinsci.plugins.workflow.actions.TimingAction@539b1f4e",
+                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@59df05b3": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@59df05b3"
+                      },
+                      "type": "Run Phase Span",
+                      "parentSpanId": "8067f7288de994e3",
+                      "spanName": "Stage: null"
+                    },
+                    {
+                      "spanId": "b368b4af5b418886",
+                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                      "parent": "recordCoverage01",
+                      "all-info": "span(name: envVarsForTool, spanId: b368b4af5b418886, parentSpanId: 8067f7288de994e3, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"toolId\" : \"hudson.tasks.Maven$MavenInstallation\",\n  \"toolVersion\" : \"M3\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@744fa0f6:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@744fa0f6;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1b91bc1b:org.jenkinsci.plugins.workflow.actions.TimingAction@1b91bc1b;harness-others:;jenkins.pipeline.step.id:8;jenkins.pipeline.step.name:Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.;jenkins.pipeline.step.plugin.name:pipeline-model-definition;jenkins.pipeline.step.plugin.version:2.2221.vc657003fb_d93;jenkins.pipeline.step.type:envVarsForTool;)",
+                      "name": "recordCoverage01 #4",
+                      "attributesMap": {
+                        "harness-others": "",
+                        "jenkins.pipeline.step.name": "Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.",
+                        "ci.pipeline.run.user": "SYSTEM",
+                        "jenkins.pipeline.step.id": "8",
+                        "jenkins.pipeline.step.type": "envVarsForTool",
+                        "harness-attribute": "{\n  \"toolId\" : \"hudson.tasks.Maven$MavenInstallation\",\n  \"toolVersion\" : \"M3\"\n}",
+                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@744fa0f6": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@744fa0f6",
+                        "jenkins.pipeline.step.plugin.name": "pipeline-model-definition",
+                        "jenkins.pipeline.step.plugin.version": "2.2221.vc657003fb_d93",
+                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1b91bc1b": "org.jenkinsci.plugins.workflow.actions.TimingAction@1b91bc1b"
+                      },
+                      "type": "Run Phase Span",
+                      "parentSpanId": "8067f7288de994e3",
+                      "parameterMap": {
+                        "toolId": "hudson.tasks.Maven$MavenInstallation",
+                        "toolVersion": "M3"
+                      },
+                      "spanName": "envVarsForTool"
+                    },
+                    {
+                      "spanId": "948af9e1b6e9eced",
+                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                      "parent": "recordCoverage01",
+                      "all-info": "span(name: tool, spanId: 948af9e1b6e9eced, parentSpanId: 8067f7288de994e3, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"name\" : \"jdk8\",\n  \"type\" : \"hudson.model.JDK\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@57937e63:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@57937e63;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1df053b2:org.jenkinsci.plugins.workflow.actions.TimingAction@1df053b2;harness-others:;jenkins.pipeline.step.id:9;jenkins.pipeline.step.name:Use a tool from a predefined Tool Installation;jenkins.pipeline.step.plugin.name:workflow-basic-steps;jenkins.pipeline.step.plugin.version:1079.vce64b_a_929c5a_;jenkins.pipeline.step.type:tool;)",
+                      "name": "recordCoverage01 #4",
+                      "attributesMap": {
+                        "harness-others": "",
+                        "jenkins.pipeline.step.name": "Use a tool from a predefined Tool Installation",
+                        "ci.pipeline.run.user": "SYSTEM",
+                        "jenkins.pipeline.step.id": "9",
+                        "jenkins.pipeline.step.type": "tool",
+                        "harness-attribute": "{\n  \"name\" : \"jdk8\",\n  \"type\" : \"hudson.model.JDK\"\n}",
+                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@57937e63": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@57937e63",
+                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1df053b2": "org.jenkinsci.plugins.workflow.actions.TimingAction@1df053b2",
+                        "jenkins.pipeline.step.plugin.name": "workflow-basic-steps",
+                        "jenkins.pipeline.step.plugin.version": "1079.vce64b_a_929c5a_"
+                      },
+                      "type": "Run Phase Span",
+                      "parentSpanId": "8067f7288de994e3",
+                      "parameterMap": {
+                        "name": "jdk8",
+                        "type": "hudson.model.JDK"
+                      },
+                      "spanName": "tool"
+                    }
+                  ],
+                  "name": "recordCoverage01 #4",
+                  "attributesMap": {
+                    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@758728c8": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@758728c8",
+                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6f9686b4": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6f9686b4",
+                    "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                    "jenkins.pipeline.step.name": "Declarative: Tool Install",
+                    "jenkins.pipeline.step.id": "6",
+                    "jenkins.pipeline.step.type": "stage",
+                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.LabelAction@4243e40c": "org.jenkinsci.plugins.workflow.actions.LabelAction@4243e40c",
+                    "jenkins.pipeline.step.plugin.name": "pipeline-stage-step",
+                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2e51240b": "org.jenkinsci.plugins.workflow.actions.TimingAction@2e51240b",
+                    "jenkins.pipeline.step.plugin.version": "312.v8cd10304c27a_"
+                  },
+                  "type": "Run Phase Span",
+                  "parentSpanId": "9b71b4a3320a9c27",
+                  "spanName": "Stage: Declarative: Tool Install"
+                },
+                {
+                  "spanId": "d9e253d8a1364ebe",
+                  "traceId": "785103c7208238535c79f3a9ad42a710",
+                  "parent": "recordCoverage01",
+                  "all-info": "span(name: Stage: null, spanId: d9e253d8a1364ebe, parentSpanId: 9b71b4a3320a9c27, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1f355eee:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1f355eee;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@751615f9:org.jenkinsci.plugins.workflow.actions.TimingAction@751615f9;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
+                  "name": "recordCoverage01 #4",
+                  "attributesMap": {
+                    "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                    "jenkins.pipeline.step.type": "stage",
+                    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1f355eee": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1f355eee",
+                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@751615f9": "org.jenkinsci.plugins.workflow.actions.TimingAction@751615f9"
+                  },
+                  "type": "Run Phase Span",
+                  "parentSpanId": "9b71b4a3320a9c27",
+                  "spanName": "Stage: null"
+                }
+              ],
+              "name": "recordCoverage01 #4",
+              "attributesMap": {
+                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@4f880071": "org.jenkinsci.plugins.workflow.actions.TimingAction@4f880071",
+                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@1c18ff8b": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@1c18ff8b",
+                "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                "jenkins.pipeline.step.type": "stage",
+                "harness-attribute": "{\n  \"name\" : \"Declarative: Tool Install\"\n}",
+                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3d608d98": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3d608d98"
+              },
+              "type": "Run Phase Span",
+              "parentSpanId": "00641b3d839c2f20",
+              "parameterMap": {"name": "Declarative: Tool Install"},
+              "spanName": "Stage: null"
+            },
+            {
+              "spanId": "45428d2ce48c8512",
+              "traceId": "785103c7208238535c79f3a9ad42a710",
+              "parent": "recordCoverage01",
+              "all-info": "span(name: Stage: null, spanId: 45428d2ce48c8512, parentSpanId: 00641b3d839c2f20, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7ade56dc:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7ade56dc;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@7e6cd731:org.jenkinsci.plugins.workflow.actions.TimingAction@7e6cd731;harness-others:;jenkins.pipeline.step.type:node;)",
+              "name": "recordCoverage01 #4",
+              "attributesMap": {
+                "harness-others": "",
+                "jenkins.pipeline.step.type": "node",
+                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@7e6cd731": "org.jenkinsci.plugins.workflow.actions.TimingAction@7e6cd731",
+                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7ade56dc": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7ade56dc"
+              },
+              "type": "Run Phase Span",
+              "parentSpanId": "00641b3d839c2f20",
+              "spanName": "Stage: null"
+            },
+            {
+              "spanId": "2cdb503fe277611a",
+              "traceId": "785103c7208238535c79f3a9ad42a710",
+              "parent": "recordCoverage01",
+              "all-info": "span(name: Stage: null, spanId: 2cdb503fe277611a, parentSpanId: 00641b3d839c2f20, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5835f95f:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5835f95f;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@2285a4e4:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@2285a4e4;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@713f221e:org.jenkinsci.plugins.workflow.actions.TimingAction@713f221e;harness-others:;jenkins.pipeline.step.type:node;)",
+              "name": "recordCoverage01 #4",
+              "attributesMap": {
+                "harness-others": "",
+                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@2285a4e4": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@2285a4e4",
+                "jenkins.pipeline.step.type": "node",
+                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@713f221e": "org.jenkinsci.plugins.workflow.actions.TimingAction@713f221e",
+                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5835f95f": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5835f95f"
+              },
+              "type": "Run Phase Span",
+              "parentSpanId": "00641b3d839c2f20",
+              "spanName": "Stage: null"
+            },
+            {
+              "spanId": "7a71189e630a9314",
+              "traceId": "785103c7208238535c79f3a9ad42a710",
+              "parent": "recordCoverage01",
+              "all-info": "span(name: Stage: null, spanId: 7a71189e630a9314, parentSpanId: 00641b3d839c2f20, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute:{\n  \"overrides\" : [ \"M2_HOME=/opt/apache-maven-3.9.6\", \"MAVEN_HOME=/opt/apache-maven-3.9.6\", \"PATH+MAVEN=/opt/apache-maven-3.9.6/bin\", \"JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64\", \"PATH+JDK=/usr/lib/jvm/java-8-openjdk-amd64/bin\" ]\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6e394695:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6e394695;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@62630a71:org.jenkinsci.plugins.workflow.actions.TimingAction@62630a71;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@24c6a64a:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@24c6a64a;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+              "children": [
+                {
+                  "spanId": "2a3e55def32b99f9",
+                  "traceId": "785103c7208238535c79f3a9ad42a710",
+                  "parent": "recordCoverage01",
+                  "all-info": "span(name: Stage: null, spanId: 2a3e55def32b99f9, parentSpanId: 7a71189e630a9314, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@bc6ee6e:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@bc6ee6e;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@26a90e94:org.jenkinsci.plugins.workflow.actions.TimingAction@26a90e94;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                  "name": "recordCoverage01 #4",
+                  "attributesMap": {
+                    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@bc6ee6e": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@bc6ee6e",
+                    "harness-others": "",
+                    "jenkins.pipeline.step.type": "withEnv",
+                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@26a90e94": "org.jenkinsci.plugins.workflow.actions.TimingAction@26a90e94"
+                  },
+                  "type": "Run Phase Span",
+                  "parentSpanId": "7a71189e630a9314",
+                  "spanName": "Stage: null"
+                },
+                {
+                  "spanId": "648991f3b8a9ebc2",
+                  "traceId": "785103c7208238535c79f3a9ad42a710",
+                  "parent": "recordCoverage01",
+                  "all-info": "span(name: Stage: null, spanId: 648991f3b8a9ebc2, parentSpanId: 7a71189e630a9314, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4d49bd62:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4d49bd62;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@641d1521:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@641d1521;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@66c0ebd1:org.jenkinsci.plugins.workflow.actions.TimingAction@66c0ebd1;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                  "children": [
+                    {
+                      "spanId": "86dccd55becc39f7",
+                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                      "parent": "recordCoverage01",
+                      "all-info": "span(name: Stage: null, spanId: 86dccd55becc39f7, parentSpanId: 648991f3b8a9ebc2, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute:{\n  \"name\" : \"Jacoco reports\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@58928b61:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@58928b61;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@fb4f6e2:org.jenkinsci.plugins.workflow.actions.TimingAction@fb4f6e2;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@1357e7bd:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@1357e7bd;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
+                      "children": [
+                        {
+                          "spanId": "95b8b295e82e6569",
+                          "traceId": "785103c7208238535c79f3a9ad42a710",
+                          "parent": "recordCoverage01",
+                          "all-info": "span(name: Stage: null, spanId: 95b8b295e82e6569, parentSpanId: 86dccd55becc39f7, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fb4d83f:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fb4d83f;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@75a1c758:org.jenkinsci.plugins.workflow.actions.TimingAction@75a1c758;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
+                          "name": "recordCoverage01 #4",
+                          "attributesMap": {
+                            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fb4d83f": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fb4d83f",
+                            "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                            "jenkins.pipeline.step.type": "stage",
+                            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@75a1c758": "org.jenkinsci.plugins.workflow.actions.TimingAction@75a1c758"
+                          },
+                          "type": "Run Phase Span",
+                          "parentSpanId": "86dccd55becc39f7",
+                          "spanName": "Stage: null"
+                        },
+                        {
+                          "spanId": "03e48d734a76c346",
+                          "traceId": "785103c7208238535c79f3a9ad42a710",
+                          "parent": "recordCoverage01",
+                          "all-info": "span(name: Stage: Jacoco reports, spanId: 03e48d734a76c346, parentSpanId: 86dccd55becc39f7, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4a64e990:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4a64e990;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1ffc9d62:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1ffc9d62;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.LabelAction@32e5115f:org.jenkinsci.plugins.workflow.actions.LabelAction@32e5115f;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@61b36c3a:org.jenkinsci.plugins.workflow.actions.TimingAction@61b36c3a;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.id:43;jenkins.pipeline.step.name:Jacoco reports;jenkins.pipeline.step.plugin.name:pipeline-stage-step;jenkins.pipeline.step.plugin.version:312.v8cd10304c27a_;jenkins.pipeline.step.type:stage;)",
+                          "children": [
+                            {
+                              "spanId": "b493f14c487b7ff2",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: envVarsForTool, spanId: b493f14c487b7ff2, parentSpanId: 03e48d734a76c346, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"toolId\" : \"hudson.tasks.Maven$MavenInstallation\",\n  \"toolVersion\" : \"M3\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4ab89703:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4ab89703;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1a85eed8:org.jenkinsci.plugins.workflow.actions.TimingAction@1a85eed8;harness-others:;jenkins.pipeline.step.id:45;jenkins.pipeline.step.name:Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.;jenkins.pipeline.step.plugin.name:pipeline-model-definition;jenkins.pipeline.step.plugin.version:2.2221.vc657003fb_d93;jenkins.pipeline.step.type:envVarsForTool;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4ab89703": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4ab89703",
+                                "harness-others": "",
+                                "jenkins.pipeline.step.name": "Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.",
+                                "ci.pipeline.run.user": "SYSTEM",
+                                "jenkins.pipeline.step.id": "45",
+                                "jenkins.pipeline.step.type": "envVarsForTool",
+                                "harness-attribute": "{\n  \"toolId\" : \"hudson.tasks.Maven$MavenInstallation\",\n  \"toolVersion\" : \"M3\"\n}",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1a85eed8": "org.jenkinsci.plugins.workflow.actions.TimingAction@1a85eed8",
+                                "jenkins.pipeline.step.plugin.name": "pipeline-model-definition",
+                                "jenkins.pipeline.step.plugin.version": "2.2221.vc657003fb_d93"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "03e48d734a76c346",
+                              "parameterMap": {
+                                "toolId": "hudson.tasks.Maven$MavenInstallation",
+                                "toolVersion": "M3"
+                              },
+                              "spanName": "envVarsForTool"
+                            },
+                            {
+                              "spanId": "7830501e2105c994",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: Stage: null, spanId: 7830501e2105c994, parentSpanId: 03e48d734a76c346, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute:{\n  \"overrides\" : [ \"M2_HOME=/opt/apache-maven-3.9.6\", \"MAVEN_HOME=/opt/apache-maven-3.9.6\", \"PATH+MAVEN=/opt/apache-maven-3.9.6/bin\", \"JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64\", \"PATH+JDK=/usr/lib/jvm/java-8-openjdk-amd64/bin\" ]\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6d170cb4:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6d170cb4;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@3177f167:org.jenkinsci.plugins.workflow.actions.TimingAction@3177f167;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@65504513:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@65504513;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                              "children": [
+                                {
+                                  "spanId": "9d9c3d01031aceeb",
+                                  "traceId": "785103c7208238535c79f3a9ad42a710",
+                                  "parent": "recordCoverage01",
+                                  "all-info": "span(name: Stage: null, spanId: 9d9c3d01031aceeb, parentSpanId: 7830501e2105c994, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@cd016dc:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@cd016dc;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@456fccc0:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@456fccc0;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@70f571b7:org.jenkinsci.plugins.workflow.actions.TimingAction@70f571b7;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                                  "children": [
+                                    {
+                                      "spanId": "d24a4f1b33d8b8bf",
+                                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                                      "parent": "recordCoverage01",
+                                      "all-info": "span(name: recordCoverage, spanId: d24a4f1b33d8b8bf, parentSpanId: 9d9c3d01031aceeb, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"name\" : \"JaCoCo Coverage\",\n  \"qualityGates\" : [ {\n    \"threshold\" : 6E+1,\n    \"metric\" : \"LINE\",\n    \"baseline\" : \"PROJECT\",\n    \"unstable\" : true\n  }, {\n    \"threshold\" : 6E+1,\n    \"metric\" : \"BRANCH\",\n    \"baseline\" : \"PROJECT\",\n    \"unstable\" : true\n  } ],\n  \"id\" : \"jacoco\",\n  \"tools\" : [ {\n    \"parser\" : \"JACOCO\"\n  }, {\n    \"parser\" : \"COBERTURA\",\n    \"pattern\" : \"**/coverage.xml\"\n  } ],\n  \"sourceCodeRetention\" : \"EVERY_BUILD\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@25ebb96f:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@25ebb96f;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@42e29002:org.jenkinsci.plugins.workflow.actions.TimingAction@42e29002;harness-others:;jenkins.pipeline.step.id:50;jenkins.pipeline.step.name:Record code coverage results;jenkins.pipeline.step.plugin.name:coverage;jenkins.pipeline.step.plugin.version:1.16.1;jenkins.pipeline.step.type:recordCoverage;)",
+                                      "name": "recordCoverage01 #4",
+                                      "attributesMap": {
+                                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@42e29002": "org.jenkinsci.plugins.workflow.actions.TimingAction@42e29002",
+                                        "harness-others": "",
+                                        "jenkins.pipeline.step.name": "Record code coverage results",
+                                        "ci.pipeline.run.user": "SYSTEM",
+                                        "jenkins.pipeline.step.id": "50",
+                                        "jenkins.pipeline.step.type": "recordCoverage",
+                                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@25ebb96f": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@25ebb96f",
+                                        "harness-attribute": "{\n  \"name\" : \"JaCoCo Coverage\",\n  \"qualityGates\" : [ {\n    \"threshold\" : 6E+1,\n    \"metric\" : \"LINE\",\n    \"baseline\" : \"PROJECT\",\n    \"unstable\" : true\n  }, {\n    \"threshold\" : 6E+1,\n    \"metric\" : \"BRANCH\",\n    \"baseline\" : \"PROJECT\",\n    \"unstable\" : true\n  } ],\n  \"id\" : \"jacoco\",\n  \"tools\" : [ {\n    \"parser\" : \"JACOCO\"\n  }, {\n    \"parser\" : \"COBERTURA\",\n    \"pattern\" : \"**/coverage.xml\"\n  } ],\n  \"sourceCodeRetention\" : \"EVERY_BUILD\"\n}",
+                                        "jenkins.pipeline.step.plugin.name": "coverage",
+                                        "jenkins.pipeline.step.plugin.version": "1.16.1"
+                                      },
+                                      "type": "Run Phase Span",
+                                      "parentSpanId": "9d9c3d01031aceeb",
+                                      "parameterMap": {
+                                        "sourceCodeRetention": "EVERY_BUILD",
+                                        "name": "JaCoCo Coverage",
+                                        "qualityGates": [
+                                          {
+                                            "unstable": true,
+                                            "metric": "LINE",
+                                            "threshold": 60,
+                                            "baseline": "PROJECT"
+                                          },
+                                          {
+                                            "unstable": true,
+                                            "metric": "BRANCH",
+                                            "threshold": 60,
+                                            "baseline": "PROJECT"
+                                          }
+                                        ],
+                                        "id": "jacoco",
+                                        "tools": [
+                                          {"parser": "JACOCO"},
+                                          {
+                                            "parser": "COBERTURA",
+                                            "pattern": "**/coverage.xml"
+                                          }
+                                        ]
+                                      },
+                                      "spanName": "recordCoverage"
+                                    },
+                                    {
+                                      "spanId": "3dde06d26a4f9dd4",
+                                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                                      "parent": "recordCoverage01",
+                                      "all-info": "span(name: Stage: null, spanId: 3dde06d26a4f9dd4, parentSpanId: 9d9c3d01031aceeb, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2300da2f:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2300da2f;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@155ea78d:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@155ea78d;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@7ccb674d:org.jenkinsci.plugins.workflow.actions.TimingAction@7ccb674d;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                                      "name": "recordCoverage01 #4",
+                                      "attributesMap": {
+                                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@155ea78d": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@155ea78d",
+                                        "harness-others": "",
+                                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@7ccb674d": "org.jenkinsci.plugins.workflow.actions.TimingAction@7ccb674d",
+                                        "jenkins.pipeline.step.type": "withEnv",
+                                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2300da2f": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2300da2f"
+                                      },
+                                      "type": "Run Phase Span",
+                                      "parentSpanId": "9d9c3d01031aceeb",
+                                      "spanName": "Stage: null"
+                                    }
+                                  ],
+                                  "name": "recordCoverage01 #4",
+                                  "attributesMap": {
+                                    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@cd016dc": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@cd016dc",
+                                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@456fccc0": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@456fccc0",
+                                    "harness-others": "",
+                                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@70f571b7": "org.jenkinsci.plugins.workflow.actions.TimingAction@70f571b7",
+                                    "jenkins.pipeline.step.type": "withEnv"
+                                  },
+                                  "type": "Run Phase Span",
+                                  "parentSpanId": "7830501e2105c994",
+                                  "spanName": "Stage: null"
+                                },
+                                {
+                                  "spanId": "315b22f41b9e9592",
+                                  "traceId": "785103c7208238535c79f3a9ad42a710",
+                                  "parent": "recordCoverage01",
+                                  "all-info": "span(name: Stage: null, spanId: 315b22f41b9e9592, parentSpanId: 7830501e2105c994, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7c204281:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7c204281;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@4f4377fc:org.jenkinsci.plugins.workflow.actions.TimingAction@4f4377fc;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                                  "name": "recordCoverage01 #4",
+                                  "attributesMap": {
+                                    "harness-others": "",
+                                    "jenkins.pipeline.step.type": "withEnv",
+                                    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7c204281": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7c204281",
+                                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@4f4377fc": "org.jenkinsci.plugins.workflow.actions.TimingAction@4f4377fc"
+                                  },
+                                  "type": "Run Phase Span",
+                                  "parentSpanId": "7830501e2105c994",
+                                  "spanName": "Stage: null"
+                                }
+                              ],
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6d170cb4": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6d170cb4",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@3177f167": "org.jenkinsci.plugins.workflow.actions.TimingAction@3177f167",
+                                "harness-others": "",
+                                "jenkins.pipeline.step.type": "withEnv",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@65504513": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@65504513",
+                                "harness-attribute": "{\n  \"overrides\" : [ \"M2_HOME=/opt/apache-maven-3.9.6\", \"MAVEN_HOME=/opt/apache-maven-3.9.6\", \"PATH+MAVEN=/opt/apache-maven-3.9.6/bin\", \"JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64\", \"PATH+JDK=/usr/lib/jvm/java-8-openjdk-amd64/bin\" ]\n}"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "03e48d734a76c346",
+                              "parameterMap": {"overrides": [
+                                "M2_HOME=/opt/apache-maven-3.9.6",
+                                "MAVEN_HOME=/opt/apache-maven-3.9.6",
+                                "PATH+MAVEN=/opt/apache-maven-3.9.6/bin",
+                                "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64",
+                                "PATH+JDK=/usr/lib/jvm/java-8-openjdk-amd64/bin"
+                              ]},
+                              "spanName": "Stage: null"
+                            },
+                            {
+                              "spanId": "f04b4d0346c24a80",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: tool, spanId: f04b4d0346c24a80, parentSpanId: 03e48d734a76c346, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"name\" : \"M3\",\n  \"type\" : \"hudson.tasks.Maven$MavenInstallation\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fc1179c:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fc1179c;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@301b5baf:org.jenkinsci.plugins.workflow.actions.TimingAction@301b5baf;harness-others:;jenkins.pipeline.step.id:44;jenkins.pipeline.step.name:Use a tool from a predefined Tool Installation;jenkins.pipeline.step.plugin.name:workflow-basic-steps;jenkins.pipeline.step.plugin.version:1079.vce64b_a_929c5a_;jenkins.pipeline.step.type:tool;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fc1179c": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fc1179c",
+                                "harness-others": "",
+                                "jenkins.pipeline.step.name": "Use a tool from a predefined Tool Installation",
+                                "ci.pipeline.run.user": "SYSTEM",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@301b5baf": "org.jenkinsci.plugins.workflow.actions.TimingAction@301b5baf",
+                                "jenkins.pipeline.step.id": "44",
+                                "jenkins.pipeline.step.type": "tool",
+                                "harness-attribute": "{\n  \"name\" : \"M3\",\n  \"type\" : \"hudson.tasks.Maven$MavenInstallation\"\n}",
+                                "jenkins.pipeline.step.plugin.name": "workflow-basic-steps",
+                                "jenkins.pipeline.step.plugin.version": "1079.vce64b_a_929c5a_"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "03e48d734a76c346",
+                              "parameterMap": {
+                                "name": "M3",
+                                "type": "hudson.tasks.Maven$MavenInstallation"
+                              },
+                              "spanName": "tool"
+                            },
+                            {
+                              "spanId": "130ae80d21438de3",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: Stage: null, spanId: 130ae80d21438de3, parentSpanId: 03e48d734a76c346, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2d7fd0ad:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2d7fd0ad;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@33d3e04d:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@33d3e04d;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@95d1af4:org.jenkinsci.plugins.workflow.actions.TimingAction@95d1af4;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2d7fd0ad": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2d7fd0ad",
+                                "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@33d3e04d": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@33d3e04d",
+                                "jenkins.pipeline.step.type": "stage",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@95d1af4": "org.jenkinsci.plugins.workflow.actions.TimingAction@95d1af4"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "03e48d734a76c346",
+                              "spanName": "Stage: null"
+                            },
+                            {
+                              "spanId": "5a203acff274ca81",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: tool, spanId: 5a203acff274ca81, parentSpanId: 03e48d734a76c346, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"name\" : \"jdk8\",\n  \"type\" : \"hudson.model.JDK\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@19c0ad31:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@19c0ad31;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@301022ef:org.jenkinsci.plugins.workflow.actions.TimingAction@301022ef;harness-others:;jenkins.pipeline.step.id:46;jenkins.pipeline.step.name:Use a tool from a predefined Tool Installation;jenkins.pipeline.step.plugin.name:workflow-basic-steps;jenkins.pipeline.step.plugin.version:1079.vce64b_a_929c5a_;jenkins.pipeline.step.type:tool;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-others": "",
+                                "jenkins.pipeline.step.name": "Use a tool from a predefined Tool Installation",
+                                "ci.pipeline.run.user": "SYSTEM",
+                                "jenkins.pipeline.step.id": "46",
+                                "jenkins.pipeline.step.type": "tool",
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@19c0ad31": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@19c0ad31",
+                                "harness-attribute": "{\n  \"name\" : \"jdk8\",\n  \"type\" : \"hudson.model.JDK\"\n}",
+                                "jenkins.pipeline.step.plugin.name": "workflow-basic-steps",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@301022ef": "org.jenkinsci.plugins.workflow.actions.TimingAction@301022ef",
+                                "jenkins.pipeline.step.plugin.version": "1079.vce64b_a_929c5a_"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "03e48d734a76c346",
+                              "parameterMap": {
+                                "name": "jdk8",
+                                "type": "hudson.model.JDK"
+                              },
+                              "spanName": "tool"
+                            },
+                            {
+                              "spanId": "0f0331ffba7a6609",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: envVarsForTool, spanId: 0f0331ffba7a6609, parentSpanId: 03e48d734a76c346, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"toolId\" : \"hudson.model.JDK\",\n  \"toolVersion\" : \"jdk8\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3ff480ab:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3ff480ab;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@488b214:org.jenkinsci.plugins.workflow.actions.TimingAction@488b214;harness-others:;jenkins.pipeline.step.id:47;jenkins.pipeline.step.name:Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.;jenkins.pipeline.step.plugin.name:pipeline-model-definition;jenkins.pipeline.step.plugin.version:2.2221.vc657003fb_d93;jenkins.pipeline.step.type:envVarsForTool;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-others": "",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@488b214": "org.jenkinsci.plugins.workflow.actions.TimingAction@488b214",
+                                "jenkins.pipeline.step.name": "Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.",
+                                "ci.pipeline.run.user": "SYSTEM",
+                                "jenkins.pipeline.step.id": "47",
+                                "jenkins.pipeline.step.type": "envVarsForTool",
+                                "harness-attribute": "{\n  \"toolId\" : \"hudson.model.JDK\",\n  \"toolVersion\" : \"jdk8\"\n}",
+                                "jenkins.pipeline.step.plugin.name": "pipeline-model-definition",
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3ff480ab": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3ff480ab",
+                                "jenkins.pipeline.step.plugin.version": "2.2221.vc657003fb_d93"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "03e48d734a76c346",
+                              "parameterMap": {
+                                "toolId": "hudson.model.JDK",
+                                "toolVersion": "jdk8"
+                              },
+                              "spanName": "envVarsForTool"
+                            }
+                          ],
+                          "name": "recordCoverage01 #4",
+                          "attributesMap": {
+                            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1ffc9d62": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1ffc9d62",
+                            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4a64e990": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4a64e990",
+                            "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                            "jenkins.pipeline.step.name": "Jacoco reports",
+                            "jenkins.pipeline.step.id": "43",
+                            "jenkins.pipeline.step.type": "stage",
+                            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@61b36c3a": "org.jenkinsci.plugins.workflow.actions.TimingAction@61b36c3a",
+                            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.LabelAction@32e5115f": "org.jenkinsci.plugins.workflow.actions.LabelAction@32e5115f",
+                            "jenkins.pipeline.step.plugin.name": "pipeline-stage-step",
+                            "jenkins.pipeline.step.plugin.version": "312.v8cd10304c27a_"
+                          },
+                          "type": "Run Phase Span",
+                          "parentSpanId": "86dccd55becc39f7",
+                          "spanName": "Stage: Jacoco reports"
+                        }
+                      ],
+                      "name": "recordCoverage01 #4",
+                      "attributesMap": {
+                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@fb4f6e2": "org.jenkinsci.plugins.workflow.actions.TimingAction@fb4f6e2",
+                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@1357e7bd": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@1357e7bd",
+                        "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                        "jenkins.pipeline.step.type": "stage",
+                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@58928b61": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@58928b61",
+                        "harness-attribute": "{\n  \"name\" : \"Jacoco reports\"\n}"
+                      },
+                      "type": "Run Phase Span",
+                      "parentSpanId": "648991f3b8a9ebc2",
+                      "parameterMap": {"name": "Jacoco reports"},
+                      "spanName": "Stage: null"
+                    },
+                    {
+                      "spanId": "6ce4dfda3a064a31",
+                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                      "parent": "recordCoverage01",
+                      "all-info": "span(name: Stage: null, spanId: 6ce4dfda3a064a31, parentSpanId: 648991f3b8a9ebc2, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute:{\n  \"name\" : \"maven build\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a8a097e:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a8a097e;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@6d8728e9:org.jenkinsci.plugins.workflow.actions.TimingAction@6d8728e9;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@19621f31:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@19621f31;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
+                      "children": [
+                        {
+                          "spanId": "ce2e50570ef4c2b5",
+                          "traceId": "785103c7208238535c79f3a9ad42a710",
+                          "parent": "recordCoverage01",
+                          "all-info": "span(name: Stage: maven build, spanId: ce2e50570ef4c2b5, parentSpanId: 6ce4dfda3a064a31, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3834f15d:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3834f15d;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@36abab2a:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@36abab2a;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.LabelAction@710d654e:org.jenkinsci.plugins.workflow.actions.LabelAction@710d654e;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@50b4deb:org.jenkinsci.plugins.workflow.actions.TimingAction@50b4deb;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.id:29;jenkins.pipeline.step.name:maven build;jenkins.pipeline.step.plugin.name:pipeline-stage-step;jenkins.pipeline.step.plugin.version:312.v8cd10304c27a_;jenkins.pipeline.step.type:stage;)",
+                          "children": [
+                            {
+                              "spanId": "0dbb071d1fe40b4f",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: tool, spanId: 0dbb071d1fe40b4f, parentSpanId: ce2e50570ef4c2b5, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"name\" : \"M3\",\n  \"type\" : \"hudson.tasks.Maven$MavenInstallation\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@23a07b0d:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@23a07b0d;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@60207f4c:org.jenkinsci.plugins.workflow.actions.TimingAction@60207f4c;harness-others:;jenkins.pipeline.step.id:30;jenkins.pipeline.step.name:Use a tool from a predefined Tool Installation;jenkins.pipeline.step.plugin.name:workflow-basic-steps;jenkins.pipeline.step.plugin.version:1079.vce64b_a_929c5a_;jenkins.pipeline.step.type:tool;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@60207f4c": "org.jenkinsci.plugins.workflow.actions.TimingAction@60207f4c",
+                                "harness-others": "",
+                                "jenkins.pipeline.step.name": "Use a tool from a predefined Tool Installation",
+                                "ci.pipeline.run.user": "SYSTEM",
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@23a07b0d": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@23a07b0d",
+                                "jenkins.pipeline.step.id": "30",
+                                "jenkins.pipeline.step.type": "tool",
+                                "harness-attribute": "{\n  \"name\" : \"M3\",\n  \"type\" : \"hudson.tasks.Maven$MavenInstallation\"\n}",
+                                "jenkins.pipeline.step.plugin.name": "workflow-basic-steps",
+                                "jenkins.pipeline.step.plugin.version": "1079.vce64b_a_929c5a_"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "ce2e50570ef4c2b5",
+                              "parameterMap": {
+                                "name": "M3",
+                                "type": "hudson.tasks.Maven$MavenInstallation"
+                              },
+                              "spanName": "tool"
+                            },
+                            {
+                              "spanId": "c975f5c8518ed032",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: envVarsForTool, spanId: c975f5c8518ed032, parentSpanId: ce2e50570ef4c2b5, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"toolId\" : \"hudson.tasks.Maven$MavenInstallation\",\n  \"toolVersion\" : \"M3\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@65238581:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@65238581;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@14e23407:org.jenkinsci.plugins.workflow.actions.TimingAction@14e23407;harness-others:;jenkins.pipeline.step.id:31;jenkins.pipeline.step.name:Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.;jenkins.pipeline.step.plugin.name:pipeline-model-definition;jenkins.pipeline.step.plugin.version:2.2221.vc657003fb_d93;jenkins.pipeline.step.type:envVarsForTool;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@65238581": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@65238581",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@14e23407": "org.jenkinsci.plugins.workflow.actions.TimingAction@14e23407",
+                                "harness-others": "",
+                                "jenkins.pipeline.step.name": "Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.",
+                                "ci.pipeline.run.user": "SYSTEM",
+                                "jenkins.pipeline.step.id": "31",
+                                "jenkins.pipeline.step.type": "envVarsForTool",
+                                "harness-attribute": "{\n  \"toolId\" : \"hudson.tasks.Maven$MavenInstallation\",\n  \"toolVersion\" : \"M3\"\n}",
+                                "jenkins.pipeline.step.plugin.name": "pipeline-model-definition",
+                                "jenkins.pipeline.step.plugin.version": "2.2221.vc657003fb_d93"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "ce2e50570ef4c2b5",
+                              "parameterMap": {
+                                "toolId": "hudson.tasks.Maven$MavenInstallation",
+                                "toolVersion": "M3"
+                              },
+                              "spanName": "envVarsForTool"
+                            },
+                            {
+                              "spanId": "2bce4cb08e7019cd",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: Stage: null, spanId: 2bce4cb08e7019cd, parentSpanId: ce2e50570ef4c2b5, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute:{\n  \"overrides\" : [ \"M2_HOME=/opt/apache-maven-3.9.6\", \"MAVEN_HOME=/opt/apache-maven-3.9.6\", \"PATH+MAVEN=/opt/apache-maven-3.9.6/bin\", \"JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64\", \"PATH+JDK=/usr/lib/jvm/java-8-openjdk-amd64/bin\" ]\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@27c7ae40:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@27c7ae40;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@89c3b80:org.jenkinsci.plugins.workflow.actions.TimingAction@89c3b80;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@26dc9bb4:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@26dc9bb4;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                              "children": [
+                                {
+                                  "spanId": "eb5eefb9ae3435ee",
+                                  "traceId": "785103c7208238535c79f3a9ad42a710",
+                                  "parent": "recordCoverage01",
+                                  "all-info": "span(name: Stage: null, spanId: eb5eefb9ae3435ee, parentSpanId: 2bce4cb08e7019cd, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@37daaadc:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@37daaadc;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6b6e1650:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6b6e1650;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1bf274c1:org.jenkinsci.plugins.workflow.actions.TimingAction@1bf274c1;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                                  "children": [
+                                    {
+                                      "spanId": "90816d845e7a3808",
+                                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                                      "parent": "recordCoverage01",
+                                      "all-info": "span(name: sh, spanId: 90816d845e7a3808, parentSpanId: eb5eefb9ae3435ee, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"script\" : \"mvn clean verify org.jacoco:jacoco-maven-plugin:prepare-agent package jacoco:report\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@ed2d5e2:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@ed2d5e2;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@281a424c:org.jenkinsci.plugins.workflow.actions.TimingAction@281a424c;harness-others:-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long;jenkins.pipeline.step.id:36;jenkins.pipeline.step.name:Shell Script;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1405.v1fcd4a_d00096;jenkins.pipeline.step.type:sh;)",
+                                      "name": "recordCoverage01 #4",
+                                      "attributesMap": {
+                                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@ed2d5e2": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@ed2d5e2",
+                                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@281a424c": "org.jenkinsci.plugins.workflow.actions.TimingAction@281a424c",
+                                        "harness-others": "-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long",
+                                        "jenkins.pipeline.step.name": "Shell Script",
+                                        "ci.pipeline.run.user": "SYSTEM",
+                                        "jenkins.pipeline.step.id": "36",
+                                        "jenkins.pipeline.step.type": "sh",
+                                        "harness-attribute": "{\n  \"script\" : \"mvn clean verify org.jacoco:jacoco-maven-plugin:prepare-agent package jacoco:report\"\n}",
+                                        "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
+                                        "jenkins.pipeline.step.plugin.version": "1405.v1fcd4a_d00096"
+                                      },
+                                      "type": "Run Phase Span",
+                                      "parentSpanId": "eb5eefb9ae3435ee",
+                                      "parameterMap": {"script": "mvn clean verify org.jacoco:jacoco-maven-plugin:prepare-agent package jacoco:report"},
+                                      "spanName": "sh"
+                                    },
+                                    {
+                                      "spanId": "25983f7f102b5e79",
+                                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                                      "parent": "recordCoverage01",
+                                      "all-info": "span(name: Stage: null, spanId: 25983f7f102b5e79, parentSpanId: eb5eefb9ae3435ee, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@70bacc22:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@70bacc22;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@23322d13:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@23322d13;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@7bd82366:org.jenkinsci.plugins.workflow.actions.TimingAction@7bd82366;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                                      "name": "recordCoverage01 #4",
+                                      "attributesMap": {
+                                        "harness-others": "",
+                                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@7bd82366": "org.jenkinsci.plugins.workflow.actions.TimingAction@7bd82366",
+                                        "jenkins.pipeline.step.type": "withEnv",
+                                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@70bacc22": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@70bacc22",
+                                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@23322d13": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@23322d13"
+                                      },
+                                      "type": "Run Phase Span",
+                                      "parentSpanId": "eb5eefb9ae3435ee",
+                                      "spanName": "Stage: null"
+                                    },
+                                    {
+                                      "spanId": "607b340f47e5da72",
+                                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                                      "parent": "recordCoverage01",
+                                      "all-info": "span(name: sh, spanId: 607b340f47e5da72, parentSpanId: eb5eefb9ae3435ee, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"script\" : \"curl https://raw.githubusercontent.com/jenkinsci/cobertura-plugin/ff0973461f60c28dbc0bf5ab4853a5aec4798210/src/test/resources/hudson/plugins/cobertura/coverage-with-lots-of-data.xml > coverage.xml\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fef8c62:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fef8c62;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@5f26ce03:org.jenkinsci.plugins.workflow.actions.TimingAction@5f26ce03;harness-others:-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long;jenkins.pipeline.step.id:37;jenkins.pipeline.step.name:Shell Script;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1405.v1fcd4a_d00096;jenkins.pipeline.step.type:sh;)",
+                                      "name": "recordCoverage01 #4",
+                                      "attributesMap": {
+                                        "harness-others": "-WATCHING_RECURRENCE_PERIOD-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep WATCHING_RECURRENCE_PERIOD-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.WATCHING_RECURRENCE_PERIOD-long-USE_WATCHING-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep USE_WATCHING-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.USE_WATCHING-boolean-REMOTE_TIMEOUT-staticField org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep REMOTE_TIMEOUT-org.jenkinsci.plugins.workflow.steps.durable_task.DurableTaskStep.REMOTE_TIMEOUT-long",
+                                        "jenkins.pipeline.step.name": "Shell Script",
+                                        "ci.pipeline.run.user": "SYSTEM",
+                                        "jenkins.pipeline.step.id": "37",
+                                        "jenkins.pipeline.step.type": "sh",
+                                        "harness-attribute": "{\n  \"script\" : \"curl https://raw.githubusercontent.com/jenkinsci/cobertura-plugin/ff0973461f60c28dbc0bf5ab4853a5aec4798210/src/test/resources/hudson/plugins/cobertura/coverage-with-lots-of-data.xml > coverage.xml\"\n}",
+                                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fef8c62": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2fef8c62",
+                                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@5f26ce03": "org.jenkinsci.plugins.workflow.actions.TimingAction@5f26ce03",
+                                        "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
+                                        "jenkins.pipeline.step.plugin.version": "1405.v1fcd4a_d00096"
+                                      },
+                                      "type": "Run Phase Span",
+                                      "parentSpanId": "eb5eefb9ae3435ee",
+                                      "parameterMap": {"script": "curl https://raw.githubusercontent.com/jenkinsci/cobertura-plugin/ff0973461f60c28dbc0bf5ab4853a5aec4798210/src/test/resources/hudson/plugins/cobertura/coverage-with-lots-of-data.xml > coverage.xml"},
+                                      "spanName": "sh"
+                                    }
+                                  ],
+                                  "name": "recordCoverage01 #4",
+                                  "attributesMap": {
+                                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6b6e1650": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6b6e1650",
+                                    "harness-others": "",
+                                    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@37daaadc": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@37daaadc",
+                                    "jenkins.pipeline.step.type": "withEnv",
+                                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1bf274c1": "org.jenkinsci.plugins.workflow.actions.TimingAction@1bf274c1"
+                                  },
+                                  "type": "Run Phase Span",
+                                  "parentSpanId": "2bce4cb08e7019cd",
+                                  "spanName": "Stage: null"
+                                },
+                                {
+                                  "spanId": "f14b59bda77eac65",
+                                  "traceId": "785103c7208238535c79f3a9ad42a710",
+                                  "parent": "recordCoverage01",
+                                  "all-info": "span(name: Stage: null, spanId: f14b59bda77eac65, parentSpanId: 2bce4cb08e7019cd, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@576691f0:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@576691f0;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@591d6b03:org.jenkinsci.plugins.workflow.actions.TimingAction@591d6b03;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                                  "name": "recordCoverage01 #4",
+                                  "attributesMap": {
+                                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@591d6b03": "org.jenkinsci.plugins.workflow.actions.TimingAction@591d6b03",
+                                    "harness-others": "",
+                                    "jenkins.pipeline.step.type": "withEnv",
+                                    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@576691f0": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@576691f0"
+                                  },
+                                  "type": "Run Phase Span",
+                                  "parentSpanId": "2bce4cb08e7019cd",
+                                  "spanName": "Stage: null"
+                                }
+                              ],
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@27c7ae40": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@27c7ae40",
+                                "harness-others": "",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@26dc9bb4": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@26dc9bb4",
+                                "jenkins.pipeline.step.type": "withEnv",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@89c3b80": "org.jenkinsci.plugins.workflow.actions.TimingAction@89c3b80",
+                                "harness-attribute": "{\n  \"overrides\" : [ \"M2_HOME=/opt/apache-maven-3.9.6\", \"MAVEN_HOME=/opt/apache-maven-3.9.6\", \"PATH+MAVEN=/opt/apache-maven-3.9.6/bin\", \"JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64\", \"PATH+JDK=/usr/lib/jvm/java-8-openjdk-amd64/bin\" ]\n}"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "ce2e50570ef4c2b5",
+                              "parameterMap": {"overrides": [
+                                "M2_HOME=/opt/apache-maven-3.9.6",
+                                "MAVEN_HOME=/opt/apache-maven-3.9.6",
+                                "PATH+MAVEN=/opt/apache-maven-3.9.6/bin",
+                                "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64",
+                                "PATH+JDK=/usr/lib/jvm/java-8-openjdk-amd64/bin"
+                              ]},
+                              "spanName": "Stage: null"
+                            },
+                            {
+                              "spanId": "f4f0521f8d108402",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: tool, spanId: f4f0521f8d108402, parentSpanId: ce2e50570ef4c2b5, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"name\" : \"jdk8\",\n  \"type\" : \"hudson.model.JDK\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4b0af497:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4b0af497;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1f1a441f:org.jenkinsci.plugins.workflow.actions.TimingAction@1f1a441f;harness-others:;jenkins.pipeline.step.id:32;jenkins.pipeline.step.name:Use a tool from a predefined Tool Installation;jenkins.pipeline.step.plugin.name:workflow-basic-steps;jenkins.pipeline.step.plugin.version:1079.vce64b_a_929c5a_;jenkins.pipeline.step.type:tool;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4b0af497": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4b0af497",
+                                "harness-others": "",
+                                "jenkins.pipeline.step.name": "Use a tool from a predefined Tool Installation",
+                                "ci.pipeline.run.user": "SYSTEM",
+                                "jenkins.pipeline.step.id": "32",
+                                "jenkins.pipeline.step.type": "tool",
+                                "harness-attribute": "{\n  \"name\" : \"jdk8\",\n  \"type\" : \"hudson.model.JDK\"\n}",
+                                "jenkins.pipeline.step.plugin.name": "workflow-basic-steps",
+                                "jenkins.pipeline.step.plugin.version": "1079.vce64b_a_929c5a_",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1f1a441f": "org.jenkinsci.plugins.workflow.actions.TimingAction@1f1a441f"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "ce2e50570ef4c2b5",
+                              "parameterMap": {
+                                "name": "jdk8",
+                                "type": "hudson.model.JDK"
+                              },
+                              "spanName": "tool"
+                            },
+                            {
+                              "spanId": "62383666dfe21a5d",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: envVarsForTool, spanId: 62383666dfe21a5d, parentSpanId: ce2e50570ef4c2b5, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"toolId\" : \"hudson.model.JDK\",\n  \"toolVersion\" : \"jdk8\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@25b84e11:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@25b84e11;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2dd19497:org.jenkinsci.plugins.workflow.actions.TimingAction@2dd19497;harness-others:;jenkins.pipeline.step.id:33;jenkins.pipeline.step.name:Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.;jenkins.pipeline.step.plugin.name:pipeline-model-definition;jenkins.pipeline.step.plugin.version:2.2221.vc657003fb_d93;jenkins.pipeline.step.type:envVarsForTool;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-others": "",
+                                "jenkins.pipeline.step.name": "Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.",
+                                "ci.pipeline.run.user": "SYSTEM",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2dd19497": "org.jenkinsci.plugins.workflow.actions.TimingAction@2dd19497",
+                                "jenkins.pipeline.step.id": "33",
+                                "jenkins.pipeline.step.type": "envVarsForTool",
+                                "harness-attribute": "{\n  \"toolId\" : \"hudson.model.JDK\",\n  \"toolVersion\" : \"jdk8\"\n}",
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@25b84e11": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@25b84e11",
+                                "jenkins.pipeline.step.plugin.name": "pipeline-model-definition",
+                                "jenkins.pipeline.step.plugin.version": "2.2221.vc657003fb_d93"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "ce2e50570ef4c2b5",
+                              "parameterMap": {
+                                "toolId": "hudson.model.JDK",
+                                "toolVersion": "jdk8"
+                              },
+                              "spanName": "envVarsForTool"
+                            },
+                            {
+                              "spanId": "36a92b38667fd53e",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: Stage: null, spanId: 36a92b38667fd53e, parentSpanId: ce2e50570ef4c2b5, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@31c65d8f:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@31c65d8f;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6d379782:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6d379782;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@222ea82:org.jenkinsci.plugins.workflow.actions.TimingAction@222ea82;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@31c65d8f": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@31c65d8f",
+                                "jenkins.pipeline.step.type": "stage",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6d379782": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6d379782",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@222ea82": "org.jenkinsci.plugins.workflow.actions.TimingAction@222ea82"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "ce2e50570ef4c2b5",
+                              "spanName": "Stage: null"
+                            }
+                          ],
+                          "name": "recordCoverage01 #4",
+                          "attributesMap": {
+                            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@50b4deb": "org.jenkinsci.plugins.workflow.actions.TimingAction@50b4deb",
+                            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.LabelAction@710d654e": "org.jenkinsci.plugins.workflow.actions.LabelAction@710d654e",
+                            "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3834f15d": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@3834f15d",
+                            "jenkins.pipeline.step.name": "maven build",
+                            "jenkins.pipeline.step.id": "29",
+                            "jenkins.pipeline.step.type": "stage",
+                            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@36abab2a": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@36abab2a",
+                            "jenkins.pipeline.step.plugin.name": "pipeline-stage-step",
+                            "jenkins.pipeline.step.plugin.version": "312.v8cd10304c27a_"
+                          },
+                          "type": "Run Phase Span",
+                          "parentSpanId": "6ce4dfda3a064a31",
+                          "spanName": "Stage: maven build"
+                        },
+                        {
+                          "spanId": "b875feaf067a1c00",
+                          "traceId": "785103c7208238535c79f3a9ad42a710",
+                          "parent": "recordCoverage01",
+                          "all-info": "span(name: Stage: null, spanId: b875feaf067a1c00, parentSpanId: 6ce4dfda3a064a31, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@72692dab:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@72692dab;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@58fb346d:org.jenkinsci.plugins.workflow.actions.TimingAction@58fb346d;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
+                          "name": "recordCoverage01 #4",
+                          "attributesMap": {
+                            "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@58fb346d": "org.jenkinsci.plugins.workflow.actions.TimingAction@58fb346d",
+                            "jenkins.pipeline.step.type": "stage",
+                            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@72692dab": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@72692dab"
+                          },
+                          "type": "Run Phase Span",
+                          "parentSpanId": "6ce4dfda3a064a31",
+                          "spanName": "Stage: null"
+                        }
+                      ],
+                      "name": "recordCoverage01 #4",
+                      "attributesMap": {
+                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@6d8728e9": "org.jenkinsci.plugins.workflow.actions.TimingAction@6d8728e9",
+                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@19621f31": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@19621f31",
+                        "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                        "jenkins.pipeline.step.type": "stage",
+                        "harness-attribute": "{\n  \"name\" : \"maven build\"\n}",
+                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a8a097e": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a8a097e"
+                      },
+                      "type": "Run Phase Span",
+                      "parentSpanId": "648991f3b8a9ebc2",
+                      "parameterMap": {"name": "maven build"},
+                      "spanName": "Stage: null"
+                    },
+                    {
+                      "spanId": "6ac1f4aea1850bc5",
+                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                      "parent": "recordCoverage01",
+                      "all-info": "span(name: Stage: null, spanId: 6ac1f4aea1850bc5, parentSpanId: 648991f3b8a9ebc2, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6b1c7ee9:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6b1c7ee9;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@798ab0e8:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@798ab0e8;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@4720e261:org.jenkinsci.plugins.workflow.actions.TimingAction@4720e261;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                      "name": "recordCoverage01 #4",
+                      "attributesMap": {
+                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@798ab0e8": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@798ab0e8",
+                        "harness-others": "",
+                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@4720e261": "org.jenkinsci.plugins.workflow.actions.TimingAction@4720e261",
+                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6b1c7ee9": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6b1c7ee9",
+                        "jenkins.pipeline.step.type": "withEnv"
+                      },
+                      "type": "Run Phase Span",
+                      "parentSpanId": "648991f3b8a9ebc2",
+                      "spanName": "Stage: null"
+                    },
+                    {
+                      "spanId": "7d31b740a4f22e49",
+                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                      "parent": "recordCoverage01",
+                      "all-info": "span(name: Stage: null, spanId: 7d31b740a4f22e49, parentSpanId: 648991f3b8a9ebc2, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute:{\n  \"name\" : \"checkout scm\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7f4328c1:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7f4328c1;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@22465c3b:org.jenkinsci.plugins.workflow.actions.TimingAction@22465c3b;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@48026a90:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@48026a90;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
+                      "children": [
+                        {
+                          "spanId": "3db3b5edfd7584b9",
+                          "traceId": "785103c7208238535c79f3a9ad42a710",
+                          "parent": "recordCoverage01",
+                          "all-info": "span(name: Stage: checkout scm, spanId: 3db3b5edfd7584b9, parentSpanId: 7d31b740a4f22e49, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@494c5fab:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@494c5fab;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6fba03aa:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6fba03aa;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.LabelAction@24502ac0:org.jenkinsci.plugins.workflow.actions.LabelAction@24502ac0;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@735ca155:org.jenkinsci.plugins.workflow.actions.TimingAction@735ca155;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.id:16;jenkins.pipeline.step.name:checkout scm;jenkins.pipeline.step.plugin.name:pipeline-stage-step;jenkins.pipeline.step.plugin.version:312.v8cd10304c27a_;jenkins.pipeline.step.type:stage;)",
+                          "children": [
+                            {
+                              "spanId": "ac727b8f3d7391ef",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: Stage: null, spanId: ac727b8f3d7391ef, parentSpanId: 3db3b5edfd7584b9, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@684fc3f0:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@684fc3f0;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@162836d2:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@162836d2;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@7f1e0e3e:org.jenkinsci.plugins.workflow.actions.TimingAction@7f1e0e3e;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@7f1e0e3e": "org.jenkinsci.plugins.workflow.actions.TimingAction@7f1e0e3e",
+                                "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@162836d2": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@162836d2",
+                                "jenkins.pipeline.step.type": "stage",
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@684fc3f0": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@684fc3f0"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "3db3b5edfd7584b9",
+                              "spanName": "Stage: null"
+                            },
+                            {
+                              "spanId": "c5fa67d43b7c3748",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: tool, spanId: c5fa67d43b7c3748, parentSpanId: 3db3b5edfd7584b9, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"name\" : \"M3\",\n  \"type\" : \"hudson.tasks.Maven$MavenInstallation\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@659fd4bf:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@659fd4bf;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@4d7c56f0:org.jenkinsci.plugins.workflow.actions.TimingAction@4d7c56f0;harness-others:;jenkins.pipeline.step.id:17;jenkins.pipeline.step.name:Use a tool from a predefined Tool Installation;jenkins.pipeline.step.plugin.name:workflow-basic-steps;jenkins.pipeline.step.plugin.version:1079.vce64b_a_929c5a_;jenkins.pipeline.step.type:tool;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-others": "",
+                                "jenkins.pipeline.step.name": "Use a tool from a predefined Tool Installation",
+                                "ci.pipeline.run.user": "SYSTEM",
+                                "jenkins.pipeline.step.id": "17",
+                                "jenkins.pipeline.step.type": "tool",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@4d7c56f0": "org.jenkinsci.plugins.workflow.actions.TimingAction@4d7c56f0",
+                                "harness-attribute": "{\n  \"name\" : \"M3\",\n  \"type\" : \"hudson.tasks.Maven$MavenInstallation\"\n}",
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@659fd4bf": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@659fd4bf",
+                                "jenkins.pipeline.step.plugin.name": "workflow-basic-steps",
+                                "jenkins.pipeline.step.plugin.version": "1079.vce64b_a_929c5a_"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "3db3b5edfd7584b9",
+                              "parameterMap": {
+                                "name": "M3",
+                                "type": "hudson.tasks.Maven$MavenInstallation"
+                              },
+                              "spanName": "tool"
+                            },
+                            {
+                              "spanId": "93a820688b1bb756",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: envVarsForTool, spanId: 93a820688b1bb756, parentSpanId: 3db3b5edfd7584b9, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"toolId\" : \"hudson.tasks.Maven$MavenInstallation\",\n  \"toolVersion\" : \"M3\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6464a71f:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6464a71f;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@74c808f9:org.jenkinsci.plugins.workflow.actions.TimingAction@74c808f9;harness-others:;jenkins.pipeline.step.id:18;jenkins.pipeline.step.name:Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.;jenkins.pipeline.step.plugin.name:pipeline-model-definition;jenkins.pipeline.step.plugin.version:2.2221.vc657003fb_d93;jenkins.pipeline.step.type:envVarsForTool;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-others": "",
+                                "jenkins.pipeline.step.name": "Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.",
+                                "ci.pipeline.run.user": "SYSTEM",
+                                "jenkins.pipeline.step.id": "18",
+                                "jenkins.pipeline.step.type": "envVarsForTool",
+                                "harness-attribute": "{\n  \"toolId\" : \"hudson.tasks.Maven$MavenInstallation\",\n  \"toolVersion\" : \"M3\"\n}",
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6464a71f": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6464a71f",
+                                "jenkins.pipeline.step.plugin.name": "pipeline-model-definition",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@74c808f9": "org.jenkinsci.plugins.workflow.actions.TimingAction@74c808f9",
+                                "jenkins.pipeline.step.plugin.version": "2.2221.vc657003fb_d93"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "3db3b5edfd7584b9",
+                              "parameterMap": {
+                                "toolId": "hudson.tasks.Maven$MavenInstallation",
+                                "toolVersion": "M3"
+                              },
+                              "spanName": "envVarsForTool"
+                            },
+                            {
+                              "spanId": "a678957988030d7a",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: tool, spanId: a678957988030d7a, parentSpanId: 3db3b5edfd7584b9, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"name\" : \"jdk8\",\n  \"type\" : \"hudson.model.JDK\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@742b432f:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@742b432f;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@483b1f26:org.jenkinsci.plugins.workflow.actions.TimingAction@483b1f26;harness-others:;jenkins.pipeline.step.id:19;jenkins.pipeline.step.name:Use a tool from a predefined Tool Installation;jenkins.pipeline.step.plugin.name:workflow-basic-steps;jenkins.pipeline.step.plugin.version:1079.vce64b_a_929c5a_;jenkins.pipeline.step.type:tool;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-others": "",
+                                "jenkins.pipeline.step.name": "Use a tool from a predefined Tool Installation",
+                                "ci.pipeline.run.user": "SYSTEM",
+                                "jenkins.pipeline.step.id": "19",
+                                "jenkins.pipeline.step.type": "tool",
+                                "harness-attribute": "{\n  \"name\" : \"jdk8\",\n  \"type\" : \"hudson.model.JDK\"\n}",
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@742b432f": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@742b432f",
+                                "jenkins.pipeline.step.plugin.name": "workflow-basic-steps",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@483b1f26": "org.jenkinsci.plugins.workflow.actions.TimingAction@483b1f26",
+                                "jenkins.pipeline.step.plugin.version": "1079.vce64b_a_929c5a_"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "3db3b5edfd7584b9",
+                              "parameterMap": {
+                                "name": "jdk8",
+                                "type": "hudson.model.JDK"
+                              },
+                              "spanName": "tool"
+                            },
+                            {
+                              "spanId": "66b94a9295193bb6",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: Stage: null, spanId: 66b94a9295193bb6, parentSpanId: 3db3b5edfd7584b9, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute:{\n  \"overrides\" : [ \"M2_HOME=/opt/apache-maven-3.9.6\", \"MAVEN_HOME=/opt/apache-maven-3.9.6\", \"PATH+MAVEN=/opt/apache-maven-3.9.6/bin\", \"JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64\", \"PATH+JDK=/usr/lib/jvm/java-8-openjdk-amd64/bin\" ]\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6290c177:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6290c177;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@6bb88e92:org.jenkinsci.plugins.workflow.actions.TimingAction@6bb88e92;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3a6ba811:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3a6ba811;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                              "children": [
+                                {
+                                  "spanId": "730572d4337af794",
+                                  "traceId": "785103c7208238535c79f3a9ad42a710",
+                                  "parent": "recordCoverage01",
+                                  "all-info": "span(name: Stage: null, spanId: 730572d4337af794, parentSpanId: 66b94a9295193bb6, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@21f55997:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@21f55997;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@3f4affd0:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@3f4affd0;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@275b3dbb:org.jenkinsci.plugins.workflow.actions.TimingAction@275b3dbb;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                                  "children": [
+                                    {
+                                      "spanId": "e4d52d956ccfe3e8",
+                                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                                      "parent": "recordCoverage01",
+                                      "all-info": "span(name: Stage: null, spanId: e4d52d956ccfe3e8, parentSpanId: 730572d4337af794, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5657f20e:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5657f20e;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1975401e:org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1975401e;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1d36e68a:org.jenkinsci.plugins.workflow.actions.TimingAction@1d36e68a;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                                      "name": "recordCoverage01 #4",
+                                      "attributesMap": {
+                                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1975401e": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@1975401e",
+                                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@1d36e68a": "org.jenkinsci.plugins.workflow.actions.TimingAction@1d36e68a",
+                                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5657f20e": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@5657f20e",
+                                        "harness-others": "",
+                                        "jenkins.pipeline.step.type": "withEnv"
+                                      },
+                                      "type": "Run Phase Span",
+                                      "parentSpanId": "730572d4337af794",
+                                      "spanName": "Stage: null"
+                                    },
+                                    {
+                                      "spanId": "741122814641ee50",
+                                      "traceId": "785103c7208238535c79f3a9ad42a710",
+                                      "parent": "recordCoverage01",
+                                      "all-info": "span(name: checkout: github.com/syamv/game-of-life, spanId: 741122814641ee50, parentSpanId: 730572d4337af794, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;git.branch:*/master;git.clone.depth:0;git.clone.shallow:false;git.repository:syamv/game-of-life;harness-attribute:{\n  \"scm\" : {\n    \"$class\" : \"GitSCM\",\n    \"branches\" : [ {\n      \"name\" : \"*/master\"\n    } ],\n    \"doGenerateSubmoduleConfigurations\" : false,\n    \"extensions\" : [ {\n      \"$class\" : \"CleanCheckout\"\n    } ],\n    \"submoduleCfg\" : [ ],\n    \"userRemoteConfigs\" : [ {\n      \"url\" : \"https://github.com/syamv/game-of-life.git\"\n    } ]\n  }\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@31e15d1:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@31e15d1;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2dde3a4a:org.jenkinsci.plugins.workflow.actions.TimingAction@2dde3a4a;harness-others:;http.method:POST;http.url:https://github.com/syamv/game-of-life.git;jenkins.pipeline.step.id:23;jenkins.pipeline.step.name:Check out from version control;jenkins.pipeline.step.plugin.name:workflow-scm-step;jenkins.pipeline.step.plugin.version:427.v4ca_6512e7df1;jenkins.pipeline.step.type:checkout;net.peer.name:github.com;peer.service:github.com;rpc.method:checkout;rpc.service:git;rpc.system:https;)",
+                                      "name": "recordCoverage01 #4",
+                                      "attributesMap": {
+                                        "jenkins.pipeline.step.name": "Check out from version control",
+                                        "rpc.service": "git",
+                                        "ci.pipeline.run.user": "SYSTEM",
+                                        "jenkins.pipeline.step.id": "23",
+                                        "http.url": "https://github.com/syamv/game-of-life.git",
+                                        "git.branch": "*/master",
+                                        "git.clone.shallow": false,
+                                        "harness-attribute": "{\n  \"scm\" : {\n    \"$class\" : \"GitSCM\",\n    \"branches\" : [ {\n      \"name\" : \"*/master\"\n    } ],\n    \"doGenerateSubmoduleConfigurations\" : false,\n    \"extensions\" : [ {\n      \"$class\" : \"CleanCheckout\"\n    } ],\n    \"submoduleCfg\" : [ ],\n    \"userRemoteConfigs\" : [ {\n      \"url\" : \"https://github.com/syamv/game-of-life.git\"\n    } ]\n  }\n}",
+                                        "rpc.system": "https",
+                                        "git.repository": "syamv/game-of-life",
+                                        "net.peer.name": "github.com",
+                                        "harness-others": "",
+                                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@31e15d1": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@31e15d1",
+                                        "peer.service": "github.com",
+                                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@2dde3a4a": "org.jenkinsci.plugins.workflow.actions.TimingAction@2dde3a4a",
+                                        "jenkins.pipeline.step.type": "checkout",
+                                        "rpc.method": "checkout",
+                                        "jenkins.pipeline.step.plugin.name": "workflow-scm-step",
+                                        "http.method": "POST",
+                                        "jenkins.pipeline.step.plugin.version": "427.v4ca_6512e7df1",
+                                        "git.clone.depth": 0
+                                      },
+                                      "type": "Run Phase Span",
+                                      "parentSpanId": "730572d4337af794",
+                                      "parameterMap": {"scm": {
+                                        "$class": "GitSCM",
+                                        "extensions": [{"$class": "CleanCheckout"}],
+                                        "submoduleCfg": [],
+                                        "userRemoteConfigs": [{"url": "https://github.com/syamv/game-of-life.git"}],
+                                        "doGenerateSubmoduleConfigurations": false,
+                                        "branches": [{"name": "*/master"}]
+                                      }},
+                                      "spanName": "checkout: github.com/syamv/game-of-life"
+                                    }
+                                  ],
+                                  "name": "recordCoverage01 #4",
+                                  "attributesMap": {
+                                    "harness-others": "",
+                                    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@21f55997": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@21f55997",
+                                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@3f4affd0": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@3f4affd0",
+                                    "jenkins.pipeline.step.type": "withEnv",
+                                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@275b3dbb": "org.jenkinsci.plugins.workflow.actions.TimingAction@275b3dbb"
+                                  },
+                                  "type": "Run Phase Span",
+                                  "parentSpanId": "66b94a9295193bb6",
+                                  "spanName": "Stage: null"
+                                },
+                                {
+                                  "spanId": "f5509d0b84c4075e",
+                                  "traceId": "785103c7208238535c79f3a9ad42a710",
+                                  "parent": "recordCoverage01",
+                                  "all-info": "span(name: Stage: null, spanId: f5509d0b84c4075e, parentSpanId: 66b94a9295193bb6, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2f71deb1:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2f71deb1;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@3e31edb8:org.jenkinsci.plugins.workflow.actions.TimingAction@3e31edb8;harness-others:;jenkins.pipeline.step.type:withEnv;)",
+                                  "name": "recordCoverage01 #4",
+                                  "attributesMap": {
+                                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@3e31edb8": "org.jenkinsci.plugins.workflow.actions.TimingAction@3e31edb8",
+                                    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2f71deb1": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@2f71deb1",
+                                    "harness-others": "",
+                                    "jenkins.pipeline.step.type": "withEnv"
+                                  },
+                                  "type": "Run Phase Span",
+                                  "parentSpanId": "66b94a9295193bb6",
+                                  "spanName": "Stage: null"
+                                }
+                              ],
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@6bb88e92": "org.jenkinsci.plugins.workflow.actions.TimingAction@6bb88e92",
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6290c177": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6290c177",
+                                "harness-others": "",
+                                "jenkins.pipeline.step.type": "withEnv",
+                                "harness-attribute": "{\n  \"overrides\" : [ \"M2_HOME=/opt/apache-maven-3.9.6\", \"MAVEN_HOME=/opt/apache-maven-3.9.6\", \"PATH+MAVEN=/opt/apache-maven-3.9.6/bin\", \"JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64\", \"PATH+JDK=/usr/lib/jvm/java-8-openjdk-amd64/bin\" ]\n}",
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3a6ba811": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3a6ba811"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "3db3b5edfd7584b9",
+                              "parameterMap": {"overrides": [
+                                "M2_HOME=/opt/apache-maven-3.9.6",
+                                "MAVEN_HOME=/opt/apache-maven-3.9.6",
+                                "PATH+MAVEN=/opt/apache-maven-3.9.6/bin",
+                                "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64",
+                                "PATH+JDK=/usr/lib/jvm/java-8-openjdk-amd64/bin"
+                              ]},
+                              "spanName": "Stage: null"
+                            },
+                            {
+                              "spanId": "f5d93e2c69846d92",
+                              "traceId": "785103c7208238535c79f3a9ad42a710",
+                              "parent": "recordCoverage01",
+                              "all-info": "span(name: envVarsForTool, spanId: f5d93e2c69846d92, parentSpanId: 3db3b5edfd7584b9, traceId: 785103c7208238535c79f3a9ad42a710, attr: ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"toolId\" : \"hudson.model.JDK\",\n  \"toolVersion\" : \"jdk8\"\n};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@38ae143e:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@38ae143e;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@62c18f39:org.jenkinsci.plugins.workflow.actions.TimingAction@62c18f39;harness-others:;jenkins.pipeline.step.id:20;jenkins.pipeline.step.name:Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.;jenkins.pipeline.step.plugin.name:pipeline-model-definition;jenkins.pipeline.step.plugin.version:2.2221.vc657003fb_d93;jenkins.pipeline.step.type:envVarsForTool;)",
+                              "name": "recordCoverage01 #4",
+                              "attributesMap": {
+                                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@62c18f39": "org.jenkinsci.plugins.workflow.actions.TimingAction@62c18f39",
+                                "harness-others": "",
+                                "jenkins.pipeline.step.name": "Fetches the environment variables for a given tool in a list of 'FOO=bar' strings suitable for the withEnv step.",
+                                "ci.pipeline.run.user": "SYSTEM",
+                                "jenkins.pipeline.step.id": "20",
+                                "jenkins.pipeline.step.type": "envVarsForTool",
+                                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@38ae143e": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@38ae143e",
+                                "harness-attribute": "{\n  \"toolId\" : \"hudson.model.JDK\",\n  \"toolVersion\" : \"jdk8\"\n}",
+                                "jenkins.pipeline.step.plugin.name": "pipeline-model-definition",
+                                "jenkins.pipeline.step.plugin.version": "2.2221.vc657003fb_d93"
+                              },
+                              "type": "Run Phase Span",
+                              "parentSpanId": "3db3b5edfd7584b9",
+                              "parameterMap": {
+                                "toolId": "hudson.model.JDK",
+                                "toolVersion": "jdk8"
+                              },
+                              "spanName": "envVarsForTool"
+                            }
+                          ],
+                          "name": "recordCoverage01 #4",
+                          "attributesMap": {
+                            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.LabelAction@24502ac0": "org.jenkinsci.plugins.workflow.actions.LabelAction@24502ac0",
+                            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@735ca155": "org.jenkinsci.plugins.workflow.actions.TimingAction@735ca155",
+                            "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                            "jenkins.pipeline.step.name": "checkout scm",
+                            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@494c5fab": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@494c5fab",
+                            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6fba03aa": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@6fba03aa",
+                            "jenkins.pipeline.step.id": "16",
+                            "jenkins.pipeline.step.type": "stage",
+                            "jenkins.pipeline.step.plugin.name": "pipeline-stage-step",
+                            "jenkins.pipeline.step.plugin.version": "312.v8cd10304c27a_"
+                          },
+                          "type": "Run Phase Span",
+                          "parentSpanId": "7d31b740a4f22e49",
+                          "spanName": "Stage: checkout scm"
+                        },
+                        {
+                          "spanId": "0aa8ebf36af9e0df",
+                          "traceId": "785103c7208238535c79f3a9ad42a710",
+                          "parent": "recordCoverage01",
+                          "all-info": "span(name: Stage: null, spanId: 0aa8ebf36af9e0df, parentSpanId: 7d31b740a4f22e49, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1a8822a8:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1a8822a8;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@25bd0e63:org.jenkinsci.plugins.workflow.actions.TimingAction@25bd0e63;harness-others:-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer;jenkins.pipeline.step.type:stage;)",
+                          "name": "recordCoverage01 #4",
+                          "attributesMap": {
+                            "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                            "jenkins.pipeline.step.type": "stage",
+                            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1a8822a8": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1a8822a8",
+                            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@25bd0e63": "org.jenkinsci.plugins.workflow.actions.TimingAction@25bd0e63"
+                          },
+                          "type": "Run Phase Span",
+                          "parentSpanId": "7d31b740a4f22e49",
+                          "spanName": "Stage: null"
+                        }
+                      ],
+                      "name": "recordCoverage01 #4",
+                      "attributesMap": {
+                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@48026a90": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@48026a90",
+                        "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7f4328c1": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@7f4328c1",
+                        "harness-others": "-name-field org.jenkinsci.plugins.workflow.support.steps.StageStep name-org.jenkinsci.plugins.workflow.support.steps.StageStep.name-class java.lang.String-concurrency-field org.jenkinsci.plugins.workflow.support.steps.StageStep concurrency-org.jenkinsci.plugins.workflow.support.steps.StageStep.concurrency-class java.lang.Integer",
+                        "jenkins.pipeline.step.type": "stage",
+                        "harness-attribute": "{\n  \"name\" : \"checkout scm\"\n}",
+                        "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@22465c3b": "org.jenkinsci.plugins.workflow.actions.TimingAction@22465c3b"
+                      },
+                      "type": "Run Phase Span",
+                      "parentSpanId": "648991f3b8a9ebc2",
+                      "parameterMap": {"name": "checkout scm"},
+                      "spanName": "Stage: null"
+                    }
+                  ],
+                  "name": "recordCoverage01 #4",
+                  "attributesMap": {
+                    "harness-others": "",
+                    "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4d49bd62": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@4d49bd62",
+                    "jenkins.pipeline.step.type": "withEnv",
+                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@66c0ebd1": "org.jenkinsci.plugins.workflow.actions.TimingAction@66c0ebd1",
+                    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@641d1521": "org.jenkinsci.plugins.workflow.actions.BodyInvocationAction@641d1521"
+                  },
+                  "type": "Run Phase Span",
+                  "parentSpanId": "7a71189e630a9314",
+                  "spanName": "Stage: null"
+                }
+              ],
+              "name": "recordCoverage01 #4",
+              "attributesMap": {
+                "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6e394695": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6e394695",
+                "harness-others": "",
+                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@24c6a64a": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@24c6a64a",
+                "jenkins.pipeline.step.type": "withEnv",
+                "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@62630a71": "org.jenkinsci.plugins.workflow.actions.TimingAction@62630a71",
+                "harness-attribute": "{\n  \"overrides\" : [ \"M2_HOME=/opt/apache-maven-3.9.6\", \"MAVEN_HOME=/opt/apache-maven-3.9.6\", \"PATH+MAVEN=/opt/apache-maven-3.9.6/bin\", \"JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64\", \"PATH+JDK=/usr/lib/jvm/java-8-openjdk-amd64/bin\" ]\n}"
+              },
+              "type": "Run Phase Span",
+              "parentSpanId": "00641b3d839c2f20",
+              "parameterMap": {"overrides": [
+                "M2_HOME=/opt/apache-maven-3.9.6",
+                "MAVEN_HOME=/opt/apache-maven-3.9.6",
+                "PATH+MAVEN=/opt/apache-maven-3.9.6/bin",
+                "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64",
+                "PATH+JDK=/usr/lib/jvm/java-8-openjdk-amd64/bin"
+              ]},
+              "spanName": "Stage: null"
+            }
+          ],
+          "name": "recordCoverage01 #4",
+          "attributesMap": {
+            "harness-others": "",
+            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@6f68e027": "org.jenkinsci.plugins.workflow.actions.TimingAction@6f68e027",
+            "jenkins.pipeline.step.name": "agent",
+            "jenkins.pipeline.step.id": "3",
+            "jenkins.pipeline.step.type": "node",
+            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3a79c3a9": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3a79c3a9",
+            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1a7a3aed": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@1a7a3aed",
+            "jenkins.credentials.id": "[org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3a79c3a9, org.jenkinsci.plugins.workflow.actions.TimingAction@6f68e027, io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6b7af7b]",
+            "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
+            "jenkins.pipeline.step.plugin.version": "1405.v1fcd4a_d00096"
+          },
+          "type": "Run Phase Span",
+          "parentSpanId": "f2cb42f2aa203329",
+          "spanName": "Agent"
+        },
+        {
+          "spanId": "420120218be352af",
+          "traceId": "785103c7208238535c79f3a9ad42a710",
+          "parent": "recordCoverage01",
+          "all-info": "span(name: Agent Allocation, spanId: 420120218be352af, parentSpanId: f2cb42f2aa203329, traceId: 785103c7208238535c79f3a9ad42a710, attr: harness-attribute-extra-pip: FlowNodeMonitoringAction{traceId='785103c7208238535c79f3a9ad42a710', spanId='00641b3d839c2f20', span.name='Agent'}:FlowNodeMonitoringAction{traceId='785103c7208238535c79f3a9ad42a710', spanId='00641b3d839c2f20', span.name='Agent'};harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a45e18b:io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a45e18b;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@6f68e027:org.jenkinsci.plugins.workflow.actions.TimingAction@6f68e027;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3a79c3a9:org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3a79c3a9;harness-others:;jenkins.pipeline.step.id:3;jenkins.pipeline.step.name:agent.allocate;jenkins.pipeline.step.plugin.name:workflow-durable-task-step;jenkins.pipeline.step.plugin.version:1405.v1fcd4a_d00096;jenkins.pipeline.step.type:node;)",
+          "name": "recordCoverage01 #4",
+          "attributesMap": {
+            "harness-attribute-extra-pip: io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a45e18b": "io.jenkins.plugins.opentelemetry.MigrateHarnessUrlChildAction@6a45e18b",
+            "harness-others": "",
+            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@6f68e027": "org.jenkinsci.plugins.workflow.actions.TimingAction@6f68e027",
+            "jenkins.pipeline.step.name": "agent.allocate",
+            "jenkins.pipeline.step.id": "3",
+            "jenkins.pipeline.step.type": "node",
+            "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3a79c3a9": "org.jenkinsci.plugins.workflow.support.actions.LogStorageAction@3a79c3a9",
+            "harness-attribute-extra-pip: FlowNodeMonitoringAction{traceId='785103c7208238535c79f3a9ad42a710', spanId='00641b3d839c2f20', span.name='Agent'}": "FlowNodeMonitoringAction{traceId='785103c7208238535c79f3a9ad42a710', spanId='00641b3d839c2f20', span.name='Agent'}",
+            "jenkins.pipeline.step.plugin.name": "workflow-durable-task-step",
+            "jenkins.pipeline.step.plugin.version": "1405.v1fcd4a_d00096"
+          },
+          "type": "Run Phase Span",
+          "parentSpanId": "f2cb42f2aa203329",
+          "spanName": "Agent Allocation"
+        }
+      ],
+      "name": "recordCoverage01 #4",
+      "attributesMap": {},
+      "type": "Run Phase Span",
+      "parentSpanId": "f1d1d6052fbb7e4b",
+      "spanName": "Phase: Run"
+    },
+    {
+      "spanId": "9430fea0bb04d776",
+      "traceId": "785103c7208238535c79f3a9ad42a710",
+      "parent": "recordCoverage01",
+      "all-info": "span(name: Phase: Finalise, spanId: 9430fea0bb04d776, parentSpanId: f1d1d6052fbb7e4b, traceId: 785103c7208238535c79f3a9ad42a710, attr: )",
+      "name": "recordCoverage01 #4",
+      "attributesMap": {},
+      "type": "Run Phase Span",
+      "parentSpanId": "f1d1d6052fbb7e4b",
+      "spanName": "Phase: Finalise"
+    },
+    {
+      "spanId": "46f576ace1f9ca70",
+      "traceId": "785103c7208238535c79f3a9ad42a710",
+      "parent": "recordCoverage01",
+      "all-info": "span(name: Phase: Start, spanId: 46f576ace1f9ca70, parentSpanId: f1d1d6052fbb7e4b, traceId: 785103c7208238535c79f3a9ad42a710, attr: )",
+      "name": "recordCoverage01 #4",
+      "attributesMap": {},
+      "type": "Run Phase Span",
+      "parentSpanId": "f1d1d6052fbb7e4b",
+      "spanName": "Phase: Start"
+    }
+  ],
+  "name": "recordCoverage01 #4",
+  "parentSpanId": "0000000000000000",
+  "spanName": "recordCoverage01 #4"
+}
