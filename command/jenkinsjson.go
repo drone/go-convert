@@ -53,6 +53,7 @@ type JenkinsJson struct {
 	noRandomId      bool
 	beforeAfter     bool
 	outputDir       string
+	disableConversionForSteps    string
 }
 
 func (*JenkinsJson) Name() string     { return "jenkinsjson" }
@@ -68,6 +69,7 @@ func (c *JenkinsJson) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&c.noRandomId, "no-random-id", false, "Generate random ID for pipeline")
 	f.BoolVar(&c.beforeAfter, "before-after", false, "print the befor and after")
 	f.StringVar(&c.outputDir, "output-dir", "", "directory where the output should be saved")
+	f.StringVar(&c.	disableConversionForSteps, "disable-conversion-for-steps", "", "comma-separated list of step types to disable conversion for")
 
 	f.StringVar(&c.org, "org", "default", "harness organization")
 	f.StringVar(&c.proj, "project", "default", "harness project")
@@ -254,6 +256,11 @@ func (c *JenkinsJson) processFile(filePath string, file *os.File) subcommands.Ex
 	// create converter with options
 	options := []jenkinsjson.Option{}
 	options = append(options, jenkinsjson.WithUseIntelligence(c.useIntelligence))
+
+	// add ignored steps option
+	if c.disableConversionForSteps != "" {
+		options = append(options, jenkinsjson.WithDisableConversionForSteps(c.disableConversionForSteps))
+	}
 
 	// add infrastructure options if specified
 	if c.infrastructure != "" {

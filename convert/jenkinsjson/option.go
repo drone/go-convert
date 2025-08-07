@@ -66,3 +66,10 @@ func WithConfigFile(configFile string) Option {
 		d.configFile = configFile
 	}
 }
+
+// WithDisableConversionForSteps returns an option to set the list of step types to disable conversion for.
+func WithDisableConversionForSteps(disableConversionForSteps string) Option {
+	return func(d *Converter) {
+		d.disableConversionForSteps = disableConversionForSteps
+	}
+}
