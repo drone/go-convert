@@ -96,6 +96,31 @@ type Converter struct {
 
 	useIntelligence bool
 	configFile      string
+	disableConversionForSteps    string
+}
+
+// parseDisableConversionForSteps parses the comma-separated disable conversion for steps string into a map for fast lookup
+func (d *Converter) parseDisableConversionForSteps() map[string]bool {
+	disabledConversionForStepsMap := make(map[string]bool)
+	
+	// Default ignored steps (existing hardcoded list)
+	defaultIgnored := []string{"", "parallel", "script", "withAnt", "tool", "envVarsForTool", "ws", "ansiColor", "newBuildInfo", "getArtifactoryServer"}
+	for _, step := range defaultIgnored {
+		disabledConversionForStepsMap[step] = true
+	}
+	
+	// Add user-specified ignored steps
+	if d.disableConversionForSteps != "" {
+		userIgnored := strings.Split(d.disableConversionForSteps, ",")
+		for _, step := range userIgnored {
+			step = strings.TrimSpace(step)
+			if step != "" {
+				disabledConversionForStepsMap[step] = true
+			}
+		}
+	}
+	
+	return disabledConversionForStepsMap
 }
 
 // New creates a new Converter that converts a jenkinsjson
@@ -166,8 +191,12 @@ func (d *Converter) Convert(r io.Reader) ([]byte, error) {
 func (d *Converter) recursiveParseJsonToStages(jsonNode *jenkinsjson.Node, dst *harness.Pipeline, processedTools *ProcessedTools, variables map[string]string) {
 	stepGroupWithID := make([]StepGroupWithID, 0)
 	var defaultDockerImage string = "alpine" // Default Docker Image
+	
+	// Create disabled conversion for steps map
+	disabledConversionForSteps := d.parseDisableConversionForSteps()
+	
 	// Collect all stages with their IDs
-	collectStagesWithID(jsonNode, processedTools, &stepGroupWithID, variables, defaultDockerImage)
+	d.collectStagesWithID(jsonNode, processedTools, &stepGroupWithID, variables, defaultDockerImage, disabledConversionForSteps)
 	// Sort the stages based on their IDs
 	sort.Slice(stepGroupWithID, func(i, j int) bool {
 		return stepGroupWithID[i].ID < stepGroupWithID[j].ID
@@ -234,7 +263,7 @@ func (d *Converter) recursiveParseJsonToStages(jsonNode *jenkinsjson.Node, dst *
 	dst.Stages = append(dst.Stages, stage)
 }
 
-func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTools, stepGroupWithId *[]StepGroupWithID, variables map[string]string, dockerImage string) {
+func (d *Converter) collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTools, stepGroupWithId *[]StepGroupWithID, variables map[string]string, dockerImage string, disabledConversionForSteps map[string]bool) {
 	if jsonNode.AttributesMap["jenkins.pipeline.step.type"] == "withDockerContainer" {
 		if img, ok := jsonNode.ParameterMap["image"].(string); ok {
 			dockerImage = img // Update Docker image from the node
@@ -258,7 +287,7 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 		stepsInStage := make([]*harness.Step, 0)
 		for _, childNode := range jsonNode.Children {
 			// Recursively process the children
-			recursiveParseJsonToSteps(childNode, stepGroupWithId, &stepsInStage, processedTools, variables, dockerImage)
+			d.recursiveParseJsonToSteps(childNode, stepGroupWithId, &stepsInStage, processedTools, variables, dockerImage, disabledConversionForSteps)
 		}
 
 		if len(stepsInStage) > 0 {
@@ -301,7 +330,7 @@ func collectStagesWithID(jsonNode *jenkinsjson.Node, processedTools *ProcessedTo
 	} else {
 		for _, childNode := range jsonNode.Children {
 			// Recursively process the children
-			collectStagesWithID(&childNode, processedTools, stepGroupWithId, variables, dockerImage)
+			d.collectStagesWithID(&childNode, processedTools, stepGroupWithId, variables, dockerImage, disabledConversionForSteps)
 		}
 	}
 }
@@ -378,12 +407,12 @@ func extractToolType(fullToolType string) string {
 	return fullToolType
 }
 
-func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGroupWithID, steps *[]*harness.Step, processedTools *ProcessedTools, variables map[string]string, dockerImage string) (*harness.CloneStage, *harness.Repository) {
+func (d *Converter) recursiveParseJsonToSteps(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGroupWithID, steps *[]*harness.Step, processedTools *ProcessedTools, variables map[string]string, dockerImage string, disabledConversionForSteps map[string]bool) (*harness.CloneStage, *harness.Repository) {
 	stepWithIDList := make([]StepWithID, 0)
 
 	var timeout string
 	// Collect all steps with their IDs
-	collectStepsWithID(currentNode, stepGroupWithId, &stepWithIDList, processedTools, variables, timeout, dockerImage)
+	d.collectStepsWithID(currentNode, stepGroupWithId, &stepWithIDList, processedTools, variables, timeout, dockerImage, disabledConversionForSteps)
 	// Sort the steps based on their IDs
 	sort.Slice(stepWithIDList, func(i, j int) bool {
 		return stepWithIDList[i].ID < stepWithIDList[j].ID
@@ -401,7 +430,7 @@ func recursiveParseJsonToSteps(currentNode jenkinsjson.Node, stepGroupWithId *[]
 	return nil, nil
 }
 
-func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGroupWithID, stepWithIDList *[]StepWithID, processedTools *ProcessedTools, variables map[string]string, timeout string, dockerImage string) (*harness.CloneStage, *harness.Repository) {
+func (d *Converter) collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGroupWithID, stepWithIDList *[]StepWithID, processedTools *ProcessedTools, variables map[string]string, timeout string, dockerImage string, disabledConversionForSteps map[string]bool) (*harness.CloneStage, *harness.Repository) {
 	var clone *harness.CloneStage
 	var repo *harness.Repository
 
@@ -433,12 +462,24 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 		}
 	}
 
-	switch currentNode.AttributesMap["jenkins.pipeline.step.type"] {
+	stepType := currentNode.AttributesMap["jenkins.pipeline.step.type"]
+	
+	switch stepType {
 	case "node":
-		collectStagesWithID(&currentNode, processedTools, stepGroupWithId, variables, dockerImage)
+		d.collectStagesWithID(&currentNode, processedTools, stepGroupWithId, variables, dockerImage, disabledConversionForSteps)
 		return clone, repo
-	case "", "parallel", "script", "withAnt", "tool", "envVarsForTool", "ws", "ansiColor", "newBuildInfo", "getArtifactoryServer":
-		// for spans where we should ignore its content and just process the children
+	}
+	
+	// Check if this step type should be ignored
+	if disabledConversionForSteps[stepType] {
+		// Skip processing this step, just process its children
+		for _, child := range currentNode.Children {
+			clone, repo = d.collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage, disabledConversionForSteps)
+		}
+		return clone, repo
+	}
+	
+	switch stepType {
 
 	case "withEnv":
 		var1 := ExtractEnvironmentVariables(currentNode)
@@ -467,7 +508,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 
 			if hasParallelStep {
 				parallelStepGroupWithID := make([]StepGroupWithID, 0)
-				collectStagesWithID(&currentNode, processedTools, &parallelStepGroupWithID, variables, dockerImage)
+				d.collectStagesWithID(&currentNode, processedTools, &parallelStepGroupWithID, variables, dockerImage, disabledConversionForSteps)
 				sort.Slice(parallelStepGroupWithID, func(i, j int) bool {
 					return parallelStepGroupWithID[i].ID < parallelStepGroupWithID[j].ID
 				})
@@ -487,7 +528,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 				}
 				*stepWithIDList = append(*stepWithIDList, StepWithID{Step: parallelStep, ID: id})
 			} else {
-				collectStagesWithID(&currentNode, processedTools, stepGroupWithId, variables, dockerImage)
+				d.collectStagesWithID(&currentNode, processedTools, stepGroupWithId, variables, dockerImage, disabledConversionForSteps)
 			}
 			return clone, repo
 		}
@@ -921,7 +962,7 @@ func collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWithId *[]StepGro
 	}
 
 	for _, child := range currentNode.Children {
-		clone, repo = collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage)
+		clone, repo = d.collectStepsWithID(child, stepGroupWithId, stepWithIDList, processedTools, variables, timeout, dockerImage, disabledConversionForSteps)
 	}
 
 	return clone, repo
