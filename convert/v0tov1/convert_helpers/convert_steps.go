@@ -68,6 +68,10 @@ func ConvertSingleStep(src *v0.Step) *v1.Step {
 	switch src.Type {
 	case v0.StepTypeAction:
 		step.Action = ConvertStepAction(src)
+	case v0.StepTypeJiraCreate:
+		step.Action = ConvertStepJiraCreate(src)
+	case v0.StepTypeJiraUpdate:
+		step.Action = ConvertStepJiraUpdate(src)
 	case v0.StepTypeRun:
 		step.Run = ConvertStepRun(src)
 	case v0.StepTypeHarnessApproval:
@@ -100,6 +104,18 @@ func ConvertSingleStep(src *v0.Step) *v1.Step {
 		step.Template = ConvertStepK8sCanaryDeploy(src)
 	case v0.StepTypeK8sBlueGreenDeploy:
 		step.Template = ConvertStepK8sBlueGreenDeploy(src)
+	case v0.StepTypeHelmBGDeploy:
+		step.Template = ConvertStepHelmBGDeploy(src)
+	case v0.StepTypeHelmBlueGreenSwapStep:
+		step.Template = ConvertStepHelmBlueGreenSwapStep(src)
+	case v0.StepTypeHelmCanaryDeploy:
+		step.Template = ConvertStepHelmCanaryDeploy(src)
+	case v0.StepTypeHelmDelete:
+		step.Template = ConvertStepHelmDelete(src)
+	case v0.StepTypeHelmDeploy:
+		step.Template = ConvertStepHelmDeploy(src)
+	case v0.StepTypeHelmRollback:
+		step.Template = ConvertStepHelmRollback(src)
 	case v0.StepTypeShellScript:
 		step.Run = ConvertStepShellScript(src)
 	case v0.StepTypeBarrier:

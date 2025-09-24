@@ -95,6 +95,15 @@ const (
 	StepTypeK8sTrafficRouting          = "K8sTrafficRouting"
 	StepTypeK8sCanaryDeploy            = "K8sCanaryDeploy"
 	StepTypeK8sBlueGreenDeploy         = "K8sBlueGreenDeploy"
+
+	// Helm
+	StepTypeHelmBGDeploy          = "HelmBGDeploy"
+	StepTypeHelmBlueGreenSwapStep = "HelmBlueGreenSwapStep"
+	StepTypeHelmCanaryDeploy      = "HelmCanaryDeploy"
+	StepTypeHelmDelete            = "HelmDelete"
+	StepTypeHelmDeploy            = "HelmDeploy"
+	StepTypeHelmRollback          = "HelmRollback"
+
 	// Approval
 	StepTypeVerify = "Verify"
 )

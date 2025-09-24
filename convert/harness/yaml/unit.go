@@ -157,6 +157,45 @@ type Duration struct {
 	time.Duration
 }
 
+// UnmarshalYAML implements the yaml.Unmarshaler interface.
+func (d *Duration) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var str string
+	if err := unmarshal(&str); err != nil {
+		return err
+	}
+
+	// First try the standard library parser
+	if pd, err := time.ParseDuration(str); err == nil {
+		d.Duration = pd
+		return nil
+	}
+
+	// Fallback: support shorthand units not handled by time.ParseDuration, e.g., days (d) and weeks (w)
+	lower := strings.ToLower(strings.TrimSpace(str))
+	if strings.HasSuffix(lower, "d") {
+		val := strings.TrimSuffix(lower, "d")
+		if n, convErr := strconv.ParseFloat(val, 64); convErr == nil {
+			hours := n * 24
+			if pd, perr := time.ParseDuration(fmt.Sprintf("%fh", hours)); perr == nil {
+				d.Duration = pd
+				return nil
+			}
+		}
+	}
+	if strings.HasSuffix(lower, "w") {
+		val := strings.TrimSuffix(lower, "w")
+		if n, convErr := strconv.ParseFloat(val, 64); convErr == nil {
+			hours := n * 7 * 24
+			if pd, perr := time.ParseDuration(fmt.Sprintf("%fh", hours)); perr == nil {
+				d.Duration = pd
+				return nil
+			}
+		}
+	}
+
+	return fmt.Errorf("time: unknown unit in duration %q", str)
+}
+
 // UnmarshalJSON implements the json.Unmarshaller interface.
 func (d *Duration) UnmarshalJSON(b []byte) error {
 	var str string
@@ -165,12 +204,40 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	pd, err := time.ParseDuration(str)
-	if err != nil {
-		return err
+	// First try the standard library parser
+	if pd, err := time.ParseDuration(str); err == nil {
+		d.Duration = pd
+		return nil
 	}
-	d.Duration = pd
-	return nil
+
+	// Fallback: support shorthand units not handled by time.ParseDuration, e.g., days (d) and weeks (w)
+	// Examples: 1d -> 24h, 2d -> 48h, 1w -> 168h
+	// We also support uppercase letters by normalizing to lowercase.
+	lower := strings.ToLower(strings.TrimSpace(str))
+	if strings.HasSuffix(lower, "d") {
+		val := strings.TrimSuffix(lower, "d")
+		if n, convErr := strconv.ParseFloat(val, 64); convErr == nil {
+			hours := n * 24
+			pd, perr := time.ParseDuration(fmt.Sprintf("%fh", hours))
+			if perr == nil {
+				d.Duration = pd
+				return nil
+			}
+		}
+	}
+	if strings.HasSuffix(lower, "w") {
+		val := strings.TrimSuffix(lower, "w")
+		if n, convErr := strconv.ParseFloat(val, 64); convErr == nil {
+			hours := n * 7 * 24
+			pd, perr := time.ParseDuration(fmt.Sprintf("%fh", hours))
+			if perr == nil {
+				d.Duration = pd
+				return nil
+			}
+		}
+	}
+
+	return fmt.Errorf("time: unknown unit in duration %q", str)
 }
 
 // MarshalJSON implements the json.Marshaler interface.
