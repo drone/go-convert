@@ -1,0 +1,16 @@
+
+
+pipeline:
+  stages:
+  - context:
+      inputs:
+        version: "latest"
+    steps:
+    - run:
+        script: go test ./...
+        container:
+          image: golang:${{inputs.version}}
+    - run:
+        script: go build
+        container:
+          image: golang:${{inputs.version}}

@@ -1,0 +1,20 @@
+template:
+  inputs:
+    version:
+      default: "1.20"
+
+  # step template
+  step:
+    run:
+      script: go test ./...
+      container: golang:${{inputs.version}}
+
+  # stage template
+  stage:
+    steps:
+    - run:
+        script: go test ./...
+        container: golang:${{inputs.version}}
+    - run:
+        script: go build
+        container: golang:${{inputs.version}}
