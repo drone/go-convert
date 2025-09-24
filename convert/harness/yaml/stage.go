@@ -25,11 +25,13 @@ type (
 		ID          string      `json:"identifier,omitempty"   yaml:"identifier,omitempty"`
 		Description string      `json:"description,omitempty"  yaml:"description,omitempty"`
 		Name        string      `json:"name,omitempty"         yaml:"name,omitempty"`
+		DelegateSelectors []string `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
 		Spec        interface{} `json:"spec,omitempty"         yaml:"spec,omitempty"`
 		Type        string      `json:"type,omitempty"         yaml:"type,omitempty"`
 		Vars        []*Variable `json:"variables,omitempty"    yaml:"variables,omitempty"`
 		When        *StageWhen  `json:"when,omitempty"         yaml:"when,omitempty"`
 		Strategy    *Strategy   `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
+		FailureStrategies []*FailureStrategy   `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
 	}
 
 	// StageApproval defines an approval stage.
@@ -52,7 +54,20 @@ type (
 
 	// StageDeployment defines a deployment stage.
 	StageDeployment struct {
-		// TODO
+		DeploymentType    string               `json:"deploymentType,omitempty"    yaml:"deploymentType,omitempty"`
+		Service           *DeploymentService   `json:"service,omitempty"           yaml:"service,omitempty"`
+		Services          *DeploymentServices  `json:"services,omitempty"          yaml:"services,omitempty"`
+		Execution         *DeploymentExecution `json:"execution,omitempty"       yaml:"execution,omitempty"`
+		EnvironmentGroup  *EnvironmentGroup    `json:"environmentGroup,omitempty"  yaml:"environmentGroup,omitempty"`
+		Environment       *Environment         `json:"environment,omitempty"       yaml:"environment,omitempty"`
+		Environments      *Environments        `json:"environments,omitempty" yaml:"environments,omitempty"`
+		Tags              map[string]string    `json:"tags,omitempty"              yaml:"tags,omitempty"`
+	}	
+
+	// DeploymentExecution defines the deployment execution
+	DeploymentExecution struct {
+		Steps         []*Steps `json:"steps,omitempty"         yaml:"steps,omitempty"`
+		RollbackSteps []*Steps `json:"rollbackSteps,omitempty" yaml:"rollbackSteps,omitempty"`
 	}
 
 	// StageFeatureFlag defines a feature flag stage.
@@ -103,6 +118,8 @@ func (s *Stage) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StageCI)
 	case StageTypeFeatureFlag:
 		s.Spec = new(StageFeatureFlag)
+	case StageTypeDeployment:
+		s.Spec = new(StageDeployment)
 	default:
 		return fmt.Errorf("unknown stage type %s", s.Type)
 	}

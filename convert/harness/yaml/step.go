@@ -21,16 +21,17 @@ import (
 
 type (
 	Step struct { // TODO missing failure strategies
-		ID          string            `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
-		Description string            `json:"description,omitempty"       yaml:"description,omitempty"`
-		Name        string            `json:"name,omitempty"              yaml:"name,omitempty"`
-		Skip        string            `json:"skipCondition,omitempty"     yaml:"skipCondition,omitempty"`
-		Spec        interface{}       `json:"spec,omitempty"              yaml:"spec,omitempty"`
-		Timeout     Duration          `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
-		Type        string            `json:"type,omitempty"              yaml:"type,omitempty"`
-		When        *StepWhen         `json:"when,omitempty"              yaml:"when,omitempty"`
-		Env         map[string]string `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
-		Strategy    *Strategy         `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
+		ID                string             `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
+		Description       string             `json:"description,omitempty"       yaml:"description,omitempty"`
+		Name              string             `json:"name,omitempty"              yaml:"name,omitempty"`
+		Skip              string             `json:"skipCondition,omitempty"     yaml:"skipCondition,omitempty"`
+		Spec              interface{}        `json:"spec,omitempty"              yaml:"spec,omitempty"`
+		Timeout           Duration           `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
+		Type              string             `json:"type,omitempty"              yaml:"type,omitempty"`
+		When              *StepWhen          `json:"when,omitempty"              yaml:"when,omitempty"`
+		Env               map[string]string  `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
+		Strategy          *Strategy          `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
+		FailureStrategies []*FailureStrategy `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
 	}
 
 	StepGroup struct { // TODO missing failure strategies
@@ -49,7 +50,13 @@ type (
 	// Step specifications
 	//
 
+	CommonStepSpec struct {
+		IncludeInfraSelectors bool   `json:"includeInfraSelectors,omitempty" yaml:"includeInfraSelectors,omitempty"`
+		DelegateSelectors     []string `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
+	}
+
 	StepArtifactoryUpload struct {
+		CommonStepSpec
 		ConnRef    string `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
 		Target     string `json:"target,omitempty"       yaml:"target,omitempty"`
 		SourcePath string `json:"sourcePath,omitempty"   yaml:"sourcePath,omitempty"`
@@ -57,7 +64,14 @@ type (
 	}
 
 	StepBarrier struct {
-		// TODO
+		CommonStepSpec
+		BarrierRef string `json:"barrierRef,omitempty" yaml:"barrierRef,omitempty"`
+	}
+
+	StepQueue struct {
+		CommonStepSpec
+		Key   string `json:"key,omitempty" yaml:"key,omitempty"`
+		Scope string `json:"scope,omitempty" yaml:"scope,omitempty"`
 	}
 
 	StepBuildAndPushECR struct {
@@ -77,11 +91,24 @@ type (
 	}
 
 	StepHarnessApproval struct {
-		ApprovalMessage                 string           `json:"approvalMessage,omitempty"                 yaml:"approvalMessage,omitempty"`
-		Approvers                       *Approvers       `json:"approvers,omitempty"                       yaml:"approvers,omitempty"`
-		ApproverInputs                  []*ApproverInput `json:"approverInputs,omitempty"                  yaml:"approverInputs,omitempty"`
-		IncludePipelineExecutionHistory string           `json:"includePipelineExecutionHistory,omitempty" yaml:"includePipelineExecutionHistory,omitempty"`
-	}
+		CommonStepSpec
+        ApprovalMessage                 string           `json:"approvalMessage,omitempty"                 yaml:"approvalMessage,omitempty"`
+        Approvers                       *Approvers       `json:"approvers,omitempty"                       yaml:"approvers,omitempty"`
+        ApproverInputs                  []*ApproverInput `json:"approverInputs,omitempty"                  yaml:"approverInputs,omitempty"`
+        IncludePipelineExecutionHistory bool             `json:"includePipelineExecutionHistory,omitempty" yaml:"includePipelineExecutionHistory,omitempty"`
+        IsAutoRejectEnabled             bool             `json:"isAutoRejectEnabled,omitempty"             yaml:"isAutoRejectEnabled,omitempty"`
+        AutoApproval                    *AutoApproval    `json:"autoApproval,omitempty"                    yaml:"autoApproval,omitempty"`
+    }
+	AutoApproval struct {
+        Action            string             `json:"action,omitempty"            yaml:"action,omitempty"`
+        ScheduledDeadline *ScheduledDeadline `json:"scheduledDeadline,omitempty" yaml:"scheduledDeadline,omitempty"`
+        Comments          string             `json:"comments,omitempty"          yaml:"comments,omitempty"`
+    }
+
+    ScheduledDeadline struct {
+        TimeZone string `json:"timeZone,omitempty" yaml:"timeZone,omitempty"`
+        Time     string `json:"time,omitempty"     yaml:"time,omitempty"`
+    }
 
 	StepRestoreCacheGCS struct {
 		// TODO
@@ -104,6 +131,7 @@ type (
 	}
 
 	StepTrivy struct {
+		CommonStepSpec
 		Mode       string       `json:"mode,omitempty"    yaml:"mode,omitempty"`
 		Config     string       `json:"config,omitempty"         yaml:"config,omitempty"`
 		Target     *STOTarget   `json:"target,omitempty"         yaml:"target,omitempty"`
@@ -113,6 +141,7 @@ type (
 	}
 
 	StepDocker struct {
+		CommonStepSpec
 		BuildsArgs      map[string]string `json:"buildArgs,omitempty"       yaml:"buildArgs,omitempty"`
 		ConnectorRef    string            `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
 		Context         string            `json:"context,omitempty"         yaml:"context,omitempty"`
@@ -131,6 +160,7 @@ type (
 	}
 
 	StepHTTP struct {
+		CommonStepSpec
 		URL             string      `json:"url,omitempty"             yaml:"url,omitempty"`
 		Method          string      `json:"method,omitempty"          yaml:"method,omitempty"`
 		Headers         []*Variable `json:"headers,omitempty"         yaml:"headers,omitempty"`
@@ -149,6 +179,7 @@ type (
 	}
 
 	StepPlugin struct {
+		CommonStepSpec
 		Env             map[string]string      `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
 		ConnRef         string                 `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
 		Image           string                 `json:"image,omitempty"           yaml:"image,omitempty"`
@@ -161,6 +192,7 @@ type (
 	}
 
 	StepGitClone struct {
+		CommonStepSpec
 		Repository     string     `json:"repoName,omitempty"    yaml:"repoNama,omitempty"`
 		ConnRef        string     `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
 		BuildType      string     `json:"build,omitempty"    yaml:"build,omitempty"`
@@ -174,18 +206,21 @@ type (
 	}
 
 	StepAction struct {
+		CommonStepSpec
 		Uses string                 `json:"uses,omitempty"            yaml:"uses,omitempty"`
 		With map[string]interface{} `json:"with,omitempty"            yaml:"with,omitempty"`
 		Envs map[string]string      `json:"env,omitempty"             yaml:"env,omitempty"`
 	}
 
 	StepBitrise struct {
+		CommonStepSpec
 		Uses string                 `json:"uses,omitempty"            yaml:"uses,omitempty"`
 		With map[string]interface{} `json:"with,omitempty"            yaml:"with,omitempty"`
 		Envs map[string]string      `json:"env,omitempty"             yaml:"env,omitempty"`
 	}
 
 	StepRun struct {
+		CommonStepSpec
 		Env             map[string]string `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
 		Command         string            `json:"command,omitempty"         yaml:"command,omitempty"`
 		ConnRef         string            `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
@@ -200,6 +235,7 @@ type (
 	}
 
 	StepBackground struct {
+		CommonStepSpec
 		Command         string            `json:"command,omitempty"         yaml:"command,omitempty"`
 		ConnRef         string            `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
 		Entrypoint      []string          `json:"entrypoint,omitempty"      yaml:"entrypoint,omitempty"`
@@ -212,7 +248,8 @@ type (
 		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
 	}
 
-	StepScript struct {
+	StepShellScript struct {
+		CommonStepSpec
 		DelegateSelectors    string           `json:"delegateSelectors,omitempty"    yaml:"delegateSelectors,omitempty"`
 		EnvironmentVariables []*Variable      `json:"environmentVariables,omitempty" yaml:"environmentVariables,omitempty"`
 		ExecutionTarget      *ExecutionTarget `json:"executionTarget,omitempty"      yaml:"executionTarget,omitempty"`
@@ -233,6 +270,7 @@ type (
 	}
 
 	StepS3Upload struct {
+		CommonStepSpec
 		Bucket       string     `json:"bucket,omitempty"       yaml:"bucket,omitempty"`
 		ConnectorRef string     `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
 		Endpoint     string     `json:"endpoint,omitempty"     yaml:"endpoint,omitempty"`
@@ -241,6 +279,176 @@ type (
 		RunAsUser    string     `json:"runAsUser,omitempty"    yaml:"runAsUser,omitempty"`
 		SourcePath   string     `json:"sourcePath,omitempty"   yaml:"sourcePath,omitempty"`
 		Target       string     `json:"target,omitempty"       yaml:"target,omitempty"`
+	}
+
+	StepK8sRollingDeploy struct {
+		CommonStepSpec
+		SkipDryRun     bool `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
+		PruningEnabled bool `json:"pruningEnabled,omitempty" yaml:"pruningEnabled,omitempty"`
+	}
+
+	StepK8sRollingRollback struct {
+		CommonStepSpec
+		PruningEnabled bool `json:"pruningEnabled,omitempty" yaml:"pruningEnabled,omitempty"`
+	}
+
+	StepK8sApply struct {
+		CommonStepSpec
+		SkipDryRun           bool          `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
+		SkipSteadyStateCheck bool          `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
+		SkipRendering        bool          `json:"skipRendering,omitempty" yaml:"skipRendering,omitempty"`
+		Overrides            []interface{} `json:"overrides,omitempty" yaml:"overrides,omitempty"`
+		FilePaths            []string      `json:"filePaths,omitempty" yaml:"filePaths,omitempty"`
+	}
+
+	StepK8sBGSwapServices struct {
+		CommonStepSpec
+		// Spec intentionally empty per v0 example
+	}
+
+	StepK8sBlueGreenStageScaleDown struct {
+		CommonStepSpec
+		DeleteResources bool `json:"deleteResources,omitempty" yaml:"deleteResources,omitempty"`
+	}
+
+	// CD: K8s Delete
+	StepK8sDelete struct {
+		CommonStepSpec
+		DeleteResources *K8sDeleteResources `json:"deleteResources,omitempty" yaml:"deleteResources,omitempty"`
+	}
+
+	// CD: K8s Canary Delete (no spec fields in the provided example)
+	StepK8sCanaryDelete struct {
+		CommonStepSpec
+		// empty
+	}
+
+	// CD: K8s Diff (no spec fields in the provided example)
+	StepK8sDiff struct {
+		CommonStepSpec
+		// empty
+	}
+
+	// CD: K8s Rollout
+	StepK8sRollout struct {
+		CommonStepSpec
+		Command   string               `json:"command,omitempty" yaml:"command,omitempty"`
+		Resources *K8sRolloutResources `json:"resources,omitempty" yaml:"resources,omitempty"`
+	}
+
+	K8sRolloutResources struct {
+		Type string                   `json:"type,omitempty" yaml:"type,omitempty"`
+		Spec *K8sRolloutResourcesSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
+	}
+
+	K8sRolloutResourcesSpec struct {
+		ResourceNames []string `json:"resourceNames,omitempty" yaml:"resourceNames,omitempty"`
+		ManifestPaths []string `json:"manifestPaths,omitempty" yaml:"manifestPaths,omitempty"`
+	}
+
+	// K8sDeleteResources captures the delete selection and its spec.
+	// Type is one of: ResourceName | ManifestPath | ReleaseName
+	K8sDeleteResources struct {
+		Type string                  `json:"type,omitempty" yaml:"type,omitempty"`
+		Spec *K8sDeleteResourcesSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
+	}
+
+	// K8sDeleteResourcesSpec holds the possible selectors. Only one list is expected
+	// to be populated depending on the Type above.
+	K8sDeleteResourcesSpec struct {
+		ResourceNames []string `json:"resourceNames,omitempty" yaml:"resourceNames,omitempty"`
+		ManifestPaths []string `json:"manifestPaths,omitempty" yaml:"manifestPaths,omitempty"`
+		ReleaseNames  []string `json:"releaseNames,omitempty" yaml:"releaseNames,omitempty"`
+	}
+
+	// CD: K8s Scale
+	StepK8sScale struct {
+		CommonStepSpec
+		InstanceSelection    *K8sScaleInstanceSelection `json:"instanceSelection,omitempty" yaml:"instanceSelection,omitempty"`
+		SkipSteadyStateCheck bool                       `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
+		Workload             string                     `json:"workload,omitempty" yaml:"workload,omitempty"`
+	}
+
+	K8sScaleInstanceSelection struct {
+		Type string                         `json:"type,omitempty" yaml:"type,omitempty"`
+		Spec *K8sScaleInstanceSelectionSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
+	}
+
+	K8sScaleInstanceSelectionSpec struct {
+		Count      int `json:"count,omitempty" yaml:"count,omitempty"`
+		Percentage int `json:"percentage,omitempty" yaml:"percentage,omitempty"`
+	}
+
+	// CD: K8s Dry Run
+	StepK8sDryRun struct {
+		CommonStepSpec
+		EncryptYamlOutput bool `json:"encryptYamlOutput,omitempty" yaml:"encryptYamlOutput,omitempty"`
+	}
+
+	// CD: K8s Traffic Routing
+	StepK8sTrafficRouting struct {
+		CommonStepSpec
+		Type           string                   `json:"type,omitempty" yaml:"type,omitempty"`
+		TrafficRouting *K8sTrafficRoutingConfig `json:"trafficRouting,omitempty" yaml:"trafficRouting,omitempty"`
+	}
+
+	K8sTrafficRoutingConfig struct {
+		Provider string                 `json:"provider,omitempty" yaml:"provider,omitempty"`
+		Spec     *K8sTrafficRoutingSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
+	}
+
+	K8sTrafficRoutingSpec struct {
+		Name        string                    `json:"name,omitempty" yaml:"name,omitempty"`
+		RootService string                    `json:"rootService,omitempty" yaml:"rootService,omitempty"`
+		Hosts       interface{}               `json:"hosts,omitempty" yaml:"hosts,omitempty"`
+		Gateways    interface{}               `json:"gateways,omitempty" yaml:"gateways,omitempty"`
+		Routes      []*K8sTrafficRoutingRoute `json:"routes,omitempty" yaml:"routes,omitempty"`
+	}
+
+	K8sTrafficRoutingRoute struct {
+		Route *K8sTrafficRoutingRouteSpec `json:"route,omitempty" yaml:"route,omitempty"`
+	}
+
+	K8sTrafficRoutingRouteSpec struct {
+		Type         string                          `json:"type,omitempty" yaml:"type,omitempty"`
+		Name         string                          `json:"name,omitempty" yaml:"name,omitempty"`
+		Destinations []*K8sTrafficRoutingDestination `json:"destinations,omitempty" yaml:"destinations,omitempty"`
+	}
+
+	K8sTrafficRoutingDestination struct {
+		Destination *K8sTrafficRoutingDestinationSpec `json:"destination,omitempty" yaml:"destination,omitempty"`
+	}
+
+	K8sTrafficRoutingDestinationSpec struct {
+		Host   string `json:"host,omitempty" yaml:"host,omitempty"`
+		Weight int    `json:"weight,omitempty" yaml:"weight,omitempty"`
+	}
+
+	// CD: K8s Canary Deploy
+	StepK8sCanaryDeploy struct {
+		CommonStepSpec
+		SkipDryRun        bool                     `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
+		InstanceSelection *K8sInstanceSelection    `json:"instanceSelection,omitempty" yaml:"instanceSelection,omitempty"`
+		TrafficRouting    *K8sTrafficRoutingConfig `json:"trafficRouting,omitempty" yaml:"trafficRouting,omitempty"`
+	}
+
+	K8sInstanceSelection struct {
+		Type string                    `json:"type,omitempty" yaml:"type,omitempty"`
+		Spec *K8sInstanceSelectionSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
+	}
+
+	K8sInstanceSelectionSpec struct {
+		Count      int `json:"count,omitempty" yaml:"count,omitempty"`
+		Percentage int `json:"percentage,omitempty" yaml:"percentage,omitempty"`
+	}
+
+	// CD: K8s Blue Green Deploy
+	StepK8sBlueGreenDeploy struct {
+		CommonStepSpec
+		SkipDryRun            bool                     `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
+		PruningEnabled        bool                     `json:"pruningEnabled,omitempty" yaml:"pruningEnabled,omitempty"`
+		SkipUnchangedManifest bool                     `json:"skipUnchangedManifest,omitempty" yaml:"skipUnchangedManifest,omitempty"`
+		TrafficRouting        *K8sTrafficRoutingConfig `json:"trafficRouting,omitempty" yaml:"trafficRouting,omitempty"`
 	}
 
 	//
@@ -293,8 +501,14 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 	}
 
 	switch s.Type {
+	case StepTypeAction:
+		s.Spec = new(StepAction)
 	case StepTypeRun:
 		s.Spec = new(StepRun)
+	case StepTypeBarrier:
+		s.Spec = new(StepBarrier)
+	case StepTypeQueue:
+		s.Spec = new(StepQueue)
 	case StepTypePlugin:
 		s.Spec = new(StepPlugin)
 	case StepTypeBuildAndPushDockerRegistry:
@@ -302,9 +516,39 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 	case StepTypeS3Upload:
 		s.Spec = new(StepS3Upload)
 	case StepTypeShellScript:
-		s.Spec = new(StepScript)
+		s.Spec = new(StepShellScript)
 	case StepTypeHTTP:
 		s.Spec = new(StepHTTP)
+	case StepTypeHarnessApproval:
+		s.Spec = new(StepHarnessApproval)
+	case StepTypeK8sRollingDeploy:
+		s.Spec = new(StepK8sRollingDeploy)
+	case StepTypeK8sRollingRollback:
+		s.Spec = new(StepK8sRollingRollback)
+	case StepTypeK8sApply:
+		s.Spec = new(StepK8sApply)
+	case StepTypeK8sBGSwapServices:
+		s.Spec = new(StepK8sBGSwapServices)
+	case StepTypeK8sBlueGreenStageScaleDown:
+		s.Spec = new(StepK8sBlueGreenStageScaleDown)
+	case StepTypeK8sCanaryDelete:
+		s.Spec = new(StepK8sCanaryDelete)
+	case StepTypeK8sDelete:
+		s.Spec = new(StepK8sDelete)
+	case StepTypeK8sDiff:
+		s.Spec = new(StepK8sDiff)
+	case StepTypeK8sRollout:
+		s.Spec = new(StepK8sRollout)
+	case StepTypeK8sScale:
+		s.Spec = new(StepK8sScale)
+	case StepTypeK8sDryRun:
+		s.Spec = new(StepK8sDryRun)
+	case StepTypeK8sTrafficRouting:
+		s.Spec = new(StepK8sTrafficRouting)
+	case StepTypeK8sCanaryDeploy:
+		s.Spec = new(StepK8sCanaryDeploy)
+	case StepTypeK8sBlueGreenDeploy:
+		s.Spec = new(StepK8sBlueGreenDeploy)
 	default:
 		return fmt.Errorf("unknown step type %s", s.Type)
 	}

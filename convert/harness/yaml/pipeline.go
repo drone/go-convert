@@ -32,6 +32,16 @@ type (
 		Stages    []*Stages         `json:"stages,omitempty"            yaml:"stages"`
 		Variables []*Variable       `json:"variables,omitempty"         yaml:"variables,omitempty"`
 		Tags      map[string]string `json:"tags,omitempty"              yaml:"tags,omitempty"`
+		FlowControl *FlowControl    `json:"flowControl,omitempty"       yaml:"flowControl,omitempty"`
+	}
+
+	FlowControl struct {
+		Barriers []*Barrier `json:"barriers,omitempty" yaml:"barriers,omitempty"`
+	}
+
+	Barrier struct {
+		Name string `json:"name,omitempty" yaml:"name,omitempty"`
+		Identifier string `json:"identifier,omitempty" yaml:"identifier,omitempty"`
 	}
 
 	// Properties defines pipeline properties.
