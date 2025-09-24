@@ -1,6 +1,7 @@
 package yaml
 
 import (
+	"encoding/json"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -18,11 +19,25 @@ import (
 // This matches the expected Harness v1 YAML shape.
 func MarshalPipeline(p *Pipeline) ([]byte, error) {
 	wrapper := struct {
-		Pipeline *Pipeline `yaml:"pipeline"`
+		Pipeline *Pipeline `json:"pipeline"`
 	}{
 		Pipeline: p,
 	}
-	return yaml.Marshal(&wrapper)
+
+	// First marshal to JSON
+	jsonBytes, err := json.Marshal(&wrapper)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert JSON to interface{} for YAML marshaling
+	var jsonData interface{}
+	if err := json.Unmarshal(jsonBytes, &jsonData); err != nil {
+		return nil, err
+	}
+
+	// Marshal to YAML
+	return yaml.Marshal(jsonData)
 }
 
 // WritePipelineFile writes the Pipeline to the given file path in the same

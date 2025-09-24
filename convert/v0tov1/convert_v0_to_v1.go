@@ -83,6 +83,7 @@ func convertStage(src *v0.Stage) *v1.Stage {
 	delegate := &v1.Delegate{
 		Filter: src.DelegateSelectors,
 	}
+	strategy := convert_helpers.ConvertStrategy(src.Strategy)
 	return &v1.Stage{
 		Id:          src.ID,
 		Name:        src.Name,
@@ -93,6 +94,7 @@ func convertStage(src *v0.Stage) *v1.Stage {
 		OnFailure:   onFailure,
 		Inputs:      convertVariables(src.Vars),
 		Delegate:    delegate,
+		Strategy:    strategy,
 	}
 }
 
@@ -197,7 +199,7 @@ func Main() {
 	// Read v0 YAML file and fit to v0 structs
 	v0Config, err := v0.ParseFile(inputFile)
 	if err != nil {
-		log.Fatalf("Failed to parse v0 pipeline file: %v", err)
+		log.Printf("Failed to parse v0 pipeline file: %v", err)
 	}
 
 	// Convert to v1 structs

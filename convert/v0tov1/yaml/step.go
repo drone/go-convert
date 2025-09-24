@@ -18,7 +18,6 @@ package yaml
 
 import (
 	"encoding/json"
-	"time"
 )
 
 type Step struct {
@@ -33,7 +32,7 @@ type Step struct {
 	If         string                 `json:"if,omitempty" yaml:"if,omitempty"`
 	Name       string                 `json:"name,omitempty" yaml:"name,omitempty"`
 	Needs      Stringorslice          `json:"needs,omitempty" yaml:"needs,omitempty"`
-	OnFailure  []*FailureStrategy     `json:"onFailure,omitempty" yaml:"onFailure,omitempty"`
+	OnFailure  []*FailureStrategy     `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
 	Parallel   *StepGroup             `json:"parallel,omitempty" yaml:"parallel,omitempty"`
 	Queue      *StepQueue             `json:"queue,omitempty" yaml:"queue,omitempty"`
 	Run        *StepRun               `json:"run,omitempty" yaml:"run,omitempty"`
@@ -41,7 +40,7 @@ type Step struct {
 	Status     *Status                `json:"status,omitempty" yaml:"status,omitempty"`
 	Strategy   *Strategy              `json:"strategy,omitempty" yaml:"strategy,omitempty"`
 	Template   *StepTemplate          `json:"template,omitempty" yaml:"template,omitempty"`
-	Timeout    time.Duration          `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	Timeout    *Duration              `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Uses       string                 `json:"uses,omitempty" yaml:"uses,omitempty"`
 	With       map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
 
@@ -71,7 +70,7 @@ func (v *Step) UnmarshalJSON(data []byte) error {
 		If         string                 `json:"if,omitempty" yaml:"if,omitempty"`
 		Name       string                 `json:"name,omitempty" yaml:"name,omitempty"`
 		Needs      Stringorslice          `json:"needs,omitempty" yaml:"needs,omitempty"`
-		OnFailure  []*FailureStrategy     `json:"onFailure,omitempty" yaml:"onFailure,omitempty"`
+		OnFailure  []*FailureStrategy     `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
 		Parallel   *StepGroup             `json:"parallel,omitempty" yaml:"parallel,omitempty"`
 		Queue      *StepQueue             `json:"queue,omitempty" yaml:"queue,omitempty"`
 		Run        *StepRun               `json:"run,omitempty" yaml:"run,omitempty"`
@@ -79,13 +78,13 @@ func (v *Step) UnmarshalJSON(data []byte) error {
 		Status     *Status                `json:"status,omitempty" yaml:"status,omitempty"`
 		Strategy   *Strategy              `json:"strategy,omitempty" yaml:"strategy,omitempty"`
 		Template   *StepTemplate          `json:"template,omitempty" yaml:"template,omitempty"`
-		Timeout    time.Duration          `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+		Timeout    *Duration              `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 		Uses       string                 `json:"uses,omitempty" yaml:"uses,omitempty"`
 		With       map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
 		Context    *Context               `json:"context,omitempty" yaml:"context,omitempty"`
 	}{}
 
-	if err := json.Unmarshal(data, &out1); err == nil {	
+	if err := json.Unmarshal(data, &out1); err == nil {
 		v.Run = new(StepRun)
 		v.Run.Script = out1
 		return nil

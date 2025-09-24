@@ -550,7 +550,7 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 	case StepTypeK8sBlueGreenDeploy:
 		s.Spec = new(StepK8sBlueGreenDeploy)
 	default:
-		return fmt.Errorf("unknown step type %s", s.Type)
+		return fmt.Errorf("unknown step type while unmarshalling %s", s.Type)
 	}
 
 	return json.Unmarshal(obj.Spec, s.Spec)

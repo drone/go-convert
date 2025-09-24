@@ -122,7 +122,9 @@ func ConvertSingleStep(src *v0.Step) *v1.Step {
 func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 	// Convert timeout
 	if src.Timeout.Duration > 0 {
-		dst.Timeout = src.Timeout.Duration
+		dst.Timeout = &v1.Duration{
+			Duration: src.Timeout.Duration,
+		}
 	}
 
 	// Convert failure strategies
@@ -138,6 +140,11 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 	// Convert when conditions
 	if src.When != nil {
 		dst.If = convertStepWhen(src.When)
+	}
+
+	// Convert strategies
+	if src.Strategy != nil {
+		dst.Strategy = ConvertStrategy(src.Strategy)
 	}
 
 	// Convert delegate selectors using reflection

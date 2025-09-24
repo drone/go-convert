@@ -20,9 +20,9 @@ import "encoding/json"
 
 // Matrix defines a matrix execution strategy.
 type Matrix struct {
-	Axis    map[string][]string
-	Exclude []map[string]string `json:"exclude,omitempty"`
-	Include []map[string]string `json:"include,omitempty"`
+	Axis    map[string]interface{}
+	Exclude []map[string]string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
+	Include []map[string]string `json:"include,omitempty" yaml:"include,omitempty"`
 }
 
 // UnmarshalJSON implements the unmarshal interface.
