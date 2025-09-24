@@ -30,7 +30,7 @@ func ConvertSteps(src []*v0.Steps) []*v1.Step {
 				Steps: ConvertSteps(s.Parallel),
 			}
 			parallel := &v1.Step{
-				Group: parallel_group,
+				Parallel: parallel_group,
 			}
 			dst = append(dst, parallel)
 			continue
