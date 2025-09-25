@@ -538,6 +538,12 @@ type (
 		TransitionName string `json:"transitionName,omitempty" yaml:"transitionName,omitempty"`
 	}
 
+	// Wait step
+	StepWait struct {
+		CommonStepSpec
+		Duration string `json:"duration,omitempty" yaml:"duration,omitempty"`
+	}
+
 	//
 	// Supporting structures
 	//
@@ -652,6 +658,8 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepHelmDeploy)
 	case StepTypeHelmRollback:
 		s.Spec = new(StepHelmRollback)
+	case StepTypeWait:
+		s.Spec = new(StepWait)
 	default:
 		fmt.Printf("unknown step type while unmarshalling %s", s.Type)
 		return nil

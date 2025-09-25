@@ -50,3 +50,23 @@ func ConvertStepAction(src *v0.Step) *v1.StepAction {
 	return dst
 }
 
+// ConvertStepWait converts a v0 Wait step to a v1 action step
+func ConvertStepWait(src *v0.Step) *v1.StepAction {
+	if src == nil || src.Spec == nil {
+		return nil
+	}
+	sp, ok := src.Spec.(*v0.StepWait)
+	if !ok || sp == nil {
+		return nil
+	}
+
+	with := map[string]interface{}{}
+	if sp.Duration != "" {
+		with["duration"] = sp.Duration
+	}
+
+	return &v1.StepAction{
+		Uses: "wait",
+		With: with,
+	}
+}

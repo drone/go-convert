@@ -20,6 +20,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
@@ -179,39 +180,62 @@ func ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 }
 
 func Main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run convert.go <input-file> [output-file]")
-		os.Exit(1)
+	baseDir := filepath.Join("convert", "v0tov1", "test_pipelines")
+	inputDir := filepath.Join(baseDir, "v0")
+	outputDir := filepath.Join(baseDir, "v1")
+
+	if err := os.MkdirAll(outputDir, 0o755); err != nil {
+		log.Fatalf("Failed to create output directory %s: %v", outputDir, err)
 	}
 
-	inputFile := os.Args[1]
-
-	// Determine output file
-	var outputFile string
-	if len(os.Args) >= 3 {
-		outputFile = os.Args[2]
-	} else {
-		ext := filepath.Ext(inputFile)
-		base := strings.TrimSuffix(inputFile, ext)
-		outputFile = base + ".v1" + ext
-	}
-
-	// Read v0 YAML file and fit to v0 structs
-	v0Config, err := v0.ParseFile(inputFile)
+	entries, err := os.ReadDir(inputDir)
 	if err != nil {
-		log.Printf("Failed to parse v0 pipeline file: %v", err)
+		log.Fatalf("Failed to read input directory %s: %v", inputDir, err)
 	}
 
-	// Convert to v1 structs
-	v1Pipeline := ConvertPipeline(&v0Config.Pipeline)
-	if v1Pipeline == nil {
-		log.Fatal("Failed to convert pipeline to v1 format")
+	converted := 0
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if !(strings.HasSuffix(name, ".yaml") || strings.HasSuffix(name, ".yml")) {
+			continue
+		}
+
+		inputPath := filepath.Join(inputDir, name)
+		outputPath := filepath.Join(outputDir, name)
+
+		// Benchmark: Read v0
+		readStart := time.Now()
+		v0Config, err := v0.ParseFile(inputPath)
+		readDur := time.Since(readStart)
+		if err != nil {
+			log.Printf("Skipping %s: failed to parse v0 pipeline file after %v: %v", inputPath, readDur, err)
+			continue
+		}
+
+		// Benchmark: Convert to v1
+		convStart := time.Now()
+		v1Pipeline := ConvertPipeline(&v0Config.Pipeline)
+		convDur := time.Since(convStart)
+		if v1Pipeline == nil {
+			log.Printf("Skipping %s: failed to convert pipeline to v1 format (convert took %v)", inputPath, convDur)
+			continue
+		}
+
+		// Benchmark: Write v1 YAML
+		writeStart := time.Now()
+		if err := v1.WritePipelineFile(outputPath, v1Pipeline); err != nil {
+			writeDur := time.Since(writeStart)
+			log.Printf("Failed to write v1 pipeline YAML for %s after %v: %v", inputPath, writeDur, err)
+			continue
+		}
+		writeDur := time.Since(writeStart)
+
+		fmt.Printf("Converted %s -> %s (read=%v, convert=%v, write=%v)\n", inputPath, outputPath, readDur, convDur, writeDur)
+		converted++
 	}
 
-	// Write v1 YAML file with top-level 'pipeline:' key using writer
-	if err := v1.WritePipelineFile(outputFile, v1Pipeline); err != nil {
-		log.Fatalf("Failed to write v1 pipeline YAML: %v", err)
-	}
-
-	fmt.Printf("Converted %s -> %s\n", inputFile, outputFile)
+	fmt.Printf("Converted %d pipeline(s) into %s\n", converted, outputDir)
 }

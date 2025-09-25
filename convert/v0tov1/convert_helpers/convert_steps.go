@@ -116,6 +116,8 @@ func ConvertSingleStep(src *v0.Step) *v1.Step {
 		step.Template = ConvertStepHelmDeploy(src)
 	case v0.StepTypeHelmRollback:
 		step.Template = ConvertStepHelmRollback(src)
+	case v0.StepTypeWait:
+		step.Action = ConvertStepWait(src)
 	case v0.StepTypeShellScript:
 		step.Run = ConvertStepShellScript(src)
 	case v0.StepTypeBarrier:

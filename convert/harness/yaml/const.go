@@ -79,6 +79,7 @@ const (
 	StepTypeJiraUpdate         = "JiraUpdate"
 	StepTypeServiceNowApproval = "ServiceNowApproval"
 	StepTypeShellScript        = "ShellScript"
+	StepTypeWait               = "Wait"
 
 	// CD / Kubernetes
 	StepTypeK8sRollingDeploy           = "K8sRollingDeploy"
