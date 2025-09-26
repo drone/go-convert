@@ -18,14 +18,14 @@ func ConvertStepK8sRollingDeploy(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 	with := map[string]interface{}{
-		"kubeconfig":              "<+input>",
-		"namespace":               "<+input>",
-		"manifests":               "<+input>",
-		"releasename":             "<+input>",
-		"skipresourceversioning":  false,
-		"skipaddingtrackselector": false,
-		"supporthpaandpdb":        false,
-		"image":                   "<+input>",
+		// "kubeconfig":              "<+input>",
+		// "namespace":               "<+input>",
+		// "manifests":               "<+input>",
+		// "releasename":             "<+input>",
+		// "skipresourceversioning":  false,
+		// "skipaddingtrackselector": false,
+		// "supporthpaandpdb":        false,
+		// "image":                   "<+input>",
 		"flags":                   []interface{}{},
 		"skipdryrun":              spec.SkipDryRun,
 		"pruning":                 spec.PruningEnabled,
@@ -49,13 +49,13 @@ func ConvertStepK8sRollingRollback(src *v0.Step) *v1.StepTemplate {
 	}
 
 	with := map[string]interface{}{
-		"kubeconfig":    "<+input>",
-		"namespace":     "<+input>",
-		"releasename":   "<+input>",
+		// "kubeconfig":    "<+input>",
+		// "namespace":     "<+input>",
+		// "releasename":   "<+input>",
 		"pruning":       spec.PruningEnabled,
-		"forcerollback": false,
+		// "forcerollback": false,
 		"flags":         []interface{}{},
-		"image":         "<+input>",
+		// "image":         "<+input>",
 	}
 
 	return &v1.StepTemplate{
@@ -83,14 +83,13 @@ func ConvertStepK8sApply(src *v0.Step) *v1.StepTemplate {
 	}
 
 	with := map[string]interface{}{
-		"kubeconfig":           "<+input>",
-		"namespace":            "<+input>",
+		// "kubeconfig":           "<+input>",
+		// "namespace":            "<+input>",
 		"manifests":            manifests,
 		"skipdryrun":           spec.SkipDryRun,
 		"skipsteadystatecheck": spec.SkipSteadyStateCheck,
 		"flags":                []interface{}{},
-		"image":                "<+input>",
-		"steadystatecheckstep": true,
+		// "image":                "<+input>",
 	}
 	return &v1.StepTemplate{
 		Uses: "k8sApplyStep@1.0.0",
@@ -111,12 +110,12 @@ func ConvertStepK8sBGSwapServices(src *v0.Step) *v1.StepTemplate {
 	}
 
 	with := map[string]interface{}{
-		"kubeconfig":    "<+input>",
-		"namespace":     "<+input>",
-		"stableservice": "<+input>",
-		"stageservice":  "<+input>",
-		"releasename":   "<+input>",
-		"image":         "<+input>",
+		// "kubeconfig":    "<+input>",
+		// "namespace":     "<+input>",
+		// "stableservice": "<+input>",
+		// "stageservice":  "<+input>",
+		// "releasename":   "<+input>",
+		// "image":         "<+input>",
 	}
 
 	return &v1.StepTemplate{
@@ -141,9 +140,9 @@ func ConvertStepK8sBlueGreenStageScaleDown(src *v0.Step) *v1.StepTemplate {
 	}
 
 	with := map[string]interface{}{
-		"kubeconfig":  "<+input>",
-		"namespace":   "<+input>",
-		"releasename": "<+input>",
+		// "kubeconfig":  "<+input>",
+		// "namespace":   "<+input>",
+		// "releasename": "<+input>",
 		// pruning maps from deleteResources
 		"pruning": deleteResources,
 	}
@@ -167,11 +166,11 @@ func ConvertStepK8sCanaryDelete(src *v0.Step) *v1.StepTemplate {
 	}
 
 	with := map[string]interface{}{
-		"kubeconfig": "<+input>",
-		"namespace":  "<+input>",
-		"deletestep": "<+input>",
+		// "kubeconfig": "<+input>",
+		// "namespace":  "<+input>",
+		// "deletestep": "<+input>",
 		// allowed values: resources | manifests | releasename
-		"selectdeleteresources": "<+input>",
+		// "selectdeleteresources": "<+input>",
 	}
 
 	return &v1.StepTemplate{
@@ -193,10 +192,10 @@ func ConvertStepK8sDiff(src *v0.Step) *v1.StepTemplate {
 	}
 
 	with := map[string]interface{}{
-		"kubeconfig": "<+input>",
-		"namespace":  "<+input>",
-		"manifests":  "<+input>",
-		"image":      "<+input>",
+		// "kubeconfig": "<+input>",
+		// "namespace":  "<+input>",
+		// "manifests":  "<+input>",
+		// "image":      "<+input>",
 	}
 
 	return &v1.StepTemplate{
@@ -217,7 +216,7 @@ func ConvertStepK8sRollout(src *v0.Step) *v1.StepTemplate {
 
 	sel := ""
 	// If ReleaseName is selected, v1 wants a separate releasename input.
-	releasenameNeeded := false
+	// releasenameNeeded := false
 	// Hold optional list outputs for resources/manifests
 	var resourcesList []interface{}
 	var manifestsList []interface{}
@@ -239,21 +238,21 @@ func ConvertStepK8sRollout(src *v0.Step) *v1.StepTemplate {
 			}
 		case "ReleaseName":
 			sel = "releasename"
-			releasenameNeeded = true
+			// releasenameNeeded = true
 		}
 	}
 
 	with := map[string]interface{}{
-		"kubeconfig":             "<+input>",
-		"namespace":              "<+input>",
+		// "kubeconfig":             "<+input>",
+		// "namespace":              "<+input>",
 		"command":                sp.Command,
 		"selectrolloutresources": sel,
 		"flags":                  []interface{}{},
-		"image":                  "<+input>",
+		// "image":                  "<+input>",
 	}
-	if releasenameNeeded {
-		with["releasename"] = "<+input>"
-	}
+	// if releasenameNeeded {
+	// 	with["releasename"] = "<+input>"
+	// }
 	if len(resourcesList) > 0 {
 		with["resources"] = resourcesList
 	}
@@ -295,14 +294,13 @@ func ConvertStepK8sScale(src *v0.Step) *v1.StepTemplate {
 	}
 
 	with := map[string]interface{}{
-		"kubeconfig":           "<+input>",
-		"namespace":            "<+input>",
+		// "kubeconfig":           "<+input>",
+		// "namespace":            "<+input>",
 		"unittype":             unittype,
 		"instances":            instances,
 		"workload":             sp.Workload,
 		"skipsteadystatecheck": sp.SkipSteadyStateCheck,
-		"image":                "<+input>",
-		"steadystatecheckstep": sp.SkipSteadyStateCheck,
+		// "image":                "<+input>",
 	}
 
 	return &v1.StepTemplate{
@@ -322,11 +320,11 @@ func ConvertStepK8sDryRun(src *v0.Step) *v1.StepTemplate {
 	}
 
 	with := map[string]interface{}{
-		"kubeconfig":        "<+input>",
-		"namespace":         "<+input>",
-		"manifests":         "<+input>",
+		// "kubeconfig":        "<+input>",
+		// "namespace":         "<+input>",
+		// "manifests":         "<+input>",
 		"encryptyamloutput": sp.EncryptYamlOutput,
-		"applystep":         "<+input>",
+		// "applystep":         "<+input>",
 	}
 
 	return &v1.StepTemplate{
@@ -375,12 +373,12 @@ func ConvertStepK8sDelete(src *v0.Step) *v1.StepTemplate {
 	}
 
 	with := map[string]interface{}{
-		"kubeconfig":            "<+input>",
-		"namespace":             "<+input>",
+		// "kubeconfig":            "<+input>",
+		// "namespace":             "<+input>",
 		"selectdeleteresources": sel,
-		"resource":              resources,
+		sel:                     resources,
 		"flags":                 []interface{}{},
-		"image":                 "<+input>",
+		// "image":                 "<+input>",
 	}
 
 	return &v1.StepTemplate{
@@ -433,13 +431,13 @@ func ConvertStepK8sTrafficRouting(src *v0.Step) *v1.StepTemplate {
 	}
 
 	with := map[string]interface{}{
-		"kubeconfig":   "<+input>",
-		"namespace":    "<+input>",
+		// "kubeconfig":   "<+input>",
+		// "namespace":    "<+input>",
 		"config":       "new",
 		"provider":     provider,
 		"hosts":        hosts,
 		"gateways":     gateways,
-		"image":        "<+input>",
+		// "image":        "<+input>",
 		"routes":       routes,
 		"resourcename": resourceName,
 	}
@@ -570,10 +568,10 @@ func ConvertStepK8sCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 	}
 
 	with := map[string]interface{}{
-		"kubeconfig":             "<+input>",
-		"namespace":              "<+input>",
-		"manifests":              "<+input>",
-		"releasename":            "<+input>",
+		// "kubeconfig":             "<+input>",
+		// "namespace":              "<+input>",
+		// "manifests":              "<+input>",
+		// "releasename":            "<+input>",
 		"provider":               provider,
 		"unittype":               unitType,
 		"instances":              instances,
@@ -582,8 +580,8 @@ func ConvertStepK8sCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 		"gateways":               gateways,
 		"routes":                 routes,
 		"skipdryrun":             spec.SkipDryRun,
-		"image":                  "harnessdev/k8s-deploy:linux-amd64-latest",
-		"trafficroutingstep":     "<+input>",
+		// "image":                  "harnessdev/k8s-deploy:linux-amd64-latest",
+		// "trafficroutingstep":     "<+input>",
 		"flags":                  []interface{}{},
 	}
 
@@ -645,10 +643,10 @@ func ConvertStepK8sBlueGreenDeploy(src *v0.Step) *v1.StepTemplate {
 	}
 
 	with = map[string]interface{}{
-		"kubeconfig":             "<+input>",
-		"namespace":              "<+input>",
-		"manifests":              "<+input>",
-		"releasename":            "<+input>",
+		// "kubeconfig":             "<+input>",
+		// "namespace":              "<+input>",
+		// "manifests":              "<+input>",
+		// "releasename":            "<+input>",
 		"provider":               provider,
 		"resourcename":           resourceName,
 		"hosts":                  hosts,
@@ -657,8 +655,8 @@ func ConvertStepK8sBlueGreenDeploy(src *v0.Step) *v1.StepTemplate {
 		"skipdryrun":             spec.SkipDryRun,
 		"pruning":                spec.PruningEnabled,
 		"skipunchangedmanifest":  spec.SkipUnchangedManifest,
-		"image":                  "harnessdev/k8s-deploy:linux-amd64-latest",
-		"trafficroutingstep":     "<+input>",
+		// "image":                  "harnessdev/k8s-deploy:linux-amd64-latest",
+		// "trafficroutingstep":     "<+input>",
 		"flags":                  []interface{}{},
 	}
 
