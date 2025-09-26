@@ -49,7 +49,6 @@ func convertStage(src *v0.Stage) *v1.Stage {
 	var rollback []*v1.Step
 	var service *v1.ServiceRef
 	var environment *v1.EnvironmentRef
-	var onFailure []*v1.FailureStrategy
 
 	switch spec := src.Spec.(type) {
 	case *v0.StageCI:
@@ -80,10 +79,8 @@ func convertStage(src *v0.Stage) *v1.Stage {
 		fmt.Println("stage type: " + src.Type + " is not yet supported!")
 		// non-CI/Deployment stages currently not converted
 	}
-	onFailure = convert_helpers.ConvertFailureStrategies(src.FailureStrategies)
-	delegate := &v1.Delegate{
-		Filter: src.DelegateSelectors,
-	}
+	onFailure := convert_helpers.ConvertFailureStrategies(src.FailureStrategies)
+
 	strategy := convert_helpers.ConvertStrategy(src.Strategy)
 	return &v1.Stage{
 		Id:          src.ID,
@@ -94,7 +91,7 @@ func convertStage(src *v0.Stage) *v1.Stage {
 		Environment: environment,
 		OnFailure:   onFailure,
 		Inputs:      convertVariables(src.Vars),
-		Delegate:    delegate,
+		Delegate:    convert_helpers.ConvertDelegate(src.DelegateSelectors),
 		Strategy:    strategy,
 	}
 }

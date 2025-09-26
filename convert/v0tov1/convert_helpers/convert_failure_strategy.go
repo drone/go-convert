@@ -19,6 +19,33 @@ import (
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
 
+// ConvertFailureStrategyFlexible converts a FlexibleField containing failure strategies from v0 to v1 format.
+// This handles both expression strings and arrays of failure strategies.
+func ConvertFailureStrategies(src *v0.FlexibleField[[]*v0.FailureStrategy]) *v1.FlexibleField[[]*v1.FailureStrategy] {
+	if src == nil || src.IsNil() {
+		return nil
+	}
+
+	result := &v1.FlexibleField[[]*v1.FailureStrategy]{}
+
+	// Handle expression strings
+	if src.IsExpression() {
+		result.SetExpression(src.AsString())
+		return result
+	}
+
+	// Handle struct arrays
+	if strategies, ok := src.AsStruct(); ok {
+		converted := ConvertFailureStrategiesArray(strategies)
+		if converted != nil {
+			result.Set(converted)
+			return result
+		}
+	}
+
+	return nil
+}
+
 // ConvertFailureStrategy converts a single v0 failure strategy to v1 format.
 func ConvertFailureStrategy(src *v0.FailureStrategy) *v1.FailureStrategy {
 	if src == nil || src.OnFailure == nil {
@@ -32,7 +59,7 @@ func ConvertFailureStrategy(src *v0.FailureStrategy) *v1.FailureStrategy {
 }
 
 // ConvertFailureStrategies converts a list of v0 FailureStrategies to v1 FailureStrategies.
-func ConvertFailureStrategies(src []*v0.FailureStrategy) []*v1.FailureStrategy {
+func ConvertFailureStrategiesArray(src []*v0.FailureStrategy) []*v1.FailureStrategy {
 	if len(src) == 0 {
 		return nil
 	}
@@ -187,7 +214,7 @@ func ConvertManualInterventionSpec(action *v0.Action) *v1.ActionManual {
 			TimeoutAction: "abort",
 		}
 	}
-	
+
 	manualAction := &v1.ActionManual{
 		Timeout:       spec.Timeout,
 		TimeoutAction: "abort", // Default timeout action

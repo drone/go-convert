@@ -146,7 +146,7 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 	}
 
 	// Convert failure strategies
-	if len(src.FailureStrategies) > 0 {
+	if src.FailureStrategies != nil {
 		dst.OnFailure = ConvertFailureStrategies(src.FailureStrategies)
 	}
 
@@ -165,9 +165,11 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 		dst.Strategy = ConvertStrategy(src.Strategy)
 	}
 
-	// Convert delegate selectors using reflection
-	var delegateSelectors []string
-	var includeInfraSelectors bool
+	// Convert delegate selectors
+
+	// extract delegate selectors and includeInfraSelectors from src using reflection
+	var delegate_selectors v0.FlexibleField[[]string]
+	var include_infra_selectors bool
 
 	if src.Spec != nil {
 		// Use reflection to find embedded CommonStepSpec
@@ -185,19 +187,18 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 
 				// Check if this field is an embedded CommonStepSpec
 				if fieldType.Anonymous && fieldType.Type.Name() == "CommonStepSpec" {
-					// Extract DelegateSelectors
+					// Extract DelegateSelectors (FlexibleField[[]string])
 					if delegateField := field.FieldByName("DelegateSelectors"); delegateField.IsValid() {
-						if delegateField.Kind() == reflect.Slice && delegateField.Type().Elem().Kind() == reflect.String {
-							for j := 0; j < delegateField.Len(); j++ {
-								delegateSelectors = append(delegateSelectors, delegateField.Index(j).String())
-							}
+						if delegateField.Type().Name() == "FlexibleField[[]string]" {
+							// Copy the entire FlexibleField
+							delegate_selectors = delegateField.Interface().(v0.FlexibleField[[]string])
 						}
 					}
 
 					// Extract IncludeInfraSelectors
 					if infraField := field.FieldByName("IncludeInfraSelectors"); infraField.IsValid() {
 						if infraField.Kind() == reflect.Bool {
-							includeInfraSelectors = infraField.Bool()
+							include_infra_selectors = infraField.Bool()
 						}
 					}
 					break
@@ -205,17 +206,18 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 			}
 		}
 	}
+	// Convert delegate using the extracted values
+	delegate := ConvertDelegate(delegate_selectors)
 
-	// Only set delegate if we have selectors or includeInfraSelectors
-	if includeInfraSelectors || len(delegateSelectors) > 0 {
-		dst.Delegate = &v1.Delegate{}
-		if includeInfraSelectors {
-			dst.Delegate.Inherit = true
-		}
-		if len(delegateSelectors) > 0 {
-			dst.Delegate.Filter = delegateSelectors
+	// Handle includeInfraSelectors for struct-based delegates
+	if include_infra_selectors && delegate != nil && !delegate.IsExpression() {
+		if delegateStruct, ok := delegate.AsStruct(); ok {
+			delegateStruct.Inherit = true
+			delegate.Set(delegateStruct)
 		}
 	}
+
+	dst.Delegate = delegate
 }
 
 // convertStepWhen converts v0 step when conditions to v1 format

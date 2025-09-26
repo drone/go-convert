@@ -31,7 +31,7 @@ type (
 		When              *StepWhen          `json:"when,omitempty"              yaml:"when,omitempty"`
 		Env               map[string]string  `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
 		Strategy          *Strategy          `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
-		FailureStrategies []*FailureStrategy `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
+		FailureStrategies *FlexibleField[[]*FailureStrategy] `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
 	}
 
 	StepGroup struct { // TODO missing failure strategies
@@ -52,7 +52,7 @@ type (
 
 	CommonStepSpec struct {
 		IncludeInfraSelectors bool     `json:"includeInfraSelectors,omitempty" yaml:"includeInfraSelectors,omitempty"`
-		DelegateSelectors     []string `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
+		DelegateSelectors     FlexibleField[[]string] `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
 	}
 
 	StepArtifactoryUpload struct {
@@ -250,7 +250,6 @@ type (
 
 	StepShellScript struct {
 		CommonStepSpec
-		DelegateSelectors    string           `json:"delegateSelectors,omitempty"    yaml:"delegateSelectors,omitempty"`
 		EnvironmentVariables []*Variable      `json:"environmentVariables,omitempty" yaml:"environmentVariables,omitempty"`
 		ExecutionTarget      *ExecutionTarget `json:"executionTarget,omitempty"      yaml:"executionTarget,omitempty"`
 		Metadata             string           `json:"metadata,omitempty"             yaml:"metadata,omitempty"`

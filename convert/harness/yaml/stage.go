@@ -25,13 +25,13 @@ type (
 		ID          string      `json:"identifier,omitempty"   yaml:"identifier,omitempty"`
 		Description string      `json:"description,omitempty"  yaml:"description,omitempty"`
 		Name        string      `json:"name,omitempty"         yaml:"name,omitempty"`
-		DelegateSelectors []string `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
+		DelegateSelectors FlexibleField[[]string] `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
 		Spec        interface{} `json:"spec,omitempty"         yaml:"spec,omitempty"`
 		Type        string      `json:"type,omitempty"         yaml:"type,omitempty"`
 		Vars        []*Variable `json:"variables,omitempty"    yaml:"variables,omitempty"`
 		When        *StageWhen  `json:"when,omitempty"         yaml:"when,omitempty"`
 		Strategy    *Strategy   `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
-		FailureStrategies []*FailureStrategy   `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
+		FailureStrategies *FlexibleField[[]*FailureStrategy]   `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
 	}
 
 	// StageApproval defines an approval stage.

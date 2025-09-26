@@ -25,14 +25,14 @@ type Step struct {
 	Approval   *StepApproval          `json:"approval,omitempty" yaml:"approval,omitempty"`
 	Background *StepRun               `json:"background,omitempty" yaml:"background,omitempty"`
 	Barrier    *StepBarrier           `json:"barrier,omitempty" yaml:"barrier,omitempty"`
-	Delegate   *Delegate              `json:"delegate,omitempty" yaml:"delegate,omitempty"`
+	Delegate   *FlexibleField[*Delegate]              `json:"delegate,omitempty" yaml:"delegate,omitempty"`
 	Env        map[string]string      `json:"env,omitempty" yaml:"env,omitempty"`
 	Group      *StepGroup             `json:"group,omitempty" yaml:"group,omitempty"`
 	Id         string                 `json:"id,omitempty" yaml:"id,omitempty"`
 	If         string                 `json:"if,omitempty" yaml:"if,omitempty"`
 	Name       string                 `json:"name,omitempty" yaml:"name,omitempty"`
 	Needs      Stringorslice          `json:"needs,omitempty" yaml:"needs,omitempty"`
-	OnFailure  []*FailureStrategy     `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
+	OnFailure  *FlexibleField[[]*FailureStrategy]     `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
 	Parallel   *StepGroup             `json:"parallel,omitempty" yaml:"parallel,omitempty"`
 	Queue      *StepQueue             `json:"queue,omitempty" yaml:"queue,omitempty"`
 	Run        *StepRun               `json:"run,omitempty" yaml:"run,omitempty"`
@@ -63,14 +63,14 @@ func (v *Step) UnmarshalJSON(data []byte) error {
 		Approval   *StepApproval          `json:"approval,omitempty" yaml:"approval,omitempty"`
 		Background *StepRun               `json:"background,omitempty" yaml:"background,omitempty"`
 		Barrier    *StepBarrier           `json:"barrier,omitempty" yaml:"barrier,omitempty"`
-		Delegate   *Delegate              `json:"delegate,omitempty" yaml:"delegate,omitempty"`
+		Delegate   *FlexibleField[*Delegate]              `json:"delegate,omitempty" yaml:"delegate,omitempty"`
 		Env        map[string]string      `json:"env,omitempty" yaml:"env,omitempty"`
 		Group      *StepGroup             `json:"group,omitempty" yaml:"group,omitempty"`
 		Id         string                 `json:"id,omitempty" yaml:"id,omitempty"`
 		If         string                 `json:"if,omitempty" yaml:"if,omitempty"`
 		Name       string                 `json:"name,omitempty" yaml:"name,omitempty"`
 		Needs      Stringorslice          `json:"needs,omitempty" yaml:"needs,omitempty"`
-		OnFailure  []*FailureStrategy     `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
+		OnFailure  *FlexibleField[[]*FailureStrategy ]    `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
 		Parallel   *StepGroup             `json:"parallel,omitempty" yaml:"parallel,omitempty"`
 		Queue      *StepQueue             `json:"queue,omitempty" yaml:"queue,omitempty"`
 		Run        *StepRun               `json:"run,omitempty" yaml:"run,omitempty"`
