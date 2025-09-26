@@ -139,10 +139,8 @@ func ConvertSingleStep(src *v0.Step) *v1.Step {
 // convertCommonStepSettings converts common step settings like timeout, failure strategies, etc.
 func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 	// Convert timeout
-	if src.Timeout.Duration > 0 {
-		dst.Timeout = &v1.Duration{
-			Duration: src.Timeout.Duration,
-		}
+	if src.Timeout != "" {
+		dst.Timeout = src.Timeout
 	}
 
 	// Convert failure strategies

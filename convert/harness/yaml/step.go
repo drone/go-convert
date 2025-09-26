@@ -26,7 +26,7 @@ type (
 		Name              string             `json:"name,omitempty"              yaml:"name,omitempty"`
 		Skip              string             `json:"skipCondition,omitempty"     yaml:"skipCondition,omitempty"`
 		Spec              interface{}        `json:"spec,omitempty"              yaml:"spec,omitempty"`
-		Timeout           Duration           `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
+		Timeout           string           `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
 		Type              string             `json:"type,omitempty"              yaml:"type,omitempty"`
 		When              *StepWhen          `json:"when,omitempty"              yaml:"when,omitempty"`
 		Env               map[string]string  `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
@@ -40,7 +40,7 @@ type (
 		Name        string            `json:"name,omitempty"              yaml:"name,omitempty"`
 		Skip        string            `json:"skipCondition,omitempty"     yaml:"skipCondition,omitempty"`
 		Steps       []*Steps          `json:"steps,omitempty"              yaml:"steps,omitempty"`
-		Timeout     Duration          `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
+		Timeout     string          `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
 		When        *StepWhen         `json:"when,omitempty"              yaml:"when,omitempty"`
 		Env         map[string]string `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
 		Strategy    *Strategy         `json:"strategy,omitempty"     yaml:"strategy,omitempty"`

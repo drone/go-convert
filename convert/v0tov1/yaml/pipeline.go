@@ -16,7 +16,7 @@
 
 package yaml
 
-import "time"
+// import "time"
 
 type Pipeline struct {
 	Barriers    []string          `json:"barriers,omitempty" yaml:"barriers,omitempty"`
@@ -36,5 +36,5 @@ type Pipeline struct {
 	Service     *ServiceRef       `json:"service,omitempty" yaml:"service,omitempty"`
 	Stages      []*Stage          `json:"stages,omitempty" yaml:"stages"`
 	Status      *Status           `json:"status,omitempty" yaml:"status,omitempty"`
-	Timeout     time.Duration     `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	Timeout     string     `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }

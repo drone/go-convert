@@ -40,7 +40,7 @@ type Step struct {
 	Status     *Status                `json:"status,omitempty" yaml:"status,omitempty"`
 	Strategy   *Strategy              `json:"strategy,omitempty" yaml:"strategy,omitempty"`
 	Template   *StepTemplate          `json:"template,omitempty" yaml:"template,omitempty"`
-	Timeout    *Duration              `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	Timeout    string             `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Uses       string                 `json:"uses,omitempty" yaml:"uses,omitempty"`
 	With       map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
 
@@ -78,7 +78,7 @@ func (v *Step) UnmarshalJSON(data []byte) error {
 		Status     *Status                `json:"status,omitempty" yaml:"status,omitempty"`
 		Strategy   *Strategy              `json:"strategy,omitempty" yaml:"strategy,omitempty"`
 		Template   *StepTemplate          `json:"template,omitempty" yaml:"template,omitempty"`
-		Timeout    *Duration              `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+		Timeout    string                 `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 		Uses       string                 `json:"uses,omitempty" yaml:"uses,omitempty"`
 		With       map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
 		Context    *Context               `json:"context,omitempty" yaml:"context,omitempty"`

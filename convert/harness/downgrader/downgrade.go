@@ -24,6 +24,8 @@ import (
 	"strings"
 	"time"
 
+	// "time"
+
 	"github.com/drone/go-convert/convert/jenkinsjson/json"
 	"github.com/drone/go-convert/internal/rand"
 
@@ -1048,11 +1050,9 @@ func convertSettings(src map[string]interface{}) map[string]interface{} {
 	return dst
 }
 
-func convertTimeout(s string) v0.Duration {
+func convertTimeout(s string) string {
 	d, _ := time.ParseDuration(s)
-	return v0.Duration{
-		Duration: d,
-	}
+	return d.String()
 }
 
 func convertImage(s string, defaultImage string) string {

@@ -43,10 +43,6 @@ func ConvertStepJiraCreate(src *v0.Step) *v1.StepAction {
 	if len(fields) > 0 {
 		with["fields"] = fields
 	}
-	// add timeout inside with as per expected output
-	if src.Timeout.String() != "" {
-		with["timeout"] = src.Timeout.String()
-	}
 
 	return &v1.StepAction{
 		Uses: "jira-create",
@@ -99,9 +95,6 @@ func ConvertStepJiraUpdate(src *v0.Step) *v1.StepAction {
 		if sp.TransitionTo.TransitionName != "" {
 			with["status-transition"] = sp.TransitionTo.TransitionName
 		}
-	}
-	if src.Timeout.String() != "" {
-		with["timeout"] = src.Timeout.String()
 	}
 
 	return &v1.StepAction{
