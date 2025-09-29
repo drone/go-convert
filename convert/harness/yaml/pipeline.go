@@ -22,17 +22,18 @@ type (
 
 	// Pipeline defines a pipeline.
 	Pipeline struct {
-		ID        string            `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
-		Name      string            `json:"name,omitempty"              yaml:"name,omitempty"`
-		Desc      string            `json:"description,omitempty"       yaml:"description,omitempty"`
-		Account   string            `json:"accountIdentifier,omitempty" yaml:"accountIdentifier,omitempty"`
-		Project   string            `json:"projectIdentifier,omitempty" yaml:"projectIdentifier,omitempty"`
-		Org       string            `json:"orgIdentifier,omitempty"     yaml:"orgIdentifier,omitempty"`
-		Props     Properties        `json:"properties,omitempty"        yaml:"properties,omitempty"`
-		Stages    []*Stages         `json:"stages,omitempty"            yaml:"stages"`
-		Variables []*Variable       `json:"variables,omitempty"         yaml:"variables,omitempty"`
-		Tags      map[string]string `json:"tags,omitempty"              yaml:"tags,omitempty"`
-		FlowControl *FlowControl    `json:"flowControl,omitempty"       yaml:"flowControl,omitempty"`
+		ID                string              `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
+		Name              string              `json:"name,omitempty"              yaml:"name,omitempty"`
+		Desc              string              `json:"description,omitempty"       yaml:"description,omitempty"`
+		Account           string              `json:"accountIdentifier,omitempty" yaml:"accountIdentifier,omitempty"`
+		Project           string              `json:"projectIdentifier,omitempty" yaml:"projectIdentifier,omitempty"`
+		Org               string              `json:"orgIdentifier,omitempty"     yaml:"orgIdentifier,omitempty"`
+		Props             Properties          `json:"properties,omitempty"        yaml:"properties,omitempty"`
+		Stages            []*Stages           `json:"stages,omitempty"            yaml:"stages"`
+		Variables         []*Variable         `json:"variables,omitempty"         yaml:"variables,omitempty"`
+		Tags              map[string]string   `json:"tags,omitempty"              yaml:"tags,omitempty"`
+		FlowControl       *FlowControl        `json:"flowControl,omitempty"       yaml:"flowControl,omitempty"`
+		NotificationRules []*NotificationRule `json:"notificationRules,omitempty" yaml:"notificationRules,omitempty"`
 	}
 
 	FlowControl struct {
@@ -40,7 +41,7 @@ type (
 	}
 
 	Barrier struct {
-		Name string `json:"name,omitempty" yaml:"name,omitempty"`
+		Name       string `json:"name,omitempty" yaml:"name,omitempty"`
 		Identifier string `json:"identifier,omitempty" yaml:"identifier,omitempty"`
 	}
 

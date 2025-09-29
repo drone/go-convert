@@ -19,22 +19,23 @@ package yaml
 // import "time"
 
 type Pipeline struct {
-	Barriers    []string          `json:"barriers,omitempty" yaml:"barriers,omitempty"`
-	Clone       *Clone            `json:"clone,omitempty" yaml:"clone,omitempty"`
-	Concurrency *Concurrency      `json:"concurrency,omitempty" yaml:"concurrency,omitempty"`
-	Default     interface{}       `json:"default,omitempty" yaml:"default,omitempty"`
-	Env         map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
-	Environment *EnvironmentRef   `json:"environment,omitempty" yaml:"environment,omitempty"`
-	Id          string            `json:"identifier,omitempty" `
-	If          string            `json:"if,omitempty" yaml:"if,omitempty"`
-	Inputs      map[string]*Input `json:"Inputs,omitempty" `
-	Jobs        map[string]*Stage `json:"jobs,omitempty" yaml:"jobs,omitempty"`
-	Name        string            `json:"name,omitempty" yaml:"name,omitempty"`
-	On          *On               `json:"on,omitempty" yaml:"on,omitempty"`
-	Permissions *Permissions      `json:"permissions,omitempty" yaml:"permissions,omitempty"`
-	Repo        *Repository       `json:"repo,omitempty" yaml:"repo,omitempty"`
-	Service     *ServiceRef       `json:"service,omitempty" yaml:"service,omitempty"`
-	Stages      []*Stage          `json:"stages,omitempty" yaml:"stages"`
-	Status      *Status           `json:"status,omitempty" yaml:"status,omitempty"`
-	Timeout     string     `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	Barriers      []string          `json:"barriers,omitempty" yaml:"barriers,omitempty"`
+	Clone         *Clone            `json:"clone,omitempty" yaml:"clone,omitempty"`
+	Concurrency   *Concurrency      `json:"concurrency,omitempty" yaml:"concurrency,omitempty"`
+	Default       interface{}       `json:"default,omitempty" yaml:"default,omitempty"`
+	Env           map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
+	Environment   *EnvironmentRef   `json:"environment,omitempty" yaml:"environment,omitempty"`
+	Id            string            `json:"identifier,omitempty" `
+	If            string            `json:"if,omitempty" yaml:"if,omitempty"`
+	Inputs        map[string]*Input `json:"Inputs,omitempty" `
+	Jobs          map[string]*Stage `json:"jobs,omitempty" yaml:"jobs,omitempty"`
+	Name          string            `json:"name,omitempty" yaml:"name,omitempty"`
+	Notifications []*Notification   `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	On            *On               `json:"on,omitempty" yaml:"on,omitempty"`
+	Permissions   *Permissions      `json:"permissions,omitempty" yaml:"permissions,omitempty"`
+	Repo          *Repository       `json:"repo,omitempty" yaml:"repo,omitempty"`
+	Service       *ServiceRef       `json:"service,omitempty" yaml:"service,omitempty"`
+	Stages        []*Stage          `json:"stages,omitempty" yaml:"stages"`
+	Status        *Status           `json:"status,omitempty" yaml:"status,omitempty"`
+	Timeout       string            `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }

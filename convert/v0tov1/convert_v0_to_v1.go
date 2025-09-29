@@ -168,11 +168,12 @@ func ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 		barriers = convertBarriers(src.FlowControl.Barriers)
 	}
 	dst := &v1.Pipeline{
-		Id:       src.ID,
-		Name:     src.Name,
-		Inputs:   convertVariables(src.Variables),
-		Stages:   convertStages(src.Stages),
-		Barriers: barriers,
+		Id:            src.ID,
+		Name:          src.Name,
+		Inputs:        convertVariables(src.Variables),
+		Stages:        convertStages(src.Stages),
+		Barriers:      barriers,
+		Notifications: convert_helpers.ConvertNotifications(src.NotificationRules),
 	}
 
 	return dst
