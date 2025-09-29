@@ -18,5 +18,5 @@ package yaml
 
 // For defines a for loop execution strategy.
 type For struct {
-	Iterations int64 `json:"iterations,omitempty"`
+	Iterations *FlexibleField[int64] `json:"iterations,omitempty"`
 }

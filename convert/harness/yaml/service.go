@@ -12,6 +12,11 @@ type (
 		// ServiceInputs *FlexibleField[ServiceInputs] `json:"serviceInputs,omitempty" yaml:"serviceInputs,omitempty"`
 	}
 
+	DeploymentServiceConfig struct {
+		ServiceRef string `json:"serviceRef,omitempty" yaml:"serviceRef,omitempty"`
+		ServiceDefinition *ServiceDefinition `json:"serviceDefinition,omitempty" yaml:"serviceDefinition,omitempty"`
+	}
+
 	// ServicesMetadata defines the services metadata
 	ServicesMetadata struct {
 		Parallel bool `json:"parallel,omitempty" yaml:"parallel,omitempty"`

@@ -65,6 +65,8 @@ func convertStage(src *v0.Stage) *v1.Stage {
 			service = convert_helpers.ConvertDeploymentService(spec.Service)
 		} else if spec.Services != nil {
 			service = convert_helpers.ConvertDeploymentServices(spec.Services)
+		} else if spec.ServiceConfig != nil {
+			service = convert_helpers.ConvertDeploymentServiceConfig(spec.ServiceConfig)
 		}
 
 		// Convert environment configuration - check all possible sources
@@ -202,7 +204,7 @@ func Main() {
 
 		inputPath := filepath.Join(inputDir, name)
 		outputPath := filepath.Join(outputDir, name)
-
+		log.Println("Converting " + inputPath + " to " + outputPath)
 		// Benchmark: Read v0
 		readStart := time.Now()
 		v0Config, err := v0.ParseFile(inputPath)

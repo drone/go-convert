@@ -26,13 +26,13 @@ func ConvertStepK8sRollingDeploy(src *v0.Step) *v1.StepTemplate {
 		// "skipaddingtrackselector": false,
 		// "supporthpaandpdb":        false,
 		// "image":                   "<+input>",
-		"flags":                   []interface{}{},
-		"skipdryrun":              spec.SkipDryRun,
-		"pruning":                 spec.PruningEnabled,
+		"flags":      []interface{}{},
+		"skipdryrun": spec.SkipDryRun,
+		"pruning":    spec.PruningEnabled,
 	}
 
 	return &v1.StepTemplate{
-		Uses: "k8sRollingDeployStep@1.0.0",
+		Uses: v1.StepTypeK8sRollingDeploy,
 		With: with,
 	}
 }
@@ -52,14 +52,14 @@ func ConvertStepK8sRollingRollback(src *v0.Step) *v1.StepTemplate {
 		// "kubeconfig":    "<+input>",
 		// "namespace":     "<+input>",
 		// "releasename":   "<+input>",
-		"pruning":       spec.PruningEnabled,
+		"pruning": spec.PruningEnabled,
 		// "forcerollback": false,
-		"flags":         []interface{}{},
+		"flags": []interface{}{},
 		// "image":         "<+input>",
 	}
 
 	return &v1.StepTemplate{
-		Uses: "k8sRollingRollbackStep@1.0.0",
+		Uses: v1.StepTypeK8sRollingRollback,
 		With: with,
 	}
 }
@@ -92,7 +92,7 @@ func ConvertStepK8sApply(src *v0.Step) *v1.StepTemplate {
 		// "image":                "<+input>",
 	}
 	return &v1.StepTemplate{
-		Uses: "k8sApplyStep@1.0.0",
+		Uses: v1.StepTypeK8sApply,
 		With: with,
 	}
 }
@@ -119,7 +119,7 @@ func ConvertStepK8sBGSwapServices(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "k8sBlueGreenSwapServicesStep",
+		Uses: v1.StepTypeK8sBGSwapServices,
 		With: with,
 	}
 }
@@ -148,7 +148,7 @@ func ConvertStepK8sBlueGreenStageScaleDown(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "k8sBlueGreenStageScaleDownStep@1.0.0",
+		Uses: v1.StepTypeK8sBlueGreenStageScaleDown,
 		With: with,
 	}
 }
@@ -174,7 +174,7 @@ func ConvertStepK8sCanaryDelete(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "k8sCanaryDeleteStep@1.0.0",
+		Uses: v1.StepTypeK8sCanaryDelete,
 		With: with,
 	}
 }
@@ -199,7 +199,7 @@ func ConvertStepK8sDiff(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "k8sDiffStep@1.0.0",
+		Uses: v1.StepTypeK8sDiff,
 		With: with,
 	}
 }
@@ -261,7 +261,7 @@ func ConvertStepK8sRollout(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "k8sRolloutStep@1.0.0",
+		Uses: v1.StepTypeK8sRollout,
 		With: with,
 	}
 }
@@ -304,7 +304,7 @@ func ConvertStepK8sScale(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "k8sScaleStep@1.0.0",
+		Uses: v1.StepTypeK8sScale,
 		With: with,
 	}
 }
@@ -328,7 +328,7 @@ func ConvertStepK8sDryRun(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "k8sDryRunStep@1.0.0",
+		Uses: v1.StepTypeK8sDryRun,
 		With: with,
 	}
 }
@@ -382,7 +382,7 @@ func ConvertStepK8sDelete(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "k8sDeleteStep@1.0.0",
+		Uses: v1.StepTypeK8sDelete,
 		With: with,
 	}
 }
@@ -433,17 +433,17 @@ func ConvertStepK8sTrafficRouting(src *v0.Step) *v1.StepTemplate {
 	with := map[string]interface{}{
 		// "kubeconfig":   "<+input>",
 		// "namespace":    "<+input>",
-		"config":       "new",
-		"provider":     provider,
-		"hosts":        hosts,
-		"gateways":     gateways,
+		"config":   "new",
+		"provider": provider,
+		"hosts":    hosts,
+		"gateways": gateways,
 		// "image":        "<+input>",
 		"routes":       routes,
 		"resourcename": resourceName,
 	}
 
 	return &v1.StepTemplate{
-		Uses: "k8sTrafficRoutingStep@1.0.0",
+		Uses: v1.StepTypeK8sTrafficRouting,
 		With: with,
 	}
 }
@@ -572,21 +572,21 @@ func ConvertStepK8sCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 		// "namespace":              "<+input>",
 		// "manifests":              "<+input>",
 		// "releasename":            "<+input>",
-		"provider":               provider,
-		"unittype":               unitType,
-		"instances":              instances,
-		"resourcename":           resourceName,
-		"hosts":                  hosts,
-		"gateways":               gateways,
-		"routes":                 routes,
-		"skipdryrun":             spec.SkipDryRun,
+		"provider":     provider,
+		"unittype":     unitType,
+		"instances":    instances,
+		"resourcename": resourceName,
+		"hosts":        hosts,
+		"gateways":     gateways,
+		"routes":       routes,
+		"skipdryrun":   spec.SkipDryRun,
 		// "image":                  "harnessdev/k8s-deploy:linux-amd64-latest",
 		// "trafficroutingstep":     "<+input>",
-		"flags":                  []interface{}{},
+		"flags": []interface{}{},
 	}
 
 	return &v1.StepTemplate{
-		Uses: "k8sCanaryStep@1.0.0",
+		Uses: v1.StepTypeK8sCanaryDeploy,
 		With: with,
 	}
 }
@@ -617,7 +617,7 @@ func ConvertStepK8sBlueGreenDeploy(src *v0.Step) *v1.StepTemplate {
 	}
 
 	// Check if traffic routing is configured
-	if spec.TrafficRouting != nil {	
+	if spec.TrafficRouting != nil {
 		provider = spec.TrafficRouting.Provider
 
 		if spec.TrafficRouting.Spec != nil {
@@ -647,21 +647,21 @@ func ConvertStepK8sBlueGreenDeploy(src *v0.Step) *v1.StepTemplate {
 		// "namespace":              "<+input>",
 		// "manifests":              "<+input>",
 		// "releasename":            "<+input>",
-		"provider":               provider,
-		"resourcename":           resourceName,
-		"hosts":                  hosts,
-		"gateways":               gateways,
-		"routes":                 routes,
-		"skipdryrun":             spec.SkipDryRun,
-		"pruning":                spec.PruningEnabled,
-		"skipunchangedmanifest":  spec.SkipUnchangedManifest,
+		"provider":              provider,
+		"resourcename":          resourceName,
+		"hosts":                 hosts,
+		"gateways":              gateways,
+		"routes":                routes,
+		"skipdryrun":            spec.SkipDryRun,
+		"pruning":               spec.PruningEnabled,
+		"skipunchangedmanifest": spec.SkipUnchangedManifest,
 		// "image":                  "harnessdev/k8s-deploy:linux-amd64-latest",
 		// "trafficroutingstep":     "<+input>",
-		"flags":                  []interface{}{},
+		"flags": []interface{}{},
 	}
 
 	return &v1.StepTemplate{
-		Uses: "k8sBlueGreenDeployStep@1.0.0",
+		Uses: v1.StepTypeK8sBlueGreenDeploy,
 		With: with,
 	}
 }

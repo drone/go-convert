@@ -58,6 +58,17 @@ func ConvertDeploymentServices(src *v0.DeploymentServices) *v1.ServiceRef {
 	return nil
 }
 
+func ConvertDeploymentServiceConfig(src *v0.DeploymentServiceConfig) *v1.ServiceRef {
+	if src == nil {
+		return nil
+	}
+
+	return &v1.ServiceRef{
+		Items: []string{src.ServiceRef},
+	}
+}
+	
+
 // ConvertEnvironment converts v0 Environment to v1 EnvironmentRef
 func ConvertEnvironment(src *v0.Environment) *v1.EnvironmentRef {
 	if src == nil {

@@ -47,7 +47,7 @@ func ConvertStepHelmBGDeploy(src *v0.Step) *v1.StepTemplate {
 	with["envvars"] = envvars
 
 	return &v1.StepTemplate{
-		Uses: "helmDeployBluegreenStep@1.0.0",
+		Uses: v1.StepTypeHelmBGDeploy,
 		With: with,
 	}
 }
@@ -67,7 +67,7 @@ func ConvertStepHelmBlueGreenSwapStep(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "helmBluegreenSwapStep@1.0.0",
+		Uses: v1.StepTypeHelmBlueGreenSwapStep,
 		With: with,
 	}
 }
@@ -128,7 +128,7 @@ func ConvertStepHelmCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "helmDeployCanaryStep@1.0.0",
+		Uses: v1.StepTypeHelmCanaryDeploy,
 		With: with,
 	}
 }
@@ -164,7 +164,7 @@ func ConvertStepHelmDelete(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "helmDeleteStep@1.0.0",
+		Uses: v1.StepTypeHelmDelete,
 		With: with,
 	}
 }
@@ -211,7 +211,7 @@ func ConvertStepHelmDeploy(src *v0.Step) *v1.StepTemplate {
 	// }
 
 	return &v1.StepTemplate{
-		Uses: "helmDeployBasicStep@1.0.0",
+		Uses: v1.StepTypeHelmDeploy,
 		With: with,
 	}
 }
@@ -244,7 +244,7 @@ func ConvertStepHelmRollback(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "helmRollbackStep@1.0.0",
+		Uses: v1.StepTypeHelmRollback,
 		With: with,
 	}
 }

@@ -8,24 +8,48 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// FlexibleField is a generic type that can hold either a struct of type T or a Harness expression string
+// FlexibleField is a generic type that can hold either a struct of type T or a value (int, bool, float, string, struct)
+// It can also detect Harness expressions containing <+ anywhere in the string
 type FlexibleField[T any] struct {
 	Value interface{}
 }
 
-// UnmarshalJSON implements json.Unmarshaler for automatic handling of struct/string duality
+// UnmarshalJSON implements json.Unmarshaler for automatic handling of multiple types
 func (f *FlexibleField[T]) UnmarshalJSON(data []byte) error {
-	// First try to unmarshal as string
+	// Try to unmarshal as different types in order of preference
+
+	// Try string first
 	var str string
 	if err := json.Unmarshal(data, &str); err == nil {
 		f.Value = str
 		return nil
 	}
 
-	// If string unmarshaling fails, try to unmarshal as struct T
+	// Try int
+	var intValue int
+	if err := json.Unmarshal(data, &intValue); err == nil {
+		f.Value = intValue
+		return nil
+	}
+
+	// Try float64
+	var floatValue float64
+	if err := json.Unmarshal(data, &floatValue); err == nil {
+		f.Value = floatValue
+		return nil
+	}
+
+	// Try bool
+	var boolValue bool
+	if err := json.Unmarshal(data, &boolValue); err == nil {
+		f.Value = boolValue
+		return nil
+	}
+
+	// Finally try to unmarshal as struct T
 	var structValue T
 	if err := json.Unmarshal(data, &structValue); err != nil {
-		return fmt.Errorf("failed to unmarshal as both string and struct: %v", err)
+		return fmt.Errorf("failed to unmarshal as string, int, float, bool, or struct: %v", err)
 	}
 
 	f.Value = structValue
@@ -50,24 +74,47 @@ func (f FlexibleField[T]) MarshalYAML() (interface{}, error) {
 
 // UnmarshalYAML implements yaml.Unmarshaler for YAML deserialization
 func (f *FlexibleField[T]) UnmarshalYAML(node *yaml.Node) error {
-	// First try to unmarshal as string
+	// Try to unmarshal as different types in order of preference
+
+	// Try string first
 	var str string
 	if err := node.Decode(&str); err == nil {
 		f.Value = str
 		return nil
 	}
 
-	// If string unmarshaling fails, try to unmarshal as struct T
+	// Try int
+	var intValue int
+	if err := node.Decode(&intValue); err == nil {
+		f.Value = intValue
+		return nil
+	}
+
+	// Try float64
+	var floatValue float64
+	if err := node.Decode(&floatValue); err == nil {
+		f.Value = floatValue
+		return nil
+	}
+
+	// Try bool
+	var boolValue bool
+	if err := node.Decode(&boolValue); err == nil {
+		f.Value = boolValue
+		return nil
+	}
+
+	// Finally try to unmarshal as struct T
 	var structValue T
 	if err := node.Decode(&structValue); err != nil {
-		return fmt.Errorf("failed to unmarshal as both string and struct: %v", err)
+		return fmt.Errorf("failed to unmarshal as string, int, float, bool, or struct: %v", err)
 	}
 
 	f.Value = structValue
 	return nil
 }
 
-// IsExpression returns true if the field contains a Harness expression string
+// IsExpression returns true if the field contains a Harness expression string (contains <+ anywhere)
 func (f *FlexibleField[T]) IsExpression() bool {
 	if f.Value == nil {
 		return false
@@ -78,8 +125,47 @@ func (f *FlexibleField[T]) IsExpression() bool {
 		return false
 	}
 
-	// Check for common Harness expression patterns
-	return strings.HasPrefix(str, "<+") || str == "<+input>"
+	// Check for <+ anywhere in the string
+	return strings.Contains(str, "<+")
+}
+
+// AsInt returns the value as int, or zero and false if it's not an int
+func (f *FlexibleField[T]) AsInt() (int, bool) {
+	if f.Value == nil {
+		return 0, false
+	}
+
+	if intValue, ok := f.Value.(int); ok {
+		return intValue, true
+	}
+
+	return 0, false
+}
+
+// AsFloat returns the value as float64, or zero and false if it's not a float
+func (f *FlexibleField[T]) AsFloat() (float64, bool) {
+	if f.Value == nil {
+		return 0, false
+	}
+
+	if floatValue, ok := f.Value.(float64); ok {
+		return floatValue, true
+	}
+
+	return 0, false
+}
+
+// AsBool returns the value as bool, or false and false if it's not a bool
+func (f *FlexibleField[T]) AsBool() (bool, bool) {
+	if f.Value == nil {
+		return false, false
+	}
+
+	if boolValue, ok := f.Value.(bool); ok {
+		return boolValue, true
+	}
+
+	return false, false
 }
 
 // AsStruct returns the value as struct T, or zero value and false if it's a string
@@ -111,6 +197,26 @@ func (f *FlexibleField[T]) AsString() string {
 
 // Set sets the field to a struct value
 func (f *FlexibleField[T]) Set(value T) {
+	f.Value = value
+}
+
+// SetInt sets the field to an int value
+func (f *FlexibleField[T]) SetInt(value int) {
+	f.Value = value
+}
+
+// SetFloat sets the field to a float64 value
+func (f *FlexibleField[T]) SetFloat(value float64) {
+	f.Value = value
+}
+
+// SetBool sets the field to a bool value
+func (f *FlexibleField[T]) SetBool(value bool) {
+	f.Value = value
+}
+
+// SetString sets the field to a string value
+func (f *FlexibleField[T]) SetString(value string) {
 	f.Value = value
 }
 

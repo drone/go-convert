@@ -56,6 +56,7 @@ type (
 	StageDeployment struct {
 		DeploymentType    string               `json:"deploymentType,omitempty"    yaml:"deploymentType,omitempty"`
 		Service           *DeploymentService   `json:"service,omitempty"           yaml:"service,omitempty"`
+		ServiceConfig     *DeploymentServiceConfig `json:"serviceConfig,omitempty"     yaml:"serviceConfig,omitempty"`
 		Services          *DeploymentServices  `json:"services,omitempty"          yaml:"services,omitempty"`
 		Execution         *DeploymentExecution `json:"execution,omitempty"       yaml:"execution,omitempty"`
 		EnvironmentGroup  *EnvironmentGroup    `json:"environmentGroup,omitempty"  yaml:"environmentGroup,omitempty"`
@@ -90,13 +91,13 @@ type (
 
 	Parallelism struct {
 		Number         int `yaml:"parallelism"`
-		MaxConcurrency int `yaml:"maxConcurrency"`
+		MaxConcurrency FlexibleField[int] `yaml:"maxConcurrency"`
 	}
 
 	Repeat struct {
-		Times          int      `yaml:"times,omitempty"`
-		Items          []string `yaml:"items,omitempty"`
-		MaxConcurrency int      `yaml:"maxConcurrency,omitempty"`
+		Times          FlexibleField[int]      `yaml:"times,omitempty"`
+		Items          FlexibleField[[]string] `yaml:"items,omitempty"`
+		MaxConcurrency FlexibleField[int]      `yaml:"maxConcurrency,omitempty"`
 	}
 )
 

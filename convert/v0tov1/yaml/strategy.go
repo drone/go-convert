@@ -20,6 +20,6 @@ type Strategy struct {
 	FailFast    bool    `json:"fail-fast,omitempty" yaml:"fail-fast,omitempty"`
 	For         *For    `json:"for,omitempty" yaml:"for,omitempty"`
 	Matrix      *Matrix `json:"matrix,omitempty" yaml:"matrix,omitempty"`
-	MaxParallel int64   `json:"max-parallel,omitempty" yaml:"max-parallel,omitempty"`
+	MaxParallel *FlexibleField[int64]   `json:"max-parallel,omitempty" yaml:"max-parallel,omitempty"`
 	While       *While  `json:"while,omitempty" yaml:"while,omitempty"`
 }
