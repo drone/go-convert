@@ -150,7 +150,7 @@ func convertPipelineEvents(events []*v0.PipelineEvent) []*v1.NotificationOn {
 			return []*v1.NotificationOn{
 				{Pipeline: "all"},
 				{Stage: "all"},
-				{Step: "failed"},
+				{Step: "all"},
 			}
 		}
 	}
