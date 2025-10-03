@@ -7,6 +7,50 @@ import (
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
 
+// Helm step with configuration structs with JSON tags
+type HelmBGDeployWith struct {
+	Flags                      []string            `json:"flags,omitempty"`
+	IgnoreFailedReleaseHistory bool                `json:"ignorefailedreleasehistory,omitempty"`
+	SkipSteadyStateCheck       bool                `json:"skipsteadystatecheck,omitempty"`
+	UseUpgradeWithInstall      bool                `json:"useupgradewithinstall,omitempty"`
+	Envvars                    []map[string]string `json:"envvars,omitempty"`
+}
+
+type HelmBlueGreenSwapStepWith struct {
+	Flags []string `json:"flags,omitempty"`
+}
+
+type HelmCanaryDeployWith struct {
+	Flags                      []string            `json:"flags,omitempty"`
+	Envvars                    []map[string]string `json:"envvars,omitempty"`
+	IgnoreFailedReleaseHistory bool                `json:"ignorefailedreleasehistory,omitempty"`
+	SkipSteadyStateCheck       bool                `json:"skipsteadystatecheck,omitempty"`
+	UseUpgradeWithInstall      bool                `json:"useupgradewithinstall,omitempty"`
+	InstanceUnitType           string              `json:"instanceunittype,omitempty"`
+	Instances                  string              `json:"instances,omitempty"`
+}
+
+type HelmDeleteWith struct {
+	ReleaseName string              `json:"releasename,omitempty"`
+	DryRun      bool                `json:"dryrun,omitempty"`
+	Flags       []string            `json:"flags,omitempty"`
+	Envvars     []map[string]string `json:"envvars,omitempty"`
+}
+
+type HelmDeployWith struct {
+	Flags                      []string            `json:"flags,omitempty"`
+	Envvars                    []map[string]string `json:"envvars,omitempty"`
+	IgnoreFailedReleaseHistory bool                `json:"ignorefailedreleasehistory,omitempty"`
+	SkipSteadyStateCheck       bool                `json:"skipsteadystatecheck,omitempty"`
+	UseUpgradeWithInstall      bool                `json:"useupgradewithinstall,omitempty"`
+}
+
+type HelmRollbackWith struct {
+	Flags                []string            `json:"flags,omitempty"`
+	Envvars              []map[string]string `json:"envvars,omitempty"`
+	SkipSteadyStateCheck bool                `json:"skipsteadystatecheck,omitempty"`
+}
+
 func ConvertStepHelmBGDeploy(src *v0.Step) *v1.StepTemplate {
 	if src == nil || src.Spec == nil {
 		return nil
@@ -26,25 +70,23 @@ func ConvertStepHelmBGDeploy(src *v0.Step) *v1.StepTemplate {
 	}
 
 	// Build the with parameters
-	with := map[string]interface{}{
-		"flags": []string{},
+	with := HelmBGDeployWith{
+		Flags:   []string{},
+		Envvars: envvars,
 	}
 
 	// Add boolean flags based on v0 spec
 	if spec.IgnoreReleaseHistFailStatus {
-		with["ignorefailedreleasehistory"] = true
+		with.IgnoreFailedReleaseHistory = true
 	}
 
 	if spec.SkipSteadyStateCheck {
-		with["skipsteadystatecheck"] = true
+		with.SkipSteadyStateCheck = true
 	}
 
 	if spec.UseUpgradeInstall {
-		with["useupgradewithinstall"] = true
+		with.UseUpgradeWithInstall = true
 	}
-
-	// Add environment variables. If none present, set to empty array to match expected YAML shape
-	with["envvars"] = envvars
 
 	return &v1.StepTemplate{
 		Uses: v1.StepTypeHelmBGDeploy,
@@ -62,8 +104,8 @@ func ConvertStepHelmBlueGreenSwapStep(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 
-	with := map[string]interface{}{
-		"flags": []string{},
+	with := HelmBlueGreenSwapStepWith{
+		Flags: []string{},
 	}
 
 	return &v1.StepTemplate{
@@ -106,25 +148,25 @@ func ConvertStepHelmCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 		envvars = append(envvars, map[string]string{"key": k, "value": v})
 	}
 
-	with := map[string]interface{}{
-		"flags":   []string{},
-		"envvars": envvars, // include empty array if none
+	with := HelmCanaryDeployWith{
+		Flags:   []string{},
+		Envvars: envvars, // include empty array if none
 	}
 
 	if spec.IgnoreReleaseHistFailStatus {
-		with["ignorefailedreleasehistory"] = true
+		with.IgnoreFailedReleaseHistory = true
 	}
 	if spec.SkipSteadyStateCheck {
-		with["skipsteadystatecheck"] = true
+		with.SkipSteadyStateCheck = true
 	}
 	if spec.UseUpgradeInstall {
-		with["useupgradewithinstall"] = true
+		with.UseUpgradeWithInstall = true
 	}
 	if unitType != "" {
-		with["instanceunittype"] = unitType
+		with.InstanceUnitType = unitType
 	}
 	if instances != "" {
-		with["instances"] = instances
+		with.Instances = instances
 	}
 
 	return &v1.StepTemplate{
@@ -156,11 +198,11 @@ func ConvertStepHelmDelete(src *v0.Step) *v1.StepTemplate {
 		})
 	}
 
-	with := map[string]interface{}{
-		"releasename": sp.ReleaseName,
-		"dryrun":      sp.DryRun,
-		"flags":       flags,
-		"envvars":     envvars,
+	with := HelmDeleteWith{
+		ReleaseName: sp.ReleaseName,
+		DryRun:      sp.DryRun,
+		Flags:       flags,
+		Envvars:     envvars,
 	}
 
 	return &v1.StepTemplate{
@@ -188,19 +230,19 @@ func ConvertStepHelmDeploy(src *v0.Step) *v1.StepTemplate {
 		})
 	}
 
-	with := map[string]interface{}{
-		"flags":   []string{},
-		"envvars": envvars,
+	with := HelmDeployWith{
+		Flags:   []string{},
+		Envvars: envvars,
 	}
 
 	if sp.IgnoreReleaseHistFailStatus {
-		with["ignorefailedreleasehistory"] = true
+		with.IgnoreFailedReleaseHistory = true
 	}
 	if sp.SkipSteadyStateCheck {
-		with["skipsteadystatecheck"] = true
+		with.SkipSteadyStateCheck = true
 	}
 	if sp.UseUpgradeInstall {
-		with["useupgradewithinstall"] = true
+		with.UseUpgradeWithInstall = true
 	}
 	// TODO
 	// if sp.SkipDryRun {
@@ -235,12 +277,12 @@ func ConvertStepHelmRollback(src *v0.Step) *v1.StepTemplate {
 		})
 	}
 
-	with := map[string]interface{}{
-		"flags":   []string{},
-		"envvars": envvars,
+	with := HelmRollbackWith{
+		Flags:   []string{},
+		Envvars: envvars,
 	}
 	if sp.SkipSteadyStateCheck {
-		with["skipsteadystatecheck"] = true
+		with.SkipSteadyStateCheck = true
 	}
 
 	return &v1.StepTemplate{

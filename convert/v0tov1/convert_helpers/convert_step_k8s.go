@@ -7,6 +7,101 @@ import (
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
 
+// K8s step with configuration structs with JSON tags
+type K8sRollingDeployWith struct {
+	Flags      []interface{} `json:"flags,omitempty"`
+	SkipDryRun bool          `json:"skipdryrun,omitempty"`
+	Pruning    bool          `json:"pruning,omitempty"`
+}
+
+type K8sRollingRollbackWith struct {
+	Pruning bool          `json:"pruning,omitempty"`
+	Flags   []interface{} `json:"flags,omitempty"`
+}
+
+type K8sApplyWith struct {
+	Manifests            []interface{} `json:"manifests,omitempty"`
+	SkipDryRun           bool          `json:"skipdryrun,omitempty"`
+	SkipSteadyStateCheck bool          `json:"skipsteadystatecheck,omitempty"`
+	Flags                []interface{} `json:"flags,omitempty"`
+}
+
+type K8sBGSwapServicesWith struct {
+	// Empty struct for steps with no specific configuration
+}
+
+type K8sBlueGreenStageScaleDownWith struct {
+	Pruning bool `json:"pruning,omitempty"`
+}
+
+type K8sCanaryDeleteWith struct {
+	// Empty struct for steps with no specific configuration
+}
+
+type K8sDiffWith struct {
+	// Empty struct for steps with no specific configuration
+}
+
+type K8sRolloutWith struct {
+	Command                string        `json:"command,omitempty"`
+	SelectRolloutResources string        `json:"selectrolloutresources,omitempty"`
+	Flags                  []interface{} `json:"flags,omitempty"`
+	Resources              []interface{} `json:"resources,omitempty"`
+	Manifests              []interface{} `json:"manifests,omitempty"`
+}
+
+type K8sScaleWith struct {
+	UnitType             string `json:"unittype,omitempty"`
+	Instances            string `json:"instances,omitempty"`
+	Workload             string `json:"workload,omitempty"`
+	SkipSteadyStateCheck bool   `json:"skipsteadystatecheck,omitempty"`
+}
+
+type K8sDryRunWith struct {
+	EncryptYamlOutput bool `json:"encryptyamloutput,omitempty"`
+}
+
+type K8sDeleteWith struct {
+	SelectDeleteResources string        `json:"selectdeleteresources,omitempty"`
+	Resources             []interface{} `json:"resources,omitempty"`
+	Manifests             []interface{} `json:"manifests,omitempty"`
+	Releasename           []interface{} `json:"releasename,omitempty"`
+	Flags                 []interface{} `json:"flags,omitempty"`
+}
+
+type K8sTrafficRoutingWith struct {
+	Config       string        `json:"config,omitempty"`
+	Provider     string        `json:"provider,omitempty"`
+	Hosts        []interface{} `json:"hosts,omitempty"`
+	Gateways     []interface{} `json:"gateways,omitempty"`
+	Routes       string        `json:"routes,omitempty"`
+	ResourceName string        `json:"resourcename,omitempty"`
+}
+
+type K8sCanaryDeployWith struct {
+	Provider     string        `json:"provider,omitempty"`
+	UnitType     string        `json:"unittype,omitempty"`
+	Instances    string        `json:"instances,omitempty"`
+	ResourceName string        `json:"resourcename,omitempty"`
+	Hosts        []interface{} `json:"hosts,omitempty"`
+	Gateways     []interface{} `json:"gateways,omitempty"`
+	Routes       string        `json:"routes,omitempty"`
+	SkipDryRun   bool          `json:"skipdryrun,omitempty"`
+	Flags        []interface{} `json:"flags,omitempty"`
+}
+
+type K8sBlueGreenDeployWith struct {
+	Provider              string        `json:"provider,omitempty"`
+	ResourceName          string        `json:"resourcename,omitempty"`
+	Hosts                 []interface{} `json:"hosts,omitempty"`
+	Gateways              []interface{} `json:"gateways,omitempty"`
+	Routes                string        `json:"routes,omitempty"`
+	SkipDryRun            bool          `json:"skipdryrun,omitempty"`
+	Pruning               bool          `json:"pruning,omitempty"`
+	SkipUnchangedManifest bool          `json:"skipunchangedmanifest,omitempty"`
+	Flags                 []interface{} `json:"flags,omitempty"`
+}
+
 // ConvertStepK8sRollingDeploy converts a v0 K8sRollingDeploy step to v1 template spec only
 func ConvertStepK8sRollingDeploy(src *v0.Step) *v1.StepTemplate {
 	if src == nil || src.Spec == nil {
@@ -17,18 +112,10 @@ func ConvertStepK8sRollingDeploy(src *v0.Step) *v1.StepTemplate {
 	if !ok {
 		return nil
 	}
-	with := map[string]interface{}{
-		// "kubeconfig":              "<+input>",
-		// "namespace":               "<+input>",
-		// "manifests":               "<+input>",
-		// "releasename":             "<+input>",
-		// "skipresourceversioning":  false,
-		// "skipaddingtrackselector": false,
-		// "supporthpaandpdb":        false,
-		// "image":                   "<+input>",
-		"flags":      []interface{}{},
-		"skipdryrun": spec.SkipDryRun,
-		"pruning":    spec.PruningEnabled,
+	with := K8sRollingDeployWith{
+		Flags:      []interface{}{},
+		SkipDryRun: spec.SkipDryRun,
+		Pruning:    spec.PruningEnabled,
 	}
 
 	return &v1.StepTemplate{
@@ -48,14 +135,9 @@ func ConvertStepK8sRollingRollback(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 
-	with := map[string]interface{}{
-		// "kubeconfig":    "<+input>",
-		// "namespace":     "<+input>",
-		// "releasename":   "<+input>",
-		"pruning": spec.PruningEnabled,
-		// "forcerollback": false,
-		"flags": []interface{}{},
-		// "image":         "<+input>",
+	with := K8sRollingRollbackWith{
+		Pruning: spec.PruningEnabled,
+		Flags:   []interface{}{},
 	}
 
 	return &v1.StepTemplate{
@@ -82,14 +164,11 @@ func ConvertStepK8sApply(src *v0.Step) *v1.StepTemplate {
 		manifests = append(manifests, p)
 	}
 
-	with := map[string]interface{}{
-		// "kubeconfig":           "<+input>",
-		// "namespace":            "<+input>",
-		"manifests":            manifests,
-		"skipdryrun":           spec.SkipDryRun,
-		"skipsteadystatecheck": spec.SkipSteadyStateCheck,
-		"flags":                []interface{}{},
-		// "image":                "<+input>",
+	with := K8sApplyWith{
+		Manifests:            manifests,
+		SkipDryRun:           spec.SkipDryRun,
+		SkipSteadyStateCheck: spec.SkipSteadyStateCheck,
+		Flags:                []interface{}{},
 	}
 	return &v1.StepTemplate{
 		Uses: v1.StepTypeK8sApply,
@@ -109,14 +188,7 @@ func ConvertStepK8sBGSwapServices(src *v0.Step) *v1.StepTemplate {
 		}
 	}
 
-	with := map[string]interface{}{
-		// "kubeconfig":    "<+input>",
-		// "namespace":     "<+input>",
-		// "stableservice": "<+input>",
-		// "stageservice":  "<+input>",
-		// "releasename":   "<+input>",
-		// "image":         "<+input>",
-	}
+	with := K8sBGSwapServicesWith{}
 
 	return &v1.StepTemplate{
 		Uses: v1.StepTypeK8sBGSwapServices,
@@ -139,12 +211,8 @@ func ConvertStepK8sBlueGreenStageScaleDown(src *v0.Step) *v1.StepTemplate {
 		}
 	}
 
-	with := map[string]interface{}{
-		// "kubeconfig":  "<+input>",
-		// "namespace":   "<+input>",
-		// "releasename": "<+input>",
-		// pruning maps from deleteResources
-		"pruning": deleteResources,
+	with := K8sBlueGreenStageScaleDownWith{
+		Pruning: deleteResources,
 	}
 
 	return &v1.StepTemplate{
@@ -165,13 +233,7 @@ func ConvertStepK8sCanaryDelete(src *v0.Step) *v1.StepTemplate {
 		}
 	}
 
-	with := map[string]interface{}{
-		// "kubeconfig": "<+input>",
-		// "namespace":  "<+input>",
-		// "deletestep": "<+input>",
-		// allowed values: resources | manifests | releasename
-		// "selectdeleteresources": "<+input>",
-	}
+	with := K8sCanaryDeleteWith{}
 
 	return &v1.StepTemplate{
 		Uses: v1.StepTypeK8sCanaryDelete,
@@ -191,12 +253,7 @@ func ConvertStepK8sDiff(src *v0.Step) *v1.StepTemplate {
 		}
 	}
 
-	with := map[string]interface{}{
-		// "kubeconfig": "<+input>",
-		// "namespace":  "<+input>",
-		// "manifests":  "<+input>",
-		// "image":      "<+input>",
-	}
+	with := K8sDiffWith{}
 
 	return &v1.StepTemplate{
 		Uses: v1.StepTypeK8sDiff,
@@ -242,22 +299,19 @@ func ConvertStepK8sRollout(src *v0.Step) *v1.StepTemplate {
 		}
 	}
 
-	with := map[string]interface{}{
-		// "kubeconfig":             "<+input>",
-		// "namespace":              "<+input>",
-		"command":                sp.Command,
-		"selectrolloutresources": sel,
-		"flags":                  []interface{}{},
-		// "image":                  "<+input>",
+	with := K8sRolloutWith{
+		Command:                sp.Command,
+		SelectRolloutResources: sel,
+		Flags:                  []interface{}{},
 	}
 	// if releasenameNeeded {
 	// 	with["releasename"] = "<+input>"
 	// }
 	if len(resourcesList) > 0 {
-		with["resources"] = resourcesList
+		with.Resources = resourcesList
 	}
 	if len(manifestsList) > 0 {
-		with["manifests"] = manifestsList
+		with.Manifests = manifestsList
 	}
 
 	return &v1.StepTemplate{
@@ -293,14 +347,11 @@ func ConvertStepK8sScale(src *v0.Step) *v1.StepTemplate {
 		}
 	}
 
-	with := map[string]interface{}{
-		// "kubeconfig":           "<+input>",
-		// "namespace":            "<+input>",
-		"unittype":             unittype,
-		"instances":            instances,
-		"workload":             sp.Workload,
-		"skipsteadystatecheck": sp.SkipSteadyStateCheck,
-		// "image":                "<+input>",
+	with := K8sScaleWith{
+		UnitType:             unittype,
+		Instances:            instances,
+		Workload:             sp.Workload,
+		SkipSteadyStateCheck: sp.SkipSteadyStateCheck,
 	}
 
 	return &v1.StepTemplate{
@@ -319,12 +370,8 @@ func ConvertStepK8sDryRun(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 
-	with := map[string]interface{}{
-		// "kubeconfig":        "<+input>",
-		// "namespace":         "<+input>",
-		// "manifests":         "<+input>",
-		"encryptyamloutput": sp.EncryptYamlOutput,
-		// "applystep":         "<+input>",
+	with := K8sDryRunWith{
+		EncryptYamlOutput: sp.EncryptYamlOutput,
 	}
 
 	return &v1.StepTemplate{
@@ -372,13 +419,19 @@ func ConvertStepK8sDelete(src *v0.Step) *v1.StepTemplate {
 		resources = append(resources, it)
 	}
 
-	with := map[string]interface{}{
-		// "kubeconfig":            "<+input>",
-		// "namespace":             "<+input>",
-		"selectdeleteresources": sel,
-		sel:                     resources,
-		"flags":                 []interface{}{},
-		// "image":                 "<+input>",
+	with := K8sDeleteWith{
+		SelectDeleteResources: sel,
+		Flags:                 []interface{}{},
+	}
+
+	// Set the appropriate field based on selection type
+	switch sel {
+	case "resources":
+		with.Resources = resources
+	case "manifests":
+		with.Manifests = resources
+	case "releasename":
+		with.Releasename = resources
 	}
 
 	return &v1.StepTemplate{
@@ -430,16 +483,13 @@ func ConvertStepK8sTrafficRouting(src *v0.Step) *v1.StepTemplate {
 		}
 	}
 
-	with := map[string]interface{}{
-		// "kubeconfig":   "<+input>",
-		// "namespace":    "<+input>",
-		"config":   "new",
-		"provider": provider,
-		"hosts":    hosts,
-		"gateways": gateways,
-		// "image":        "<+input>",
-		"routes":       routes,
-		"resourcename": resourceName,
+	with := K8sTrafficRoutingWith{
+		Config:       "new",
+		Provider:     provider,
+		Hosts:        hosts,
+		Gateways:     gateways,
+		Routes:       routes,
+		ResourceName: resourceName,
 	}
 
 	return &v1.StepTemplate{
@@ -567,22 +617,16 @@ func ConvertStepK8sCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 		}
 	}
 
-	with := map[string]interface{}{
-		// "kubeconfig":             "<+input>",
-		// "namespace":              "<+input>",
-		// "manifests":              "<+input>",
-		// "releasename":            "<+input>",
-		"provider":     provider,
-		"unittype":     unitType,
-		"instances":    instances,
-		"resourcename": resourceName,
-		"hosts":        hosts,
-		"gateways":     gateways,
-		"routes":       routes,
-		"skipdryrun":   spec.SkipDryRun,
-		// "image":                  "harnessdev/k8s-deploy:linux-amd64-latest",
-		// "trafficroutingstep":     "<+input>",
-		"flags": []interface{}{},
+	with := K8sCanaryDeployWith{
+		Provider:     provider,
+		UnitType:     unitType,
+		Instances:    instances,
+		ResourceName: resourceName,
+		Hosts:        hosts,
+		Gateways:     gateways,
+		Routes:       routes,
+		SkipDryRun:   spec.SkipDryRun,
+		Flags:        []interface{}{},
 	}
 
 	return &v1.StepTemplate{
@@ -608,13 +652,6 @@ func ConvertStepK8sBlueGreenDeploy(src *v0.Step) *v1.StepTemplate {
 	provider := ""
 	resourceName := ""
 	routes := "[]"
-
-	// Build basic with map for simple blue-green deploy
-	with := map[string]interface{}{
-		"skipdryrun":            !spec.SkipDryRun,
-		"pruning":               spec.PruningEnabled,
-		"skipunchangedmanifest": spec.SkipUnchangedManifest,
-	}
 
 	// Check if traffic routing is configured
 	if spec.TrafficRouting != nil {
@@ -642,22 +679,16 @@ func ConvertStepK8sBlueGreenDeploy(src *v0.Step) *v1.StepTemplate {
 		}
 	}
 
-	with = map[string]interface{}{
-		// "kubeconfig":             "<+input>",
-		// "namespace":              "<+input>",
-		// "manifests":              "<+input>",
-		// "releasename":            "<+input>",
-		"provider":              provider,
-		"resourcename":          resourceName,
-		"hosts":                 hosts,
-		"gateways":              gateways,
-		"routes":                routes,
-		"skipdryrun":            spec.SkipDryRun,
-		"pruning":               spec.PruningEnabled,
-		"skipunchangedmanifest": spec.SkipUnchangedManifest,
-		// "image":                  "harnessdev/k8s-deploy:linux-amd64-latest",
-		// "trafficroutingstep":     "<+input>",
-		"flags": []interface{}{},
+	with := K8sBlueGreenDeployWith{
+		Provider:              provider,
+		ResourceName:          resourceName,
+		Hosts:                 hosts,
+		Gateways:              gateways,
+		Routes:                routes,
+		SkipDryRun:            spec.SkipDryRun,
+		Pruning:               spec.PruningEnabled,
+		SkipUnchangedManifest: spec.SkipUnchangedManifest,
+		Flags:                 []interface{}{},
 	}
 
 	return &v1.StepTemplate{

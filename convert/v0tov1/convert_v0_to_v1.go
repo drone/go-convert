@@ -76,6 +76,9 @@ func convertStage(src *v0.Stage) *v1.Stage {
 			environment = convert_helpers.ConvertEnvironments(spec.Environments)
 		} else if spec.EnvironmentGroup != nil {
 			environment = convert_helpers.ConvertEnvironmentGroup(spec.EnvironmentGroup)
+		} else if spec.Infrastructure != nil {
+			// Convert infrastructure to environment configuration
+			environment = convert_helpers.ConvertDeploymentInfrastructure(spec.Infrastructure)
 		}
 	default:
 		fmt.Println("stage type: " + src.Type + " is not yet supported!")

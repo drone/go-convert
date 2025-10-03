@@ -86,42 +86,36 @@ func (nm *NotificationMethod) UnmarshalJSON(data []byte) error {
 		if err := json.Unmarshal(aux.Spec, &spec); err != nil {
 			return err
 		}
-		fmt.Printf("Webhook spec: %+v\n", spec)
 		nm.Spec = spec
 	case "PagerDuty":
 		var spec PagerDutyNotificationSpec
 		if err := json.Unmarshal(aux.Spec, &spec); err != nil {
 			return err
 		}
-		fmt.Printf("PagerDuty spec: %+v\n", spec)
 		nm.Spec = spec
 	case "Slack":
 		var spec SlackNotificationSpec
 		if err := json.Unmarshal(aux.Spec, &spec); err != nil {
 			return err
 		}
-		fmt.Printf("Slack spec: %+v\n", spec)
 		nm.Spec = spec
 	case "MsTeams":
 		var spec MsTeamsNotificationSpec
 		if err := json.Unmarshal(aux.Spec, &spec); err != nil {
 			return err
 		}
-		fmt.Printf("MsTeams spec: %+v\n", spec)
 		nm.Spec = spec
 	case "Email":
 		var spec EmailNotificationSpec
 		if err := json.Unmarshal(aux.Spec, &spec); err != nil {
 			return err
 		}
-		fmt.Printf("Email spec: %+v\n", spec)
 		nm.Spec = spec
 	case "Datadog":
 		var spec DatadogNotificationSpec
 		if err := json.Unmarshal(aux.Spec, &spec); err != nil {
 			return err
 		}
-		fmt.Printf("Datadog spec: %+v\n", spec)
 		nm.Spec = spec
 	default:
 		// For unknown types, keep as raw JSON

@@ -62,8 +62,15 @@ type (
 		EnvironmentGroup  *EnvironmentGroup    `json:"environmentGroup,omitempty"  yaml:"environmentGroup,omitempty"`
 		Environment       *Environment         `json:"environment,omitempty"       yaml:"environment,omitempty"`
 		Environments      *Environments        `json:"environments,omitempty" yaml:"environments,omitempty"`
+		Infrastructure    *DeploymentInfrastructure      `json:"infrastructure,omitempty" yaml:"infrastructure,omitempty"`
 		Tags              map[string]string    `json:"tags,omitempty"              yaml:"tags,omitempty"`
 	}	
+
+	DeploymentInfrastructure struct {
+		EnvironmentRef string `json:"environmentRef,omitempty" yaml:"environmentRef,omitempty"`
+		InfrastructureDefinition InfrastructureDefinition `json:"infrastructureDefinition,omitempty" yaml:"infrastructureDefinition,omitempty"`	
+		AllowSimultaneousDeployments bool `json:"allowSimultaneousDeployments,omitempty" yaml:"allowSimultaneousDeployments,omitempty"`
+	}
 
 	// DeploymentExecution defines the deployment execution
 	DeploymentExecution struct {

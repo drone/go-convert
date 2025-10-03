@@ -30,7 +30,7 @@ type (
 	// ServiceDefinition defines the service definition
 	ServiceDefinition struct {
 		Type string                 `json:"type,omitempty" yaml:"type,omitempty"`
-		Spec *ServiceDefinitionSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
+		Spec interface{} `json:"spec,omitempty" yaml:"spec,omitempty"`
 	}
 
 	// ServiceDefinitionSpec defines the service definition specification
@@ -50,7 +50,7 @@ type (
 	Manifest struct {
 		Identifier string        `json:"identifier,omitempty"   yaml:"identifier,omitempty"`
 		Type       string        `json:"type,omitempty"         yaml:"type,omitempty"`
-		Spec       *ManifestSpec `json:"spec,omitempty"         yaml:"spec,omitempty"`
+		Spec       interface{} `json:"spec,omitempty"         yaml:"spec,omitempty"`
 	}
 
 	// ManifestSpec defines the manifest specification
@@ -62,11 +62,11 @@ type (
 	// Store defines a store configuration
 	Store struct {
 		Type string     `json:"type,omitempty" yaml:"type,omitempty"`
-		Spec *StoreSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
+		Spec interface{} `json:"spec,omitempty" yaml:"spec,omitempty"`
 	}
 
 	// StoreSpec defines the store specification
-	StoreSpec struct {
+	GitHubStoreSpec struct {
 		FolderPath   string   `json:"folderPath,omitempty"    yaml:"folderPath,omitempty"`
 		Branch       string   `json:"branch,omitempty"        yaml:"branch,omitempty"`
 		ConnectorRef string   `json:"connectorRef,omitempty"  yaml:"connectorRef,omitempty"`

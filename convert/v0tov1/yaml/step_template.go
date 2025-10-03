@@ -19,5 +19,5 @@ package yaml
 type StepTemplate struct {
 	Env  map[string]string      `json:"env,omitempty" yaml:"env,omitempty"`
 	Uses string                 `json:"uses,omitempty" yaml:"uses,omitempty"`
-	With map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
+	With interface{} `json:"with,omitempty" yaml:"with,omitempty"`
 }

@@ -67,7 +67,6 @@ func ConvertDeploymentServiceConfig(src *v0.DeploymentServiceConfig) *v1.Service
 		Items: []string{src.ServiceRef},
 	}
 }
-	
 
 // ConvertEnvironment converts v0 Environment to v1 EnvironmentRef
 func ConvertEnvironment(src *v0.Environment) *v1.EnvironmentRef {
@@ -210,4 +209,27 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup) *v1.EnvironmentRef {
 	}
 
 	return nil
+}
+
+// ConvertDeploymentInfrastructure converts v0 DeploymentInfrastructure to v1 EnvironmentRef
+// It adds the environmentRef from infrastructure to the environments of the stage
+func ConvertDeploymentInfrastructure(src *v0.DeploymentInfrastructure) *v1.EnvironmentRef {
+	if src == nil || src.EnvironmentRef == "" {
+		return nil
+	}
+
+	// Create environment item with the environmentRef from infrastructure
+	envItem := &v1.EnvironmentItem{
+		Name:     src.EnvironmentRef,
+		DeployTo: "all", // Default to all infrastructures
+	}
+
+	// If infrastructure definition is specified, use its identifier
+	if src.InfrastructureDefinition.Identifier != "" {
+		envItem.DeployTo = src.InfrastructureDefinition.Identifier
+	}
+
+	return &v1.EnvironmentRef{
+		Items: []*v1.EnvironmentItem{envItem},
+	}
 }
