@@ -127,7 +127,10 @@ func ConvertSingleStep(src *v0.Step) *v1.Step {
 	default:
 		// Unknown step type, return nil
 		fmt.Println("step type: " + src.Type + " is not yet supported!")
-		return nil
+		step.Template = &v1.StepTemplate{
+			Uses: src.Type,
+			With: "to be implemented",
+		}
 	}
 
 	// Convert common step settings

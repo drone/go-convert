@@ -10,7 +10,7 @@ type FailureType string
 // FailureType enumeration for v0.
 const (
 	FailureTypeNone                    FailureType = ""
-	FailureTypeAll                     FailureType = "All"
+	FailureTypeAll                     FailureType = "AllErrors"
 	FailureTypeApprovalRejection       FailureType = "ApprovalRejection"
 	FailureTypeAuthentication          FailureType = "Authentication"
 	FailureTypeAuthorization           FailureType = "Authorization"

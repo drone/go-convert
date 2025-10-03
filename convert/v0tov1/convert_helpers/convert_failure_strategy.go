@@ -15,6 +15,8 @@
 package converthelpers
 
 import (
+	"fmt"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
@@ -119,7 +121,8 @@ func ConvertErrorName(errorType v0.FailureType) v1.FailureType {
 	case v0.FailureTypeAll:
 		return v1.FailureTypeAll
 	default:
-		return v1.FailureTypeUnknown
+		fmt.Println("Unknown error type: " + string(errorType))
+		return v1.FailureTypeNone
 	}
 }
 
