@@ -818,33 +818,6 @@ line3'''
                 version: '1.12'
             }
         }
-        //Nodejs conversion Step
-        stage('Install Packages') {
-            steps {
-                withSonarQubeEnv('SonarCloud') { // Matches the name in Jenkins configuration
-                    sh "${SONAR_SCANNER}  -Dsonar.projectKey=vanisrikanithi_Test-Sonarqube" +
-               '-Dsonar.organization=vanisrikanithi' +
-               '-Dsonar.login=b751ddb91e11f466d7cdfa0abd65b4a6c393d938 ' +
-               '-Dsonar.sources=src ' +
-               '-Dsonar.java.binaries=target/classes'
-                }
-            }
-        }
-        stage('Quality Gate') {
-            steps {
-                script {
-                    def qualityGate = waitForQualityGate()
-                    // If the quality gate fails, log the status but don't abort the pipeline
-                    if (qualityGate.status != 'OK' && qualityGate.status != 'NONE') {
-                        echo "Quality Gate failed with status: ${qualityGate.status}. Continuing the pipeline."
-            } else if (qualityGate.status == 'NONE') {
-                        echo 'Quality Gate status is NONE. Check SonarQube configuration.'
-            } else {
-                        echo "Quality Gate passed with status: ${qualityGate.status}."
-                    }
-                }
-            }
-        }
         //Unarchive Stage
         stage('Unarchive Files') {
             steps {
