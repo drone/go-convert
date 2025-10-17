@@ -88,16 +88,35 @@ func (c *Drone) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) su
 	}
 
 	// convert the pipeline yaml from the drone
-	// format to the harness yaml format.
-	converter := drone.New(
-		drone.WithDockerhub(c.dockerConn),
-		drone.WithKubernetes(c.kubeName, c.kubeConn),
-		drone.WithOrgSecrets(orgSecrets...),
-	)
-	after, err := converter.ConvertBytes(before)
-	if err != nil {
-		log.Println(err)
-		return subcommands.ExitFailure
+	// convert the input yaml
+	var after []byte
+	
+	// When downgrading is requested, use the OldConverter which produces output
+	// in a format compatible with the downgrader
+	if c.downgrade {
+		// Use the OldConverter implementation which is compatible with the downgrader
+		converter := drone.NewOld(
+			drone.WithKubernetes(c.kubeName, c.kubeConn),
+			drone.WithDockerhub(c.dockerConn),
+			drone.WithOrgSecrets(orgSecrets...),
+		)
+		after, err = converter.ConvertOld(bytes.NewReader(before))
+		if err != nil {
+			log.Println("Error using OldConverter:", err)
+			return subcommands.ExitFailure
+		}
+	} else {
+		// Use regular converter for non-downgrade path
+		converter := drone.New(
+			drone.WithKubernetes(c.kubeName, c.kubeConn),
+			drone.WithDockerhub(c.dockerConn),
+			drone.WithOrgSecrets(orgSecrets...),
+		)
+		after, err = converter.ConvertBytes(before)
+		if err != nil {
+			log.Println(err)
+			return subcommands.ExitFailure
+		}
 	}
 
 	// downgrade from the v1 harness yaml format
