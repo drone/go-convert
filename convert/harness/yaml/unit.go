@@ -137,12 +137,12 @@ func (m *MilliSize) MarshalJSON() ([]byte, error) {
 }
 
 // String returns a human-readable cpu millis,
-// (eg. "1000m", "10m").
+// (eg. "1000", "10").
 func (m MilliSize) String() string {
 	if m == 0 {
-		return "0m"
+		return "0"
 	} else {
-		return strconv.FormatInt(int64(m), 10) + "m"
+		return strconv.FormatInt(int64(m), 10)
 	}
 }
 
