@@ -26,4 +26,5 @@ type Input struct {
 	Pattern     string      `json:"pattern,omitempty" yaml:"pattern,omitempty"`
 	Required    bool        `json:"required,omitempty" yaml:"required,omitempty"`
 	Type        string      `json:"type,omitempty" yaml:"type,omitempty"`
+	Value       interface{} `json:"value,omitempty" yaml:"value,omitempty"`
 }

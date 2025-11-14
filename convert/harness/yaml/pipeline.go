@@ -14,6 +14,8 @@
 
 package yaml
 
+import "github.com/drone/go-convert/internal/flexible"
+
 type (
 	// Config defines resource configuration.
 	Config struct {
@@ -71,7 +73,16 @@ type (
 	Codebase struct {
 		Name  string `json:"repoName,omitempty"     yaml:"repoName,omitempty"`
 		Conn  string `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
-		Build string `json:"build,omitempty"        yaml:"build,omitempty"` // branch|tag
+		Build flexible.Field[Build] `json:"build,omitempty"        yaml:"build,omitempty"` // branch|tag
+	}
+
+	Build struct {
+		Type string `json:"type,omitempty" yaml:"type,omitempty"`
+		Spec BuildSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
+	}
+
+	BuildSpec struct {
+		Branch string `json:"branch,omitempty" yaml:"branch,omitempty"`
 	}
 
 	Stages struct {
@@ -104,8 +115,10 @@ type (
 
 	Variable struct {
 		Name  string `json:"name,omitempty"  yaml:"name,omitempty"`
-		Type  string `json:"type,omitempty"  yaml:"type,omitempty"` // Secret|Text
-		Value string `json:"value,omitempty" yaml:"value,omitempty"`
+		Type  string `json:"type,omitempty"  yaml:"type,omitempty"` // Secret|String|Number
+		Value interface{} `json:"value,omitempty" yaml:"value,omitempty"`
+		Required bool `json:"required,omitempty" yaml:"required,omitempty"`
+		Default interface{} `json:"default,omitempty" yaml:"default,omitempty"`
 	}
 
 	Execution struct {
@@ -170,11 +183,11 @@ type (
 	}
 
 	Resources struct {
-		Limits Limits `json:"limits,omitempty" yaml:"limits,omitempty"`
+		Limits *Limits `json:"limits,omitempty" yaml:"limits,omitempty"`
 	}
 
 	Limits struct {
-		Memory BytesSize `json:"memory,omitempty" yaml:"memory,omitempty"`
-		CPU    MilliSize `json:"cpu,omitempty"    yaml:"cpu,omitempty"` // TODO
+		Memory *BytesSize `json:"memory,omitempty" yaml:"memory,omitempty"`
+		CPU    *MilliSize `json:"cpu,omitempty"    yaml:"cpu,omitempty"` // TODO
 	}
 )

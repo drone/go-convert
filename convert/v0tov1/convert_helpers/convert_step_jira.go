@@ -6,7 +6,7 @@ import (
 )
 
 // ConvertStepJiraCreate converts a v0 JiraCreate step to a v1 action step
-func ConvertStepJiraCreate(src *v0.Step) *v1.StepAction {
+func ConvertStepJiraCreate(src *v0.Step) *v1.StepTemplate {
 	if src == nil || src.Spec == nil {
 		return nil
 	}
@@ -22,13 +22,8 @@ func ConvertStepJiraCreate(src *v0.Step) *v1.StepAction {
 		if f == nil {
 			continue
 		}
-		m := map[string]interface{}{}
-		if f.Name != "" {
-			m["name"] = f.Name
-		}
-		// Prefer Value when present
-		if f.Value != "" {
-			m["value"] = f.Value
+		m := map[string]interface{}{
+			f.Name: f.Value,
 		}
 		if len(m) > 0 {
 			fields = append(fields, m)
@@ -38,20 +33,20 @@ func ConvertStepJiraCreate(src *v0.Step) *v1.StepAction {
 	with := map[string]interface{}{
 		"connector": sp.ConnectorRef,
 		"project":   sp.ProjectKey,
-		"type":      sp.IssueType,
+		"issue_type": sp.IssueType,
 	}
 	if len(fields) > 0 {
 		with["fields"] = fields
 	}
 
-	return &v1.StepAction{
-		Uses: "jira-create",
+	return &v1.StepTemplate{
+		Uses: "jiraCreate",
 		With: with,
-	}
+	}	
 }
 
 // ConvertStepJiraUpdate converts a v0 JiraUpdate step to a v1 action step
-func ConvertStepJiraUpdate(src *v0.Step) *v1.StepAction {
+func ConvertStepJiraUpdate(src *v0.Step) *v1.StepTemplate {
 	if src == nil || src.Spec == nil {
 		return nil
 	}
@@ -67,12 +62,8 @@ func ConvertStepJiraUpdate(src *v0.Step) *v1.StepAction {
 		if f == nil {
 			continue
 		}
-		m := map[string]interface{}{}
-		if f.Name != "" {
-			m["name"] = f.Name
-		}
-		if f.Value != "" {
-			m["value"] = f.Value
+		m := map[string]interface{}{
+			f.Name: f.Value,
 		}
 		if len(m) > 0 {
 			fields = append(fields, m)
@@ -81,9 +72,7 @@ func ConvertStepJiraUpdate(src *v0.Step) *v1.StepAction {
 
 	with := map[string]interface{}{
 		"connector": sp.ConnectorRef,
-		"project":   sp.ProjectKey,
-		"type":      sp.IssueType,
-		"key":       sp.IssueKey,
+		"issue":       sp.IssueKey,
 	}
 	if len(fields) > 0 {
 		with["fields"] = fields
@@ -93,12 +82,12 @@ func ConvertStepJiraUpdate(src *v0.Step) *v1.StepAction {
 			with["status"] = sp.TransitionTo.Status
 		}
 		if sp.TransitionTo.TransitionName != "" {
-			with["status-transition"] = sp.TransitionTo.TransitionName
+			with["transition"] = sp.TransitionTo.TransitionName
 		}
 	}
 
-	return &v1.StepAction{
-		Uses: "jira-update",
+	return &v1.StepTemplate{
+		Uses: "jiraUpdate",
 		With: with,
 	}
 }

@@ -31,25 +31,7 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 		return nil
 	}
 
-	// Build script as a single string so it renders as a block scalar in YAML.
-	scriptLines := []string{}
-	if cmd := strings.TrimSpace(sp.Command); cmd != "" {
-		scriptLines = append(scriptLines, cmd)
-	}
-	// Append output variable exports
-	for _, ov := range sp.Outputs {
-		if ov == nil || ov.Name == "" || ov.Value == "" {
-			continue
-		}
-		// echo "name=value" >> $HARNESS_OUTPUT
-		line := "echo \"" + ov.Name + "=" + ov.Value + "\" >> $HARNESS_OUTPUT"
-		scriptLines = append(scriptLines, "# write output variable to harness")
-		scriptLines = append(scriptLines, line)
-	}
-	var script string
-	if len(scriptLines) > 0 {
-		script = strings.Join(scriptLines, "\n")
-	}
+	script := sp.Command
 
 	// Container mapping
 	var container *v1.Container
@@ -58,11 +40,21 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 		if strings.EqualFold(sp.ImagePullPolicy, "Always") {
 			pull = "always"
 		}
+		cpu := ""
+		memory := ""
+		if sp.Resources != nil && sp.Resources.Limits.CPU != nil {
+			cpu = sp.Resources.Limits.CPU.String()
+		}
+		if sp.Resources != nil && sp.Resources.Limits.Memory != nil {
+			memory = sp.Resources.Limits.Memory.String()
+		}
 		container = &v1.Container{
 			Image:      sp.Image,
 			Connector:  sp.ConnRef,
 			Privileged: sp.Privileged,
 			Pull:       pull,
+			Cpu:        cpu,
+			Memory:     memory,
 		}
 	}
 
@@ -89,7 +81,7 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 
 	dst := &v1.StepRun{
 		Container: container,
-		Env:       map[string]string{},
+		Env:       map[string]interface{}{},
 		Report:    report,
 		Shell:     shell,
 	}
@@ -98,16 +90,23 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 		dst.Script = v1.Stringorslice{script}
 	}
 
+	outputs := make([]*v1.Output, 0)
+	for _, outputVar := range sp.Outputs {
+		if outputVar == nil {
+			continue
+		}
+		outputs = append(outputs, &v1.Output{
+			Name:  outputVar.Name,
+			Type:  outputVar.Type,
+			Value: outputVar.Value,
+		})
+	}
+	dst.Outputs = outputs
+
 	// merge envVariables and step-level env into run env
 	for k, v := range sp.Env {
 		if dst.Env == nil {
-			dst.Env = make(map[string]string)
-		}
-		dst.Env[k] = v
-	}
-	for k, v := range src.Env {
-		if dst.Env == nil {
-			dst.Env = make(map[string]string)
+			dst.Env = make(map[string]interface{})
 		}
 		dst.Env[k] = v
 	}

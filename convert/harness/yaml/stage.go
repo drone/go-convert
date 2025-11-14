@@ -17,6 +17,8 @@ package yaml
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 type (
@@ -25,18 +27,23 @@ type (
 		ID          string      `json:"identifier,omitempty"   yaml:"identifier,omitempty"`
 		Description string      `json:"description,omitempty"  yaml:"description,omitempty"`
 		Name        string      `json:"name,omitempty"         yaml:"name,omitempty"`
-		DelegateSelectors FlexibleField[[]string] `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
+		DelegateSelectors flexible.Field[[]string] `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
 		Spec        interface{} `json:"spec,omitempty"         yaml:"spec,omitempty"`
 		Type        string      `json:"type,omitempty"         yaml:"type,omitempty"`
 		Vars        []*Variable `json:"variables,omitempty"    yaml:"variables,omitempty"`
 		When        *StageWhen  `json:"when,omitempty"         yaml:"when,omitempty"`
 		Strategy    *Strategy   `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
-		FailureStrategies *FlexibleField[[]*FailureStrategy]   `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
+		FailureStrategies *flexible.Field[[]*FailureStrategy]   `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
+	}
+
+	StageCustom struct {
+		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
+		Environment *Environment `json:"environment,omitempty" yaml:"environment,omitempty"`
 	}
 
 	// StageApproval defines an approval stage.
 	StageApproval struct {
-		// TODO
+		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
 	}
 
 	// StageCI defines a continuous integration stage.
@@ -90,21 +97,21 @@ type (
 
 	Strategy struct {
 		Matrix      map[string]interface{} `json:"matrix,omitempty" yaml:"matrix,omitempty"`
-		Parallelism *Parallelism           `json:"parallelism,omitempty" yaml:"parallelism,omitempty"`
+		Parallelism *flexible.Field[int64]          `json:"parallelism,omitempty" yaml:"parallelism,omitempty"`
 		Repeat      *Repeat                `json:"repeat,omitempty" yaml:"repeat,omitempty"`
 	}
 
 	Exclusion map[string]string
 
-	Parallelism struct {
-		Number         int `yaml:"parallelism"`
-		MaxConcurrency FlexibleField[int] `yaml:"maxConcurrency"`
-	}
+	// Parallelism struct {
+	// 	Number         int `yaml:"parallelism"`
+	// 	MaxConcurrency flexible.Field[int] `yaml:"maxConcurrency"`
+	// }
 
 	Repeat struct {
-		Times          FlexibleField[int]      `yaml:"times,omitempty"`
-		Items          FlexibleField[[]string] `yaml:"items,omitempty"`
-		MaxConcurrency FlexibleField[int]      `yaml:"maxConcurrency,omitempty"`
+		Times          flexible.Field[int64]      `yaml:"times,omitempty"`
+		Items          flexible.Field[[]string] `yaml:"items,omitempty"`
+		MaxConcurrency flexible.Field[int64]      `yaml:"maxConcurrency,omitempty"`
 	}
 )
 
@@ -128,6 +135,10 @@ func (s *Stage) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StageFeatureFlag)
 	case StageTypeDeployment:
 		s.Spec = new(StageDeployment)
+	case StageTypeCustom:
+		s.Spec = new(StageCustom)
+	case StageTypeApproval:
+		s.Spec = new(StageApproval)
 	default:
 		return fmt.Errorf("unknown stage type %s", s.Type)
 	}

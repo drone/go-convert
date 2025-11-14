@@ -19,30 +19,32 @@ import (
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
-// ConvertFailureStrategyFlexible converts a FlexibleField containing failure strategies from v0 to v1 format.
+// ConvertFailureStrategies converts a flexible.Field containing failure strategies from v0 to v1 format.
 // This handles both expression strings and arrays of failure strategies.
-func ConvertFailureStrategies(src *v0.FlexibleField[[]*v0.FailureStrategy]) *v1.FlexibleField[[]*v1.FailureStrategy] {
+func ConvertFailureStrategies(src *flexible.Field[[]*v0.FailureStrategy]) *flexible.Field[[]*v1.FailureStrategy] {
 	if src == nil || src.IsNil() {
 		return nil
 	}
 
-	result := &v1.FlexibleField[[]*v1.FailureStrategy]{}
+	result := &flexible.Field[[]*v1.FailureStrategy]{}
 
 	// Handle expression strings
-	if src.IsExpression() {
-		result.SetExpression(src.AsString())
+	if str, ok := src.AsString(); ok {
+		result.SetString(str)
 		return result
 	}
 
-	// Handle struct arrays
+	// Handle arrays of failure strategies
 	if strategies, ok := src.AsStruct(); ok {
-		converted := ConvertFailureStrategiesArray(strategies)
-		if converted != nil {
-			result.Set(converted)
-			return result
+		convertedStrategies := make([]*v1.FailureStrategy, len(strategies))
+		for i, strategy := range strategies {
+			convertedStrategies[i] = ConvertFailureStrategy(strategy)
 		}
+		result.Set(convertedStrategies)
+		return result
 	}
 
 	return nil
@@ -60,7 +62,7 @@ func ConvertFailureStrategy(src *v0.FailureStrategy) *v1.FailureStrategy {
 	}
 }
 
-// ConvertFailureStrategies converts a list of v0 FailureStrategies to v1 FailureStrategies.
+// ConvertFailureStrategiesArray converts a list of v0 FailureStrategies to v1 FailureStrategies.
 func ConvertFailureStrategiesArray(src []*v0.FailureStrategy) []*v1.FailureStrategy {
 	if len(src) == 0 {
 		return nil
@@ -134,6 +136,8 @@ func ConvertFailureAction(action *v0.Action) interface{} {
 	}
 
 	switch action.Type {
+	case v0.ActionTypeProceedWithDefaultValues:
+		return v1.ActionTypeProceedWithDefaultValues
 	case v0.ActionTypeMarkAsSuccess:
 		return v1.ActionTypeSuccess
 	case v0.ActionTypeIgnore:
@@ -147,7 +151,9 @@ func ConvertFailureAction(action *v0.Action) interface{} {
 	case v0.ActionTypePipelineRollback:
 		return v1.ActionTypePipelineRollback
 	case v0.ActionTypeRetryStepGroup:
-		return v1.ActionTypeRetryStepGroup
+		return map[string]interface{}{
+			"retry-step-group": ConvertRetrySpec(action),
+		}
 	case v0.ActionTypeRetry:
 		return map[string]interface{}{
 			"retry": ConvertRetrySpec(action),

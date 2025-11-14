@@ -64,6 +64,7 @@ func ConvertStepHarnessApproval(src *v0.Step) *v1.StepApproval {
 	}
 
 	// Map approverInputs to params
+	dst.With["params"] = [][]map[string]string{} //step does not work without this default value
 	if len(spec.ApproverInputs) > 0 {
 		params := make([]map[string]string, 0, len(spec.ApproverInputs))
 		for _, input := range spec.ApproverInputs {
@@ -79,6 +80,7 @@ func ConvertStepHarnessApproval(src *v0.Step) *v1.StepApproval {
 		}
 	}
 
+	dst.With["auto-approve"] = false //step does not work without this default value
 	// Map autoApproval fields
 	if spec.AutoApproval != nil {
 		// Map action to auto-approve (true if action is APPROVE)

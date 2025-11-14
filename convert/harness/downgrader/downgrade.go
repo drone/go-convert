@@ -27,6 +27,7 @@ import (
 	// "time"
 
 	"github.com/drone/go-convert/convert/jenkinsjson/json"
+	"github.com/drone/go-convert/internal/flexible"
 	"github.com/drone/go-convert/internal/rand"
 
 	"github.com/drone/go-convert/convert/harness"
@@ -189,7 +190,7 @@ func (d *Downgrader) downgrade(src []*v1.Config) ([]byte, error) {
 		config.Pipeline.Props.CI.Codebase = v0.Codebase{
 			Name:  d.codebaseName,
 			Conn:  d.codebaseConn,
-			Build: "<+input>",
+			Build: flexible.Field[v0.Build]{Value: "<+input>"},
 		}
 		// FIXME: this is subject to a nil pointer
 		if p.Spec.(*v1.Pipeline).Options != nil {

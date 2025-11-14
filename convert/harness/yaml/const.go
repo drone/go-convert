@@ -31,6 +31,7 @@ const (
 	StageTypeCI                    = "CI"
 	StageTypeDeployment            = "Deployment"
 	StageTypeFeatureFlag           = "FeatureFlag"
+	StageTypeCustom                = "Custom"
 )
 
 type InfraType string
@@ -74,12 +75,14 @@ const (
 
 	// Feature Flags
 	StepTypeHTTP               = "Http"
+	StepTypeEmail              = "Email"
 	StepTypeJiraApproval       = "JiraApproval"
 	StepTypeJiraCreate         = "JiraCreate"
 	StepTypeJiraUpdate         = "JiraUpdate"
 	StepTypeServiceNowApproval = "ServiceNowApproval"
 	StepTypeShellScript        = "ShellScript"
 	StepTypeWait               = "Wait"
+	StepTypeCustomApproval     = "CustomApproval"
 
 	// CD / Kubernetes
 	StepTypeK8sRollingDeploy           = "K8sRollingDeploy"

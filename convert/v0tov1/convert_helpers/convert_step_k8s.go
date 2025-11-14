@@ -5,24 +5,25 @@ import (
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 // K8s step with configuration structs with JSON tags
 type K8sRollingDeployWith struct {
 	Flags      []interface{} `json:"flags,omitempty"`
-	SkipDryRun bool          `json:"skipdryrun,omitempty"`
-	Pruning    bool          `json:"pruning,omitempty"`
+	SkipDryRun *flexible.Field[bool]          `json:"skipdryrun,omitempty"`
+	Pruning    *flexible.Field[bool]          `json:"pruning,omitempty"`
 }
 
 type K8sRollingRollbackWith struct {
-	Pruning bool          `json:"pruning,omitempty"`
+	Pruning *flexible.Field[bool]          `json:"pruning,omitempty"`
 	Flags   []interface{} `json:"flags,omitempty"`
 }
 
 type K8sApplyWith struct {
 	Manifests            []interface{} `json:"manifests,omitempty"`
-	SkipDryRun           bool          `json:"skipdryrun,omitempty"`
-	SkipSteadyStateCheck bool          `json:"skipsteadystatecheck,omitempty"`
+	SkipDryRun           *flexible.Field[bool]          `json:"skipdryrun,omitempty"`
+	SkipSteadyStateCheck *flexible.Field[bool]          `json:"skipsteadystatecheck,omitempty"`
 	Flags                []interface{} `json:"flags,omitempty"`
 }
 
@@ -31,7 +32,7 @@ type K8sBGSwapServicesWith struct {
 }
 
 type K8sBlueGreenStageScaleDownWith struct {
-	Pruning bool `json:"pruning,omitempty"`
+	Pruning *flexible.Field[bool] `json:"pruning,omitempty"`
 }
 
 type K8sCanaryDeleteWith struct {
@@ -52,7 +53,7 @@ type K8sRolloutWith struct {
 
 type K8sScaleWith struct {
 	UnitType             string `json:"unittype,omitempty"`
-	Instances            string `json:"instances,omitempty"`
+	Instances            *flexible.Field[int] `json:"instances,omitempty"`
 	Workload             string `json:"workload,omitempty"`
 	SkipSteadyStateCheck bool   `json:"skipsteadystatecheck,omitempty"`
 }
@@ -202,22 +203,15 @@ func ConvertStepK8sBlueGreenStageScaleDown(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 	// Typed spec (contains deleteResources)
-	var deleteResources bool
-	if src.Spec != nil {
-		if spec, ok := src.Spec.(*v0.StepK8sBlueGreenStageScaleDown); ok {
-			deleteResources = spec.DeleteResources
-		} else {
-			return nil
+	if spec, ok := src.Spec.(*v0.StepK8sBlueGreenStageScaleDown); ok {
+		return &v1.StepTemplate{
+			Uses: v1.StepTypeK8sBlueGreenStageScaleDown,
+			With: K8sBlueGreenStageScaleDownWith{
+				Pruning: spec.DeleteResources,
+			},
 		}
-	}
-
-	with := K8sBlueGreenStageScaleDownWith{
-		Pruning: deleteResources,
-	}
-
-	return &v1.StepTemplate{
-		Uses: v1.StepTypeK8sBlueGreenStageScaleDown,
-		With: with,
+	} else {
+		return nil
 	}
 }
 
@@ -331,18 +325,18 @@ func ConvertStepK8sScale(src *v0.Step) *v1.StepTemplate {
 	}
 
 	unittype := ""
-	instances := ""
+	instances := &flexible.Field[int]{}
 	if sel := sp.InstanceSelection; sel != nil {
 		switch sel.Type {
 		case "Count":
 			unittype = "count"
 			if sel.Spec != nil {
-				instances = strconv.Itoa(sel.Spec.Count)
+				instances = sel.Spec.Count
 			}
 		case "Percentage":
 			unittype = "percentage"
 			if sel.Spec != nil {
-				instances = strconv.Itoa(sel.Spec.Percentage)
+				instances = sel.Spec.Percentage
 			}
 		}
 	}

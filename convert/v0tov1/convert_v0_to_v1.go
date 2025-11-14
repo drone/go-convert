@@ -15,6 +15,7 @@
 package v0tov1
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -23,167 +24,68 @@ import (
 	"time"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
-	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
+	pipeline_converter "github.com/drone/go-convert/convert/v0tov1/pipeline_converter"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
 
-// convertStages converts a list of v0 Stages to v1 Stages.
-func convertStages(src []*v0.Stages) []*v1.Stage {
-	dst := make([]*v1.Stage, 0)
-	for _, stages := range src {
-		if stages.Stage != nil {
-			dst = append(dst, convertStage(stages.Stage))
-		}
-		// TODO: handle stages.Parallel recursively when needed
-	}
-	return dst
-}
-
-// convertStage converts a v0 Stage to a v1 Stage.
-func convertStage(src *v0.Stage) *v1.Stage {
-	if src == nil {
-		return nil
-	}
-
-	var steps []*v1.Step
-	var rollback []*v1.Step
-	var service *v1.ServiceRef
-	var environment *v1.EnvironmentRef
-
-	switch spec := src.Spec.(type) {
-	case *v0.StageCI:
-		steps = convert_helpers.ConvertSteps(spec.Execution.Steps)
-	case *v0.StageDeployment:
-		// Convert deployment steps
-		if spec.Execution != nil {
-			steps = convert_helpers.ConvertSteps(spec.Execution.Steps)
-			rollback = convert_helpers.ConvertSteps(spec.Execution.RollbackSteps)
-		}
-
-		// Convert service configuration
-		if spec.Service != nil {
-			service = convert_helpers.ConvertDeploymentService(spec.Service)
-		} else if spec.Services != nil {
-			service = convert_helpers.ConvertDeploymentServices(spec.Services)
-		} else if spec.ServiceConfig != nil {
-			service = convert_helpers.ConvertDeploymentServiceConfig(spec.ServiceConfig)
-		}
-
-		// Convert environment configuration - check all possible sources
-		if spec.Environment != nil {
-			environment = convert_helpers.ConvertEnvironment(spec.Environment)
-		} else if spec.Environments != nil {
-			environment = convert_helpers.ConvertEnvironments(spec.Environments)
-		} else if spec.EnvironmentGroup != nil {
-			environment = convert_helpers.ConvertEnvironmentGroup(spec.EnvironmentGroup)
-		} else if spec.Infrastructure != nil {
-			// Convert infrastructure to environment configuration
-			environment = convert_helpers.ConvertDeploymentInfrastructure(spec.Infrastructure)
-		}
-	default:
-		fmt.Println("stage type: " + src.Type + " is not yet supported!")
-		// non-CI/Deployment stages currently not converted
-	}
-	onFailure := convert_helpers.ConvertFailureStrategies(src.FailureStrategies)
-
-	strategy := convert_helpers.ConvertStrategy(src.Strategy)
-	return &v1.Stage{
-		Id:          src.ID,
-		Name:        src.Name,
-		Steps:       steps,
-		Rollback:    rollback,
-		Service:     service,
-		Environment: environment,
-		OnFailure:   onFailure,
-		Inputs:      convertVariables(src.Vars),
-		Delegate:    convert_helpers.ConvertDelegate(src.DelegateSelectors),
-		Strategy:    strategy,
-	}
-}
-
-// convertBarriers converts a list of v0 Barriers to v1 Barriers.
-func convertBarriers(src []*v0.Barrier) []string {
-	if len(src) == 0 {
-		return nil
-	}
-	dst := make([]string, 0, len(src))
-	for _, barrier := range src {
-		if barrier == nil {
-			continue
-		}
-		dst = append(dst, barrier.Name)
-	}
-	return dst
-}
-
-// convertVariables converts a list of v0 Variables to v1 Inputs.
-func convertVariables(src []*v0.Variable) map[string]*v1.Input {
-	if len(src) == 0 {
-		return nil
-	}
-
-	dst := make(map[string]*v1.Input)
-	for _, variable := range src {
-		if variable == nil || variable.Name == "" {
-			continue
-		}
-
-		input := &v1.Input{
-			Type:     convertVariableType(variable.Type),
-			Required: true, // Default to required, can be adjusted based on requirements
-		}
-
-		// Set default value if provided
-		if variable.Value != "" {
-			input.Default = variable.Value
-		}
-
-		// Set mask to true for secret types
-		if variable.Type == "Secret" {
-			input.Mask = true
-		}
-
-		dst[variable.Name] = input
-	}
-
-	return dst
-}
-
-// convertVariableType converts v0 variable type to v1 input type.
-func convertVariableType(v0Type string) string {
-	switch v0Type {
-	case "Secret":
-		return "string" // Secrets are still strings in v1, but with mask=true
-	case "Text":
-		return "string"
-	default:
-		return "string" // Default to string type
-	}
-}
-
-// ConvertPipeline converts a v0 Pipeline to a v1 Pipeline.
-func ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
-	if src == nil {
-		return nil
-	}
-	var barriers []string
-	if src.FlowControl != nil {
-		barriers = convertBarriers(src.FlowControl.Barriers)
-	}
-	dst := &v1.Pipeline{
-		Id:            src.ID,
-		Name:          src.Name,
-		Inputs:        convertVariables(src.Variables),
-		Stages:        convertStages(src.Stages),
-		Barriers:      barriers,
-		Notifications: convert_helpers.ConvertNotifications(src.NotificationRules),
-	}
-
-	return dst
-}
-
 func Main() {
-	baseDir := filepath.Join("convert", "v0tov1", "test_pipelines")
+	baseDir := flag.String("base_dir", "", "Base directory containing v0 and v1 subdirectories")
+	filePath := flag.String("file_path", "", "Single pipeline file path to convert")
+	flag.Parse()
+
+	// Validate that exactly one flag is provided
+	if (*baseDir == "" && *filePath == "") || (*baseDir != "" && *filePath != "") {
+		log.Fatalf("Usage: %s --base_dir <directory> OR --file_path <file>\n", os.Args[0])
+	}
+
+	if *filePath != "" {
+		// Single file mode
+		convertSingleFile(*filePath)
+	} else {
+		// Base directory mode
+		convertBaseDirectory(*baseDir)
+	}
+}
+
+func convertSingleFile(inputPath string) {
+	// Validate file exists
+	if _, err := os.Stat(inputPath); os.IsNotExist(err) {
+		log.Fatalf("File does not exist: %s", inputPath)
+	}
+
+	// Generate output path (same directory, with _v1 suffix)
+	ext := filepath.Ext(inputPath)
+	outputPath := strings.TrimSuffix(inputPath, ext) + "_v1" + ext
+
+	// Benchmark: Read v0
+	readStart := time.Now()
+	v0Config, err := v0.ParseFile(inputPath)
+	readDur := time.Since(readStart)
+	if err != nil {
+		log.Fatalf("Failed to parse v0 pipeline file after %v: %v", readDur, err)
+	}
+
+	// Benchmark: Convert to v1
+	convStart := time.Now()
+	converter := pipeline_converter.NewPipelineConverter()
+	v1Pipeline := converter.ConvertPipeline(&v0Config.Pipeline)
+	convDur := time.Since(convStart)
+	if v1Pipeline == nil {
+		log.Fatalf("Failed to convert pipeline to v1 format (convert took %v)", convDur)
+	}
+
+	// Benchmark: Write v1 YAML
+	writeStart := time.Now()
+	if err := v1.WritePipelineFile(outputPath, v1Pipeline); err != nil {
+		writeDur := time.Since(writeStart)
+		log.Fatalf("Failed to write v1 pipeline YAML after %v: %v", writeDur, err)
+	}
+	writeDur := time.Since(writeStart)
+
+	fmt.Printf("Converted %s -> %s (read=%v, convert=%v, write=%v)\n", inputPath, outputPath, readDur, convDur, writeDur)
+}
+
+func convertBaseDirectory(baseDir string) {
 	inputDir := filepath.Join(baseDir, "v0")
 	outputDir := filepath.Join(baseDir, "v1")
 
@@ -208,7 +110,7 @@ func Main() {
 
 		inputPath := filepath.Join(inputDir, name)
 		outputPath := filepath.Join(outputDir, name)
-		log.Println("Converting " + inputPath + " to " + outputPath)
+
 		// Benchmark: Read v0
 		readStart := time.Now()
 		v0Config, err := v0.ParseFile(inputPath)
@@ -220,7 +122,8 @@ func Main() {
 
 		// Benchmark: Convert to v1
 		convStart := time.Now()
-		v1Pipeline := ConvertPipeline(&v0Config.Pipeline)
+		converter := pipeline_converter.NewPipelineConverter()
+		v1Pipeline := converter.ConvertPipeline(&v0Config.Pipeline)
 		convDur := time.Since(convStart)
 		if v1Pipeline == nil {
 			log.Printf("Skipping %s: failed to convert pipeline to v1 format (convert took %v)", inputPath, convDur)

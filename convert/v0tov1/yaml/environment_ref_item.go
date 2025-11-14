@@ -19,4 +19,5 @@ package yaml
 type EnvironmentItem struct {
 	DeployTo interface{} `json:"deploy-to,omitempty"`
 	Name     string      `json:"name,omitempty"`
+	Id       string      `json:"id,omitempty"`
 }

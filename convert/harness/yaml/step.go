@@ -16,34 +16,37 @@ package yaml
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 type (
 	Step struct { // TODO missing failure strategies
-		ID                string             `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
-		Description       string             `json:"description,omitempty"       yaml:"description,omitempty"`
-		Name              string             `json:"name,omitempty"              yaml:"name,omitempty"`
-		Skip              string             `json:"skipCondition,omitempty"     yaml:"skipCondition,omitempty"`
-		Spec              interface{}        `json:"spec,omitempty"              yaml:"spec,omitempty"`
-		Timeout           string           `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
-		Type              string             `json:"type,omitempty"              yaml:"type,omitempty"`
-		When              *StepWhen          `json:"when,omitempty"              yaml:"when,omitempty"`
-		Env               map[string]string  `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
-		Strategy          *Strategy          `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
-		FailureStrategies *FlexibleField[[]*FailureStrategy] `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
+		ID                string                              `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
+		Description       string                              `json:"description,omitempty"       yaml:"description,omitempty"`
+		Name              string                              `json:"name,omitempty"              yaml:"name,omitempty"`
+		Skip              string                              `json:"skipCondition,omitempty"     yaml:"skipCondition,omitempty"`
+		Spec              interface{}                         `json:"spec,omitempty"              yaml:"spec,omitempty"`
+		Timeout           string                              `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
+		Type              string                              `json:"type,omitempty"              yaml:"type,omitempty"`
+		When              *StepWhen                           `json:"when,omitempty"              yaml:"when,omitempty"`
+		Env               map[string]string                   `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
+		Strategy          *Strategy                           `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
+		FailureStrategies *flexible.Field[[]*FailureStrategy] `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
 	}
 
 	StepGroup struct { // TODO missing failure strategies
-		ID          string            `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
-		Description string            `json:"description,omitempty"       yaml:"description,omitempty"`
-		Name        string            `json:"name,omitempty"              yaml:"name,omitempty"`
-		Skip        string            `json:"skipCondition,omitempty"     yaml:"skipCondition,omitempty"`
-		Steps       []*Steps          `json:"steps,omitempty"              yaml:"steps,omitempty"`
-		Timeout     string          `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
-		When        *StepWhen         `json:"when,omitempty"              yaml:"when,omitempty"`
-		Env         map[string]string `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
-		Strategy    *Strategy         `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
+		ID                string                              `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
+		Description       string                              `json:"description,omitempty"       yaml:"description,omitempty"`
+		Name              string                              `json:"name,omitempty"              yaml:"name,omitempty"`
+		Skip              string                              `json:"skipCondition,omitempty"     yaml:"skipCondition,omitempty"`
+		Steps             []*Steps                            `json:"steps,omitempty"              yaml:"steps,omitempty"`
+		Timeout           string                              `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
+		When              *StepWhen                           `json:"when,omitempty"              yaml:"when,omitempty"`
+		Env               map[string]string                   `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
+		Strategy          *Strategy                           `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
+		Variables         []*Variable                         `json:"variables,omitempty"       yaml:"variables,omitempty"`
+		FailureStrategies *flexible.Field[[]*FailureStrategy] `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
 	}
 
 	//
@@ -51,8 +54,8 @@ type (
 	//
 
 	CommonStepSpec struct {
-		IncludeInfraSelectors bool     `json:"includeInfraSelectors,omitempty" yaml:"includeInfraSelectors,omitempty"`
-		DelegateSelectors     FlexibleField[[]string] `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
+		IncludeInfraSelectors bool                     `json:"includeInfraSelectors,omitempty" yaml:"includeInfraSelectors,omitempty"`
+		DelegateSelectors     flexible.Field[[]string] `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
 	}
 
 	StepArtifactoryUpload struct {
@@ -99,15 +102,34 @@ type (
 		IsAutoRejectEnabled             bool             `json:"isAutoRejectEnabled,omitempty"             yaml:"isAutoRejectEnabled,omitempty"`
 		AutoApproval                    *AutoApproval    `json:"autoApproval,omitempty"                    yaml:"autoApproval,omitempty"`
 	}
-	AutoApproval struct {
-		Action            string             `json:"action,omitempty"            yaml:"action,omitempty"`
-		ScheduledDeadline *ScheduledDeadline `json:"scheduledDeadline,omitempty" yaml:"scheduledDeadline,omitempty"`
-		Comments          string             `json:"comments,omitempty"          yaml:"comments,omitempty"`
+
+	StepCustomApproval struct {
+		CommonStepSpec
+		Shell                string      `json:"shell,omitempty"                yaml:"shell,omitempty"`
+		RetryInterval        string      `json:"retryInterval,omitempty"        yaml:"retryInterval,omitempty"`
+		ScriptTimeout        string      `json:"scriptTimeout,omitempty"        yaml:"scriptTimeout,omitempty"`
+		Source               *Source     `json:"source,omitempty"               yaml:"source,omitempty"`
+		EnvironmentVariables []*Variable `json:"environmentVariables,omitempty" yaml:"environmentVariables,omitempty"`
+		ApprovalCriteria     *Criteria   `json:"approvalCriteria,omitempty"     yaml:"approvalCriteria,omitempty"`
+		RejectionCriteria    *Criteria   `json:"rejectionCriteria,omitempty"    yaml:"rejectionCriteria,omitempty"`
+		OutputVariables      []*Output   `json:"outputVariables,omitempty"      yaml:"outputVariables,omitempty"`
 	}
 
-	ScheduledDeadline struct {
-		TimeZone string `json:"timeZone,omitempty" yaml:"timeZone,omitempty"`
-		Time     string `json:"time,omitempty"     yaml:"time,omitempty"`
+	Criteria struct {
+		Type string        `json:"type,omitempty" yaml:"type,omitempty"` // KeyValues or Jexl
+		Spec *CriteriaSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
+	}
+
+	CriteriaSpec struct {
+		MatchAnyCondition bool         `json:"matchAnyCondition,omitempty" yaml:"matchAnyCondition,omitempty"`
+		Conditions        []*Condition `json:"conditions,omitempty"        yaml:"conditions,omitempty"`
+		Expression        string       `json:"expression,omitempty"        yaml:"expression,omitempty"` // For Jexl type
+	}
+
+	Condition struct {
+		Key      string      `json:"key,omitempty"      yaml:"key,omitempty"`
+		Operator string      `json:"operator,omitempty" yaml:"operator,omitempty"` // equals, not equals, in, not in
+		Value    interface{} `json:"value,omitempty"    yaml:"value,omitempty"`
 	}
 
 	StepRestoreCacheGCS struct {
@@ -161,12 +183,15 @@ type (
 
 	StepHTTP struct {
 		CommonStepSpec
-		URL             string      `json:"url,omitempty"             yaml:"url,omitempty"`
-		Method          string      `json:"method,omitempty"          yaml:"method,omitempty"`
-		Headers         []*Variable `json:"headers,omitempty"         yaml:"headers,omitempty"`
-		OutputVariables []*Variable `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty"`
-		RequestBody     string      `json:"requestBody,omitempty"     yaml:"requestBody,omitempty"`
-		Assertion       string      `json:"assertion,omitempty"       yaml:"assertion,omitempty"`
+		URL             string          `json:"url,omitempty"             yaml:"url,omitempty"`
+		Method          string          `json:"method,omitempty"          yaml:"method,omitempty"`
+		Headers         []*KeyValuePair `json:"headers,omitempty"         yaml:"headers,omitempty"`
+		InputVariables  []*Variable     `json:"inputVariables,omitempty"  yaml:"inputVariables,omitempty"`
+		OutputVariables []*Variable     `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty"`
+		RequestBody     string          `json:"requestBody,omitempty"     yaml:"requestBody,omitempty"`
+		Assertion       string          `json:"assertion,omitempty"       yaml:"assertion,omitempty"`
+		Certificate     string          `json:"certificate,omitempty"     yaml:"certificate,omitempty"`
+		CertificateKey  string          `json:"certificateKey,omitempty"  yaml:"certificateKey,omitempty"`
 
 		// NOTE the below fields are not part of the
 		// official schema, however, they are useful for
@@ -177,6 +202,22 @@ type (
 		ImagePullPolicy string `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
 		RunAsUser       string `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
 	}
+
+	KeyValuePair struct {
+		Key   string `json:"key,omitempty"   yaml:"key,omitempty"`
+		Value string `json:"value,omitempty" yaml:"value,omitempty"`
+	}
+
+	StepEmail struct {
+        CommonStepSpec
+        To             string      `json:"to,omitempty"             yaml:"to,omitempty"`
+        ToUserGroups   []string    `json:"toUserGroups,omitempty"   yaml:"toUserGroups,omitempty"`
+        Cc             string      `json:"cc,omitempty"             yaml:"cc,omitempty"`
+        CcUserGroups   []string    `json:"ccUserGroups,omitempty"   yaml:"ccUserGroups,omitempty"`
+        Subject        string      `json:"subject,omitempty"        yaml:"subject,omitempty"`
+        Body           string      `json:"body,omitempty"           yaml:"body,omitempty"`
+        InputVariables []*Variable `json:"inputVariables,omitempty" yaml:"inputVariables,omitempty"`
+    }
 
 	StepPlugin struct {
 		CommonStepSpec
@@ -221,17 +262,17 @@ type (
 
 	StepRun struct {
 		CommonStepSpec
-		Env             map[string]string `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
-		Command         string            `json:"command,omitempty"         yaml:"command,omitempty"`
-		ConnRef         string            `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
-		Image           string            `json:"image,omitempty"           yaml:"image,omitempty"`
-		ImagePullPolicy string            `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
-		Outputs         []*Output         `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty"`
-		Privileged      bool              `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
-		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"`
-		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
-		Reports         *Report           `json:"reports,omitempty"         yaml:"reports,omitempty"`
-		Shell           string            `json:"shell,omitempty"           yaml:"shell,omitempty"`
+		Env             map[string]string `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"    v1path:".env"`
+		Command         string            `json:"command,omitempty"         yaml:"command,omitempty"         v1path:".script"`
+		ConnRef         string            `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"    v1path:".container.connector"`
+		Image           string            `json:"image,omitempty"           yaml:"image,omitempty"           v1path:".container.image"`
+		ImagePullPolicy string            `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty" v1path:".container.pull"`
+		Outputs         []*Output         `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty" v1path:".outputs"`
+		Privileged      bool              `json:"privileged,omitempty"      yaml:"privileged,omitempty"      v1path:".container.privileged"`
+		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"       v1path:"-"`
+		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"       v1path:"-"`
+		Reports         *Report           `json:"reports,omitempty"         yaml:"reports,omitempty"         v1path:".report"`
+		Shell           string            `json:"shell,omitempty"           yaml:"shell,omitempty"           v1path:".shell"`
 	}
 
 	StepBackground struct {
@@ -254,7 +295,7 @@ type (
 		ExecutionTarget      *ExecutionTarget `json:"executionTarget,omitempty"      yaml:"executionTarget,omitempty"`
 		Metadata             string           `json:"metadata,omitempty"             yaml:"metadata,omitempty"`
 		OnDelegate           bool             `json:"onDelegate,omitempty"           yaml:"onDelegate,omitempty"`
-		OutputVariables      []*Variable      `json:"outputVariables,omitempty"      yaml:"outputVariables,omitempty"`
+		OutputVariables      []*Output        `json:"outputVariables,omitempty"      yaml:"outputVariables,omitempty"`
 		Shell                string           `json:"shell,omitempty"                yaml:"shell,omitempty"` // Bash|Powershell
 		Source               *Source          `json:"source,omitempty"               yaml:"source,omitempty"`
 
@@ -280,238 +321,6 @@ type (
 		Target       string     `json:"target,omitempty"       yaml:"target,omitempty"`
 	}
 
-	StepK8sRollingDeploy struct {
-		CommonStepSpec
-		SkipDryRun     bool `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
-		PruningEnabled bool `json:"pruningEnabled,omitempty" yaml:"pruningEnabled,omitempty"`
-	}
-
-	StepK8sRollingRollback struct {
-		CommonStepSpec
-		PruningEnabled bool `json:"pruningEnabled,omitempty" yaml:"pruningEnabled,omitempty"`
-	}
-
-	StepK8sApply struct {
-		CommonStepSpec
-		SkipDryRun           bool          `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
-		SkipSteadyStateCheck bool          `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
-		SkipRendering        bool          `json:"skipRendering,omitempty" yaml:"skipRendering,omitempty"`
-		Overrides            []interface{} `json:"overrides,omitempty" yaml:"overrides,omitempty"`
-		FilePaths            []string      `json:"filePaths,omitempty" yaml:"filePaths,omitempty"`
-	}
-
-	StepK8sBGSwapServices struct {
-		CommonStepSpec
-		// Spec intentionally empty per v0 example
-	}
-
-	StepK8sBlueGreenStageScaleDown struct {
-		CommonStepSpec
-		DeleteResources bool `json:"deleteResources,omitempty" yaml:"deleteResources,omitempty"`
-	}
-
-	// CD: K8s Delete
-	StepK8sDelete struct {
-		CommonStepSpec
-		DeleteResources *K8sDeleteResources `json:"deleteResources,omitempty" yaml:"deleteResources,omitempty"`
-	}
-
-	// CD: K8s Canary Delete (no spec fields in the provided example)
-	StepK8sCanaryDelete struct {
-		CommonStepSpec
-		// empty
-	}
-
-	// CD: K8s Diff (no spec fields in the provided example)
-	StepK8sDiff struct {
-		CommonStepSpec
-		// empty
-	}
-
-	// CD: K8s Rollout
-	StepK8sRollout struct {
-		CommonStepSpec
-		Command   string               `json:"command,omitempty" yaml:"command,omitempty"`
-		Resources *K8sRolloutResources `json:"resources,omitempty" yaml:"resources,omitempty"`
-	}
-
-	K8sRolloutResources struct {
-		Type string                   `json:"type,omitempty" yaml:"type,omitempty"`
-		Spec *K8sRolloutResourcesSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
-	}
-
-	K8sRolloutResourcesSpec struct {
-		ResourceNames []string `json:"resourceNames,omitempty" yaml:"resourceNames,omitempty"`
-		ManifestPaths []string `json:"manifestPaths,omitempty" yaml:"manifestPaths,omitempty"`
-	}
-
-	// K8sDeleteResources captures the delete selection and its spec.
-	// Type is one of: ResourceName | ManifestPath | ReleaseName
-	K8sDeleteResources struct {
-		Type string                  `json:"type,omitempty" yaml:"type,omitempty"`
-		Spec *K8sDeleteResourcesSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
-	}
-
-	// K8sDeleteResourcesSpec holds the possible selectors. Only one list is expected
-	// to be populated depending on the Type above.
-	K8sDeleteResourcesSpec struct {
-		ResourceNames []string `json:"resourceNames,omitempty" yaml:"resourceNames,omitempty"`
-		ManifestPaths []string `json:"manifestPaths,omitempty" yaml:"manifestPaths,omitempty"`
-		ReleaseNames  []string `json:"releaseNames,omitempty" yaml:"releaseNames,omitempty"`
-	}
-
-	// CD: K8s Scale
-	StepK8sScale struct {
-		CommonStepSpec
-		InstanceSelection    *K8sScaleInstanceSelection `json:"instanceSelection,omitempty" yaml:"instanceSelection,omitempty"`
-		SkipSteadyStateCheck bool                       `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
-		Workload             string                     `json:"workload,omitempty" yaml:"workload,omitempty"`
-	}
-
-	K8sScaleInstanceSelection struct {
-		Type string                         `json:"type,omitempty" yaml:"type,omitempty"`
-		Spec *K8sScaleInstanceSelectionSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
-	}
-
-	K8sScaleInstanceSelectionSpec struct {
-		Count      int `json:"count,omitempty" yaml:"count,omitempty"`
-		Percentage int `json:"percentage,omitempty" yaml:"percentage,omitempty"`
-	}
-
-	// CD: K8s Dry Run
-	StepK8sDryRun struct {
-		CommonStepSpec
-		EncryptYamlOutput bool `json:"encryptYamlOutput,omitempty" yaml:"encryptYamlOutput,omitempty"`
-	}
-
-	// CD: K8s Traffic Routing
-	StepK8sTrafficRouting struct {
-		CommonStepSpec
-		Type           string                   `json:"type,omitempty" yaml:"type,omitempty"`
-		TrafficRouting *K8sTrafficRoutingConfig `json:"trafficRouting,omitempty" yaml:"trafficRouting,omitempty"`
-	}
-
-	K8sTrafficRoutingConfig struct {
-		Provider string                 `json:"provider,omitempty" yaml:"provider,omitempty"`
-		Spec     *K8sTrafficRoutingSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
-	}
-
-	K8sTrafficRoutingSpec struct {
-		Name        string                    `json:"name,omitempty" yaml:"name,omitempty"`
-		RootService string                    `json:"rootService,omitempty" yaml:"rootService,omitempty"`
-		Hosts       interface{}               `json:"hosts,omitempty" yaml:"hosts,omitempty"`
-		Gateways    interface{}               `json:"gateways,omitempty" yaml:"gateways,omitempty"`
-		Routes      []*K8sTrafficRoutingRoute `json:"routes,omitempty" yaml:"routes,omitempty"`
-	}
-
-	K8sTrafficRoutingRoute struct {
-		Route *K8sTrafficRoutingRouteSpec `json:"route,omitempty" yaml:"route,omitempty"`
-	}
-
-	K8sTrafficRoutingRouteSpec struct {
-		Type         string                          `json:"type,omitempty" yaml:"type,omitempty"`
-		Name         string                          `json:"name,omitempty" yaml:"name,omitempty"`
-		Destinations []*K8sTrafficRoutingDestination `json:"destinations,omitempty" yaml:"destinations,omitempty"`
-	}
-
-	K8sTrafficRoutingDestination struct {
-		Destination *K8sTrafficRoutingDestinationSpec `json:"destination,omitempty" yaml:"destination,omitempty"`
-	}
-
-	K8sTrafficRoutingDestinationSpec struct {
-		Host   string `json:"host,omitempty" yaml:"host,omitempty"`
-		Weight int    `json:"weight,omitempty" yaml:"weight,omitempty"`
-	}
-
-	// CD: K8s Canary Deploy
-	StepK8sCanaryDeploy struct {
-		CommonStepSpec
-		SkipDryRun        bool                     `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
-		InstanceSelection *K8sInstanceSelection    `json:"instanceSelection,omitempty" yaml:"instanceSelection,omitempty"`
-		TrafficRouting    *K8sTrafficRoutingConfig `json:"trafficRouting,omitempty" yaml:"trafficRouting,omitempty"`
-	}
-
-	K8sInstanceSelection struct {
-		Type string                    `json:"type,omitempty" yaml:"type,omitempty"`
-		Spec *K8sInstanceSelectionSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
-	}
-
-	K8sInstanceSelectionSpec struct {
-		Count      int `json:"count,omitempty" yaml:"count,omitempty"`
-		Percentage int `json:"percentage,omitempty" yaml:"percentage,omitempty"`
-	}
-
-	// CD: K8s Blue Green Deploy
-	StepK8sBlueGreenDeploy struct {
-		CommonStepSpec
-		SkipDryRun            bool                     `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
-		PruningEnabled        bool                     `json:"pruningEnabled,omitempty" yaml:"pruningEnabled,omitempty"`
-		SkipUnchangedManifest bool                     `json:"skipUnchangedManifest,omitempty" yaml:"skipUnchangedManifest,omitempty"`
-		TrafficRouting        *K8sTrafficRoutingConfig `json:"trafficRouting,omitempty" yaml:"trafficRouting,omitempty"`
-	}
-
-	// CD: Helm Blue Green Deploy
-	StepHelmBGDeploy struct {
-		CommonStepSpec
-		EnvironmentVariables        map[string]string `json:"environmentVariables,omitempty" yaml:"environmentVariables,omitempty"`
-		IgnoreReleaseHistFailStatus bool              `json:"ignoreReleaseHistFailStatus,omitempty" yaml:"ignoreReleaseHistFailStatus,omitempty"`
-		SkipSteadyStateCheck        bool              `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
-		UseUpgradeInstall           bool              `json:"useUpgradeInstall,omitempty" yaml:"useUpgradeInstall,omitempty"`
-	}
-
-	// CD: Helm Blue Green Swap (no spec fields in provided example)
-	StepHelmBlueGreenSwapStep struct {
-		CommonStepSpec
-	}
-
-	// CD: Helm Canary Deploy
-	StepHelmCanaryDeploy struct {
-		CommonStepSpec
-		EnvironmentVariables        map[string]string      `json:"environmentVariables,omitempty" yaml:"environmentVariables,omitempty"`
-		IgnoreReleaseHistFailStatus bool                   `json:"ignoreReleaseHistFailStatus,omitempty" yaml:"ignoreReleaseHistFailStatus,omitempty"`
-		SkipSteadyStateCheck        bool                   `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
-		UseUpgradeInstall           bool                   `json:"useUpgradeInstall,omitempty" yaml:"useUpgradeInstall,omitempty"`
-		InstanceSelection           *HelmInstanceSelection `json:"instanceSelection,omitempty" yaml:"instanceSelection,omitempty"`
-	}
-
-	HelmInstanceSelection struct {
-		Type string                     `json:"type,omitempty" yaml:"type,omitempty"`
-		Spec *HelmInstanceSelectionSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
-	}
-
-	HelmInstanceSelectionSpec struct {
-		Count      int `json:"count,omitempty" yaml:"count,omitempty"`
-		Percentage int `json:"percentage,omitempty" yaml:"percentage,omitempty"`
-	}
-
-	// CD: Helm Delete
-	StepHelmDelete struct {
-		CommonStepSpec
-		DryRun               bool              `json:"dryRun,omitempty" yaml:"dryRun,omitempty"`
-		CommandFlags         []string          `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
-		EnvironmentVariables map[string]string `json:"environmentVariables,omitempty" yaml:"environmentVariables,omitempty"`
-		ReleaseName          string            `json:"releaseName,omitempty" yaml:"releaseName,omitempty"`
-	}
-
-	// CD: Helm Deploy (Basic)
-	StepHelmDeploy struct {
-		CommonStepSpec
-		SkipDryRun                  bool              `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
-		IgnoreReleaseHistFailStatus bool              `json:"ignoreReleaseHistFailStatus,omitempty" yaml:"ignoreReleaseHistFailStatus,omitempty"`
-		EnvironmentVariables        map[string]string `json:"environmentVariables,omitempty" yaml:"environmentVariables,omitempty"`
-		SkipCleanup                 bool              `json:"skipCleanup,omitempty" yaml:"skipCleanup,omitempty"`
-		SkipSteadyStateCheck        bool              `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
-		UseUpgradeInstall           bool              `json:"useUpgradeInstall,omitempty" yaml:"useUpgradeInstall,omitempty"`
-	}
-
-	// CD: Helm Rollback
-	StepHelmRollback struct {
-		CommonStepSpec
-		SkipDryRun           bool              `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
-		EnvironmentVariables map[string]string `json:"environmentVariables,omitempty" yaml:"environmentVariables,omitempty"`
-		SkipSteadyStateCheck bool              `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
-	}
-
 	// Feature: Jira Create
 	StepJiraCreate struct {
 		CommonStepSpec
@@ -530,6 +339,27 @@ type (
 		IssueKey     string          `json:"issueKey,omitempty" yaml:"issueKey,omitempty"`
 		Fields       []*Variable     `json:"fields,omitempty" yaml:"fields,omitempty"`
 		TransitionTo *JiraTransition `json:"transitionTo,omitempty" yaml:"transitionTo,omitempty"`
+	}
+
+	StepJiraApproval struct {
+		CommonStepSpec
+		ConnectorRef      string    `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
+		ApprovalCriteria  *Criteria `json:"approvalCriteria,omitempty"     yaml:"approvalCriteria,omitempty"`
+		RejectionCriteria *Criteria `json:"rejectionCriteria,omitempty"    yaml:"rejectionCriteria,omitempty"`
+		RetryInterval     string    `json:"retryInterval,omitempty" yaml:"retryInterval,omitempty"`
+		IssueKey          string    `json:"issueKey,omitempty" yaml:"issueKey,omitempty"`
+		ProjectKey        string    `json:"projectKey,omitempty" yaml:"projectKey,omitempty"`
+		IssueType         string    `json:"issueType,omitempty" yaml:"issueType,omitempty"`
+	}
+
+	StepServiceNowApproval struct {
+		CommonStepSpec
+		ConnectorRef      string    `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
+		ApprovalCriteria  *Criteria `json:"approvalCriteria,omitempty"     yaml:"approvalCriteria,omitempty"`
+		RejectionCriteria *Criteria `json:"rejectionCriteria,omitempty"    yaml:"rejectionCriteria,omitempty"`
+		RetryInterval     string    `json:"retryInterval,omitempty" yaml:"retryInterval,omitempty"`
+		TicketNumber      string    `json:"ticketNumber,omitempty" yaml:"ticketNumber,omitempty"`
+		TicketType        string    `json:"ticketType,omitempty" yaml:"ticketType,omitempty"`
 	}
 
 	JiraTransition struct {
@@ -577,6 +407,17 @@ type (
 		StageStatus string `json:"stageStatus,omitempty" yaml:"stageStatus,omitempty"`
 		Condition   string `json:"condition,omitempty" yaml:"condition,omitempty"`
 	}
+
+	AutoApproval struct {
+		Action            string             `json:"action,omitempty"            yaml:"action,omitempty"`
+		ScheduledDeadline *ScheduledDeadline `json:"scheduledDeadline,omitempty" yaml:"scheduledDeadline,omitempty"`
+		Comments          string             `json:"comments,omitempty"          yaml:"comments,omitempty"`
+	}
+
+	ScheduledDeadline struct {
+		TimeZone string `json:"timeZone,omitempty" yaml:"timeZone,omitempty"`
+		Time     string `json:"time,omitempty"     yaml:"time,omitempty"`
+	}
 )
 
 // UnmarshalJSON implement the json.Unmarshaler interface.
@@ -593,6 +434,8 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 	}
 
 	switch s.Type {
+	case StepTypeCustomApproval:
+		s.Spec = new(StepCustomApproval)
 	case StepTypeAction:
 		s.Spec = new(StepAction)
 	case StepTypeRun:
@@ -645,6 +488,10 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepJiraCreate)
 	case StepTypeJiraUpdate:
 		s.Spec = new(StepJiraUpdate)
+	case StepTypeJiraApproval:
+		s.Spec = new(StepJiraApproval)
+	case StepTypeServiceNowApproval:
+		s.Spec = new(StepServiceNowApproval)
 	case StepTypeHelmBGDeploy:
 		s.Spec = new(StepHelmBGDeploy)
 	case StepTypeHelmBlueGreenSwapStep:
@@ -659,8 +506,10 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepHelmRollback)
 	case StepTypeWait:
 		s.Spec = new(StepWait)
+	case StepTypeEmail:
+		s.Spec = new(StepEmail)
 	default:
-		fmt.Printf("unknown step type while unmarshalling %s", s.Type)
+		log.Printf("unknown step type while unmarshalling %s", s.Type)
 		return nil
 	}
 

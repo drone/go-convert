@@ -7,3 +7,4 @@ convert/circle/reference/**
 .idea/
 .codegpt
 convert/v0tov1/test_pipelines/*
+convert/v0tov1/scripts/*

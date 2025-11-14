@@ -16,10 +16,13 @@
 
 package yaml
 
+import "github.com/drone/go-convert/internal/flexible"
+
 type Strategy struct {
-	FailFast    bool    `json:"fail-fast,omitempty" yaml:"fail-fast,omitempty"`
-	For         *For    `json:"for,omitempty" yaml:"for,omitempty"`
-	Matrix      *Matrix `json:"matrix,omitempty" yaml:"matrix,omitempty"`
-	MaxParallel *FlexibleField[int64]   `json:"max-parallel,omitempty" yaml:"max-parallel,omitempty"`
-	While       *While  `json:"while,omitempty" yaml:"while,omitempty"`
+	FailFast    bool                  `json:"fail-fast,omitempty" yaml:"fail-fast,omitempty"`
+	For         *For                  `json:"for,omitempty" yaml:"for,omitempty"`
+	Matrix      *Matrix               `json:"matrix,omitempty" yaml:"matrix,omitempty"`
+	MaxParallel *flexible.Field[int64] `json:"max-parallel,omitempty" yaml:"max-parallel,omitempty"`
+	Repeat      *Repeat               `json:"repeat,omitempty" yaml:"repeat,omitempty"`
+	While       *While                `json:"while,omitempty" yaml:"while,omitempty"`
 }

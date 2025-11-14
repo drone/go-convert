@@ -1,5 +1,4 @@
 package yaml
-// TODO: handle serviceInputs and use flexiblefields where applicable
 type (
 	DeploymentServices struct {
 		Values   []*DeploymentService `json:"values,omitempty" yaml:"values,omitempty"`
@@ -9,12 +8,18 @@ type (
 	// DeploymentService defines the service configuration for deployment
 	DeploymentService struct {
 		ServiceRef    string                       `json:"serviceRef,omitempty"    yaml:"serviceRef,omitempty"`
-		// ServiceInputs *FlexibleField[ServiceInputs] `json:"serviceInputs,omitempty" yaml:"serviceInputs,omitempty"`
+		// ServiceInputs *flexible.Field[ServiceInputs] `json:"serviceInputs,omitempty" yaml:"serviceInputs,omitempty"`
 	}
 
 	DeploymentServiceConfig struct {
 		ServiceRef string `json:"serviceRef,omitempty" yaml:"serviceRef,omitempty"`
+		ServiceItem *ServiceItem `json:"service,omitempty" yaml:"service,omitempty"`
 		ServiceDefinition *ServiceDefinition `json:"serviceDefinition,omitempty" yaml:"serviceDefinition,omitempty"`
+	}
+
+	ServiceItem struct {
+		Identifier string `json:"identifier,omitempty" yaml:"identifier,omitempty"`
+		Name string `json:"name,omitempty" yaml:"name,omitempty"`
 	}
 
 	// ServicesMetadata defines the services metadata

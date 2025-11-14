@@ -20,7 +20,6 @@ import (
 )
 
 // ConvertDeploymentService converts v0 DeploymentService to v1 ServiceRef
-// In v1, service inputs are not required - only the serviceRef is kept
 func ConvertDeploymentService(src *v0.DeploymentService) *v1.ServiceRef {
 	if src == nil {
 		return nil
@@ -62,10 +61,18 @@ func ConvertDeploymentServiceConfig(src *v0.DeploymentServiceConfig) *v1.Service
 	if src == nil {
 		return nil
 	}
-
-	return &v1.ServiceRef{
-		Items: []string{src.ServiceRef},
+	if src.ServiceRef != "" {
+		return &v1.ServiceRef{
+			Items: []string{src.ServiceRef},
+		}
 	}
+
+	if src.ServiceItem != nil {
+		return &v1.ServiceRef{
+			Items: []string{src.ServiceItem.Identifier},
+		}
+	}
+	return nil
 }
 
 // ConvertEnvironment converts v0 Environment to v1 EnvironmentRef
@@ -76,32 +83,24 @@ func ConvertEnvironment(src *v0.Environment) *v1.EnvironmentRef {
 
 	// Single environment deploying to all infrastructures
 	if src.EnvironmentRef != "" {
-		deployTo := "all"
+		var deployTo interface{}
+		if infra, ok := src.InfrastructureDefinitions.AsString(); ok {
+			deployTo = infra
+		} else if infra, ok := src.InfrastructureDefinitions.AsStruct(); ok {
+			infraList := make([]string, 0, len(infra))
+			for _, i := range infra {
+				infraList = append(infraList, i.Identifier)
+			}
+			deployTo = infraList
+		}
 		if src.DeployToAll {
 			deployTo = "all"
-		} else if len(src.InfrastructureDefinitions) == 1 {
-			// Single infrastructure
-			deployTo = src.InfrastructureDefinitions[0].Identifier
-		} else if len(src.InfrastructureDefinitions) > 1 {
-			// Multiple infrastructures
-			infraIds := make([]string, len(src.InfrastructureDefinitions))
-			for i, infra := range src.InfrastructureDefinitions {
-				infraIds[i] = infra.Identifier
-			}
-			return &v1.EnvironmentRef{
-				Items: []*v1.EnvironmentItem{
-					{
-						Name:     src.EnvironmentRef,
-						DeployTo: infraIds,
-					},
-				},
-			}
 		}
-
 		return &v1.EnvironmentRef{
 			Items: []*v1.EnvironmentItem{
 				{
 					Name:     src.EnvironmentRef,
+					Id:       src.EnvironmentRef,
 					DeployTo: deployTo,
 				},
 			},
@@ -120,25 +119,22 @@ func ConvertEnvironments(src *v0.Environments) *v1.EnvironmentRef {
 	items := make([]*v1.EnvironmentItem, 0, len(src.Values))
 	for _, env := range src.Values {
 		if env.EnvironmentRef != "" {
-			deployTo := "all"
+			var deployTo interface{}
+			if infra, ok := env.InfrastructureDefinitions.AsString(); ok {
+				deployTo = infra
+			} else if infra, ok := env.InfrastructureDefinitions.AsStruct(); ok {
+				infraList := make([]string, 0, len(infra))
+				for _, i := range infra {
+					infraList = append(infraList, i.Identifier)
+				}
+				deployTo = infraList
+			}
 			if env.DeployToAll {
 				deployTo = "all"
-			} else if len(env.InfrastructureDefinitions) == 1 {
-				deployTo = env.InfrastructureDefinitions[0].Identifier
-			} else if len(env.InfrastructureDefinitions) > 1 {
-				infraIds := make([]string, len(env.InfrastructureDefinitions))
-				for i, infra := range env.InfrastructureDefinitions {
-					infraIds[i] = infra.Identifier
-				}
-				items = append(items, &v1.EnvironmentItem{
-					Name:     env.EnvironmentRef,
-					DeployTo: infraIds,
-				})
-				continue
 			}
-
 			items = append(items, &v1.EnvironmentItem{
 				Name:     env.EnvironmentRef,
+				Id:       env.EnvironmentRef,
 				DeployTo: deployTo,
 			})
 		}
@@ -179,12 +175,22 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup) *v1.EnvironmentRef {
 			for _, env := range envs {
 				if envMap, ok := env.(map[string]interface{}); ok {
 					if envRef, ok := envMap["environmentRef"].(string); ok {
-						deployTo := "all"
+						var deployTo interface{}
+						deployTo = "all"
 						if deployToAll, ok := envMap["deployToAll"].(bool); ok && deployToAll {
 							deployTo = "all"
 						}
+						if infra, ok := envMap["infrastructureDefinitions"].(map[string]interface{}); ok {
+							infraList := make([]string, 0, len(infra))
+							for _, i := range infra {
+								infraList = append(infraList, i.(string))
+							}
+							deployTo = infraList
+						}
+
 						items = append(items, &v1.EnvironmentItem{
 							Name:     envRef,
+							Id:       envRef,
 							DeployTo: deployTo,
 						})
 					}
@@ -221,6 +227,7 @@ func ConvertDeploymentInfrastructure(src *v0.DeploymentInfrastructure) *v1.Envir
 	// Create environment item with the environmentRef from infrastructure
 	envItem := &v1.EnvironmentItem{
 		Name:     src.EnvironmentRef,
+		Id:       src.EnvironmentRef,
 		DeployTo: "all", // Default to all infrastructures
 	}
 

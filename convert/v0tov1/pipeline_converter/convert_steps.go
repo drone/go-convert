@@ -1,15 +1,16 @@
-package converthelpers
+package pipelineconverter
 
 import (
-	"fmt"
+	"log"
 	"reflect"
-
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
-// ConvertSteps converts a list of v0.Steps to list of v1.Step.
-func ConvertSteps(src []*v0.Steps) []*v1.Step {
+// convertSteps converts a list of v0.Steps to list of v1.Step.
+func (c *PipelineConverter) ConvertSteps(src []*v0.Steps) []*v1.Step {
 	if len(src) == 0 {
 		return nil
 	}
@@ -19,15 +20,14 @@ func ConvertSteps(src []*v0.Steps) []*v1.Step {
 			continue
 		}
 		if s.Step != nil {
-			if step := ConvertSingleStep(s.Step); step != nil {
+			if step := c.ConvertSingleStep(s.Step); step != nil {
 				dst = append(dst, step)
 			}
 			continue
 		}
 		if s.Parallel != nil {
-			// TODO: handle s.Parallel
 			parallel_group := &v1.StepGroup{
-				Steps: ConvertSteps(s.Parallel),
+				Steps: c.ConvertSteps(s.Parallel),
 			}
 			parallel := &v1.Step{
 				Parallel: parallel_group,
@@ -42,8 +42,10 @@ func ConvertSteps(src []*v0.Steps) []*v1.Step {
 				Id:   s.StepGroup.ID,
 				Env:  s.StepGroup.Env,
 				Group: &v1.StepGroup{
-					Steps: ConvertSteps(s.StepGroup.Steps),
+					Steps: c.ConvertSteps(s.StepGroup.Steps),
 				},
+				OnFailure: convert_helpers.ConvertFailureStrategies(s.StepGroup.FailureStrategies),
+				Strategy:  convert_helpers.ConvertStrategy(s.StepGroup.Strategy),
 			}
 			dst = append(dst, group)
 		}
@@ -51,14 +53,11 @@ func ConvertSteps(src []*v0.Steps) []*v1.Step {
 	return dst
 }
 
-// convertSingleStep is a factory that dispatches to the appropriate
-// per-type converter based on the v0 step Type.
-func ConvertSingleStep(src *v0.Step) *v1.Step {
+func (c *PipelineConverter) ConvertSingleStep(src *v0.Step) *v1.Step {
 	if src == nil {
 		return nil
 	}
 
-	// Create base step with common fields
 	step := &v1.Step{
 		Id:   src.ID,
 		Name: src.Name,
@@ -67,75 +66,83 @@ func ConvertSingleStep(src *v0.Step) *v1.Step {
 	// Convert step-specific settings
 	switch src.Type {
 	case v0.StepTypeAction:
-		step.Action = ConvertStepAction(src)
+		step.Action = convert_helpers.ConvertStepAction(src)
 	case v0.StepTypeJiraCreate:
-		step.Action = ConvertStepJiraCreate(src)
+		step.Template = convert_helpers.ConvertStepJiraCreate(src)
 	case v0.StepTypeJiraUpdate:
-		step.Action = ConvertStepJiraUpdate(src)
+		step.Template = convert_helpers.ConvertStepJiraUpdate(src)
 	case v0.StepTypeRun:
-		step.Run = ConvertStepRun(src)
+		step.Run = convert_helpers.ConvertStepRun(src)
 	case v0.StepTypeHarnessApproval:
-		step.Approval = ConvertStepHarnessApproval(src)
+		step.Approval = convert_helpers.ConvertStepHarnessApproval(src)
 	case v0.StepTypeK8sRollingDeploy:
-		step.Template = ConvertStepK8sRollingDeploy(src)
+		step.Template = convert_helpers.ConvertStepK8sRollingDeploy(src)
 	case v0.StepTypeK8sRollingRollback:
-		step.Template = ConvertStepK8sRollingRollback(src)
+		step.Template = convert_helpers.ConvertStepK8sRollingRollback(src)
 	case v0.StepTypeK8sApply:
-		step.Template = ConvertStepK8sApply(src)
+		step.Template = convert_helpers.ConvertStepK8sApply(src)
 	case v0.StepTypeK8sBGSwapServices:
-		step.Template = ConvertStepK8sBGSwapServices(src)
+		step.Template = convert_helpers.ConvertStepK8sBGSwapServices(src)
 	case v0.StepTypeK8sBlueGreenStageScaleDown:
-		step.Template = ConvertStepK8sBlueGreenStageScaleDown(src)
+		step.Template = convert_helpers.ConvertStepK8sBlueGreenStageScaleDown(src)
 	case v0.StepTypeK8sCanaryDelete:
-		step.Template = ConvertStepK8sCanaryDelete(src)
+		step.Template = convert_helpers.ConvertStepK8sCanaryDelete(src)
 	case v0.StepTypeK8sDiff:
-		step.Template = ConvertStepK8sDiff(src)
+		step.Template = convert_helpers.ConvertStepK8sDiff(src)
 	case v0.StepTypeK8sDelete:
-		step.Template = ConvertStepK8sDelete(src)
+		step.Template = convert_helpers.ConvertStepK8sDelete(src)
 	case v0.StepTypeK8sRollout:
-		step.Template = ConvertStepK8sRollout(src)
+		step.Template = convert_helpers.ConvertStepK8sRollout(src)
 	case v0.StepTypeK8sScale:
-		step.Template = ConvertStepK8sScale(src)
+		step.Template = convert_helpers.ConvertStepK8sScale(src)
 	case v0.StepTypeK8sDryRun:
-		step.Template = ConvertStepK8sDryRun(src)
+		step.Template = convert_helpers.ConvertStepK8sDryRun(src)
 	case v0.StepTypeK8sTrafficRouting:
-		step.Template = ConvertStepK8sTrafficRouting(src)
+		step.Template = convert_helpers.ConvertStepK8sTrafficRouting(src)
 	case v0.StepTypeK8sCanaryDeploy:
-		step.Template = ConvertStepK8sCanaryDeploy(src)
+		step.Template = convert_helpers.ConvertStepK8sCanaryDeploy(src)
 	case v0.StepTypeK8sBlueGreenDeploy:
-		step.Template = ConvertStepK8sBlueGreenDeploy(src)
+		step.Template = convert_helpers.ConvertStepK8sBlueGreenDeploy(src)
 	case v0.StepTypeHelmBGDeploy:
-		step.Template = ConvertStepHelmBGDeploy(src)
+		step.Template = convert_helpers.ConvertStepHelmBGDeploy(src)
 	case v0.StepTypeHelmBlueGreenSwapStep:
-		step.Template = ConvertStepHelmBlueGreenSwapStep(src)
+		step.Template = convert_helpers.ConvertStepHelmBlueGreenSwapStep(src)
 	case v0.StepTypeHelmCanaryDeploy:
-		step.Template = ConvertStepHelmCanaryDeploy(src)
+		step.Template = convert_helpers.ConvertStepHelmCanaryDeploy(src)
 	case v0.StepTypeHelmDelete:
-		step.Template = ConvertStepHelmDelete(src)
+		step.Template = convert_helpers.ConvertStepHelmDelete(src)
 	case v0.StepTypeHelmDeploy:
-		step.Template = ConvertStepHelmDeploy(src)
+		step.Template = convert_helpers.ConvertStepHelmDeploy(src)
 	case v0.StepTypeHelmRollback:
-		step.Template = ConvertStepHelmRollback(src)
+		step.Template = convert_helpers.ConvertStepHelmRollback(src)
 	case v0.StepTypeWait:
-		step.Action = ConvertStepWait(src)
+		step.Wait = convert_helpers.ConvertStepWait(src)
+	case v0.StepTypeHTTP:
+		step.Run = convert_helpers.ConvertStepHTTP(src)
 	case v0.StepTypeShellScript:
-		step.Run = ConvertStepShellScript(src)
+		step.Run = convert_helpers.ConvertStepShellScript(src)
 	case v0.StepTypeBarrier:
-		step.Barrier = ConvertStepBarrier(src)
+		step.Barrier = convert_helpers.ConvertStepBarrier(src)
 	case v0.StepTypeQueue:
-		step.Queue = ConvertStepQueue(src)
+		step.Queue = convert_helpers.ConvertStepQueue(src)
+	case v0.StepTypeCustomApproval:
+		step.Approval = convert_helpers.ConvertStepCustomApproval(src)
+	case v0.StepTypeJiraApproval:
+		step.Approval = convert_helpers.ConvertStepJiraApproval(src)
+	case v0.StepTypeServiceNowApproval:
+		step.Approval = convert_helpers.ConvertStepServiceNowApproval(src)
+	case v0.StepTypeEmail:
+		step.Template = convert_helpers.ConvertStepEmail(src)
 	default:
 		// Unknown step type, return nil
-		fmt.Println("step type: " + src.Type + " is not yet supported!")
+		log.Println("Warning!!! step type: " + src.Type + " is not yet supported!")
 		step.Template = &v1.StepTemplate{
 			Uses: src.Type,
-			With: "to be implemented",
 		}
 	}
 
 	// Convert common step settings
 	convertCommonStepSettings(src, step)
-
 	return step
 }
 
@@ -148,7 +155,7 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 
 	// Convert failure strategies
 	if src.FailureStrategies != nil {
-		dst.OnFailure = ConvertFailureStrategies(src.FailureStrategies)
+		dst.OnFailure = convert_helpers.ConvertFailureStrategies(src.FailureStrategies)
 	}
 
 	// Convert environment variables
@@ -163,13 +170,13 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 
 	// Convert strategies
 	if src.Strategy != nil {
-		dst.Strategy = ConvertStrategy(src.Strategy)
+		dst.Strategy = convert_helpers.ConvertStrategy(src.Strategy)
 	}
 
 	// Convert delegate selectors
 
 	// extract delegate selectors and includeInfraSelectors from src using reflection
-	var delegate_selectors v0.FlexibleField[[]string]
+	var delegate_selectors flexible.Field[[]string]
 	var include_infra_selectors bool
 
 	if src.Spec != nil {
@@ -192,7 +199,7 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 					if delegateField := field.FieldByName("DelegateSelectors"); delegateField.IsValid() {
 						if delegateField.Type().Name() == "FlexibleField[[]string]" {
 							// Copy the entire FlexibleField
-							delegate_selectors = delegateField.Interface().(v0.FlexibleField[[]string])
+							delegate_selectors = delegateField.Interface().(flexible.Field[[]string])
 						}
 					}
 
@@ -208,13 +215,15 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 		}
 	}
 	// Convert delegate using the extracted values
-	delegate := ConvertDelegate(delegate_selectors)
+	delegate := convert_helpers.ConvertDelegate(&delegate_selectors)
 
 	// Handle includeInfraSelectors for struct-based delegates
-	if include_infra_selectors && delegate != nil && !delegate.IsExpression() {
-		if delegateStruct, ok := delegate.AsStruct(); ok {
-			delegateStruct.Inherit = true
-			delegate.Set(delegateStruct)
+	if include_infra_selectors && delegate != nil {
+		if str, ok := delegate.AsString(); !ok || str == "" {
+			if delegateStruct, ok := delegate.AsStruct(); ok {
+				delegateStruct.Inherit = true
+				delegate.Set(delegateStruct)
+			}
 		}
 	}
 
@@ -231,13 +240,5 @@ func convertStepWhen(when *v0.StepWhen) string {
 		return when.Condition
 	}
 
-	// Convert stage status to condition
-	switch when.StageStatus {
-	case "Success":
-		return "success()"
-	case "Failure":
-		return "failure()"
-	default:
-		return ""
-	}
+	return ""
 }

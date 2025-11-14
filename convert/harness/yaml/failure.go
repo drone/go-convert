@@ -41,6 +41,7 @@ const (
 	ActionTypeRetryStepGroup     ActionType = "RetryStepGroup"
 	ActionTypeStageRollback      ActionType = "StageRollback"
 	ActionTypeMarkAsFailure      ActionType = "MarkAsFailure"
+	ActionTypeProceedWithDefaultValues ActionType = "ProceedWithDefaultValues"
 )
 
 type FailureStrategy struct {
@@ -71,11 +72,11 @@ func (a *Action) UnmarshalJSON(data []byte) error {
 	}
 
 	switch a.Type {
-	case ActionTypeRetry:
+	case ActionTypeRetry,ActionTypeRetryStepGroup:
 		a.Spec = new(RetrySpec)
 	case ActionTypeManualIntervention:
 		a.Spec = new(ManualInterventionSpec)
-	case ActionTypeMarkAsFailure,ActionTypeMarkAsSuccess, ActionTypeIgnore, ActionTypeAbort, ActionTypeStageRollback, ActionTypePipelineRollback:
+	case ActionTypeMarkAsFailure,ActionTypeMarkAsSuccess, ActionTypeIgnore, ActionTypeAbort, ActionTypeStageRollback, ActionTypePipelineRollback, ActionTypeProceedWithDefaultValues:
 		// These actions don't have specs
 		return nil
 	default:

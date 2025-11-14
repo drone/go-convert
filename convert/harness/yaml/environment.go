@@ -1,5 +1,7 @@
 package yaml
 
+import "github.com/drone/go-convert/internal/flexible"
+
 type (
 	// EnvironmentGroup defines the environment group
 	EnvironmentGroup struct {
@@ -12,7 +14,7 @@ type (
 	Environment struct {
 		EnvironmentRef string `json:"environmentRef,omitempty" yaml:"environmentRef,omitempty"`
 		DeployToAll    bool   `json:"deployToAll,omitempty"    yaml:"deployToAll,omitempty"`
-		InfrastructureDefinitions []*InfrastructureDefinition `json:"infrastructureDefinitions,omitempty" yaml:"infrastructureDefinitions,omitempty"`
+		InfrastructureDefinitions flexible.Field[[]*InfrastructureDefinition] `json:"infrastructureDefinitions,omitempty" yaml:"infrastructureDefinitions,omitempty"`
 	}
 
 	Environments struct {

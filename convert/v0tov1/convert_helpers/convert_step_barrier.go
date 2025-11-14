@@ -14,7 +14,6 @@ func ConvertStepBarrier(src *v0.Step) (*v1.StepBarrier) {
 	if !ok {
 		return nil
 	}
-
 	return &v1.StepBarrier{
 		Name: spec.BarrierRef,
 	}

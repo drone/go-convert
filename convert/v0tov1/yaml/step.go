@@ -18,6 +18,8 @@ package yaml
 
 import (
 	"encoding/json"
+
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 type Step struct {
@@ -25,14 +27,14 @@ type Step struct {
 	Approval   *StepApproval          `json:"approval,omitempty" yaml:"approval,omitempty"`
 	Background *StepRun               `json:"background,omitempty" yaml:"background,omitempty"`
 	Barrier    *StepBarrier           `json:"barrier,omitempty" yaml:"barrier,omitempty"`
-	Delegate   *FlexibleField[*Delegate]              `json:"delegate,omitempty" yaml:"delegate,omitempty"`
+	Delegate   *flexible.Field[*Delegate]              `json:"delegate,omitempty" yaml:"delegate,omitempty"`
 	Env        map[string]string      `json:"env,omitempty" yaml:"env,omitempty"`
 	Group      *StepGroup             `json:"group,omitempty" yaml:"group,omitempty"`
 	Id         string                 `json:"id,omitempty" yaml:"id,omitempty"`
 	If         string                 `json:"if,omitempty" yaml:"if,omitempty"`
 	Name       string                 `json:"name,omitempty" yaml:"name,omitempty"`
 	Needs      Stringorslice          `json:"needs,omitempty" yaml:"needs,omitempty"`
-	OnFailure  *FlexibleField[[]*FailureStrategy]     `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
+	OnFailure  *flexible.Field[[]*FailureStrategy]     `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
 	Parallel   *StepGroup             `json:"parallel,omitempty" yaml:"parallel,omitempty"`
 	Queue      *StepQueue             `json:"queue,omitempty" yaml:"queue,omitempty"`
 	Run        *StepRun               `json:"run,omitempty" yaml:"run,omitempty"`
@@ -42,6 +44,7 @@ type Step struct {
 	Template   *StepTemplate          `json:"template,omitempty" yaml:"template,omitempty"`
 	Timeout    string             `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Uses       string                 `json:"uses,omitempty" yaml:"uses,omitempty"`
+	Wait       *StepWait              `json:"wait,omitempty" yaml:"wait,omitempty"`
 	With       map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
 
 	// Context temporarily stores information from the
@@ -63,14 +66,14 @@ func (v *Step) UnmarshalJSON(data []byte) error {
 		Approval   *StepApproval          `json:"approval,omitempty" yaml:"approval,omitempty"`
 		Background *StepRun               `json:"background,omitempty" yaml:"background,omitempty"`
 		Barrier    *StepBarrier           `json:"barrier,omitempty" yaml:"barrier,omitempty"`
-		Delegate   *FlexibleField[*Delegate]              `json:"delegate,omitempty" yaml:"delegate,omitempty"`
+		Delegate   *flexible.Field[*Delegate]              `json:"delegate,omitempty" yaml:"delegate,omitempty"`
 		Env        map[string]string      `json:"env,omitempty" yaml:"env,omitempty"`
 		Group      *StepGroup             `json:"group,omitempty" yaml:"group,omitempty"`
 		Id         string                 `json:"id,omitempty" yaml:"id,omitempty"`
 		If         string                 `json:"if,omitempty" yaml:"if,omitempty"`
 		Name       string                 `json:"name,omitempty" yaml:"name,omitempty"`
 		Needs      Stringorslice          `json:"needs,omitempty" yaml:"needs,omitempty"`
-		OnFailure  *FlexibleField[[]*FailureStrategy ]    `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
+		OnFailure  *flexible.Field[[]*FailureStrategy ]    `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
 		Parallel   *StepGroup             `json:"parallel,omitempty" yaml:"parallel,omitempty"`
 		Queue      *StepQueue             `json:"queue,omitempty" yaml:"queue,omitempty"`
 		Run        *StepRun               `json:"run,omitempty" yaml:"run,omitempty"`
@@ -80,6 +83,7 @@ func (v *Step) UnmarshalJSON(data []byte) error {
 		Template   *StepTemplate          `json:"template,omitempty" yaml:"template,omitempty"`
 		Timeout    string                 `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 		Uses       string                 `json:"uses,omitempty" yaml:"uses,omitempty"`
+		Wait       *StepWait              `json:"wait,omitempty" yaml:"wait,omitempty"`
 		With       map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
 		Context    *Context               `json:"context,omitempty" yaml:"context,omitempty"`
 	}{}

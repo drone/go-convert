@@ -16,12 +16,14 @@
 
 package yaml
 
+import "github.com/drone/go-convert/internal/flexible"
+
 type Stage struct {
 	Approval    *StageApproval         `json:"approval,omitempty" yaml:"approval,omitempty"`
 	Cache       *Cache                 `json:"cache,omitempty" yaml:"cache,omitempty"`
 	Clone       *Clone                 `json:"clone,omitempty" yaml:"clone,omitempty"`
 	Concurrency *Concurrency           `json:"concurrency,omitempty" yaml:"concurrency,omitempty"`
-	Delegate    *FlexibleField[*Delegate]                 `json:"delegate,omitempty" yaml:"delegate,omitempty"`
+	Delegate    *flexible.Field[*Delegate]                 `json:"delegate,omitempty" yaml:"delegate,omitempty"`
 	Env         map[string]string      `json:"env,omitempty" yaml:"env,omitempty"`
 	Environment *EnvironmentRef        `json:"environment,omitempty" yaml:"environment,omitempty"`
 	Group       *StageGroup            `json:"group,omitempty" yaml:"group,omitempty"`
@@ -30,7 +32,7 @@ type Stage struct {
 	Inputs      map[string]*Input      `json:"inputs,omitempty" yaml:"inputs,omitempty"`
 	Name        string                 `json:"name,omitempty" yaml:"name,omitempty"`
 	Needs       Stringorslice          `json:"needs,omitempty" yaml:"needs,omitempty"`
-	OnFailure   *FlexibleField[[]*FailureStrategy]       `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
+	OnFailure   *flexible.Field[[]*FailureStrategy]       `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
 	Outputs     map[string]interface{} `json:"outputs,omitempty" yaml:"outputs,omitempty"`
 	Parallel    *StageGroup            `json:"parallel,omitempty" yaml:"parallel,omitempty"`
 	Permissions *Permissions           `json:"permissions,omitempty" yaml:"permissions,omitempty"`

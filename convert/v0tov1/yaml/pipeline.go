@@ -27,7 +27,7 @@ type Pipeline struct {
 	Environment   *EnvironmentRef   `json:"environment,omitempty" yaml:"environment,omitempty"`
 	Id            string            `json:"identifier,omitempty" `
 	If            string            `json:"if,omitempty" yaml:"if,omitempty"`
-	Inputs        map[string]*Input `json:"Inputs,omitempty" `
+	Inputs        map[string]*Input `json:"inputs,omitempty" `
 	Jobs          map[string]*Stage `json:"jobs,omitempty" yaml:"jobs,omitempty"`
 	Name          string            `json:"name,omitempty" yaml:"name,omitempty"`
 	Notifications []*Notification   `json:"notifications,omitempty" yaml:"notifications,omitempty"`

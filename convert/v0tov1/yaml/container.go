@@ -21,7 +21,7 @@ import "encoding/json"
 type Container struct {
 	Args        Stringorslice     `json:"args,omitempty" yaml:"args,omitempty"`
 	Connector   string            `json:"connector,omitempty" yaml:"connector,omitempty"`
-	Cpu         StringorInt       `json:"cpu,omitempty" yaml:"cpu,omitempty"`
+	Cpu         string       `json:"cpu,omitempty" yaml:"cpu,omitempty"`
 	Credentials *Credentials      `json:"credentials,omitempty" yaml:"credentials,omitempty"`
 	Dns         Stringorslice     `json:"dns,omitempty" yaml:"dns,omitempty"`
 	Entrypoint  Stringorslice     `json:"entrypoint,omitempty" yaml:"entrypoint,omitempty"`
@@ -29,7 +29,7 @@ type Container struct {
 	ExtraHosts  Stringorslice     `json:"extra-hosts,omitempty" yaml:"extra-hosts,omitempty"`
 	Group       StringorInt       `json:"group,omitempty" yaml:"group,omitempty"`
 	Image       string            `json:"image,omitempty" yaml:"image,omitempty"`
-	Memory      StringorInt       `json:"memory,omitempty" yaml:"memory,omitempty"`
+	Memory      string       `json:"memory,omitempty" yaml:"memory,omitempty"`
 	Network     string            `json:"network,omitempty" yaml:"network,omitempty"`
 	NetworkMode string            `json:"network-mode,omitempty" yaml:"network-mode,omitempty"`
 	Ports       []string          `json:"ports,omitempty" yaml:"ports,omitempty"`
@@ -47,7 +47,7 @@ func (v *Container) UnmarshalJSON(data []byte) error {
 	var out2 = struct {
 		Args        Stringorslice     `json:"args,omitempty" yaml:"args,omitempty"`
 		Connector   string            `json:"connector,omitempty" yaml:"connector,omitempty"`
-		Cpu         StringorInt       `json:"cpu,omitempty" yaml:"cpu,omitempty"`
+		Cpu         string       `json:"cpu,omitempty" yaml:"cpu,omitempty"`
 		Credentials *Credentials      `json:"credentials,omitempty" yaml:"credentials,omitempty"`
 		Dns         Stringorslice     `json:"dns,omitempty" yaml:"dns,omitempty"`
 		Entrypoint  Stringorslice     `json:"entrypoint,omitempty" yaml:"entrypoint,omitempty"`
@@ -55,7 +55,7 @@ func (v *Container) UnmarshalJSON(data []byte) error {
 		ExtraHosts  Stringorslice     `json:"extra-hosts,omitempty" yaml:"extra-hosts,omitempty"`
 		Group       StringorInt       `json:"group,omitempty" yaml:"group,omitempty"`
 		Image       string            `json:"image,omitempty" yaml:"image,omitempty"`
-		Memory      StringorInt       `json:"memory,omitempty" yaml:"memory,omitempty"`
+		Memory      string       `json:"memory,omitempty" yaml:"memory,omitempty"`
 		Network     string            `json:"network,omitempty" yaml:"network,omitempty"`
 		NetworkMode string            `json:"network-mode,omitempty" yaml:"network-mode,omitempty"`
 		Ports       []string          `json:"ports,omitempty" yaml:"ports,omitempty"`
