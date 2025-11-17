@@ -41,7 +41,7 @@ pipeline:
       stages:
       - environment: prod
       - environment:
-          sequential: true
+          parallel: true
           items:
           - name: test
           - name: prod
@@ -57,7 +57,7 @@ pipeline:
         - petstore-frontend
         - petstore-backend
       - service:
-          sequential: true
+          parallel: true
           items:
           - petstore-frontend
           - petstore-backend
