@@ -101,7 +101,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		Environment: environment,
 		OnFailure:   onFailure,
 		Inputs:      inputs,
-		Delegate:    convert_helpers.ConvertDelegate(&src.DelegateSelectors),
+		Delegate:    convert_helpers.ConvertDelegate(src.DelegateSelectors),
 		Strategy:    strategy,
 	}
 }

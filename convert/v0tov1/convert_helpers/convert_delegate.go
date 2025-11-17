@@ -9,7 +9,7 @@ import (
 // ConvertDelegate converts v0 FlexibleField[[]string] to v1 FlexibleField[Delegate]
 func ConvertDelegate(src *flexible.Field[[]string]) *flexible.Field[*v1.Delegate] {
 	// If source is nil/empty, return nil
-	if src.IsNil() {
+	if src == nil {
 		return nil
 	}
 

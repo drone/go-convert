@@ -27,7 +27,7 @@ type (
 		ID          string      `json:"identifier,omitempty"   yaml:"identifier,omitempty"`
 		Description string      `json:"description,omitempty"  yaml:"description,omitempty"`
 		Name        string      `json:"name,omitempty"         yaml:"name,omitempty"`
-		DelegateSelectors flexible.Field[[]string] `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
+		DelegateSelectors *flexible.Field[[]string] `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
 		Spec        interface{} `json:"spec,omitempty"         yaml:"spec,omitempty"`
 		Type        string      `json:"type,omitempty"         yaml:"type,omitempty"`
 		Vars        []*Variable `json:"variables,omitempty"    yaml:"variables,omitempty"`

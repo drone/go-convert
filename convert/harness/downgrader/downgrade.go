@@ -22,10 +22,6 @@ import (
 	"slices"
 	"sort"
 	"strings"
-	"time"
-
-	// "time"
-
 	"github.com/drone/go-convert/convert/jenkinsjson/json"
 	"github.com/drone/go-convert/internal/flexible"
 	"github.com/drone/go-convert/internal/rand"
@@ -1052,8 +1048,9 @@ func convertSettings(src map[string]interface{}) map[string]interface{} {
 }
 
 func convertTimeout(s string) string {
-	d, _ := time.ParseDuration(s)
-	return d.String()
+	// d, _ := time.ParseDuration(s)
+	// return d.String()
+	return s
 }
 
 func convertImage(s string, defaultImage string) string {

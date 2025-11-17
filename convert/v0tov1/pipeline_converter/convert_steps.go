@@ -46,6 +46,7 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps) []*v1.Step {
 				},
 				OnFailure: convert_helpers.ConvertFailureStrategies(s.StepGroup.FailureStrategies),
 				Strategy:  convert_helpers.ConvertStrategy(s.StepGroup.Strategy),
+				Timeout:   s.StepGroup.Timeout,
 			}
 			dst = append(dst, group)
 		}
