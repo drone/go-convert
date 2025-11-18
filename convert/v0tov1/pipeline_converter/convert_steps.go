@@ -177,7 +177,7 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 	// Convert delegate selectors
 
 	// extract delegate selectors and includeInfraSelectors from src using reflection
-	var delegate_selectors flexible.Field[[]string]
+	var delegate_selectors *flexible.Field[[]string]
 	var include_infra_selectors bool
 
 	if src.Spec != nil {
@@ -198,25 +198,28 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 				if fieldType.Anonymous && fieldType.Type.Name() == "CommonStepSpec" {
 					// Extract DelegateSelectors (FlexibleField[[]string])
 					if delegateField := field.FieldByName("DelegateSelectors"); delegateField.IsValid() {
-						if delegateField.Type().Name() == "FlexibleField[[]string]" {
-							// Copy the entire FlexibleField
-							delegate_selectors = delegateField.Interface().(flexible.Field[[]string])
+						// Check if it's a pointer to FlexibleField[[]string]
+						if delegateField.Kind() == reflect.Ptr && !delegateField.IsNil() {
+							elemType := delegateField.Type().Elem()
+							if elemType.String() == "flexible.Field[[]string]" {
+								delegate_selectors = delegateField.Interface().(*flexible.Field[[]string])
+							}
 						}
-					}
 
-					// Extract IncludeInfraSelectors
-					if infraField := field.FieldByName("IncludeInfraSelectors"); infraField.IsValid() {
-						if infraField.Kind() == reflect.Bool {
-							include_infra_selectors = infraField.Bool()
+						// Extract IncludeInfraSelectors
+						if infraField := field.FieldByName("IncludeInfraSelectors"); infraField.IsValid() {
+							if infraField.Kind() == reflect.Bool {
+								include_infra_selectors = infraField.Bool()
+							}
 						}
+						break
 					}
-					break
 				}
 			}
 		}
 	}
 	// Convert delegate using the extracted values
-	delegate := convert_helpers.ConvertDelegate(&delegate_selectors)
+	delegate := convert_helpers.ConvertDelegate(delegate_selectors)
 
 	// Handle includeInfraSelectors for struct-based delegates
 	if include_infra_selectors && delegate != nil {
