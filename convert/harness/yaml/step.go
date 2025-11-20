@@ -510,7 +510,7 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepEmail)
 	default:
 		log.Printf("unknown step type while unmarshalling %s", s.Type)
-		return nil
+		return fmt.Errorf("unknown step type %s", s.Type)
 	}
 
 	return json.Unmarshal(obj.Spec, s.Spec)
