@@ -31,6 +31,7 @@ const (
 	StageTypeCI                    = "CI"
 	StageTypeDeployment            = "Deployment"
 	StageTypeFeatureFlag           = "FeatureFlag"
+	StageTypeCustom                = "Custom"
 )
 
 type InfraType string
@@ -61,6 +62,7 @@ const (
 	StepTypeGCSUpload                  = "GCSUpload"
 	StepTypeHarnessApproval            = "HarnessApproval"
 	StepTypePlugin                     = "Plugin"
+	StepTypeQueue                      = "Queue"
 	StepTypeRestoreCacheGCS            = "RestoreCacheGCS"
 	StepTypeRestoreCacheS3             = "RestoreCacheS3"
 	StepTypeRun                        = "Run"
@@ -73,11 +75,38 @@ const (
 
 	// Feature Flags
 	StepTypeHTTP               = "Http"
+	StepTypeEmail              = "Email"
 	StepTypeJiraApproval       = "JiraApproval"
 	StepTypeJiraCreate         = "JiraCreate"
 	StepTypeJiraUpdate         = "JiraUpdate"
 	StepTypeServiceNowApproval = "ServiceNowApproval"
 	StepTypeShellScript        = "ShellScript"
+	StepTypeWait               = "Wait"
+	StepTypeCustomApproval     = "CustomApproval"
+
+	// CD / Kubernetes
+	StepTypeK8sRollingDeploy           = "K8sRollingDeploy"
+	StepTypeK8sRollingRollback         = "K8sRollingRollback"
+	StepTypeK8sApply                   = "K8sApply"
+	StepTypeK8sBGSwapServices          = "K8sBGSwapServices"
+	StepTypeK8sBlueGreenStageScaleDown = "K8sBlueGreenStageScaleDown"
+	StepTypeK8sCanaryDelete            = "K8sCanaryDelete"
+	StepTypeK8sDelete                  = "K8sDelete"
+	StepTypeK8sDiff                    = "K8sDiff"
+	StepTypeK8sRollout                 = "K8sRollout"
+	StepTypeK8sScale                   = "K8sScale"
+	StepTypeK8sDryRun                  = "K8sDryRun"
+	StepTypeK8sTrafficRouting          = "K8sTrafficRouting"
+	StepTypeK8sCanaryDeploy            = "K8sCanaryDeploy"
+	StepTypeK8sBlueGreenDeploy         = "K8sBlueGreenDeploy"
+
+	// Helm
+	StepTypeHelmBGDeploy          = "HelmBGDeploy"
+	StepTypeHelmBlueGreenSwapStep = "HelmBlueGreenSwapStep"
+	StepTypeHelmCanaryDeploy      = "HelmCanaryDeploy"
+	StepTypeHelmDelete            = "HelmDelete"
+	StepTypeHelmDeploy            = "HelmDeploy"
+	StepTypeHelmRollback          = "HelmRollback"
 
 	// Approval
 	StepTypeVerify = "Verify"

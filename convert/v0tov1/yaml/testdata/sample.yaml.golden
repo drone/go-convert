@@ -1,0 +1,71 @@
+pipeline:
+  inputs:
+    username:
+      type: string
+      default: ubuntu
+    password:
+      type: string
+
+  repo:
+    connector: github
+    name: harness/hello-world
+
+  clone:
+    depth: 50
+
+  env:
+    GOOS: linux
+
+  stages:
+  #
+  # test run step and container variations
+  #
+  - steps:
+    - run:
+        script: go build
+    - run:
+        script: go build
+    - run:
+        script: go build
+        container:
+          image: golang
+    - run:
+        script:
+        - go build
+        - go test
+        container:
+          image: golang
+          pull: if-not-exists
+
+  #
+  # test environment variations
+  #
+  - group:
+      stages:
+      - environment:
+          items:
+          - name: prod
+      - environment:
+          parallel: true
+          items:
+          - name: test
+          - name: prod
+            deploy-to: all
+
+  #
+  # test service variations
+  #
+  - group:
+      stages:
+      - service: 
+          items:
+          - petstore
+      - service:
+          items:
+          - petstore-frontend
+          - petstore-backend
+      - service:
+          parallel: true
+          items:
+          - petstore-frontend
+          - petstore-backend

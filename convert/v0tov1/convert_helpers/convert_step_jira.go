@@ -1,0 +1,93 @@
+package converthelpers
+
+import (
+	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+)
+
+// ConvertStepJiraCreate converts a v0 JiraCreate step to a v1 action step
+func ConvertStepJiraCreate(src *v0.Step) *v1.StepTemplate {
+	if src == nil || src.Spec == nil {
+		return nil
+	}
+
+	sp, ok := src.Spec.(*v0.StepJiraCreate)
+	if !ok || sp == nil {
+		return nil
+	}
+
+	// Build fields array as []map[string]interface{}{ {name:..., value:...}, ... }
+	fields := make([]map[string]interface{}, 0, len(sp.Fields))
+	for _, f := range sp.Fields {
+		if f == nil {
+			continue
+		}
+		m := map[string]interface{}{
+			f.Name: f.Value,
+		}
+		if len(m) > 0 {
+			fields = append(fields, m)
+		}
+	}
+
+	with := map[string]interface{}{
+		"connector": sp.ConnectorRef,
+		"project":   sp.ProjectKey,
+		"issue_type": sp.IssueType,
+	}
+	if len(fields) > 0 {
+		with["fields"] = fields
+	}
+
+	return &v1.StepTemplate{
+		Uses: "jiraCreate",
+		With: with,
+	}	
+}
+
+// ConvertStepJiraUpdate converts a v0 JiraUpdate step to a v1 action step
+func ConvertStepJiraUpdate(src *v0.Step) *v1.StepTemplate {
+	if src == nil || src.Spec == nil {
+		return nil
+	}
+
+	sp, ok := src.Spec.(*v0.StepJiraUpdate)
+	if !ok || sp == nil {
+		return nil
+	}
+
+	// fields mapping
+	fields := make([]map[string]interface{}, 0, len(sp.Fields))
+	for _, f := range sp.Fields {
+		if f == nil {
+			continue
+		}
+		m := map[string]interface{}{
+			f.Name: f.Value,
+		}
+		if len(m) > 0 {
+			fields = append(fields, m)
+		}
+	}
+
+	with := map[string]interface{}{
+		"connector": sp.ConnectorRef,
+		"issue":       sp.IssueKey,
+	}
+	if len(fields) > 0 {
+		with["fields"] = fields
+	}
+	if sp.TransitionTo != nil {
+		if sp.TransitionTo.Status != "" {
+			with["status"] = sp.TransitionTo.Status
+		}
+		if sp.TransitionTo.TransitionName != "" {
+			with["transition"] = sp.TransitionTo.TransitionName
+		}
+	}
+
+	return &v1.StepTemplate{
+		Uses: "jiraUpdate",
+		With: with,
+	}
+}

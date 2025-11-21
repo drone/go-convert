@@ -22,9 +22,8 @@ import (
 	"slices"
 	"sort"
 	"strings"
-	"time"
-
 	"github.com/drone/go-convert/convert/jenkinsjson/json"
+	"github.com/drone/go-convert/internal/flexible"
 	"github.com/drone/go-convert/internal/rand"
 
 	"github.com/drone/go-convert/convert/harness"
@@ -187,7 +186,7 @@ func (d *Downgrader) downgrade(src []*v1.Config) ([]byte, error) {
 		config.Pipeline.Props.CI.Codebase = v0.Codebase{
 			Name:  d.codebaseName,
 			Conn:  d.codebaseConn,
-			Build: "<+input>",
+			Build: flexible.Field[v0.Build]{Value: "<+input>"},
 		}
 		// FIXME: this is subject to a nil pointer
 		if p.Spec.(*v1.Pipeline).Options != nil {
@@ -1048,11 +1047,10 @@ func convertSettings(src map[string]interface{}) map[string]interface{} {
 	return dst
 }
 
-func convertTimeout(s string) v0.Duration {
-	d, _ := time.ParseDuration(s)
-	return v0.Duration{
-		Duration: d,
-	}
+func convertTimeout(s string) string {
+	// d, _ := time.ParseDuration(s)
+	// return d.String()
+	return s
 }
 
 func convertImage(s string, defaultImage string) string {

@@ -1,0 +1,19 @@
+pipeline:
+  stages:
+  - steps:
+    - parallel:
+        steps:
+        - run:
+            container:
+              image: golang:${{matrix.version}}
+            script: go build
+          context:
+            matrix:
+              version: "1.20"
+        - run:
+            container:
+              image: golang:${{matrix.version}}
+            script: go build
+          context:
+            matrix:
+              version: "1.21"

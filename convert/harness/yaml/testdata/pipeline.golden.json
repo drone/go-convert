@@ -65,7 +65,6 @@
                                     "image": "us.gcr.io/platform-205701/mysql:12",
                                     "resources": {
                                         "limits": {
-                                            "memory": "0B",
                                             "cpu": "250m"
                                         }
                                     }

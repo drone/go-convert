@@ -1,0 +1,7 @@
+
+pipeline:
+  stages:
+  - template:
+      uses: golang
+      with:
+        version: "latest"

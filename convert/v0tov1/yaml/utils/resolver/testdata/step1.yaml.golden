@@ -1,0 +1,10 @@
+pipeline:
+  stages:
+  - steps:
+    - run:
+        script: go test ./...
+        container:
+          image: golang:${{inputs.version}}
+      context:
+        inputs:
+          version: "1.20"

@@ -14,6 +14,8 @@
 
 package yaml
 
+import "github.com/drone/go-convert/internal/flexible"
+
 type (
 	// Config defines resource configuration.
 	Config struct {
@@ -22,16 +24,27 @@ type (
 
 	// Pipeline defines a pipeline.
 	Pipeline struct {
-		ID        string            `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
-		Name      string            `json:"name,omitempty"              yaml:"name,omitempty"`
-		Desc      string            `json:"description,omitempty"       yaml:"description,omitempty"`
-		Account   string            `json:"accountIdentifier,omitempty" yaml:"accountIdentifier,omitempty"`
-		Project   string            `json:"projectIdentifier,omitempty" yaml:"projectIdentifier,omitempty"`
-		Org       string            `json:"orgIdentifier,omitempty"     yaml:"orgIdentifier,omitempty"`
-		Props     Properties        `json:"properties,omitempty"        yaml:"properties,omitempty"`
-		Stages    []*Stages         `json:"stages,omitempty"            yaml:"stages"`
-		Variables []*Variable       `json:"variables,omitempty"         yaml:"variables,omitempty"`
-		Tags      map[string]string `json:"tags,omitempty"              yaml:"tags,omitempty"`
+		ID                string              `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
+		Name              string              `json:"name,omitempty"              yaml:"name,omitempty"`
+		Desc              string              `json:"description,omitempty"       yaml:"description,omitempty"`
+		Account           string              `json:"accountIdentifier,omitempty" yaml:"accountIdentifier,omitempty"`
+		Project           string              `json:"projectIdentifier,omitempty" yaml:"projectIdentifier,omitempty"`
+		Org               string              `json:"orgIdentifier,omitempty"     yaml:"orgIdentifier,omitempty"`
+		Props             Properties          `json:"properties,omitempty"        yaml:"properties,omitempty"`
+		Stages            []*Stages           `json:"stages,omitempty"            yaml:"stages"`
+		Variables         []*Variable         `json:"variables,omitempty"         yaml:"variables,omitempty"`
+		Tags              map[string]string   `json:"tags,omitempty"              yaml:"tags,omitempty"`
+		FlowControl       *FlowControl        `json:"flowControl,omitempty"       yaml:"flowControl,omitempty"`
+		NotificationRules []*NotificationRule `json:"notificationRules,omitempty" yaml:"notificationRules,omitempty"`
+	}
+
+	FlowControl struct {
+		Barriers []*Barrier `json:"barriers,omitempty" yaml:"barriers,omitempty"`
+	}
+
+	Barrier struct {
+		Name       string `json:"name,omitempty" yaml:"name,omitempty"`
+		Identifier string `json:"identifier,omitempty" yaml:"identifier,omitempty"`
 	}
 
 	// Properties defines pipeline properties.
@@ -60,7 +73,16 @@ type (
 	Codebase struct {
 		Name  string `json:"repoName,omitempty"     yaml:"repoName,omitempty"`
 		Conn  string `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
-		Build string `json:"build,omitempty"        yaml:"build,omitempty"` // branch|tag
+		Build flexible.Field[Build] `json:"build,omitempty"        yaml:"build,omitempty"` // branch|tag
+	}
+
+	Build struct {
+		Type string `json:"type,omitempty" yaml:"type,omitempty"`
+		Spec BuildSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
+	}
+
+	BuildSpec struct {
+		Branch string `json:"branch,omitempty" yaml:"branch,omitempty"`
 	}
 
 	Stages struct {
@@ -93,8 +115,10 @@ type (
 
 	Variable struct {
 		Name  string `json:"name,omitempty"  yaml:"name,omitempty"`
-		Type  string `json:"type,omitempty"  yaml:"type,omitempty"` // Secret|Text
-		Value string `json:"value,omitempty" yaml:"value,omitempty"`
+		Type  string `json:"type,omitempty"  yaml:"type,omitempty"` // Secret|String|Number
+		Value interface{} `json:"value,omitempty" yaml:"value,omitempty"`
+		Required bool `json:"required,omitempty" yaml:"required,omitempty"`
+		Default interface{} `json:"default,omitempty" yaml:"default,omitempty"`
 	}
 
 	Execution struct {
@@ -159,11 +183,11 @@ type (
 	}
 
 	Resources struct {
-		Limits Limits `json:"limits,omitempty" yaml:"limits,omitempty"`
+		Limits *Limits `json:"limits,omitempty" yaml:"limits,omitempty"`
 	}
 
 	Limits struct {
-		Memory BytesSize `json:"memory,omitempty" yaml:"memory,omitempty"`
-		CPU    MilliSize `json:"cpu,omitempty"    yaml:"cpu,omitempty"` // TODO
+		Memory *BytesSize `json:"memory,omitempty" yaml:"memory,omitempty"`
+		CPU    *MilliSize `json:"cpu,omitempty"    yaml:"cpu,omitempty"` // TODO
 	}
 )

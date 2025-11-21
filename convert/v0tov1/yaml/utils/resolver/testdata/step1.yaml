@@ -1,0 +1,5 @@
+pipeline:
+  stages:
+  - steps:
+    - template:
+        uses: "golang"
