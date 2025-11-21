@@ -16,7 +16,7 @@ package yaml
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"github.com/drone/go-convert/internal/flexible"
 )
 
@@ -509,7 +509,7 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 	case StepTypeEmail:
 		s.Spec = new(StepEmail)
 	default:
-		log.Printf("unknown step type while unmarshalling %s", s.Type)
+		// log.Printf("unknown step type while unmarshalling %s", s.Type)
 		return fmt.Errorf("unknown step type %s", s.Type)
 	}
 

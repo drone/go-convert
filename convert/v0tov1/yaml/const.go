@@ -52,7 +52,7 @@ const (
 	StepTypeK8sScale                   = "k8sScaleStep"
 	StepTypeK8sDryRun                  = "k8sDryRunStep"
 	StepTypeK8sTrafficRouting          = "k8sTrafficRoutingStep"
-	StepTypeK8sCanaryDeploy            = "k8sCanaryStep"
+	StepTypeK8sCanaryDeploy            = "k8sCanaryDeployStep"
 	StepTypeK8sBlueGreenDeploy         = "k8sBlueGreenDeployStep"
 
 	// Helm
