@@ -85,6 +85,10 @@ type (
 		// TODO
 	}
 
+	StepBuildAndPushGAR struct {
+		// TODO
+	}
+
 	StepFlagConfiguration struct {
 		// TODO
 	}
@@ -141,6 +145,10 @@ type (
 	}
 
 	StepRunTests struct {
+		// TODO
+	}
+
+	StepTest struct {
 		// TODO
 	}
 
@@ -319,6 +327,7 @@ type (
 		RunAsUser    string     `json:"runAsUser,omitempty"    yaml:"runAsUser,omitempty"`
 		SourcePath   string     `json:"sourcePath,omitempty"   yaml:"sourcePath,omitempty"`
 		Target       string     `json:"target,omitempty"       yaml:"target,omitempty"`
+		Env             map[string]string `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
 	}
 
 	// Feature: Jira Create
@@ -448,8 +457,18 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepPlugin)
 	case StepTypeBuildAndPushDockerRegistry:
 		s.Spec = new(StepDocker)
+	case StepTypeBuildAndPushECR:
+		s.Spec = new(StepBuildAndPushECR)
+	case StepTypeBuildAndPushGCR:
+		s.Spec = new(StepBuildAndPushGCR)
+	case StepTypeBuildAndPushGAR:
+		s.Spec = new(StepBuildAndPushGAR)
 	case StepTypeS3Upload:
 		s.Spec = new(StepS3Upload)
+	case StepTypeGCSUpload:
+		s.Spec = new(StepGCSUpload)
+	case StepTypeArtifactoryUpdload:
+		s.Spec = new(StepArtifactoryUpload)
 	case StepTypeShellScript:
 		s.Spec = new(StepShellScript)
 	case StepTypeHTTP:
@@ -508,6 +527,16 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepWait)
 	case StepTypeEmail:
 		s.Spec = new(StepEmail)
+	case StepTypeSaveCacheGCS:
+		s.Spec = new(StepSaveCacheGCS)
+	case StepTypeRestoreCacheGCS:
+		s.Spec = new(StepRestoreCacheGCS)
+	case StepTypeSaveCacheS3:
+		s.Spec = new(StepSaveCacheS3)
+	case StepTypeRestoreCacheS3:
+		s.Spec = new(StepRestoreCacheS3)
+	case StepTypeTest:
+		s.Spec = new(StepTest)
 	default:
 		// log.Printf("unknown step type while unmarshalling %s", s.Type)
 		return fmt.Errorf("unknown step type %s", s.Type)
