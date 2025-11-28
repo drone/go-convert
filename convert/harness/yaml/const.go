@@ -51,18 +51,15 @@ const (
 	// Continuous Integration
 	StepTypeAction                     = "Action"
 	StepTypeArtifactoryUpdload         = "ArtifactoryUpload"
-	StepTypeBarrier                    = "Barrier"
 	StepTypeBackground                 = "Background"
 	StepTypeBitrise                    = "Bitrise"
 	StepTypeBuildAndPushDockerRegistry = "BuildAndPushDockerRegistry"
 	StepTypeAquaTrivy                  = "AquaTrivy"
 	StepTypeBuildAndPushECR            = "BuildAndPushECR"
 	StepTypeBuildAndPushGCR            = "BuildAndPushGCR"
-	StepTypeFlagConfiguration          = "FlagConfiguration"
+	StepTypeBuildAndPushGAR            = "BuildAndPushGAR"
 	StepTypeGCSUpload                  = "GCSUpload"
-	StepTypeHarnessApproval            = "HarnessApproval"
 	StepTypePlugin                     = "Plugin"
-	StepTypeQueue                      = "Queue"
 	StepTypeRestoreCacheGCS            = "RestoreCacheGCS"
 	StepTypeRestoreCacheS3             = "RestoreCacheS3"
 	StepTypeRun                        = "Run"
@@ -83,6 +80,8 @@ const (
 	StepTypeShellScript        = "ShellScript"
 	StepTypeWait               = "Wait"
 	StepTypeCustomApproval     = "CustomApproval"
+	StepTypeFlagConfiguration  = "FlagConfiguration"
+	
 
 	// CD / Kubernetes
 	StepTypeK8sRollingDeploy           = "K8sRollingDeploy"
@@ -99,6 +98,9 @@ const (
 	StepTypeK8sTrafficRouting          = "K8sTrafficRouting"
 	StepTypeK8sCanaryDeploy            = "K8sCanaryDeploy"
 	StepTypeK8sBlueGreenDeploy         = "K8sBlueGreenDeploy"
+	StepTypeQueue                      = "Queue"
+	StepTypeBarrier                    = "Barrier"
+	StepTypeHarnessApproval            = "HarnessApproval"
 
 	// Helm
 	StepTypeHelmBGDeploy          = "HelmBGDeploy"
