@@ -134,56 +134,6 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step) *v1.Step {
 		step.Approval = convert_helpers.ConvertStepServiceNowApproval(src)
 	case v0.StepTypeEmail:
 		step.Template = convert_helpers.ConvertStepEmail(src)
-	case v0.StepTypeS3Upload:
-		step.Template = convert_helpers.ConvertStepS3Upload(src)
-	case v0.StepTypeGCSUpload:
-		step.Template = &v1.StepTemplate{
-			Uses: src.Type,
-		}
-	case v0.StepTypeArtifactoryUpdload:
-		step.Template = &v1.StepTemplate{
-			Uses: src.Type,
-		}
-	case v0.StepTypeBuildAndPushECR:
-		step.Template = &v1.StepTemplate{
-			Uses: src.Type,
-		}
-	case v0.StepTypeBuildAndPushGCR:
-		step.Template = &v1.StepTemplate{
-			Uses: src.Type,
-		}
-	case v0.StepTypeBuildAndPushGAR:
-		step.Template = &v1.StepTemplate{
-			Uses: src.Type,
-		}
-	case v0.StepTypeBuildAndPushDockerRegistry:
-		step.Template = &v1.StepTemplate{
-			Uses: src.Type,
-		}
-	case v0.StepTypePlugin:
-		step.Template = &v1.StepTemplate{
-			Uses: src.Type,
-		}
-	case v0.StepTypeSaveCacheGCS:
-		step.Template = &v1.StepTemplate{
-			Uses: src.Type,
-		}
-	case v0.StepTypeRestoreCacheGCS:
-		step.Template = &v1.StepTemplate{
-			Uses: src.Type,
-		}
-	case v0.StepTypeSaveCacheS3:
-		step.Template = &v1.StepTemplate{
-			Uses: src.Type,
-		}
-	case v0.StepTypeRestoreCacheS3:
-		step.Template = &v1.StepTemplate{
-			Uses: src.Type,
-		}
-	case v0.StepTypeTest:
-		step.Template = &v1.StepTemplate{
-			Uses: src.Type,
-		}
 	default:
 		// Unknown step type, return nil
 		log.Println("Warning!!! step type: " + src.Type + " is not yet supported!")
