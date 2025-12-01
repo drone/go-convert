@@ -9,8 +9,13 @@ import (
 
 // ConvertCloneCodebase converts v0 cloneCodebase bool to v1 Clone
 func ConvertCloneCodebase(clone bool) *v1.Clone {
+	
+	disabled := !clone
+	if !disabled {
+		return nil
+	}
 	return &v1.Clone{
-		Disabled: !clone,
+		Disabled: disabled,
 	}
 }
 
@@ -21,7 +26,9 @@ func ConvertCaching(cache *v0.Cache) *v1.Cache {
 	}
 
 	disabled := !cache.Enabled
-
+	if !disabled {
+		return nil
+	}
 	return &v1.Cache{
 		Disabled: disabled,
 	}
