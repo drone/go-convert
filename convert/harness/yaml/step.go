@@ -17,7 +17,6 @@ package yaml
 import (
 	"encoding/json"
 	"fmt"
-
 	"github.com/drone/go-convert/internal/flexible"
 )
 

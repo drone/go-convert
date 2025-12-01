@@ -3,7 +3,6 @@ package pipelineconverter
 import (
 	"log"
 	"reflect"
-
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
