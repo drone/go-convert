@@ -45,6 +45,6 @@ func (v ReportList) MarshalJSON() ([]byte, error) {
 	case 1:
 		return json.Marshal(v[0])
 	default:
-		return json.Marshal(v[:])
+		return json.Marshal([]*Report(v))
 	}
 }
