@@ -81,6 +81,8 @@ const (
 	StepTypeJiraCreate         = "JiraCreate"
 	StepTypeJiraUpdate         = "JiraUpdate"
 	StepTypeServiceNowApproval = "ServiceNowApproval"
+	StepTypeServiceNowCreate   = "ServiceNowCreate"
+	StepTypeServiceNowUpdate   = "ServiceNowUpdate"
 	StepTypeShellScript        = "ShellScript"
 	StepTypeWait               = "Wait"
 	StepTypeCustomApproval     = "CustomApproval"

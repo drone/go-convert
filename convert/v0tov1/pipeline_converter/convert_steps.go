@@ -3,6 +3,7 @@ package pipelineconverter
 import (
 	"log"
 	"reflect"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
@@ -133,6 +134,10 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step) *v1.Step {
 		step.Approval = convert_helpers.ConvertStepJiraApproval(src)
 	case v0.StepTypeServiceNowApproval:
 		step.Approval = convert_helpers.ConvertStepServiceNowApproval(src)
+	case v0.StepTypeServiceNowCreate:
+		step.Template = convert_helpers.ConvertStepServiceNowCreate(src)
+	case v0.StepTypeServiceNowUpdate:
+		step.Template = convert_helpers.ConvertStepServiceNowUpdate(src)
 	case v0.StepTypeEmail:
 		step.Template = convert_helpers.ConvertStepEmail(src)
 	case v0.StepTypeArtifactoryUpload:

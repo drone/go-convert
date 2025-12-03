@@ -17,6 +17,7 @@ package yaml
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/drone/go-convert/internal/flexible"
 )
 
@@ -475,6 +476,23 @@ type (
 		TicketType        string    `json:"ticketType,omitempty" yaml:"ticketType,omitempty"`
 	}
 
+	StepServiceNowCreate struct {
+		CommonStepSpec
+		ConnectorRef string      `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
+		TicketType   string      `json:"ticketType,omitempty" yaml:"ticketType,omitempty"`
+		Fields       []*Variable `json:"fields,omitempty" yaml:"fields,omitempty"`
+		CreateType   string      `json:"createType,omitempty" yaml:"createType,omitempty"`
+	}
+
+	StepServiceNowUpdate struct {
+		CommonStepSpec
+		ConnectorRef          string      `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
+		TicketType            string      `json:"ticketType,omitempty" yaml:"ticketType,omitempty"`
+		TicketNumber          string      `json:"ticketNumber,omitempty" yaml:"ticketNumber,omitempty"`
+		Fields                []*Variable `json:"fields,omitempty" yaml:"fields,omitempty"`
+		UseServiceNowTemplate bool        `json:"useServiceNowTemplate,omitempty" yaml:"useServiceNowTemplate,omitempty"`
+	}
+
 	JiraTransition struct {
 		Status         string `json:"status,omitempty" yaml:"status,omitempty"`
 		TransitionName string `json:"transitionName,omitempty" yaml:"transitionName,omitempty"`
@@ -639,6 +657,10 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepBuildAndPushGAR)
 	case StepTypeTest:
 		s.Spec = new(StepTestIntelligence)
+	case StepTypeServiceNowCreate:
+		s.Spec = new(StepServiceNowCreate)
+	case StepTypeServiceNowUpdate:
+		s.Spec = new(StepServiceNowUpdate)
 	default:
 		// log.Printf("unknown step type while unmarshalling %s", s.Type)
 		return fmt.Errorf("unknown step type %s", s.Type)
