@@ -98,15 +98,17 @@ func convertNotificationMethodSpec(method *v0.NotificationMethod) map[string]int
 
 	with := make(map[string]interface{})
 
-	// Use reflection to extract CommonNotificationSpec fields
-	specValue := reflect.ValueOf(method.Spec)
-	if specValue.Kind() == reflect.Struct {
-		// Try to get ExecuteOnDelegate field
-		if executeOnDelegateField := specValue.FieldByName("ExecuteOnDelegate"); executeOnDelegateField.IsValid() {
-			if executeOnDelegate := executeOnDelegateField.Bool(); executeOnDelegate {
-				with["execute-on-delegate"] = executeOnDelegate
-			}
-		}
+    // Use reflection to extract CommonNotificationSpec fields
+    specValue := reflect.ValueOf(method.Spec)
+    if specValue.Kind() == reflect.Struct {
+        // Try to get ExecuteOnDelegate field
+        if executeOnDelegateField := specValue.FieldByName("ExecuteOnDelegate"); executeOnDelegateField.IsValid() {
+            if executeOnDelegateField.Kind() == reflect.Bool {
+                if executeOnDelegate := executeOnDelegateField.Bool(); executeOnDelegate {
+                    with["execute-on-delegate"] = executeOnDelegate
+                }
+            }
+        }
 
 		// Try to get DelegateSelectors field
 		if delegateSelectorsField := specValue.FieldByName("DelegateSelectors"); delegateSelectorsField.IsValid() {

@@ -46,9 +46,13 @@ func ConvertStepCustomApproval(src *v0.Step) *v1.StepApproval {
 		})
 	}
 	shell := strings.ToLower(spec.Shell)
+    script := ""
+    if spec.Source != nil {
+        script = spec.Source.Spec.Script
+    } 
 	dst.With["run"] = v1.StepRun {
         Shell: shell,
-		Script: v1.Stringorslice{spec.Source.Spec.Script},
+		Script: v1.Stringorslice{script},
 		Env: env,
 		Outputs: outputs,
 	}

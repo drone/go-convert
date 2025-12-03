@@ -122,7 +122,7 @@ type (
 
 	StepBuildAndPushDockerRegistry struct {
 		CommonStepSpec
-		BuildsArgs             map[string]string `json:"buildArgs,omitempty"               yaml:"buildArgs,omitempty"`
+		BuildArgs             map[string]string `json:"buildArgs,omitempty"               yaml:"buildArgs,omitempty"`
 		ConnectorRef           string            `json:"connectorRef,omitempty"            yaml:"connectorRef,omitempty"`
 		Context                string            `json:"context,omitempty"                 yaml:"context,omitempty"`
 		Dockerfile             string            `json:"dockerfile,omitempty"              yaml:"dockerfile,omitempty"`

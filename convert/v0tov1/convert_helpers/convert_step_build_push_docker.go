@@ -69,8 +69,8 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 		with["labels"] = spec.Labels
 	}
 
-	if len(spec.BuildsArgs) > 0 {
-		with["buildargs"] = spec.BuildsArgs
+	if len(spec.BuildArgs) > 0 {
+		with["buildargs"] = spec.BuildArgs
 	}
 
 	if spec.Target != "" {
