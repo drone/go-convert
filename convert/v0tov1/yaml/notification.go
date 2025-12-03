@@ -23,6 +23,12 @@ type (
 		Uses     string                 `json:"uses,omitempty" yaml:"uses,omitempty"`
 		With     map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
 		Disabled bool                   `json:"disabled,omitempty" yaml:"disabled,omitempty"`
+		NotificationTemplate *NotificationTemplate `json:"template,omitempty" yaml:"template,omitempty"`
+	}
+
+	NotificationTemplate struct {
+		Uses string `json:"uses,omitempty" yaml:"uses,omitempty"`
+		With map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
 	}
 
 	// NotificationOn defines when notifications are triggered
