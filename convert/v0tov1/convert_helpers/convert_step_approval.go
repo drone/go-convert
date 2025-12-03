@@ -45,10 +45,14 @@ func ConvertStepCustomApproval(src *v0.Step) *v1.StepApproval {
 			Value: outputVar.Value,
 		})
 	}
-	
-	
+	shell := strings.ToLower(spec.Shell)
+    script := ""
+    if spec.Source != nil {
+        script = spec.Source.Spec.Script
+    } 
 	dst.With["run"] = v1.StepRun {
-		Script: v1.Stringorslice{spec.Source.Spec.Script},
+        Shell: shell,
+		Script: v1.Stringorslice{script},
 		Env: env,
 		Outputs: outputs,
 	}
@@ -150,7 +154,7 @@ func convertCriteria(criteria *v0.Criteria) interface{} {
     }
 
     // Handle KeyValues type - convert to conditions structure
-    if criteria.Type == "KeyValues" && len(criteria.Spec.Conditions) > 0 {
+    if criteria.Type == "KeyValues" {
         result := make(map[string]interface{})
 
         result["match-any-condition"] = criteria.Spec.MatchAnyCondition
@@ -168,9 +172,7 @@ func convertCriteria(criteria *v0.Criteria) interface{} {
             }
         }
 
-        if len(conditions) > 0 {
-            result["conditions"] = conditions
-        }
+        result["conditions"] = conditions
 
         return result
     }

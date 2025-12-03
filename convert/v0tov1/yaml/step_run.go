@@ -31,6 +31,7 @@ type StepRun struct {
 	Script    Stringorslice     `json:"script,omitempty" yaml:"script,omitempty"`
 	Shell     string            `json:"shell,omitempty" yaml:"shell,omitempty"`
 	Outputs   []*Output          `json:"output,omitempty" yaml:"output,omitempty"`
+	With      map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
 }
 
 
@@ -44,6 +45,7 @@ func (v *StepRun) UnmarshalJSON(data []byte) error {
 		Script    Stringorslice     `json:"script,omitempty" yaml:"script,omitempty"`
 		Shell     string            `json:"shell,omitempty" yaml:"shell,omitempty"`
 		Outputs   []*Output          `json:"output,omitempty" yaml:"output,omitempty"`
+		With      map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
 	}{}
 
 	if err := json.Unmarshal(data, &out1); err == nil {

@@ -21,6 +21,7 @@ type StepTest struct {
 	Env          map[string]string `json:"env,omitempty"`
 	Intelligence *TestIntelligence `json:"intelligence,omitempty"`
 	Match        Stringorslice     `json:"match,omitempty"`
+	Outputs      []*Output         `json:"output,omitempty"`
 	Report       *ReportList       `json:"report,omitempty"`
 	Script       Stringorslice     `json:"script,omitempty"`
 	Shell        string            `json:"shell,omitempty"`

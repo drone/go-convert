@@ -50,7 +50,7 @@ const (
 
 	// Continuous Integration
 	StepTypeAction                     = "Action"
-	StepTypeArtifactoryUpdload         = "ArtifactoryUpload"
+	StepTypeArtifactoryUpload          = "ArtifactoryUpload"
 	StepTypeBarrier                    = "Barrier"
 	StepTypeBackground                 = "Background"
 	StepTypeBitrise                    = "Bitrise"
@@ -58,6 +58,7 @@ const (
 	StepTypeAquaTrivy                  = "AquaTrivy"
 	StepTypeBuildAndPushECR            = "BuildAndPushECR"
 	StepTypeBuildAndPushGCR            = "BuildAndPushGCR"
+	StepTypeBuildAndPushGAR            = "BuildAndPushGAR"
 	StepTypeFlagConfiguration          = "FlagConfiguration"
 	StepTypeGCSUpload                  = "GCSUpload"
 	StepTypeHarnessApproval            = "HarnessApproval"
@@ -80,6 +81,8 @@ const (
 	StepTypeJiraCreate         = "JiraCreate"
 	StepTypeJiraUpdate         = "JiraUpdate"
 	StepTypeServiceNowApproval = "ServiceNowApproval"
+	StepTypeServiceNowCreate   = "ServiceNowCreate"
+	StepTypeServiceNowUpdate   = "ServiceNowUpdate"
 	StepTypeShellScript        = "ShellScript"
 	StepTypeWait               = "Wait"
 	StepTypeCustomApproval     = "CustomApproval"

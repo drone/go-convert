@@ -36,6 +36,7 @@ type (
 		Tags              map[string]string   `json:"tags,omitempty"              yaml:"tags,omitempty"`
 		FlowControl       *FlowControl        `json:"flowControl,omitempty"       yaml:"flowControl,omitempty"`
 		NotificationRules []*NotificationRule `json:"notificationRules,omitempty" yaml:"notificationRules,omitempty"`
+		DelegateSelectors *flexible.Field[[]string] `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
 	}
 
 	FlowControl struct {

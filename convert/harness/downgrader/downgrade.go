@@ -779,7 +779,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 		return &v0.Step{
 			ID:   id,
 			Name: "ArtifactoryUpload",
-			Type: v0.StepTypeArtifactoryUpdload,
+			Type: v0.StepTypeArtifactoryUpload,
 
 			Spec: &v0.StepArtifactoryUpload{
 				Target:     setting["target"].(string),

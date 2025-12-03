@@ -12,6 +12,12 @@ type (
 		Enabled            bool                `json:"enabled,omitempty" yaml:"enabled,omitempty"`
 		PipelineEvents     []*PipelineEvent    `json:"pipelineEvents,omitempty" yaml:"pipelineEvents,omitempty"`
 		NotificationMethod *NotificationMethod `json:"notificationMethod,omitempty" yaml:"notificationMethod,omitempty"`
+		NotificationTemplate *NotificationTemplate `json:"template,omitempty" yaml:"template,omitempty"`
+	}
+
+	NotificationTemplate struct {
+		VersionLabel string `json:"versionLabel,omitempty" yaml:"versionLabel,omitempty"`
+		TemplateRef string `json:"templateRef,omitempty" yaml:"templateRef,omitempty"`
 	}
 
 	PipelineEvent struct {
@@ -24,41 +30,49 @@ type (
 		Spec interface{} `json:"spec,omitempty" yaml:"spec,omitempty"`
 	}
 
-	// NotificationMethodSpec defines the base interface for notification method specifications
-	NotificationMethodSpec interface{}
+	CommonNotificationSpec struct {
+		DelegateSelectors []string `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
+		ExecuteOnDelegate bool     `json:"executeOnDelegate,omitempty" yaml:"executeOnDelegate,omitempty"`
+	}
 
 	// WebhookNotificationSpec defines webhook notification configuration
 	WebhookNotificationSpec struct {
+		CommonNotificationSpec
 		WebhookUrl string            `json:"webhookUrl,omitempty" yaml:"webhookUrl,omitempty"`
 		Headers    map[string]string `json:"headers,omitempty" yaml:"headers,omitempty"`
 	}
 
 	// PagerDutyNotificationSpec defines PagerDuty notification configuration
 	PagerDutyNotificationSpec struct {
+		CommonNotificationSpec
 		UserGroups     []string `json:"userGroups,omitempty" yaml:"userGroups,omitempty"`
 		IntegrationKey string   `json:"integrationKey,omitempty" yaml:"integrationKey,omitempty"`
 	}
 
 	// SlackNotificationSpec defines Slack notification configuration
 	SlackNotificationSpec struct {
+		CommonNotificationSpec
 		UserGroups []string `json:"userGroups,omitempty" yaml:"userGroups,omitempty"`
 		WebhookUrl string   `json:"webhookUrl,omitempty" yaml:"webhookUrl,omitempty"`
 	}
 
 	// MsTeamsNotificationSpec defines Microsoft Teams notification configuration
 	MsTeamsNotificationSpec struct {
+		CommonNotificationSpec
 		UserGroups []string `json:"userGroups,omitempty" yaml:"userGroups,omitempty"`
 		MsTeamKeys []string `json:"msTeamKeys,omitempty" yaml:"msTeamKeys,omitempty"`
 	}
 
 	// EmailNotificationSpec defines Email notification configuration
 	EmailNotificationSpec struct {
+		CommonNotificationSpec
 		UserGroups []string `json:"userGroups,omitempty" yaml:"userGroups,omitempty"`
 		Recipients []string `json:"recipients,omitempty" yaml:"recipients,omitempty"`
 	}
 
 	// DatadogNotificationSpec defines Datadog notification configuration
 	DatadogNotificationSpec struct {
+		CommonNotificationSpec
 		ApiKey  string            `json:"apiKey,omitempty" yaml:"apiKey,omitempty"`
 		Url     string            `json:"url,omitempty" yaml:"url,omitempty"`
 		Headers map[string]string `json:"headers,omitempty" yaml:"headers,omitempty"`

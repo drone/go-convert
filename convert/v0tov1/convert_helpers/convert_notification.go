@@ -15,8 +15,8 @@
 package converthelpers
 
 import (
+	"reflect"
 	"strings"
-
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
@@ -48,10 +48,26 @@ func ConvertNotifications(v0Rules []*v0.NotificationRule) []*v1.Notification {
 		// Convert pipeline events to "on" field
 		notification.On = convertPipelineEvents(rule.PipelineEvents)
 
+		notification.NotificationTemplate = convertNotificationTemplate(rule.NotificationTemplate)
+
 		notifications = append(notifications, notification)
 	}
 
 	return notifications
+}
+
+func convertNotificationTemplate(template *v0.NotificationTemplate) *v1.NotificationTemplate {
+	if template == nil {
+		return nil
+	}
+
+	with := make(map[string]interface{})
+	with["version"] = template.VersionLabel
+
+	return &v1.NotificationTemplate{
+		Uses: template.TemplateRef,
+		With: with,
+	}
 }
 
 // convertNotificationMethodType converts v0 notification method type to v1 uses field
@@ -82,6 +98,26 @@ func convertNotificationMethodSpec(method *v0.NotificationMethod) map[string]int
 
 	with := make(map[string]interface{})
 
+    // Use reflection to extract CommonNotificationSpec fields
+    specValue := reflect.ValueOf(method.Spec)
+    if specValue.Kind() == reflect.Struct {
+        // Try to get ExecuteOnDelegate field
+        if executeOnDelegateField := specValue.FieldByName("ExecuteOnDelegate"); executeOnDelegateField.IsValid() {
+            if executeOnDelegateField.Kind() == reflect.Bool {
+                if executeOnDelegate := executeOnDelegateField.Bool(); executeOnDelegate {
+                    with["execute-on-delegate"] = executeOnDelegate
+                }
+            }
+        }
+
+		// Try to get DelegateSelectors field
+		if delegateSelectorsField := specValue.FieldByName("DelegateSelectors"); delegateSelectorsField.IsValid() {
+			if delegateSelectors, ok := delegateSelectorsField.Interface().([]string); ok && len(delegateSelectors) > 0 {
+				with["delegate-selectors"] = delegateSelectors
+			}
+		}
+	}
+
 	switch method.Type {
 	case "Webhook":
 		if spec, ok := method.Spec.(v0.WebhookNotificationSpec); ok {
@@ -94,26 +130,23 @@ func convertNotificationMethodSpec(method *v0.NotificationMethod) map[string]int
 		if spec, ok := method.Spec.(v0.SlackNotificationSpec); ok {
 			with["webhook"] = spec.WebhookUrl
 			if len(spec.UserGroups) > 0 {
-				with["user_groups"] = spec.UserGroups
+				with["user-groups"] = spec.UserGroups
 			}
 		}
 	case "PagerDuty":
 		if spec, ok := method.Spec.(v0.PagerDutyNotificationSpec); ok {
-			with["integration_key"] = spec.IntegrationKey
+			with["key"] = spec.IntegrationKey
 			if len(spec.UserGroups) > 0 {
-				with["user_groups"] = spec.UserGroups
+				with["user-groups"] = spec.UserGroups
 			}
 		}
 	case "MsTeams":
 		if spec, ok := method.Spec.(v0.MsTeamsNotificationSpec); ok {
 			if len(spec.MsTeamKeys) > 0 {
-				with["webhook"] = spec.MsTeamKeys[0] // Use first webhook URL
-				if len(spec.MsTeamKeys) > 1 {
-					with["webhooks"] = spec.MsTeamKeys // Include all if multiple
-				}
+				with["keys"] = spec.MsTeamKeys
 			}
 			if len(spec.UserGroups) > 0 {
-				with["user_groups"] = spec.UserGroups
+				with["user-groups"] = spec.UserGroups
 			}
 		}
 	case "Email":
@@ -122,12 +155,12 @@ func convertNotificationMethodSpec(method *v0.NotificationMethod) map[string]int
 				with["recipients"] = spec.Recipients
 			}
 			if len(spec.UserGroups) > 0 {
-				with["user_groups"] = spec.UserGroups
+				with["user-groups"] = spec.UserGroups
 			}
 		}
 	case "Datadog":
 		if spec, ok := method.Spec.(v0.DatadogNotificationSpec); ok {
-			with["api_key"] = spec.ApiKey
+			with["api-key"] = spec.ApiKey
 			with["url"] = spec.Url
 			if len(spec.Headers) > 0 {
 				with["headers"] = spec.Headers
