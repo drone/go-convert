@@ -16,18 +16,20 @@ func ConvertStepJiraCreate(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 
-	// Build fields array as []map[string]interface{}{ {name:..., value:...}, ... }
-	fields := make([]map[string]interface{}, 0, len(sp.Fields))
+	// fields mapping
+	fields := map[string]string{}
+	fields["project"] = sp.ProjectKey
+	fields["summary"] = ""
+
 	for _, f := range sp.Fields {
 		if f == nil {
 			continue
 		}
-		m := map[string]interface{}{
-			f.Name: f.Value,
+		if f.Name == "Summary" {
+			fields["summary"] = f.Value
+			continue
 		}
-		if len(m) > 0 {
-			fields = append(fields, m)
-		}
+		fields[f.Name] = f.Value
 	}
 
 	with := map[string]interface{}{
@@ -35,9 +37,8 @@ func ConvertStepJiraCreate(src *v0.Step) *v1.StepTemplate {
 		"project":   sp.ProjectKey,
 		"issue_type": sp.IssueType,
 	}
-	if len(fields) > 0 {
-		with["fields"] = fields
-	}
+
+	with["fields"] = fields
 
 	return &v1.StepTemplate{
 		Uses: "jiraCreate",
@@ -57,26 +58,21 @@ func ConvertStepJiraUpdate(src *v0.Step) *v1.StepTemplate {
 	}
 
 	// fields mapping
-	fields := make([]map[string]interface{}, 0, len(sp.Fields))
+	fields := map[string]string{}
 	for _, f := range sp.Fields {
 		if f == nil {
 			continue
 		}
-		m := map[string]interface{}{
-			f.Name: f.Value,
-		}
-		if len(m) > 0 {
-			fields = append(fields, m)
-		}
+		fields[f.Name] = f.Value
 	}
 
 	with := map[string]interface{}{
 		"connector": sp.ConnectorRef,
 		"issue":       sp.IssueKey,
 	}
-	if len(fields) > 0 {
-		with["fields"] = fields
-	}
+
+	with["fields"] = fields
+
 	if sp.TransitionTo != nil {
 		if sp.TransitionTo.Status != "" {
 			with["status"] = sp.TransitionTo.Status

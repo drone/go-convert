@@ -16,7 +16,7 @@
 
 package yaml
 
-// import "time"
+import "github.com/drone/go-convert/internal/flexible"
 
 type Pipeline struct {
 	Barriers      []string          `json:"barriers,omitempty" yaml:"barriers,omitempty"`
@@ -38,4 +38,5 @@ type Pipeline struct {
 	Stages        []*Stage          `json:"stages,omitempty" yaml:"stages"`
 	Status        *Status           `json:"status,omitempty" yaml:"status,omitempty"`
 	Timeout       string            `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	Delegate      *flexible.Field[*Delegate]                 `json:"delegate,omitempty" yaml:"delegate,omitempty"`
 }

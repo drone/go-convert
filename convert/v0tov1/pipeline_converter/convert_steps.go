@@ -3,6 +3,7 @@ package pipelineconverter
 import (
 	"log"
 	"reflect"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
@@ -47,6 +48,8 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps) []*v1.Step {
 				OnFailure: convert_helpers.ConvertFailureStrategies(s.StepGroup.FailureStrategies),
 				Strategy:  convert_helpers.ConvertStrategy(s.StepGroup.Strategy),
 				Timeout:   s.StepGroup.Timeout,
+				Delegate:  convert_helpers.ConvertDelegate(s.StepGroup.DelegateSelectors),
+				If:        convert_helpers.ConvertStepWhen(s.StepGroup.When),
 			}
 			dst = append(dst, group)
 		}
@@ -132,8 +135,36 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step) *v1.Step {
 		step.Approval = convert_helpers.ConvertStepJiraApproval(src)
 	case v0.StepTypeServiceNowApproval:
 		step.Approval = convert_helpers.ConvertStepServiceNowApproval(src)
+	case v0.StepTypeServiceNowCreate:
+		step.Template = convert_helpers.ConvertStepServiceNowCreate(src)
+	case v0.StepTypeServiceNowUpdate:
+		step.Template = convert_helpers.ConvertStepServiceNowUpdate(src)
 	case v0.StepTypeEmail:
 		step.Template = convert_helpers.ConvertStepEmail(src)
+	case v0.StepTypeArtifactoryUpload:
+		step.Template = convert_helpers.ConvertStepArtifactoryUpload(src)
+	case v0.StepTypeSaveCacheS3:
+		step.Template = convert_helpers.ConvertStepSaveCacheS3(src)
+	case v0.StepTypeSaveCacheGCS:
+		step.Template = convert_helpers.ConvertStepSaveCacheGCS(src)
+	case v0.StepTypeRestoreCacheGCS:
+		step.Template = convert_helpers.ConvertStepRestoreCacheGCS(src)
+	case v0.StepTypeRestoreCacheS3:
+		step.Template = convert_helpers.ConvertStepRestoreCacheS3(src)
+	case v0.StepTypeBuildAndPushECR:
+		step.Template = convert_helpers.ConvertStepBuildAndPushECR(src)
+	case v0.StepTypeGCSUpload:
+		step.Template = convert_helpers.ConvertStepGCSUpload(src)
+	case v0.StepTypeS3Upload:
+		step.Template = convert_helpers.ConvertStepS3Upload(src)
+	case v0.StepTypeBuildAndPushGAR:
+		step.Template = convert_helpers.ConvertStepBuildAndPushGAR(src)
+	case v0.StepTypeBuildAndPushDockerRegistry:
+		step.Template = convert_helpers.ConvertStepBuildAndPushDockerRegistry(src)
+	case v0.StepTypePlugin:
+		step.Run = convert_helpers.ConvertStepPlugin(src)
+	case v0.StepTypeTest:
+		step.RunTest = convert_helpers.ConvertStepTestIntelligence(src)
 	default:
 		// Unknown step type, return nil
 		log.Println("Warning!!! step type: " + src.Type + " is not yet supported!")
@@ -166,7 +197,7 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 
 	// Convert when conditions
 	if src.When != nil {
-		dst.If = convertStepWhen(src.When)
+		dst.If = convert_helpers.ConvertStepWhen(src.When)
 	}
 
 	// Convert strategies
@@ -232,17 +263,4 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 	}
 
 	dst.Delegate = delegate
-}
-
-// convertStepWhen converts v0 step when conditions to v1 format
-func convertStepWhen(when *v0.StepWhen) string {
-	if when == nil {
-		return ""
-	}
-
-	if when.Condition != "" {
-		return when.Condition
-	}
-
-	return ""
 }

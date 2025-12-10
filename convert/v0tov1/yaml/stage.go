@@ -20,6 +20,7 @@ import "github.com/drone/go-convert/internal/flexible"
 
 type Stage struct {
 	Approval    *StageApproval         `json:"approval,omitempty" yaml:"approval,omitempty"`
+	BuildIntelligence bool `json:"buildIntelligence,omitempty" yaml:"buildIntelligence,omitempty"`
 	Cache       *Cache                 `json:"cache,omitempty" yaml:"cache,omitempty"`
 	Clone       *Clone                 `json:"clone,omitempty" yaml:"clone,omitempty"`
 	Concurrency *Concurrency           `json:"concurrency,omitempty" yaml:"concurrency,omitempty"`

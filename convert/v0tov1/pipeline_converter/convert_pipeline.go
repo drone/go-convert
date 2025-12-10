@@ -40,6 +40,7 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 		Clone:         clone,
 		Notifications: convert_helpers.ConvertNotifications(src.NotificationRules),
 		Repo:          repo,
+		Delegate: convert_helpers.ConvertDelegate(src.DelegateSelectors),
 	}
 
 	return dst

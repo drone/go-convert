@@ -47,10 +47,33 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 	case *v0.StageCustom:
 		steps = c.ConvertSteps(spec.Execution.Steps)
 		environment = convert_helpers.ConvertEnvironment(spec.Environment)
-		
+
 	case *v0.StageCI:
 		steps = c.ConvertSteps(spec.Execution.Steps)
-		
+		clone := convert_helpers.ConvertCloneCodebase(spec.Clone)
+		cache := convert_helpers.ConvertCaching(spec.Cache)
+		buildIntelligence := convert_helpers.ConvertBuildIntelligence(spec.BuildIntelligence)
+		runtime := convert_helpers.ConvertInfrastructure(spec.Infrastructure)
+		platform := convert_helpers.ConvertPlatform(spec.Platform)
+
+		// Create stage with CI-specific fields
+		stage := &v1.Stage{
+			Id:                src.ID,
+			Name:              src.Name,
+			Steps:             steps,
+			Clone:             clone,
+			Cache:             cache,
+			BuildIntelligence: buildIntelligence,
+			Runtime:           runtime,
+			Platform:          platform,
+			OnFailure:         convert_helpers.ConvertFailureStrategies(src.FailureStrategies),
+			Inputs:            c.convertVariables(src.Vars),
+			Delegate:          convert_helpers.ConvertDelegate(src.DelegateSelectors),
+			Strategy:          convert_helpers.ConvertStrategy(src.Strategy),
+			If:                convert_helpers.ConvertStageWhen(src.When),
+		}
+		return stage
+
 	case *v0.StageDeployment:
 		// Convert deployment steps
 		if spec.Execution != nil {
@@ -60,7 +83,6 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 				rollback = c.ConvertSteps(spec.Execution.RollbackSteps)
 			}
 		}
-		
 		deprecatedInfraDefinition := false
 		// Convert environment configuration - check all possible sources
 		if spec.Environment != nil {
@@ -84,7 +106,6 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 			service = convert_helpers.ConvertDeploymentServiceConfig(spec.ServiceConfig)
 		}
 
-		
 	default:
 		log.Printf("Warning!!! stage type: %s (stage: %s) is not yet supported!\n", src.Type, src.ID)
 	}
@@ -103,5 +124,6 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		Inputs:      inputs,
 		Delegate:    convert_helpers.ConvertDelegate(src.DelegateSelectors),
 		Strategy:    strategy,
+		If:          convert_helpers.ConvertStageWhen(src.When),
 	}
 }
