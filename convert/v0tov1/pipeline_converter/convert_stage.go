@@ -70,6 +70,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 			Inputs:            c.convertVariables(src.Vars),
 			Delegate:          convert_helpers.ConvertDelegate(src.DelegateSelectors),
 			Strategy:          convert_helpers.ConvertStrategy(src.Strategy),
+			If:                convert_helpers.ConvertStageWhen(src.When),
 		}
 		return stage
 
@@ -123,5 +124,6 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		Inputs:      inputs,
 		Delegate:    convert_helpers.ConvertDelegate(src.DelegateSelectors),
 		Strategy:    strategy,
+		If:          convert_helpers.ConvertStageWhen(src.When),
 	}
 }

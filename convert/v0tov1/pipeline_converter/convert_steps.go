@@ -49,6 +49,7 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps) []*v1.Step {
 				Strategy:  convert_helpers.ConvertStrategy(s.StepGroup.Strategy),
 				Timeout:   s.StepGroup.Timeout,
 				Delegate:  convert_helpers.ConvertDelegate(s.StepGroup.DelegateSelectors),
+				If:        convert_helpers.ConvertStepWhen(s.StepGroup.When),
 			}
 			dst = append(dst, group)
 		}
@@ -196,7 +197,7 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 
 	// Convert when conditions
 	if src.When != nil {
-		dst.If = convertStepWhen(src.When)
+		dst.If = convert_helpers.ConvertStepWhen(src.When)
 	}
 
 	// Convert strategies
@@ -262,17 +263,4 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 	}
 
 	dst.Delegate = delegate
-}
-
-// convertStepWhen converts v0 step when conditions to v1 format
-func convertStepWhen(when *v0.StepWhen) string {
-	if when == nil {
-		return ""
-	}
-
-	if when.Condition != "" {
-		return when.Condition
-	}
-
-	return ""
 }
