@@ -441,7 +441,7 @@ type (
 		ConnectorRef string      `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
 		ProjectKey   string      `json:"projectKey,omitempty" yaml:"projectKey,omitempty"`
 		IssueType    string      `json:"issueType,omitempty" yaml:"issueType,omitempty"`
-		Fields       []*Variable `json:"fields,omitempty" yaml:"fields,omitempty"`
+		Fields       []*JiraField `json:"fields,omitempty" yaml:"fields,omitempty"`
 	}
 
 	// Feature: Jira Update
@@ -451,8 +451,13 @@ type (
 		ProjectKey   string          `json:"projectKey,omitempty" yaml:"projectKey,omitempty"`
 		IssueType    string          `json:"issueType,omitempty" yaml:"issueType,omitempty"`
 		IssueKey     string          `json:"issueKey,omitempty" yaml:"issueKey,omitempty"`
-		Fields       []*Variable     `json:"fields,omitempty" yaml:"fields,omitempty"`
+		Fields       []*JiraField     `json:"fields,omitempty" yaml:"fields,omitempty"`
 		TransitionTo *JiraTransition `json:"transitionTo,omitempty" yaml:"transitionTo,omitempty"`
+	}
+
+	JiraField struct {
+		Name string `json:"name,omitempty" yaml:"name,omitempty"`
+		Value string `json:"value,omitempty" yaml:"value,omitempty"`
 	}
 
 	StepJiraApproval struct {
@@ -480,7 +485,7 @@ type (
 		CommonStepSpec
 		ConnectorRef string      `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
 		TicketType   string      `json:"ticketType,omitempty" yaml:"ticketType,omitempty"`
-		Fields       []*Variable `json:"fields,omitempty" yaml:"fields,omitempty"`
+		Fields       []*ServiceNowField `json:"fields,omitempty" yaml:"fields,omitempty"`
 		CreateType   string      `json:"createType,omitempty" yaml:"createType,omitempty"`
 	}
 
@@ -489,8 +494,13 @@ type (
 		ConnectorRef          string      `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
 		TicketType            string      `json:"ticketType,omitempty" yaml:"ticketType,omitempty"`
 		TicketNumber          string      `json:"ticketNumber,omitempty" yaml:"ticketNumber,omitempty"`
-		Fields                []*Variable `json:"fields,omitempty" yaml:"fields,omitempty"`
+		Fields                []*ServiceNowField `json:"fields,omitempty" yaml:"fields,omitempty"`
 		UseServiceNowTemplate bool        `json:"useServiceNowTemplate,omitempty" yaml:"useServiceNowTemplate,omitempty"`
+	}
+
+	ServiceNowField struct {
+		Name string `json:"name,omitempty" yaml:"name,omitempty"`
+		Value string `json:"value,omitempty" yaml:"value,omitempty"`
 	}
 
 	JiraTransition struct {

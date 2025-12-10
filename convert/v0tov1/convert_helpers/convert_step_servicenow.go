@@ -16,17 +16,12 @@ func ConvertStepServiceNowCreate(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 
-	// Build fields array as []map[string]interface{}{ {key:..., value:...}, ... }
-	fields := make([]map[string]interface{}, 0, len(sp.Fields))
+	fields := map[string]string{}
 	for _, f := range sp.Fields {
 		if f == nil {
 			continue
 		}
-		m := map[string]interface{}{
-			"key":   f.Name,
-			"value": f.Value,
-		}
-		fields = append(fields, m)
+		fields[f.Name] = f.Value
 	}
 
 	// Determine create_ticket_options based on createType
@@ -61,17 +56,12 @@ func ConvertStepServiceNowUpdate(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 
-	// Build fields array as []map[string]interface{}{ {key:..., value:...}, ... }
-	fields := make([]map[string]interface{}, 0, len(sp.Fields))
+	fields := map[string]string{}
 	for _, f := range sp.Fields {
 		if f == nil {
 			continue
 		}
-		m := map[string]interface{}{
-			"key":   f.Name,
-			"value": f.Value,
-		}
-		fields = append(fields, m)
+		fields[f.Name] = f.Value
 	}
 
 	// Determine update_ticket_option based on useServiceNowTemplate
