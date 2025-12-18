@@ -38,23 +38,35 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 	var rollback []*v1.Step
 	var service *v1.ServiceRef
 	var environment *v1.EnvironmentRef
+	var timeout string
 
 	switch spec := src.Spec.(type) {
 
 	case *v0.StageApproval:
 		steps = c.ConvertSteps(spec.Execution.Steps)
-
+		timeout = spec.Timeout
 	case *v0.StageCustom:
 		steps = c.ConvertSteps(spec.Execution.Steps)
 		environment = convert_helpers.ConvertEnvironment(spec.Environment)
-
+		timeout = spec.Timeout
 	case *v0.StageCI:
 		steps = c.ConvertSteps(spec.Execution.Steps)
+
+		// Convert service dependencies to background steps and prepend them
+		if len(spec.Services) > 0 {
+			backgroundSteps := convert_helpers.ConvertServiceDependenciesToBackgroundSteps(spec.Services)
+			if len(backgroundSteps) > 0 {
+				// Prepend background steps to the beginning of steps list
+				steps = append(backgroundSteps, steps...)
+			}
+		}
+
 		clone := convert_helpers.ConvertCloneCodebase(spec.Clone)
 		cache := convert_helpers.ConvertCaching(spec.Cache)
 		buildIntelligence := convert_helpers.ConvertBuildIntelligence(spec.BuildIntelligence)
 		runtime := convert_helpers.ConvertInfrastructure(spec.Infrastructure)
 		platform := convert_helpers.ConvertPlatform(spec.Platform)
+		volumes := convert_helpers.ConvertSharedPaths(spec.SharedPaths)
 
 		// Create stage with CI-specific fields
 		stage := &v1.Stage{
@@ -71,6 +83,8 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 			Delegate:          convert_helpers.ConvertDelegate(src.DelegateSelectors),
 			Strategy:          convert_helpers.ConvertStrategy(src.Strategy),
 			If:                convert_helpers.ConvertStageWhen(src.When),
+			Volumes:           volumes,
+			Timeout:           timeout,
 		}
 		return stage
 
@@ -105,6 +119,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		} else if spec.ServiceConfig != nil && !deprecatedInfraDefinition {
 			service = convert_helpers.ConvertDeploymentServiceConfig(spec.ServiceConfig)
 		}
+		timeout = spec.Timeout
 
 	default:
 		log.Printf("Warning!!! stage type: %s (stage: %s) is not yet supported!\n", src.Type, src.ID)
@@ -125,5 +140,6 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		Delegate:    convert_helpers.ConvertDelegate(src.DelegateSelectors),
 		Strategy:    strategy,
 		If:          convert_helpers.ConvertStageWhen(src.When),
+		Timeout:     timeout,
 	}
 }

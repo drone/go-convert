@@ -32,6 +32,7 @@ type Step struct {
 	Group      *StepGroup             `json:"group,omitempty" yaml:"group,omitempty"`
 	Id         string                 `json:"id,omitempty" yaml:"id,omitempty"`
 	If         string                 `json:"if,omitempty" yaml:"if,omitempty"`
+	Inputs      map[string]*Input      `json:"inputs,omitempty" yaml:"inputs,omitempty"`
 	Name       string                 `json:"name,omitempty" yaml:"name,omitempty"`
 	Needs      Stringorslice          `json:"needs,omitempty" yaml:"needs,omitempty"`
 	OnFailure  *flexible.Field[[]*FailureStrategy]     `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
@@ -71,6 +72,7 @@ func (v *Step) UnmarshalJSON(data []byte) error {
 		Group      *StepGroup             `json:"group,omitempty" yaml:"group,omitempty"`
 		Id         string                 `json:"id,omitempty" yaml:"id,omitempty"`
 		If         string                 `json:"if,omitempty" yaml:"if,omitempty"`
+		Inputs      map[string]*Input      `json:"inputs,omitempty" yaml:"inputs,omitempty"`
 		Name       string                 `json:"name,omitempty" yaml:"name,omitempty"`
 		Needs      Stringorslice          `json:"needs,omitempty" yaml:"needs,omitempty"`
 		OnFailure  *flexible.Field[[]*FailureStrategy ]    `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`

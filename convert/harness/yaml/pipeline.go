@@ -84,24 +84,13 @@ type (
 
 	BuildSpec struct {
 		Branch string `json:"branch,omitempty" yaml:"branch,omitempty"`
+		Tag string `json:"tag,omitempty" yaml:"tag,omitempty"`
+		Number string `json:"number,omitempty" yaml:"number,omitempty"`
 	}
 
 	Stages struct {
 		Stage    *Stage    `json:"stage,omitempty"    yaml:"stage,omitempty"`
 		Parallel []*Stages `json:"parallel,omitempty" yaml:"parallel,omitempty"`
-	}
-
-	// Infrastructure provides pipeline infrastructure.
-	Infrastructure struct {
-		Type string     `json:"type,omitempty"          yaml:"type,omitempty"`
-		From string     `json:"useFromStage,omitempty"  yaml:"useFromStage,omitempty"` // this is also weird
-		Spec *InfraSpec `json:"spec,omitempty"          yaml:"spec,omitempty"`
-	}
-
-	// InfraSpec describes pipeline infastructure.
-	InfraSpec struct {
-		Namespace string `json:"namespace,omitempty"    yaml:"namespace,omitempty"`
-		Conn      string `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
 	}
 
 	Platform struct {
@@ -181,6 +170,7 @@ type (
 		Conn       string            `json:"connectorRef,omitempty"   yaml:"connectorRef,omitempty"`
 		Image      string            `json:"image,omitempty"          yaml:"image,omitempty"`
 		Resources  *Resources        `json:"resources,omitempty"      yaml:"resources,omitempty"`
+		Privileged bool              `json:"privileged,omitempty"     yaml:"privileged,omitempty"`
 	}
 
 	Resources struct {

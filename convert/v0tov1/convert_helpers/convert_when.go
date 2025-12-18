@@ -4,68 +4,77 @@ import (
 	"strings"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	flexible "github.com/drone/go-convert/internal/flexible"
 )
 
 // ConvertStepWhen converts v0 step when condition to v1 if expression
-func ConvertStepWhen(src *v0.StepWhen) string {
+func ConvertStepWhen(src *flexible.Field[v0.StepWhen]) string {
 	if src == nil {
 		return ""
 	}
 
 	var parts []string
-
-	// Convert stageStatus to v1 format
-	if src.StageStatus != "" {
-		statusExpr := convertStageStatus(src.StageStatus)
-		if statusExpr != "" {
-			parts = append(parts, statusExpr)
+	if when, ok := src.AsStruct(); ok {
+		// Convert stageStatus to v1 format
+		if when.StageStatus != "" {
+			statusExpr := convertStageStatus(when.StageStatus)
+			if statusExpr != "" {
+				parts = append(parts, statusExpr)
+			}
 		}
-	}
 
-	// Add custom condition if present
-	if src.Condition != "" {
-		parts = append(parts, "("+src.Condition+")")
-	}
+		// Add custom condition if present
+		if when.Condition != "" {
+			parts = append(parts, "("+when.Condition+")")
+		}
 
-	// Combine with &&
-	if len(parts) == 0 {
-		return ""
+		// Combine with &&
+		if len(parts) == 0 {
+			return ""
+		}
+		if len(parts) == 1 {
+			return parts[0]
+		}
+		return strings.Join(parts, " && ")
+	} else if when_expression, ok := src.AsString(); ok && when_expression != "<+input>" {
+		return when_expression
 	}
-	if len(parts) == 1 {
-		return parts[0]
-	}
-	return strings.Join(parts, " && ")
+	return ""
 }
 
 // ConvertStageWhen converts v0 stage when condition to v1 if expression
-func ConvertStageWhen(src *v0.StageWhen) string {
+func ConvertStageWhen(src *flexible.Field[v0.StageWhen]) string {
 	if src == nil {
 		return ""
 	}
 
 	var parts []string
-
-	// Convert pipelineStatus to v1 format
-	if src.PipelineStatus != "" {
-		statusExpr := convertPipelineStatus(src.PipelineStatus)
-		if statusExpr != "" {
-			parts = append(parts, statusExpr)
+	if when, ok := src.AsStruct(); ok {
+		// Convert pipelineStatus to v1 format
+		if when.PipelineStatus != "" {
+			statusExpr := convertPipelineStatus(when.PipelineStatus)
+			if statusExpr != "" {
+				parts = append(parts, statusExpr)
+			}
 		}
-	}
 
-	// Add custom condition if present
-	if src.Condition != "" {
-		parts = append(parts, "("+src.Condition+")")
-	}
+		// Add custom condition if present
+		if when.Condition != "" {
+			parts = append(parts, "("+when.Condition+")")
+		}
 
-	// Combine with &&
-	if len(parts) == 0 {
-		return ""
+		// Combine with &&
+		if len(parts) == 0 {
+			return ""
+		}
+		if len(parts) == 1 {
+			return parts[0]
+		}
+		return strings.Join(parts, " && ")
+	} else if when_expression, ok := src.AsString(); ok && when_expression != "<+input>" {
+		return when_expression
 	}
-	if len(parts) == 1 {
-		return parts[0]
-	}
-	return strings.Join(parts, " && ")
+	return ""
 }
 
 // convertPipelineStatus converts v0 pipelineStatus to v1 expression

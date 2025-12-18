@@ -24,6 +24,9 @@ type EnvironmentRef struct {
 	Items    []*EnvironmentItem `json:"items,omitempty" yaml:"items,omitempty"`
 	Parallel bool               `json:"parallel,omitempty" yaml:"parallel,omitempty"`
 	Group    interface{}        `json:"group,omitempty" yaml:"group,omitempty"`
+	Name     string             `json:"name,omitempty" yaml:"name,omitempty"`
+	Id 	     string             `json:"id,omitempty" yaml:"id,omitempty"`
+	DeployTo interface{}        `json:"deploy-to,omitempty"`
 }
 
 // UnmarshalJSON implement the json.Unmarshaler interface.

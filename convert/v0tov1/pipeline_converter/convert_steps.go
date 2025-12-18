@@ -37,7 +37,6 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps) []*v1.Step {
 			continue
 		}
 		if s.StepGroup != nil {
-			// TODO: handle conditionals
 			group := &v1.Step{
 				Name: s.StepGroup.Name,
 				Id:   s.StepGroup.ID,
@@ -50,6 +49,7 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps) []*v1.Step {
 				Timeout:   s.StepGroup.Timeout,
 				Delegate:  convert_helpers.ConvertDelegate(s.StepGroup.DelegateSelectors),
 				If:        convert_helpers.ConvertStepWhen(s.StepGroup.When),
+				Inputs:    c.convertVariables(s.StepGroup.Variables),
 			}
 			dst = append(dst, group)
 		}
@@ -77,6 +77,8 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step) *v1.Step {
 		step.Template = convert_helpers.ConvertStepJiraUpdate(src)
 	case v0.StepTypeRun:
 		step.Run = convert_helpers.ConvertStepRun(src)
+	case v0.StepTypeBackground:
+		step.Background = convert_helpers.ConvertStepBackground(src)
 	case v0.StepTypeHarnessApproval:
 		step.Approval = convert_helpers.ConvertStepHarnessApproval(src)
 	case v0.StepTypeK8sRollingDeploy:
@@ -165,6 +167,8 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step) *v1.Step {
 		step.Run = convert_helpers.ConvertStepPlugin(src)
 	case v0.StepTypeTest:
 		step.RunTest = convert_helpers.ConvertStepTestIntelligence(src)
+	case v0.StepTypeGitClone:
+		step.Template = convert_helpers.ConvertStepGitClone(src)
 	default:
 		// Unknown step type, return nil
 		log.Println("Warning!!! step type: " + src.Type + " is not yet supported!")

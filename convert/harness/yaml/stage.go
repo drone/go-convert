@@ -31,7 +31,7 @@ type (
 		Spec        interface{} `json:"spec,omitempty"         yaml:"spec,omitempty"`
 		Type        string      `json:"type,omitempty"         yaml:"type,omitempty"`
 		Vars        []*Variable `json:"variables,omitempty"    yaml:"variables,omitempty"`
-		When        *StageWhen  `json:"when,omitempty"         yaml:"when,omitempty"`
+		When        *flexible.Field[StageWhen]  `json:"when,omitempty"         yaml:"when,omitempty"`
 		Strategy    *Strategy   `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
 		FailureStrategies *flexible.Field[[]*FailureStrategy]   `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
 	}
@@ -39,11 +39,13 @@ type (
 	StageCustom struct {
 		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
 		Environment *Environment `json:"environment,omitempty" yaml:"environment,omitempty"`
+		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	}
 
 	// StageApproval defines an approval stage.
 	StageApproval struct {
 		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
+		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	}
 
 	// StageCI defines a continuous integration stage.
@@ -57,6 +59,7 @@ type (
 		Runtime           *Runtime           `json:"runtime,omitempty"            yaml:"runtime,omitempty"`
 		Services          []*Service         `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
 		SharedPaths       []string           `json:"sharedPaths,omitempty"         yaml:"sharedPaths,omitempty"`
+		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"` 
 	}
 
 	// StageDeployment defines a deployment stage.
@@ -71,6 +74,7 @@ type (
 		Environments      *Environments        `json:"environments,omitempty" yaml:"environments,omitempty"`
 		Infrastructure    *DeploymentInfrastructure      `json:"infrastructure,omitempty" yaml:"infrastructure,omitempty"`
 		Tags              map[string]string    `json:"tags,omitempty"              yaml:"tags,omitempty"`
+		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	}	
 
 	DeploymentInfrastructure struct {

@@ -42,12 +42,12 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 		} else if strings.EqualFold(sp.ImagePullPolicy, "Never") {
 			pull = "never"
 		} else if strings.EqualFold(sp.ImagePullPolicy, "IfNotPresent") {
-			pull = "if-not-present"
+			pull = "if-not-exists"
 		}
 		cpu := ""
 		memory := ""
 		if sp.Resources != nil && sp.Resources.Limits.CPU != nil {
-			cpu = sp.Resources.Limits.CPU.String()
+			cpu = sp.Resources.Limits.CPU.String() + "m"
 		}
 		if sp.Resources != nil && sp.Resources.Limits.Memory != nil {
 			memory = sp.Resources.Limits.Memory.String()
@@ -59,6 +59,7 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 			Pull:       pull,
 			Cpu:        cpu,
 			Memory:     memory,
+			User:       sp.RunAsUser,
 		}
 	}
 
@@ -99,11 +100,19 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 		if outputVar == nil {
 			continue
 		}
-		outputs = append(outputs, &v1.Output{
+
+		output := &v1.Output{
 			Name:  outputVar.Name,
 			Type:  outputVar.Type,
 			Value: outputVar.Value,
-		})
+		}
+		if output.Type == "" {
+			output.Type = "String"
+		}
+		if output.Value == "" {
+			output.Value = outputVar.Name
+		}
+		outputs = append(outputs, output)
 	}
 	dst.Outputs = outputs
 

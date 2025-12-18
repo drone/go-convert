@@ -80,7 +80,7 @@ func convertNotificationMethodType(methodType string) string {
 	case "PagerDuty":
 		return "pagerduty"
 	case "MsTeams":
-		return "msteams"
+		return "ms-teams"
 	case "Email":
 		return "email"
 	case "Datadog":

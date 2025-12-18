@@ -30,7 +30,7 @@ type (
 		Spec              interface{}                         `json:"spec,omitempty"              yaml:"spec,omitempty"`
 		Timeout           string                              `json:"timeout"                     yaml:"timeout"`
 		Type              string                              `json:"type,omitempty"              yaml:"type,omitempty"`
-		When              *StepWhen                           `json:"when,omitempty"              yaml:"when,omitempty"`
+		When              *flexible.Field[StepWhen]           `json:"when,omitempty"              yaml:"when,omitempty"`
 		Env               map[string]string                   `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
 		Strategy          *Strategy                           `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
 		FailureStrategies *flexible.Field[[]*FailureStrategy] `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
@@ -44,7 +44,7 @@ type (
 		Skip              string                              `json:"skipCondition,omitempty"     yaml:"skipCondition,omitempty"`
 		Steps             []*Steps                            `json:"steps,omitempty"              yaml:"steps,omitempty"`
 		Timeout           string                              `json:"timeout"                     yaml:"timeout"`
-		When              *StepWhen                           `json:"when,omitempty"              yaml:"when,omitempty"`
+		When              *flexible.Field[StepWhen]           `json:"when,omitempty"              yaml:"when,omitempty"`
 		Env               map[string]string                   `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
 		Strategy          *Strategy                           `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
 		Variables         []*Variable                         `json:"variables,omitempty"       yaml:"variables,omitempty"`
@@ -119,7 +119,7 @@ type (
 		Env                    map[string]string `json:"envVariables,omitempty"           yaml:"envVariables,omitempty"`
 		RunAsUser              string            `json:"runAsUser,omitempty"              yaml:"runAsUser,omitempty"`
 	}
-
+   
 	StepBuildAndPushDockerRegistry struct {
 		CommonStepSpec
 		BuildArgs             map[string]string `json:"buildArgs,omitempty"               yaml:"buildArgs,omitempty"`
@@ -350,7 +350,7 @@ type (
 		CommonStepSpec
 		Repository     string     `json:"repoName,omitempty"    yaml:"repoNama,omitempty"`
 		ConnRef        string     `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
-		BuildType      string     `json:"build,omitempty"    yaml:"build,omitempty"`
+		BuildType      *flexible.Field[Build]     `json:"build,omitempty"    yaml:"build,omitempty"`
 		CloneDirectory string     `json:"cloneDirectory,omitempty"    yaml:"cloneDirectory,omitempty"`
 		Privileged     bool       `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
 		Depth          string     `json:"depth,omitempty"    yaml:"cloneDirectory,omitempty"`
@@ -401,6 +401,8 @@ type (
 		Privileged      bool              `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
 		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
+		Reports         *Report           `json:"reports,omitempty"         yaml:"reports,omitempty"`
+		Shell           string            `json:"shell,omitempty"           yaml:"shell,omitempty"`
 	}
 
 	StepShellScript struct {
@@ -479,6 +481,12 @@ type (
 		RetryInterval     string    `json:"retryInterval,omitempty" yaml:"retryInterval,omitempty"`
 		TicketNumber      string    `json:"ticketNumber,omitempty" yaml:"ticketNumber,omitempty"`
 		TicketType        string    `json:"ticketType,omitempty" yaml:"ticketType,omitempty"`
+		ChangeWindow      *ChangeWindow `json:"changeWindow,omitempty" yaml:"changeWindow,omitempty"`
+	}
+
+	ChangeWindow struct {
+		StartField string `json:"startField,omitempty" yaml:"startField,omitempty"`
+		EndField string `json:"endField,omitempty" yaml:"endField,omitempty"`
 	}
 
 	StepServiceNowCreate struct {
@@ -579,6 +587,10 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepCustomApproval)
 	case StepTypeAction:
 		s.Spec = new(StepAction)
+	case StepTypeBackground:
+		s.Spec = new(StepBackground)
+	case StepTypeGitClone:
+		s.Spec = new(StepGitClone)
 	case StepTypeRun:
 		s.Spec = new(StepRun)
 	case StepTypeBarrier:

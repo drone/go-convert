@@ -86,24 +86,16 @@ func ConvertEnvironment(src *v0.Environment) *v1.EnvironmentRef {
 		var deployTo interface{}
 		if infra, ok := src.InfrastructureDefinitions.AsString(); ok {
 			deployTo = infra
-		} else if infra, ok := src.InfrastructureDefinitions.AsStruct(); ok {
-			infraList := make([]string, 0, len(infra))
-			for _, i := range infra {
-				infraList = append(infraList, i.Identifier)
-			}
-			deployTo = infraList
+		} else if infra, ok := src.InfrastructureDefinitions.AsStruct(); ok && len(infra) > 0 {
+			deployTo = infra[0].Identifier
 		}
 		if src.DeployToAll {
 			deployTo = "all"
 		}
 		return &v1.EnvironmentRef{
-			Items: []*v1.EnvironmentItem{
-				{
-					Name:     src.EnvironmentRef,
-					Id:       src.EnvironmentRef,
-					DeployTo: deployTo,
-				},
-			},
+			Name:     src.EnvironmentRef,
+			Id:       src.EnvironmentRef,
+			DeployTo: deployTo,
 		}
 	}
 

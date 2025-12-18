@@ -120,7 +120,13 @@ func ConvertStepServiceNowApproval(src *v0.Step) *v1.StepApproval {
     dst.With["retry"] = spec.RetryInterval
     dst.With["approve"] = convertCriteria(spec.ApprovalCriteria)
     dst.With["reject"] = convertCriteria(spec.RejectionCriteria)
-
+    if spec.ChangeWindow != nil {
+        changeWindow := map[string]interface{}{
+            "start": spec.ChangeWindow.StartField,
+            "end": spec.ChangeWindow.EndField,
+        }
+        dst.With["change-window"] = changeWindow
+    }
     download := map[string]interface{}{
         "source": "https://storage.googleapis.com/unified-plugins/servicenow-approval/v0.0.1/",
         "target": "$PLUGIN_PATH",

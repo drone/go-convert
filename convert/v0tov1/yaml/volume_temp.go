@@ -19,4 +19,5 @@ package yaml
 type VolumeTemp struct {
 	Limit  StringorInt `json:"limit,omitempty"`
 	Medium string      `json:"medium,omitempty"`
+	Target string      `json:"target,omitempty"`
 }

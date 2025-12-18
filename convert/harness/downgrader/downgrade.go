@@ -768,7 +768,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 
 			Spec: &v0.StepGitClone{
 				Repository: setting["git_url"].(string),
-				BuildType:  "<+input>",
+				BuildType:  &flexible.Field[v0.Build]{Value: "<+input>"},
 				// TODO this directory should be populated differently for each clone
 				CloneDirectory: "./",
 			},
@@ -1132,7 +1132,7 @@ func convertPlatform(platform *v1.Platform, runtime *v0.Runtime) *v0.Platform {
 	}
 }
 
-func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
+func convertStepWhen(when *v1.When, stepId string) *flexible.Field[v0.StepWhen] {
 	if when == nil {
 		return nil
 	}
@@ -1236,7 +1236,7 @@ func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 		newWhen.Condition = strings.Join(conditions, " && ")
 	}
 
-	return newWhen
+	return &flexible.Field[v0.StepWhen]{Value: newWhen}
 }
 
 func convertOutput(output string) *v0.Output {
@@ -1245,7 +1245,7 @@ func convertOutput(output string) *v0.Output {
 	}
 }
 
-func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
+func convertStageWhen(when *v1.When, stepId string) *flexible.Field[v0.StageWhen] {
 	if when == nil {
 		return nil
 	}
@@ -1349,7 +1349,7 @@ func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
 		newWhen.Condition = strings.Join(conditions, " && ")
 	}
 
-	return newWhen
+	return &flexible.Field[v0.StageWhen]{Value: newWhen}
 }
 
 func extractStringSlice(input interface{}) []string {
