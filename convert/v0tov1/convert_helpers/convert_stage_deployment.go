@@ -137,7 +137,7 @@ func ConvertEnvironments(src *v0.Environments) *v1.EnvironmentRef {
 			Items: items,
 		}
 		if src.Metadata != nil {
-			result.Parallel = src.Metadata.Parallel
+			result.Sequential = !src.Metadata.Parallel
 		}
 		return result
 	}

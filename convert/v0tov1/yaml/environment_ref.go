@@ -23,6 +23,7 @@ import (
 type EnvironmentRef struct {
 	Items    []*EnvironmentItem `json:"items,omitempty" yaml:"items,omitempty"`
 	Parallel bool               `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+	Sequential bool             `json:"sequential,omitempty" yaml:"sequential,omitempty"`
 	Group    interface{}        `json:"group,omitempty" yaml:"group,omitempty"`
 	Name     string             `json:"name,omitempty" yaml:"name,omitempty"`
 	Id 	     string             `json:"id,omitempty" yaml:"id,omitempty"`
