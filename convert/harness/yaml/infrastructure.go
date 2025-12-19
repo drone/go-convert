@@ -22,18 +22,17 @@ import (
 type (
 	// Infrastructure provides pipeline infrastructure.
 	Infrastructure struct {
-		Type string     `json:"type,omitempty"          yaml:"type,omitempty"`
-		From string     `json:"useFromStage,omitempty"  yaml:"useFromStage,omitempty"` // this is also weird
-		Spec *InfraSpec `json:"spec,omitempty"          yaml:"spec,omitempty"`
+		Type string      `json:"type,omitempty"          yaml:"type,omitempty"`
+		From string      `json:"useFromStage,omitempty"  yaml:"useFromStage,omitempty"`
+		Spec interface{} `json:"spec,omitempty"          yaml:"spec,omitempty"`
 	}
 
-	// InfraSpec describes pipeline infrastructure. k8s direct infraspec for CI stage
-	InfraSpec struct {
-		Conn                 string                              `json:"connectorRef,omitempty"                 yaml:"connectorRef,omitempty"`
+	// InfrastructureKubernetesDirectSpec describes Kubernetes Direct infrastructure
+	InfrastructureKubernetesDirectSpec struct {
+		Conn                         string                              `json:"connectorRef,omitempty"                 yaml:"connectorRef,omitempty"`
 		Namespace                    string                              `json:"namespace,omitempty"                    yaml:"namespace,omitempty"`
 		Annotations                  *flexible.Field[map[string]string]  `json:"annotations,omitempty"                  yaml:"annotations,omitempty"`
 		Labels                       *flexible.Field[map[string]string]  `json:"labels,omitempty"                       yaml:"labels,omitempty"`
-		RunAsUser                    *flexible.Field[int]                `json:"runAsUser,omitempty"                    yaml:"runAsUser,omitempty"`
 		ServiceAccountName           string                              `json:"serviceAccountName,omitempty"           yaml:"serviceAccountName,omitempty"`
 		InitTimeout                  string                              `json:"initTimeout,omitempty"                  yaml:"initTimeout,omitempty"`
 		NodeSelector                 *flexible.Field[map[string]string]  `json:"nodeSelector,omitempty"                 yaml:"nodeSelector,omitempty"`
@@ -47,6 +46,18 @@ type (
 		HarnessImageConnectorRef     string                              `json:"harnessImageConnectorRef,omitempty"     yaml:"harnessImageConnectorRef,omitempty"`
 		ImagePullPolicy              string                              `json:"imagePullPolicy,omitempty"              yaml:"imagePullPolicy,omitempty"`
 		PodSpecOverlay               string                              `json:"podSpecOverlay,omitempty"               yaml:"podSpecOverlay,omitempty"`
+	}
+
+	// InfrastructureVMSpec describes VM infrastructure
+	InfrastructureVMSpec struct {
+		Type string                `json:"type,omitempty" yaml:"type,omitempty"`
+		Spec *InfrastructureVMPool `json:"spec,omitempty" yaml:"spec,omitempty"`
+	}
+
+	// InfrastructureVMPool describes VM pool configuration
+	InfrastructureVMPool struct {
+		PoolName string `json:"poolName,omitempty" yaml:"poolName,omitempty"`
+		OS       string `json:"os,omitempty"       yaml:"os,omitempty"`
 	}
 
 	// Toleration defines Kubernetes toleration configuration
@@ -113,6 +124,55 @@ type (
 		Optional *flexible.Field[bool] `json:"optional,omitempty" yaml:"optional,omitempty"`
 	}
 )
+
+// UnmarshalJSON implements custom unmarshalling for Infrastructure based on type
+func (i *Infrastructure) UnmarshalJSON(data []byte) error {
+	type Alias Infrastructure
+	aux := &struct {
+		Type string          `json:"type"`
+		Spec json.RawMessage `json:"spec"`
+		*Alias
+	}{
+		Alias: (*Alias)(i),
+	}
+
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+
+	i.Type = aux.Type
+	i.From = aux.From
+
+	if len(aux.Spec) == 0 {
+		i.Spec = nil
+		return nil
+	}
+
+	// Unmarshal spec based on type
+	switch aux.Type {
+	case "KubernetesDirect":
+		var spec InfrastructureKubernetesDirectSpec
+		if err := json.Unmarshal(aux.Spec, &spec); err != nil {
+			return err
+		}
+		i.Spec = &spec
+	case "VM":
+		var spec InfrastructureVMSpec
+		if err := json.Unmarshal(aux.Spec, &spec); err != nil {
+			return err
+		}
+		i.Spec = &spec
+	default:
+		// For unknown types, keep as interface{}
+		var spec interface{}
+		if err := json.Unmarshal(aux.Spec, &spec); err != nil {
+			return err
+		}
+		i.Spec = spec
+	}
+
+	return nil
+}
 
 func (v *Volume) UnmarshalJSON(data []byte) error {
 	var aux struct {

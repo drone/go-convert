@@ -407,16 +407,18 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		if kube, ok := spec.Runtime.Spec.(*v1.RuntimeKube); ok {
 			infra = &v0.Infrastructure{
 				Type: v0.InfraTypeKubernetesDirect,
-				Spec: &v0.InfraSpec{
+				Spec: &v0.InfrastructureKubernetesDirectSpec{
 					Namespace: kube.Namespace,
 					Conn:      kube.Connector,
 				},
 			}
-			if infra.Spec.Namespace == "" {
-				kube.Namespace = d.kubeNamespace
-			}
-			if infra.Spec.Conn == "" {
-				kube.Connector = d.kubeConnector
+			if k8sSpec, ok := infra.Spec.(*v0.InfrastructureKubernetesDirectSpec); ok {
+				if k8sSpec.Namespace == "" {
+					k8sSpec.Namespace = d.kubeNamespace
+				}
+				if k8sSpec.Conn == "" {
+					k8sSpec.Conn = d.kubeConnector
+				}
 			}
 		}
 
@@ -445,7 +447,7 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		runtime = nil
 		infra = &v0.Infrastructure{
 			Type: v0.InfraTypeKubernetesDirect,
-			Spec: &v0.InfraSpec{
+			Spec: &v0.InfrastructureKubernetesDirectSpec{
 				Namespace: d.kubeNamespace,
 				Conn:      d.kubeConnector,
 			},

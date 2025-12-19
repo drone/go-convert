@@ -45,11 +45,9 @@ func ConvertStepBackground(src *v0.Step) *v1.StepRun {
 
 		cpu := ""
 		memory := ""
-		if sp.Resources != nil && sp.Resources.Limits.CPU != nil {
-			cpu = sp.Resources.Limits.CPU.String() + "m"
-		}
-		if sp.Resources != nil && sp.Resources.Limits.Memory != nil {
-			memory = sp.Resources.Limits.Memory.String()
+		if sp.Resources != nil && sp.Resources.Limits != nil {
+			cpu = sp.Resources.Limits.GetCPUString()
+			memory = sp.Resources.Limits.GetMemoryString()
 		}
 
 		container = &v1.Container{

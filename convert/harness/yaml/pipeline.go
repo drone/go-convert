@@ -98,11 +98,6 @@ type (
 		Arch string `json:"arch,omitempty" yaml:"arch,omitempty"`
 	}
 
-	Runtime struct {
-		Type string      `json:"type,omitempty"   yaml:"type,omitempty"`
-		Spec interface{} `json:"spec,omitempty"   yaml:"spec,omitempty"`
-	}
-
 	Variable struct {
 		Name  string `json:"name,omitempty"  yaml:"name,omitempty"`
 		Type  string `json:"type,omitempty"  yaml:"type,omitempty"` // Secret|String|Number
@@ -178,7 +173,44 @@ type (
 	}
 
 	Limits struct {
-		Memory *BytesSize `json:"memory,omitempty" yaml:"memory,omitempty"`
-		CPU    *MilliSize `json:"cpu,omitempty"    yaml:"cpu,omitempty"` // TODO
+		Memory *flexible.Field[*BytesSize] `json:"memory,omitempty" yaml:"memory,omitempty"`
+		CPU    *flexible.Field[*MilliSize] `json:"cpu,omitempty"    yaml:"cpu,omitempty"`
 	}
 )
+
+// GetCPUString returns the CPU value as a string, handling both expressions and parsed values
+func (l *Limits) GetCPUString() string {
+    if l == nil || l.CPU == nil {
+        return ""
+    }
+    
+	if expr, ok := l.CPU.AsString(); ok {
+		return expr
+	}
+    
+    
+    // If it's a struct value, convert to string with "m" suffix
+    if cpu, ok := l.CPU.AsStruct(); ok {
+        return cpu.String() + "m"
+    }
+    
+    return ""
+}
+
+// GetMemoryString returns the memory value as a string, handling both expressions and parsed values
+func (l *Limits) GetMemoryString() string {
+    if l == nil || l.Memory == nil {
+        return ""
+    }
+    
+	if expr, ok := l.Memory.AsString(); ok {
+		return expr
+	}
+    
+    // If it's a struct value, convert to string
+    if memory, ok := l.Memory.AsStruct(); ok {
+        return memory.String()
+    }
+    
+    return ""
+}

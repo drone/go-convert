@@ -57,9 +57,7 @@ pipeline:
   #
   - group:
       stages:
-      - service: 
-          items:
-          - petstore
+      - service: petstore
       - service:
           items:
           - petstore-frontend

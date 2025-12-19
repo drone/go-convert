@@ -15,22 +15,20 @@ type Field[T any] struct {
 
 // UnmarshalJSON implements json.Unmarshaler for automatic handling of multiple types
 func (f *Field[T]) UnmarshalJSON(data []byte) error {
-	// Try to unmarshal as different types in order of preference
-
-	// Try string first
-	var str string
-	if err := json.Unmarshal(data, &str); err == nil {
-		f.Value = str
+	// Try to unmarshal as struct T first
+	var structValue T
+	if err := json.Unmarshal(data, &structValue); err == nil {
+		f.Value = structValue
 		return nil
 	}
 
-	// Finally try to unmarshal as struct T
-	var structValue T
-	if err := json.Unmarshal(data, &structValue); err != nil {
-		return fmt.Errorf("failed to unmarshal as string, int, float, bool, or struct: %v", err)
+	// Fall back to string
+	var str string
+	if err := json.Unmarshal(data, &str); err != nil {
+		return fmt.Errorf("failed to unmarshal as struct or string: %v", err)
 	}
 
-	f.Value = structValue
+	f.Value = str
 	return nil
 }
 
@@ -52,22 +50,20 @@ func (f Field[T]) MarshalYAML() (interface{}, error) {
 
 // UnmarshalYAML implements yaml.Unmarshaler for YAML deserialization
 func (f *Field[T]) UnmarshalYAML(node *yaml.Node) error {
-	// Try to unmarshal as different types in order of preference
-
-	// Try string first
-	var str string
-	if err := node.Decode(&str); err == nil {
-		f.Value = str
+	// Try to unmarshal as struct T first
+	var structValue T
+	if err := node.Decode(&structValue); err == nil {
+		f.Value = structValue
 		return nil
 	}
 
-	// Finally try to unmarshal as struct T
-	var structValue T
-	if err := node.Decode(&structValue); err != nil {
-		return fmt.Errorf("failed to unmarshal as string, int, float, bool, or struct: %v", err)
+	// Fall back to string
+	var str string
+	if err := node.Decode(&str); err != nil {
+		return fmt.Errorf("failed to unmarshal as struct or string: %v", err)
 	}
 
-	f.Value = structValue
+	f.Value = str
 	return nil
 }
 

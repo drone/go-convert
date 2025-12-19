@@ -28,7 +28,8 @@ func ConvertDeploymentService(src *v0.DeploymentService) *v1.ServiceRef {
 	// For single service, return simple string reference
 	if src.ServiceRef != "" {
 		return &v1.ServiceRef{
-			Items: []string{src.ServiceRef},
+			Items:      []string{src.ServiceRef},
+			MultiService: false,
 		}
 	}
 
@@ -50,7 +51,8 @@ func ConvertDeploymentServices(src *v0.DeploymentServices) *v1.ServiceRef {
 
 	if len(serviceRefs) > 0 {
 		return &v1.ServiceRef{
-			Items: serviceRefs,
+			Items:      serviceRefs,
+			MultiService: true,
 		}
 	}
 

@@ -17,4 +17,5 @@
 package yaml
 
 type RuntimeInstance struct {
+	Pool string `json:"pool,omitempty" yaml:"pool,omitempty"`
 }
