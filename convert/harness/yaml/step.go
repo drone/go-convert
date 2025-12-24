@@ -489,6 +489,7 @@ type (
 		EndField string `json:"endField,omitempty" yaml:"endField,omitempty"`
 	}
 
+
 	StepServiceNowCreate struct {
 		CommonStepSpec
 		ConnectorRef string      `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
