@@ -21,5 +21,11 @@ import "github.com/drone/go-convert/internal/flexible"
 // import "encoding/json"
 
 type Repeat struct {
-	Items          flexible.Field[[]string] `json:"items,omitempty" yaml:"items,omitempty"`
+	Iterations          *flexible.Field[int64]      `json:"iterations,omitempty" yaml:"iterations,omitempty"`
+	Items          *flexible.Field[[]string] `json:"items,omitempty" yaml:"items,omitempty"`
+	Start          *flexible.Field[int64]      `json:"start,omitempty" yaml:"start,omitempty"`
+	End            *flexible.Field[int64]      `json:"end,omitempty" yaml:"end,omitempty"`
+	Unit           string     `json:"unit,omitempty" yaml:"unit,omitempty"`
+	NodeName       string     `json:"node-name,omitempty" yaml:"node-name,omitempty"`
+	PartitionSize  *flexible.Field[int64]      `json:"partition-size,omitempty" yaml:"partition-size,omitempty"`
 }

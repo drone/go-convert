@@ -113,9 +113,14 @@ type (
 	// }
 
 	Repeat struct {
-		Times          flexible.Field[int64]      `yaml:"times,omitempty"`
-		Items          flexible.Field[[]string] `yaml:"items,omitempty"`
-		MaxConcurrency flexible.Field[int64]      `yaml:"maxConcurrency,omitempty"`
+		Times          *flexible.Field[int64]      `json:"times,omitempty" yaml:"times,omitempty"`
+		Items          *flexible.Field[[]string] `json:"items,omitempty" yaml:"items,omitempty"`
+		MaxConcurrency *flexible.Field[int64]      `json:"maxConcurrency,omitempty" yaml:"maxConcurrency,omitempty"`
+		Start          *flexible.Field[int64]      `json:"start,omitempty" yaml:"start,omitempty"`
+		End            *flexible.Field[int64]      `json:"end,omitempty" yaml:"end,omitempty"`
+		Unit           string     `json:"unit,omitempty" yaml:"unit,omitempty"`
+		NodeName       string     `json:"nodeName,omitempty" yaml:"nodeName,omitempty"`
+		PartitionSize  *flexible.Field[int64]      `json:"partitionSize,omitempty" yaml:"partitionSize,omitempty"`
 	}
 )
 
