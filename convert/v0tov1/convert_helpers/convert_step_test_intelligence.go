@@ -64,17 +64,7 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 	}
 
 	// outputs
-	var outputs []*v1.Output
-	for _, outputVar := range sp.Outputs {
-		if outputVar == nil {
-			continue
-		}
-		outputs = append(outputs, &v1.Output{
-			Name:  outputVar.Name,
-			Type:  outputVar.Type,
-			Value: outputVar.Value,
-		})
-	}
+	outputs := ConvertOutputVariables(sp.Outputs)
 
 	//glob to match
 	var match v1.Stringorslice

@@ -42,18 +42,7 @@ func ConvertStepShellScript(src *v0.Step) *v1.StepRun {
 		dst.Env[ev.Name] = ev.Value
 	}
 
-	outputs := make([]*v1.Output, 0)
-	for _, outputVar := range sp.OutputVariables {
-		if outputVar == nil {
-			continue
-		}
-		outputs = append(outputs, &v1.Output{
-			Name:  outputVar.Name,
-			Type:  outputVar.Type,
-			Value: outputVar.Value,
-		})
-	}
-	dst.Outputs = outputs
+	dst.Outputs = ConvertOutputVariables(sp.OutputVariables)
 
 	return dst
 }

@@ -128,9 +128,13 @@ func ConvertInfrastructureToRuntime(infra *v0.Infrastructure) *v1.Runtime {
 	if strings.EqualFold(infra.Type, "VM") {
 		if vmSpec, ok := infra.Spec.(*v0.InfrastructureVMSpec); ok && vmSpec != nil {
 			if vmSpec.Type == "Pool" && vmSpec.Spec != nil {
+				pool := vmSpec.Spec.PoolName
+				if pool == "" {
+					pool = vmSpec.Spec.Identifier
+				}
 				return &v1.Runtime{
 					VM: &v1.RuntimeInstance{
-						Pool: vmSpec.Spec.PoolName,
+						Pool: pool,
 					},
 				}
 			}

@@ -93,26 +93,7 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 		dst.Script = v1.Stringorslice{script}
 	}
 
-	outputs := make([]*v1.Output, 0)
-	for _, outputVar := range sp.Outputs {
-		if outputVar == nil {
-			continue
-		}
-
-		output := &v1.Output{
-			Name:  outputVar.Name,
-			Type:  outputVar.Type,
-			Value: outputVar.Value,
-		}
-		if output.Type == "" {
-			output.Type = "String"
-		}
-		if output.Value == "" {
-			output.Value = outputVar.Name
-		}
-		outputs = append(outputs, output)
-	}
-	dst.Outputs = outputs
+	dst.Outputs = ConvertOutputVariables(sp.Outputs)
 
 	// merge envVariables and step-level env into run env
 	for k, v := range sp.Env {

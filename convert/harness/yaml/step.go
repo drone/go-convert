@@ -353,7 +353,7 @@ type (
 		BuildType      *flexible.Field[Build]     `json:"build,omitempty"    yaml:"build,omitempty"`
 		CloneDirectory string     `json:"cloneDirectory,omitempty"    yaml:"cloneDirectory,omitempty"`
 		Privileged     bool       `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
-		Depth          string     `json:"depth,omitempty"    yaml:"cloneDirectory,omitempty"`
+		Depth          *flexible.Field[int]     `json:"depth,omitempty"    yaml:"cloneDirectory,omitempty"`
 		Resources      *Resources `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		SSLVerify      string     `json:"sslVerify,omitempty"    yaml:"cloneDirectory,omitempty"`
 		RunAsUser      string     `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`

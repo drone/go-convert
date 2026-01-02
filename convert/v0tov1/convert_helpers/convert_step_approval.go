@@ -34,17 +34,7 @@ func ConvertStepCustomApproval(src *v0.Step) *v1.StepApproval {
 		env[envVar.Name] = envVar.Value
 	}
 
-	outputs := make([]*v1.Output, 0)
-	for _, outputVar := range spec.OutputVariables {
-		if outputVar == nil {
-			continue
-		}
-		outputs = append(outputs, &v1.Output{
-			Name:  outputVar.Name,
-			Type:  outputVar.Type,
-			Value: outputVar.Value,
-		})
-	}
+	outputs := ConvertOutputVariables(spec.OutputVariables)
 	shell := strings.ToLower(spec.Shell)
     script := ""
     if spec.Source != nil {

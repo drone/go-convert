@@ -58,6 +58,7 @@ type (
 	InfrastructureVMPool struct {
 		PoolName string `json:"poolName,omitempty" yaml:"poolName,omitempty"`
 		OS       string `json:"os,omitempty"       yaml:"os,omitempty"`
+		Identifier string `json:"identifier,omitempty" yaml:"identifier,omitempty"`
 	}
 
 	// Toleration defines Kubernetes toleration configuration

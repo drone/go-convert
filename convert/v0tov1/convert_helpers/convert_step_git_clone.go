@@ -49,7 +49,7 @@ func ConvertStepGitClone(src *v0.Step) *v1.StepTemplate {
 	}
 
 	// Depth
-	if sp.Depth != "" {
+	if sp.Depth != nil {
 		with["depth"] = sp.Depth
 	}
 
