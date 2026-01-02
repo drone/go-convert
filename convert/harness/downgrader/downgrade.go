@@ -407,16 +407,18 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		if kube, ok := spec.Runtime.Spec.(*v1.RuntimeKube); ok {
 			infra = &v0.Infrastructure{
 				Type: v0.InfraTypeKubernetesDirect,
-				Spec: &v0.InfraSpec{
+				Spec: &v0.InfrastructureKubernetesDirectSpec{
 					Namespace: kube.Namespace,
 					Conn:      kube.Connector,
 				},
 			}
-			if infra.Spec.Namespace == "" {
-				kube.Namespace = d.kubeNamespace
-			}
-			if infra.Spec.Conn == "" {
-				kube.Connector = d.kubeConnector
+			if k8sSpec, ok := infra.Spec.(*v0.InfrastructureKubernetesDirectSpec); ok {
+				if k8sSpec.Namespace == "" {
+					k8sSpec.Namespace = d.kubeNamespace
+				}
+				if k8sSpec.Conn == "" {
+					k8sSpec.Conn = d.kubeConnector
+				}
 			}
 		}
 
@@ -445,7 +447,7 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		runtime = nil
 		infra = &v0.Infrastructure{
 			Type: v0.InfraTypeKubernetesDirect,
-			Spec: &v0.InfraSpec{
+			Spec: &v0.InfrastructureKubernetesDirectSpec{
 				Namespace: d.kubeNamespace,
 				Conn:      d.kubeConnector,
 			},
@@ -768,7 +770,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 
 			Spec: &v0.StepGitClone{
 				Repository: setting["git_url"].(string),
-				BuildType:  "<+input>",
+				BuildType:  &flexible.Field[v0.Build]{Value: "<+input>"},
 				// TODO this directory should be populated differently for each clone
 				CloneDirectory: "./",
 			},
@@ -1132,7 +1134,7 @@ func convertPlatform(platform *v1.Platform, runtime *v0.Runtime) *v0.Platform {
 	}
 }
 
-func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
+func convertStepWhen(when *v1.When, stepId string) *flexible.Field[v0.StepWhen] {
 	if when == nil {
 		return nil
 	}
@@ -1236,7 +1238,7 @@ func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 		newWhen.Condition = strings.Join(conditions, " && ")
 	}
 
-	return newWhen
+	return &flexible.Field[v0.StepWhen]{Value: newWhen}
 }
 
 func convertOutput(output string) *v0.Output {
@@ -1245,7 +1247,7 @@ func convertOutput(output string) *v0.Output {
 	}
 }
 
-func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
+func convertStageWhen(when *v1.When, stepId string) *flexible.Field[v0.StageWhen] {
 	if when == nil {
 		return nil
 	}
@@ -1349,7 +1351,7 @@ func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
 		newWhen.Condition = strings.Join(conditions, " && ")
 	}
 
-	return newWhen
+	return &flexible.Field[v0.StageWhen]{Value: newWhen}
 }
 
 func extractStringSlice(input interface{}) []string {

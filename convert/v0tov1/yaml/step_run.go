@@ -20,8 +20,8 @@ import "encoding/json"
 
 type Output struct {
 	Name  string `json:"name,omitempty"      yaml:"name,omitempty"`
-	Type  string `json:"type,omitempty" yaml:"type,omitempty"`
-	Value string `json:"value,omitempty" yaml:"value,omitempty"`
+	Alias string `json:"alias,omitempty" yaml:"alias,omitempty"`
+	Mask  bool   `json:"mask,omitempty" yaml:"mask,omitempty"`
 }
 
 type StepRun struct {

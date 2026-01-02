@@ -28,7 +28,8 @@ func ConvertDeploymentService(src *v0.DeploymentService) *v1.ServiceRef {
 	// For single service, return simple string reference
 	if src.ServiceRef != "" {
 		return &v1.ServiceRef{
-			Items: []string{src.ServiceRef},
+			Items:      []string{src.ServiceRef},
+			MultiService: false,
 		}
 	}
 
@@ -50,7 +51,8 @@ func ConvertDeploymentServices(src *v0.DeploymentServices) *v1.ServiceRef {
 
 	if len(serviceRefs) > 0 {
 		return &v1.ServiceRef{
-			Items: serviceRefs,
+			Items:      serviceRefs,
+			MultiService: true,
 		}
 	}
 
@@ -86,24 +88,16 @@ func ConvertEnvironment(src *v0.Environment) *v1.EnvironmentRef {
 		var deployTo interface{}
 		if infra, ok := src.InfrastructureDefinitions.AsString(); ok {
 			deployTo = infra
-		} else if infra, ok := src.InfrastructureDefinitions.AsStruct(); ok {
-			infraList := make([]string, 0, len(infra))
-			for _, i := range infra {
-				infraList = append(infraList, i.Identifier)
-			}
-			deployTo = infraList
+		} else if infra, ok := src.InfrastructureDefinitions.AsStruct(); ok && len(infra) > 0 {
+			deployTo = infra[0].Identifier
 		}
 		if src.DeployToAll {
 			deployTo = "all"
 		}
 		return &v1.EnvironmentRef{
-			Items: []*v1.EnvironmentItem{
-				{
-					Name:     src.EnvironmentRef,
-					Id:       src.EnvironmentRef,
-					DeployTo: deployTo,
-				},
-			},
+			Name:     src.EnvironmentRef,
+			Id:       src.EnvironmentRef,
+			DeployTo: deployTo,
 		}
 	}
 
@@ -145,7 +139,7 @@ func ConvertEnvironments(src *v0.Environments) *v1.EnvironmentRef {
 			Items: items,
 		}
 		if src.Metadata != nil {
-			result.Parallel = src.Metadata.Parallel
+			result.Sequential = !src.Metadata.Parallel
 		}
 		return result
 	}

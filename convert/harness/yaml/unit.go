@@ -110,25 +110,39 @@ func (m *MilliSize) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 // UnmarshalJSON implements json unmarshalling.
 func (m *MilliSize) UnmarshalJSON(data []byte) error {
-	var intType int64
-	if err := json.Unmarshal(data, &intType); err == nil {
-		*m = MilliSize(intType * 1000)
-		return nil
-	}
+    var intType int64
+    if err := json.Unmarshal(data, &intType); err == nil {
+        *m = MilliSize(intType * 1000)
+        return nil
+    }
 
-	var stringType string
-	if err := json.Unmarshal(data, &stringType); err != nil {
-		return err
-	}
-	if strings.HasSuffix(stringType, "m") {
-		i, err := strconv.ParseInt(strings.TrimSuffix(stringType, "m"), 10, 64)
-		if err != nil {
-			return err
-		}
-		*m = MilliSize(i)
-		return nil
-	}
-	return fmt.Errorf("cannot unmarshal %s into cpu millis", string(data))
+    var floatType float64
+    if err := json.Unmarshal(data, &floatType); err == nil {
+        *m = MilliSize(floatType * 1000)
+        return nil
+    }
+
+    var stringType string
+    if err := json.Unmarshal(data, &stringType); err != nil {
+        return err
+    }
+    
+    if strings.HasSuffix(stringType, "m") {
+        i, err := strconv.ParseInt(strings.TrimSuffix(stringType, "m"), 10, 64)
+        if err != nil {
+            return err
+        }
+        *m = MilliSize(i)
+        return nil
+    }
+    
+    // Try parsing as float string
+    f, err := strconv.ParseFloat(stringType, 64)
+    if err != nil {
+        return fmt.Errorf("cannot unmarshal %s into cpu millis", string(data))
+    }
+    *m = MilliSize(f * 1000)
+    return nil
 }
 
 // MarshalJSON makes implements json.Marshaler

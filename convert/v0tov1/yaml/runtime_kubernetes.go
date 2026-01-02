@@ -16,8 +16,34 @@
 
 package yaml
 
+import (
+	"github.com/drone/go-convert/internal/flexible"
+)
+
 // RuntimeKubernetes configures the kubernetes runtime environment.
 type RuntimeKubernetes struct {
-	Connector string `json:"connector,omitempty"`
-	Namespace string `json:"namespace,omitempty"`
+	Namespace              string                              `json:"namespace,omitempty"              yaml:"namespace,omitempty"`
+	Connector              string                              `json:"connector,omitempty"              yaml:"connector,omitempty"`
+	User                   *flexible.Field[int]                `json:"user,omitempty"                   yaml:"user,omitempty"`
+	ImagePullPolicy        string                              `json:"pull,omitempty"                   yaml:"pull,omitempty"`
+	HarnessImageConnector  string                              `json:"harness-image-connector,omitempty" yaml:"harness-image-connector,omitempty"`
+	OS                     string                              `json:"os,omitempty"                     yaml:"os,omitempty"`
+	ServiceToken           *flexible.Field[bool]               `json:"service-token,omitempty"          yaml:"service-token,omitempty"`
+	PriorityClass          string                              `json:"priority-class,omitempty"         yaml:"priority-class,omitempty"`
+	Tolerations            *flexible.Field[[]*Toleration]      `json:"tolerations,omitempty"            yaml:"tolerations,omitempty"`
+	Host                   *flexible.Field[[]string]           `json:"host,omitempty"                   yaml:"host,omitempty"`
+	Node                   *flexible.Field[map[string]string]  `json:"node,omitempty"                   yaml:"node,omitempty"`
+	Timeout                string                              `json:"timeout,omitempty"                yaml:"timeout,omitempty"`
+	ServiceAccount         string                              `json:"service-account,omitempty"        yaml:"service-account,omitempty"`
+	Labels                 *flexible.Field[map[string]string]  `json:"labels,omitempty"                 yaml:"labels,omitempty"`
+	Annotations            *flexible.Field[map[string]string]  `json:"annotations,omitempty"            yaml:"annotations,omitempty"`
+}
+
+// Toleration defines Kubernetes toleration configuration
+type Toleration struct {
+	Effect            string               `json:"effect,omitempty"            yaml:"effect,omitempty"`
+	Key               string               `json:"key,omitempty"               yaml:"key,omitempty"`
+	Operator          string               `json:"operator,omitempty"          yaml:"operator,omitempty"`
+	TolerationSeconds *flexible.Field[int] `json:"tolerationSeconds,omitempty" yaml:"tolerationSeconds,omitempty"`
+	Value             string               `json:"value,omitempty"             yaml:"value,omitempty"`
 }

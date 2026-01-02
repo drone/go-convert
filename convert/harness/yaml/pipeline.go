@@ -84,6 +84,8 @@ type (
 
 	BuildSpec struct {
 		Branch string `json:"branch,omitempty" yaml:"branch,omitempty"`
+		Tag string `json:"tag,omitempty" yaml:"tag,omitempty"`
+		Number string `json:"number,omitempty" yaml:"number,omitempty"`
 	}
 
 	Stages struct {
@@ -91,27 +93,9 @@ type (
 		Parallel []*Stages `json:"parallel,omitempty" yaml:"parallel,omitempty"`
 	}
 
-	// Infrastructure provides pipeline infrastructure.
-	Infrastructure struct {
-		Type string     `json:"type,omitempty"          yaml:"type,omitempty"`
-		From string     `json:"useFromStage,omitempty"  yaml:"useFromStage,omitempty"` // this is also weird
-		Spec *InfraSpec `json:"spec,omitempty"          yaml:"spec,omitempty"`
-	}
-
-	// InfraSpec describes pipeline infastructure.
-	InfraSpec struct {
-		Namespace string `json:"namespace,omitempty"    yaml:"namespace,omitempty"`
-		Conn      string `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
-	}
-
 	Platform struct {
 		OS   string `json:"os,omitempty"   yaml:"os,omitempty"`
 		Arch string `json:"arch,omitempty" yaml:"arch,omitempty"`
-	}
-
-	Runtime struct {
-		Type string      `json:"type,omitempty"   yaml:"type,omitempty"`
-		Spec interface{} `json:"spec,omitempty"   yaml:"spec,omitempty"`
 	}
 
 	Variable struct {
@@ -181,6 +165,7 @@ type (
 		Conn       string            `json:"connectorRef,omitempty"   yaml:"connectorRef,omitempty"`
 		Image      string            `json:"image,omitempty"          yaml:"image,omitempty"`
 		Resources  *Resources        `json:"resources,omitempty"      yaml:"resources,omitempty"`
+		Privileged bool              `json:"privileged,omitempty"     yaml:"privileged,omitempty"`
 	}
 
 	Resources struct {
@@ -188,7 +173,44 @@ type (
 	}
 
 	Limits struct {
-		Memory *BytesSize `json:"memory,omitempty" yaml:"memory,omitempty"`
-		CPU    *MilliSize `json:"cpu,omitempty"    yaml:"cpu,omitempty"` // TODO
+		Memory *flexible.Field[*BytesSize] `json:"memory,omitempty" yaml:"memory,omitempty"`
+		CPU    *flexible.Field[*MilliSize] `json:"cpu,omitempty"    yaml:"cpu,omitempty"`
 	}
 )
+
+// GetCPUString returns the CPU value as a string, handling both expressions and parsed values
+func (l *Limits) GetCPUString() string {
+    if l == nil || l.CPU == nil {
+        return ""
+    }
+    
+	if expr, ok := l.CPU.AsString(); ok {
+		return expr
+	}
+    
+    
+    // If it's a struct value, convert to string with "m" suffix
+    if cpu, ok := l.CPU.AsStruct(); ok {
+        return cpu.String() + "m"
+    }
+    
+    return ""
+}
+
+// GetMemoryString returns the memory value as a string, handling both expressions and parsed values
+func (l *Limits) GetMemoryString() string {
+    if l == nil || l.Memory == nil {
+        return ""
+    }
+    
+	if expr, ok := l.Memory.AsString(); ok {
+		return expr
+	}
+    
+    // If it's a struct value, convert to string
+    if memory, ok := l.Memory.AsStruct(); ok {
+        return memory.String()
+    }
+    
+    return ""
+}

@@ -36,7 +36,7 @@ type Container struct {
 	Privileged  bool              `json:"privileged,omitempty" yaml:"privileged,omitempty"`
 	Pull        string            `json:"pull,omitempty" yaml:"pull,omitempty"`
 	ShmSize     StringorInt       `json:"shm-size,omitempty" yaml:"shm-size,omitempty"`
-	User        StringorInt       `json:"user,omitempty" yaml:"user,omitempty"`
+	User        string       `json:"user,omitempty" yaml:"user,omitempty"`
 	Volumes     []*Mount          `json:"volumes,omitempty" yaml:"volumes,omitempty"`
 	Workdir     string            `json:"workdir,omitempty" yaml:"workdir,omitempty"`
 }
@@ -62,7 +62,7 @@ func (v *Container) UnmarshalJSON(data []byte) error {
 		Privileged  bool              `json:"privileged,omitempty" yaml:"privileged,omitempty"`
 		Pull        string            `json:"pull,omitempty" yaml:"pull,omitempty"`
 		ShmSize     StringorInt       `json:"shm-size,omitempty" yaml:"shm-size,omitempty"`
-		User        StringorInt       `json:"user,omitempty" yaml:"user,omitempty"`
+		User        string       `json:"user,omitempty" yaml:"user,omitempty"`
 		Volumes     []*Mount          `json:"volumes,omitempty" yaml:"volumes,omitempty"`
 		Workdir     string            `json:"workdir,omitempty" yaml:"workdir,omitempty"`
 	}{}

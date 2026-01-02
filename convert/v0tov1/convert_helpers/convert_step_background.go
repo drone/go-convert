@@ -15,23 +15,21 @@
 package converthelpers
 
 import (
+	"fmt"
 	"strings"
-
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
 
-// ConvertStepRunSpec converts a v0 Run step to v1 run spec only
-func ConvertStepRun(src *v0.Step) *v1.StepRun {
+// ConvertStepBackground converts a v0 Background step to v1 background spec
+func ConvertStepBackground(src *v0.Step) *v1.StepRun {
 	if src == nil || src.Spec == nil {
 		return nil
 	}
-	sp, ok := src.Spec.(*v0.StepRun)
+	sp, ok := src.Spec.(*v0.StepBackground)
 	if !ok {
 		return nil
 	}
-
-	script := sp.Command
 
 	// Container mapping
 	var container *v1.Container
@@ -42,14 +40,16 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 		} else if strings.EqualFold(sp.ImagePullPolicy, "Never") {
 			pull = "never"
 		} else if strings.EqualFold(sp.ImagePullPolicy, "IfNotPresent") {
-			pull = "if-not-exists"
+			pull = "if-not-present"
 		}
+
 		cpu := ""
 		memory := ""
 		if sp.Resources != nil && sp.Resources.Limits != nil {
 			cpu = sp.Resources.Limits.GetCPUString()
 			memory = sp.Resources.Limits.GetMemoryString()
 		}
+
 		container = &v1.Container{
 			Image:      sp.Image,
 			Connector:  sp.ConnRef,
@@ -57,7 +57,12 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 			Pull:       pull,
 			Cpu:        cpu,
 			Memory:     memory,
-			User:       sp.RunAsUser,
+		}
+
+		container.Ports = []string{}
+		for hostPort,containerPort := range sp.PortBindings {
+			port := fmt.Sprintf("%s:%s", hostPort, containerPort)
+			container.Ports = append(container.Ports, port)
 		}
 	}
 
@@ -86,22 +91,29 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 		Container: container,
 		Env:       map[string]interface{}{},
 		Report:    report,
-		Shell:     shell,
-	}
-	if script != "" {
-		// use single string so it marshals as block scalar in YAML
-		dst.Script = v1.Stringorslice{script}
+		Shell: shell,
 	}
 
-	dst.Outputs = ConvertOutputVariables(sp.Outputs)
+	// Add command if present
+	if sp.Command != "" {
+		dst.Script = v1.Stringorslice{sp.Command}
+	}
 
-	// merge envVariables and step-level env into run env
+	// Add entrypoint if present
+	if len(sp.Entrypoint) > 0 {
+		if container != nil {
+			container.Entrypoint = sp.Entrypoint
+		}
+	}
+
+	// Merge environment variables
 	for k, v := range sp.Env {
 		if dst.Env == nil {
 			dst.Env = make(map[string]interface{})
 		}
 		dst.Env[k] = v
 	}
+
 
 	return dst
 }

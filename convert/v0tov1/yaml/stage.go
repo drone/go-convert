@@ -47,6 +47,7 @@ type Stage struct {
 	Steps       []*Step                `json:"steps,omitempty" yaml:"steps"`
 	Strategy    *Strategy              `json:"strategy,omitempty" yaml:"strategy,omitempty"`
 	Template    *StageTemplate         `json:"template,omitempty" yaml:"template,omitempty"`
+	Timeout     string                 `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Volumes     []*Volume              `json:"volumes,omitempty" yaml:"volumes,omitempty"`
 	Workspace   *Workspace             `json:"workspace,omitempty" yaml:"workspace,omitempty"`
 

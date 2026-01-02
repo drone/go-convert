@@ -47,19 +47,43 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 }
 
 func (c *PipelineConverter) convertCodebase(src v0.Codebase) (*v1.Repository, *v1.Clone) {
-	if src.Conn == "" && src.Name == "" {
-		return nil, &v1.Clone{
-			Disabled: true,
-		}
-	}
-	repo := &v1.Repository{
-		Name:  src.Name,
-		Connector:  src.Conn,
-	}
-	clone := &v1.Clone{
-		Disabled: false,
-	}
-	return repo, clone
+    if src.Conn == "" && src.Name == "" {
+        return nil, &v1.Clone{
+            Disabled: true,
+        }
+    }
+    repo := &v1.Repository{
+        Name:      src.Name,
+        Connector: src.Conn,
+    }
+
+    clone := &v1.Clone{
+        Disabled: false,
+    }
+
+    // Handle Build field - can be either a string expression or a Build struct
+    if !src.Build.IsNil() {
+        if build, ok := src.Build.AsStruct(); ok {
+            // Build is a struct with Type and Spec
+            cloneRef := &v1.CloneRef{}
+
+            // Extract name from Spec based on type
+            if build.Type == "branch" && build.Spec.Branch != "" {
+                cloneRef.Name = build.Spec.Branch
+				cloneRef.Type = "branch"
+            } else if build.Type == "tag" && build.Spec.Tag != "" {
+                cloneRef.Name = build.Spec.Tag
+				cloneRef.Type = "tag"
+            } else if build.Type == "PR" && build.Spec.Number != "" {
+                cloneRef.Name = build.Spec.Number
+				cloneRef.Type = "pr"
+            }
+
+            clone.Ref = cloneRef
+        }
+    }
+
+    return repo, clone
 }
 
 // convertVariables converts a list of v0 Variables to v1 Inputs.
