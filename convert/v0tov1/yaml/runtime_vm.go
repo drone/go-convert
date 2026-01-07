@@ -18,4 +18,7 @@ package yaml
 
 type RuntimeInstance struct {
 	Pool string `json:"pool,omitempty" yaml:"pool,omitempty"`
+	Os   string `json:"os,omitempty" yaml:"os,omitempty"`
+	HarnessImageConnector string `json:"harness-image-connector,omitempty" yaml:"harness-image-connector,omitempty"`
+	Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }

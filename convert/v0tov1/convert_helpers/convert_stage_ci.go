@@ -10,13 +10,11 @@ import (
 
 // ConvertCloneCodebase converts v0 cloneCodebase bool to v1 Clone
 func ConvertCloneCodebase(clone bool) *v1.Clone {
-	
-	disabled := !clone
-	if !disabled {
+	if !clone {
 		return nil
 	}
 	return &v1.Clone{
-		Disabled: disabled,
+		Disabled: !clone,
 	}
 }
 
@@ -135,6 +133,9 @@ func ConvertInfrastructureToRuntime(infra *v0.Infrastructure) *v1.Runtime {
 				return &v1.Runtime{
 					VM: &v1.RuntimeInstance{
 						Pool: pool,
+						Os: vmSpec.Spec.OS,
+						HarnessImageConnector: vmSpec.Spec.HarnessImageConnectorRef,
+						Timeout: vmSpec.Spec.Timeout,
 					},
 				}
 			}

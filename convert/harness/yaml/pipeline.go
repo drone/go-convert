@@ -75,6 +75,18 @@ type (
 		Name  string `json:"repoName,omitempty"     yaml:"repoName,omitempty"`
 		Conn  string `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
 		Build flexible.Field[Build] `json:"build,omitempty"        yaml:"build,omitempty"` // branch|tag
+		Depth *flexible.Field[int64] `json:"depth,omitempty"        yaml:"depth,omitempty"`
+		SslVerify *flexible.Field[bool] `json:"sslVerify,omitempty"  yaml:"sslVerify,omitempty"`
+		PrCloneStrategy string `json:"prCloneStrategy,omitempty" yaml:"prCloneStrategy,omitempty"`
+		Resources            *Resources                  `json:"resources,omitempty"          yaml:"resources,omitempty"`
+		Lfs                  *flexible.Field[bool]        `json:"lfs,omitempty"                yaml:"lfs,omitempty"`
+		Debug                *flexible.Field[bool]        `json:"debug,omitempty"              yaml:"debug,omitempty"`
+		FetchTags            *flexible.Field[bool]        `json:"fetchTags,omitempty"          yaml:"fetchTags,omitempty"`
+		PersistCredentials   *flexible.Field[bool]        `json:"persistCredentials,omitempty" yaml:"persistCredentials,omitempty"`
+		SparseCheckout       []string                    `json:"sparseCheckout,omitempty"     yaml:"sparseCheckout,omitempty"`
+		SubmoduleStrategy    string 					 `json:"submoduleStrategy,omitempty"  yaml:"submoduleStrategy,omitempty"`
+		CloneDirectory       string                      `json:"cloneDirectory,omitempty"     yaml:"cloneDirectory,omitempty"`
+		PreFetchCommand      string                      `json:"preFetchCommand,omitempty"    yaml:"preFetchCommand,omitempty"`
 	}
 
 	Build struct {
@@ -86,6 +98,7 @@ type (
 		Branch string `json:"branch,omitempty" yaml:"branch,omitempty"`
 		Tag string `json:"tag,omitempty" yaml:"tag,omitempty"`
 		Number string `json:"number,omitempty" yaml:"number,omitempty"`
+		CommitSha string `json:"commitSha,omitempty" yaml:"commitSha,omitempty"`
 	}
 
 	Stages struct {

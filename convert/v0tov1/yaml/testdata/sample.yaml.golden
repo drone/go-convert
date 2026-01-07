@@ -12,6 +12,7 @@ pipeline:
 
   clone:
     depth: 50
+    disabled: false
 
   env:
     GOOS: linux

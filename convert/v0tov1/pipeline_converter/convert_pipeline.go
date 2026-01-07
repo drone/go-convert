@@ -8,6 +8,7 @@ import (
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 type PipelineConverter struct {}
@@ -77,11 +78,48 @@ func (c *PipelineConverter) convertCodebase(src v0.Codebase) (*v1.Repository, *v
             } else if build.Type == "PR" && build.Spec.Number != "" {
                 cloneRef.Name = build.Spec.Number
 				cloneRef.Type = "pr"
+            } else if build.Type == "commitSha" && build.Spec.CommitSha != "" {
+                cloneRef.Sha = build.Spec.CommitSha
             }
 
             clone.Ref = cloneRef
         }
     }
+	clone.Depth = src.Depth
+	clone.Lfs = src.Lfs
+	
+	clone.Tags = src.FetchTags
+	clone.Trace = src.Debug
+	clone.CloneDir = src.CloneDirectory
+
+	if src.SubmoduleStrategy == "true" {
+		clone.Submodules = &flexible.Field[bool]{Value: true}
+	} else if src.SubmoduleStrategy == "false" {
+		clone.Submodules = &flexible.Field[bool]{Value: false}
+	}
+
+	if src.PrCloneStrategy == "MergeCommit" {
+		clone.Strategy = "merge_commit"
+	} else if src.PrCloneStrategy == "SourceBranch" {
+		clone.Strategy = "deep_clone"
+	}
+	
+	if src.SslVerify != nil {
+		if _, ok := src.SslVerify.AsString(); ok {
+			clone.Insecure = src.SslVerify
+		} else if sslVerify, ok := src.SslVerify.AsStruct(); ok {
+			clone.Insecure = &flexible.Field[bool]{Value: !sslVerify}
+		}
+	}
+
+	if src.Resources != nil && src.Resources.Limits != nil {
+		clone.Resources = &v1.Resources{
+			Limits: &v1.Limits{
+				CPU:    src.Resources.Limits.GetCPUString(),
+				Memory: src.Resources.Limits.GetMemoryString(),
+			},
+		}
+	}
 
     return repo, clone
 }
