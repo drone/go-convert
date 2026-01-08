@@ -1,6 +1,7 @@
 package pipelineconverter
 
 import (
+	"fmt"
 	"log"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
@@ -124,12 +125,8 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 
 func convertStageInputsToEnv(inputs map[string]*v1.Input) map[string]interface{} {
 	env := map[string]interface{}{}
-	for input_name, input := range inputs {
-		if input.Value != nil {
-			env[input_name] = input.Value
-		} else if input.Default != nil {
-			env[input_name] = input.Default
-		}
+	for input_name := range inputs {
+		env[input_name] = fmt.Sprintf("<+stage.variables.%v>", input_name)
 	}
 	return env
 }
