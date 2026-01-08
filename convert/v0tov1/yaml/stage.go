@@ -25,7 +25,7 @@ type Stage struct {
 	Clone       *Clone                 `json:"clone,omitempty" yaml:"clone,omitempty"`
 	Concurrency *Concurrency           `json:"concurrency,omitempty" yaml:"concurrency,omitempty"`
 	Delegate    *flexible.Field[*Delegate]                 `json:"delegate,omitempty" yaml:"delegate,omitempty"`
-	Env         map[string]string      `json:"env,omitempty" yaml:"env,omitempty"`
+	Env         map[string]interface{}      `json:"env,omitempty" yaml:"env,omitempty"`
 	Environment *EnvironmentRef        `json:"environment,omitempty" yaml:"environment,omitempty"`
 	Group       *StageGroup            `json:"group,omitempty" yaml:"group,omitempty"`
 	Id          string                 `json:"id,omitempty" yaml:"id,omitempty"`

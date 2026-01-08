@@ -42,6 +42,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		Strategy:  convert_helpers.ConvertStrategy(src.Strategy),
 		If:        convert_helpers.ConvertStageWhen(src.When),
 	}
+	stage.Env = convertStageInputsToEnv(stage.Inputs)
 
 	switch spec := src.Spec.(type) {
 	case *v0.StageApproval:
@@ -119,4 +120,16 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 	}
 
 	return stage
+}
+
+func convertStageInputsToEnv(inputs map[string]*v1.Input) map[string]interface{} {
+	env := map[string]interface{}{}
+	for input_name, input := range inputs {
+		if input.Value != nil {
+			env[input_name] = input.Value
+		} else if input.Default != nil {
+			env[input_name] = input.Default
+		}
+	}
+	return env
 }
