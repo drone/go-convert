@@ -180,7 +180,7 @@ func TestConvertNotifications(t *testing.T) {
 					ID:       "teams_alert",
 					Name:     "Teams Alert",
 					Disabled: false,
-					Uses:     "msteams",
+					Uses:     "ms-teams",
 					With: map[string]interface{}{
 						"user-groups": []string{"devops"},
 					},
@@ -591,7 +591,7 @@ func TestConvertNotificationMethodType(t *testing.T) {
 		{"Webhook", "Webhook", "webhook"},
 		{"Slack", "Slack", "slack"},
 		{"PagerDuty", "PagerDuty", "pagerduty"},
-		{"MsTeams", "MsTeams", "msteams"},
+		{"MsTeams", "MsTeams", "ms-teams"},
 		{"Email", "Email", "email"},
 		{"Datadog", "Datadog", "datadog"},
 		{"Unknown", "CustomType", "customtype"},

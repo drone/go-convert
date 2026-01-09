@@ -16,33 +16,49 @@
 
 package yaml
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"github.com/drone/go-convert/internal/flexible"
+)
+
+type Resources struct {
+	Limits *Limits `json:"limits,omitempty" yaml:"limits,omitempty"`
+}
+
+type Limits struct {
+	Memory string `json:"memory,omitempty" yaml:"memory,omitempty"`
+	CPU    string `json:"cpu,omitempty"    yaml:"cpu,omitempty"`
+}
 
 type Clone struct {
-	Depth      int64     `json:"depth,omitempty"`
-	Disabled   bool      `json:"disabled,omitempty"`
-	Insecure   bool      `json:"insecure,omitempty"`
-	Lfs        bool      `json:"lfs,omitempty"`
+	Depth      *flexible.Field[int64]     `json:"depth,omitempty"`
+	Disabled   bool   `json:"disabled"`
+	Insecure   *flexible.Field[bool]      `json:"insecure,omitempty"`
+	Lfs        *flexible.Field[bool]      `json:"lfs,omitempty"`
 	Ref        *CloneRef `json:"ref,omitempty"`
 	Strategy   string    `json:"strategy,omitempty"`
-	Submodules bool      `json:"submodules,omitempty"`
-	Tags       bool      `json:"tags,omitempty"`
-	Trace      bool      `json:"trace,omitempty"`
+	Submodules *flexible.Field[bool]      `json:"submodules,omitempty"`
+	Tags       *flexible.Field[bool]      `json:"tags,omitempty"`
+	Trace      *flexible.Field[bool]      `json:"trace,omitempty"`
+	CloneDir   string `json:"clonedir,omitempty"`
+	Resources *Resources `json:"resources,omitempty"`
 }
 
 // UnmarshalJSON implement the json.Unmarshaler interface.
 func (v *Clone) UnmarshalJSON(data []byte) error {
 	var out1 bool
 	var out2 = struct {
-		Depth      int64     `json:"depth,omitempty"`
-		Disabled   bool      `json:"disabled,omitempty"`
-		Insecure   bool      `json:"insecure,omitempty"`
-		Lfs        bool      `json:"lfs,omitempty"`
+		Depth      *flexible.Field[int64]     `json:"depth,omitempty"`
+		Disabled   bool      `json:"disabled"`
+		Insecure   *flexible.Field[bool]      `json:"insecure,omitempty"`
+		Lfs        *flexible.Field[bool]      `json:"lfs,omitempty"`
 		Ref        *CloneRef `json:"ref,omitempty"`
 		Strategy   string    `json:"strategy,omitempty"`
-		Submodules bool      `json:"submodules,omitempty"`
-		Tags       bool      `json:"tags,omitempty"`
-		Trace      bool      `json:"trace,omitempty"`
+		Submodules *flexible.Field[bool]      `json:"submodules,omitempty"`
+		Tags       *flexible.Field[bool]      `json:"tags,omitempty"`
+		Trace      *flexible.Field[bool]      `json:"trace,omitempty"`
+		CloneDir   string `json:"clonedir,omitempty"`
+		Resources *Resources `json:"resources,omitempty"`
 	}{}
 
 	if err := json.Unmarshal(data, &out1); err == nil {
