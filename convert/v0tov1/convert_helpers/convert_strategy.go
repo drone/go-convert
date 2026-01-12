@@ -71,24 +71,7 @@ func convertMatrix(src map[string]interface{}) (*v1.Matrix, *flexible.Field[int6
                 maxParallel.SetString(vString)
             }
         default:
-            // Handle different value types for matrix axis
-            if vString, ok := v.(string); ok {
-                // Single string value
-                axis[k] = []string{vString}
-            } else if vStringSlice, ok := v.([]string); ok {
-                // Already a string slice
-                axis[k] = vStringSlice
-            } else if vInterfaceSlice, ok := v.([]interface{}); ok {
-                // Convert []interface{} to []string (common from YAML parsing)
-                stringSlice := make([]string, len(vInterfaceSlice))
-                for i, item := range vInterfaceSlice {
-                    stringSlice[i] = fmt.Sprintf("%v", item)
-                }
-                axis[k] = stringSlice
-            } else {
-                // Single value of any type, convert to string and wrap in array
-                axis[k] = []string{fmt.Sprintf("%v", v)}
-            }
+            axis[k] = v
         }
     }
 

@@ -10,14 +10,8 @@ import (
 
 // ConvertCloneCodebase converts v0 cloneCodebase bool to v1 Clone
 func ConvertCloneCodebase(clone bool) *v1.Clone {
-	disabled := !clone
-	// return nil if not disabled: default behavior in stage is to clone codebase.
-	// setting with clone.disabled = false without setting clone.ref is breaking the pipeline.
-	if !disabled {
-		return nil
-	}
 	return &v1.Clone{
-		Disabled: disabled,
+		Enabled: clone,
 	}
 }
 

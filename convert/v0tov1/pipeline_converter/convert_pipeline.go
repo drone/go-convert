@@ -31,7 +31,7 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 	inputs := c.convertVariables(src.Variables)
 	stages := c.convertStages(src.Stages)
 
-	repo,clone := c.convertCodebase(src.Props.CI.Codebase)
+	clone := c.convertCodebase(src.Props.CI.Codebase)
 	dst := &v1.Pipeline{
 		Id:            src.ID,
 		Name:          src.Name,
@@ -40,26 +40,23 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 		Barriers:      barriers,
 		Clone:         clone,
 		Notifications: convert_helpers.ConvertNotifications(src.NotificationRules),
-		Repo:          repo,
 		Delegate: convert_helpers.ConvertDelegate(src.DelegateSelectors),
 	}
 
 	return dst
 }
 
-func (c *PipelineConverter) convertCodebase(src v0.Codebase) (*v1.Repository, *v1.Clone) {
+func (c *PipelineConverter) convertCodebase(src v0.Codebase) (*v1.Clone) {
     if src.Conn == "" && src.Name == "" {
-        return nil, &v1.Clone{
-            Disabled: true,
-        }
-    }
-    repo := &v1.Repository{
-        Name:      src.Name,
-        Connector: src.Conn,
+        return &v1.Clone{
+			Enabled: false,
+		}
     }
 
     clone := &v1.Clone{
-        Disabled: false,
+        Enabled: true,
+		Name:      src.Name,
+        Connector: src.Conn, 
     }
 
     // Handle Build field - can be either a string expression or a Build struct
@@ -121,7 +118,7 @@ func (c *PipelineConverter) convertCodebase(src v0.Codebase) (*v1.Repository, *v
 		}
 	}
 
-    return repo, clone
+    return clone
 }
 
 // convertVariables converts a list of v0 Variables to v1 Inputs.
