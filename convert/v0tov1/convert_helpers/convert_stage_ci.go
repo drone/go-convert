@@ -82,40 +82,29 @@ func ConvertInfrastructureToRuntime(infra *v0.Infrastructure) *v1.Runtime {
 	// Handle KubernetesDirect type
 	if strings.EqualFold(infra.Type, "KubernetesDirect") {
 		if k8sSpec, ok := infra.Spec.(*v0.InfrastructureKubernetesDirectSpec); ok && k8sSpec != nil {
-			var user *flexible.Field[int]
-			if k8sSpec.ContainerSecurityContext != nil {
-				if ctx, ok := k8sSpec.ContainerSecurityContext.AsStruct(); ok && ctx != nil {
-					user = ctx.RunAsUser
-				}
-			}
-			var pull string
-			if k8sSpec.ImagePullPolicy == "Always" {
-				pull = "always"
-			} else if k8sSpec.ImagePullPolicy == "Never" {
-				pull = "never"
-			} else if k8sSpec.ImagePullPolicy == "IfNotPresent" {
-				pull = "if-not-exists"
-			} else {
-				pull = k8sSpec.ImagePullPolicy
-			}
-			return &v1.Runtime{
+			runtime := &v1.Runtime{
 				Kubernetes: &v1.RuntimeKubernetes{
-					Namespace:      k8sSpec.Namespace,
-					Connector:      k8sSpec.Conn,
-					Annotations:    k8sSpec.Annotations,
-					Labels:         k8sSpec.Labels,
-					Node:           k8sSpec.NodeSelector,
-					OS:             k8sSpec.OS,
-					ServiceAccount: k8sSpec.ServiceAccountName,
-					ServiceToken:   k8sSpec.AutomountServiceAccountToken,
-					Tolerations:    convertTolerations(k8sSpec.Tolerations),
-					Timeout:        k8sSpec.InitTimeout,
-					Host:           k8sSpec.HostNames,
-					PriorityClass:  k8sSpec.PriorityClassName,
-					User:           user,
-					ImagePullPolicy: pull,
+					Namespace:             k8sSpec.Namespace,
+					Connector:             k8sSpec.Conn,
+					Annotations:           k8sSpec.Annotations,
+					Labels:                k8sSpec.Labels,
+					Node:                  k8sSpec.NodeSelector,
+					OS:                    k8sSpec.OS,
+					ServiceAccount:        k8sSpec.ServiceAccountName,
+					ServiceToken:          k8sSpec.AutomountServiceAccountToken,
+					Tolerations:           convertTolerations(k8sSpec.Tolerations),
+					Timeout:               k8sSpec.InitTimeout,
+					Host:                  k8sSpec.HostNames,
+					PriorityClass:         k8sSpec.PriorityClassName,
+					HarnessImageConnector: k8sSpec.HarnessImageConnectorRef,
+					PodSpecOverlay:        k8sSpec.PodSpecOverlay,
+					ImagePullPolicy:       convertImagePullPolicy(k8sSpec.ImagePullPolicy),
+					User:                  k8sSpec.RunAsUser,
+					SecurityContext:       convertSecurityContext(k8sSpec.ContainerSecurityContext),
+					Volumes:               ConvertInfrastructureToVolumes(infra),
 				},
 			}
+			return runtime
 		}
 	}
 
@@ -140,6 +129,88 @@ func ConvertInfrastructureToRuntime(infra *v0.Infrastructure) *v1.Runtime {
 	}
 
 	return nil
+}
+
+// Helper function to convert image pull policy
+func convertImagePullPolicy(policy string) string {
+	switch policy {
+	case "Always":
+		return "always"
+	case "Never":
+		return "never"
+	case "IfNotPresent":
+		return "if-not-present"
+	default:
+		return policy
+	}
+}
+
+// Convert security context
+func convertSecurityContext(v0SecCtx *flexible.Field[*v0.SecurityContext]) *flexible.Field[*v1.SecurityContext] {
+	if v0SecCtx == nil {
+		return nil
+	}
+
+	// If it's an expression, pass it through
+	if v0SecCtx.IsExpression() {
+		result := &flexible.Field[*v1.SecurityContext]{}
+		if expr, ok := v0SecCtx.AsString(); ok {
+			result.SetExpression(expr)
+		}
+		return result
+	}
+
+	// Convert struct values
+	v0Ctx, ok := v0SecCtx.AsStruct()
+	if !ok || v0Ctx == nil {
+		return nil
+	}
+
+	v1Ctx := &v1.SecurityContext{
+		AllowPrivilegeEscalation: v0Ctx.AllowPrivilegeEscalation,
+		ProcMount:                v0Ctx.ProcMount,
+		Privileged:               v0Ctx.Privileged,
+		ReadOnlyRootFilesystem:   v0Ctx.ReadOnlyRootFilesystem,
+		RunAsNonRoot:             v0Ctx.RunAsNonRoot,
+		RunAsGroup:               v0Ctx.RunAsGroup,
+		User:                     v0Ctx.RunAsUser,
+		Capabilities:             convertCapabilities(v0Ctx.Capabilities),
+	}
+
+	result := &flexible.Field[*v1.SecurityContext]{}
+	result.Set(v1Ctx)
+	return result
+}
+
+// Convert capabilities
+func convertCapabilities(v0Caps *flexible.Field[*v0.Capabilities]) *flexible.Field[*v1.Capabilities] {
+	if v0Caps == nil {
+		return nil
+	}
+
+	// If it's an expression, pass it through
+	if v0Caps.IsExpression() {
+		result := &flexible.Field[*v1.Capabilities]{}
+		if expr, ok := v0Caps.AsString(); ok {
+			result.SetExpression(expr)
+		}
+		return result
+	}
+
+	// Convert struct values
+	v0Cap, ok := v0Caps.AsStruct()
+	if !ok || v0Cap == nil {
+		return nil
+	}
+
+	v1Cap := &v1.Capabilities{
+		Add:  v0Cap.Add,
+		Drop: v0Cap.Drop,
+	}
+
+	result := &flexible.Field[*v1.Capabilities]{}
+	result.Set(v1Cap)
+	return result
 }
 
 func convertTolerations(tolerations *flexible.Field[[]*v0.Toleration]) *flexible.Field[[]*v1.Toleration] {
@@ -266,9 +337,9 @@ func ConvertSharedPaths(sharedPaths []string) []*v1.Volume {
     for i, path := range sharedPaths {
         volume := &v1.Volume{
             Name: fmt.Sprintf("shared-%d", i),
-            Uses: "temp",
-            With: &v1.VolumeTemp{
-                Target: path,
+            Uses: "empty-dir",
+            With: &v1.VolumeEmptyDir{
+                MountPath: path,
             },
         }
         volumes = append(volumes, volume)
@@ -302,7 +373,6 @@ func ConvertInfrastructureToVolumes(infra *v0.Infrastructure) []*v1.Volume {
 	return volumes
 }
 
-// convertInfraVolume converts a single v0 infrastructure volume to v1 format
 func convertInfraVolume(v0Vol *v0.Volume, index int) *v1.Volume {
 	if v0Vol == nil {
 		return nil
@@ -315,29 +385,54 @@ func convertInfraVolume(v0Vol *v0.Volume, index int) *v1.Volume {
 	switch v0Vol.Type {
 	case "EmptyDir":
 		if spec, ok := v0Vol.Spec.(v0.EmptyDirVolumeSpec); ok {
-			v1Vol.Uses = "temp"
-			v1Vol.With = &v1.VolumeTemp{
-				Target: v0Vol.MountPath,
-				Medium: spec.Medium,
-				Limit: spec.Size,
+			v1Vol.Uses = "empty-dir"
+			v1Vol.With = &v1.VolumeEmptyDir{
+				MountPath: v0Vol.MountPath,
+				Medium:    spec.Medium,
+				Size:     spec.Size,
 			}
 		}
 
 	case "PersistentVolumeClaim":
 		if spec, ok := v0Vol.Spec.(v0.PersistentVolumeClaimVolumeSpec); ok {
-			v1Vol.Uses = "claim"
+			v1Vol.Uses = "persistent-volume-claim"
 			v1Vol.With = &v1.VolumeClaim{
-				Name: spec.ClaimName,
+				Name:      spec.ClaimName,
+				MountPath: v0Vol.MountPath,
+				ReadOnly:  spec.ReadOnly,
 			}
 		}
 
 	case "HostPath":
 		if spec, ok := v0Vol.Spec.(v0.HostPathVolumeSpec); ok {
-			v1Vol.Uses = "bind"
-			v1Vol.With = &v1.VolumeBind{
-				Path: spec.Path,
+			v1Vol.Uses = "host-path"
+			v1Vol.With = &v1.VolumeHostPath{
+				Path:      spec.Path,
+				MountPath: v0Vol.MountPath,
+				Type:      spec.Type,
 			}
 		}
+
+	case "ConfigMap":
+		if spec, ok := v0Vol.Spec.(v0.ConfigMapVolumeSpec); ok {
+			v1Vol.Uses = "config-map"
+			v1Vol.With = &v1.VolumeConfigMap{
+				Name:      spec.Name,
+				MountPath: v0Vol.MountPath,
+				Optional:  spec.Optional,
+			}
+		}
+
+	case "Secret":
+		if spec, ok := v0Vol.Spec.(v0.SecretVolumeSpec); ok {
+			v1Vol.Uses = "secret"
+			v1Vol.With = &v1.VolumeSecret{
+				Name:      spec.Name,
+				MountPath: v0Vol.MountPath,
+				Optional:  spec.Optional,
+			}
+		}
+
 	default:
 		return nil
 	}

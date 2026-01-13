@@ -16,11 +16,8 @@
 
 package yaml
 
-import "github.com/drone/go-convert/internal/flexible"
-
-type VolumeConfigMap struct {
-	Mode     string `json:"mode,omitempty"`
-	Name     string `json:"name,omitempty"`
-	Optional *flexible.Field[bool]   `json:"optional,omitempty"`
+type VolumeHostPath struct {
 	MountPath string `json:"mount-path,omitempty"`
+	Type      string `json:"type,omitempty"`
+	Path      string `json:"path,omitempty"`
 }

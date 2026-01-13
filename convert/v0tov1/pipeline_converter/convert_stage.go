@@ -71,11 +71,10 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		stage.BuildIntelligence = convert_helpers.ConvertBuildIntelligence(spec.BuildIntelligence)
 		stage.Timeout = spec.Timeout
 
-		// Handle volumes
+		// Convert shared paths to volumes
 		volumes := convert_helpers.ConvertSharedPaths(spec.SharedPaths)
 		if spec.Infrastructure != nil {
 			stage.Runtime = convert_helpers.ConvertInfrastructureToRuntime(spec.Infrastructure)
-			volumes = append(volumes, convert_helpers.ConvertInfrastructureToVolumes(spec.Infrastructure)...)
 		} else if spec.Runtime != nil {
 			stage.Runtime = convert_helpers.ConvertRuntime(spec.Runtime)
 		} else {

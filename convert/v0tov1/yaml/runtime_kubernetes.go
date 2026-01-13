@@ -28,7 +28,7 @@ type RuntimeKubernetes struct {
 	ImagePullPolicy        string                              `json:"pull,omitempty"                   yaml:"pull,omitempty"`
 	HarnessImageConnector  string                              `json:"harness-image-connector,omitempty" yaml:"harness-image-connector,omitempty"`
 	OS                     string                              `json:"os,omitempty"                     yaml:"os,omitempty"`
-	ServiceToken           *flexible.Field[bool]               `json:"service-token,omitempty"          yaml:"service-token,omitempty"`
+	ServiceToken           *flexible.Field[bool]               `json:"automount-service-token,omitempty"          yaml:"automount-service-token,omitempty"`
 	PriorityClass          string                              `json:"priority-class,omitempty"         yaml:"priority-class,omitempty"`
 	Tolerations            *flexible.Field[[]*Toleration]      `json:"tolerations,omitempty"            yaml:"tolerations,omitempty"`
 	Host                   *flexible.Field[[]string]           `json:"host,omitempty"                   yaml:"host,omitempty"`
@@ -37,6 +37,9 @@ type RuntimeKubernetes struct {
 	ServiceAccount         string                              `json:"service-account,omitempty"        yaml:"service-account,omitempty"`
 	Labels                 *flexible.Field[map[string]string]  `json:"labels,omitempty"                 yaml:"labels,omitempty"`
 	Annotations            *flexible.Field[map[string]string]  `json:"annotations,omitempty"            yaml:"annotations,omitempty"`
+	SecurityContext *flexible.Field[*SecurityContext] `json:"security-context,omitempty" yaml:"security-context,omitempty"`
+	PodSpecOverlay  string                            `json:"pod-spec-overlay,omitempty" yaml:"pod-spec-overlay,omitempty"`
+	Volumes         []*Volume                         `json:"volumes,omitempty"          yaml:"volumes,omitempty"`
 }
 
 // Toleration defines Kubernetes toleration configuration
@@ -46,4 +49,20 @@ type Toleration struct {
 	Operator          string               `json:"operator,omitempty"          yaml:"operator,omitempty"`
 	TolerationSeconds *flexible.Field[int] `json:"tolerationSeconds,omitempty" yaml:"tolerationSeconds,omitempty"`
 	Value             string               `json:"value,omitempty"             yaml:"value,omitempty"`
+}
+
+type SecurityContext struct {
+    AllowPrivilegeEscalation *flexible.Field[bool]          `json:"allow-privilege-escalation,omitempty" yaml:"allow-privilege-escalation,omitempty"`
+    ProcMount                string                         `json:"proc-mount,omitempty"                yaml:"proc-mount,omitempty"`
+    Privileged               *flexible.Field[bool]          `json:"privileged,omitempty"               yaml:"privileged,omitempty"`
+    ReadOnlyRootFilesystem   *flexible.Field[bool]          `json:"read-only-root-file-system,omitempty" yaml:"read-only-root-file-system,omitempty"`
+    RunAsNonRoot             *flexible.Field[bool]          `json:"run-as-non-root,omitempty"          yaml:"run-as-non-root,omitempty"`
+    RunAsGroup               *flexible.Field[int]           `json:"run-as-group,omitempty"             yaml:"run-as-group,omitempty"`
+    User                     *flexible.Field[int]           `json:"user,omitempty"                     yaml:"user,omitempty"`
+    Capabilities             *flexible.Field[*Capabilities] `json:"capabilities,omitempty"             yaml:"capabilities,omitempty"`
+}
+
+type Capabilities struct {
+    Add  *flexible.Field[[]string] `json:"add,omitempty"  yaml:"add,omitempty"`
+    Drop *flexible.Field[[]string] `json:"drop,omitempty" yaml:"drop,omitempty"`
 }

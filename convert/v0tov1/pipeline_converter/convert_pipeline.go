@@ -55,7 +55,7 @@ func (c *PipelineConverter) convertCodebase(src v0.Codebase) (*v1.Clone) {
 
     clone := &v1.Clone{
         Enabled: true,
-		Name:      src.Name,
+		Repo:      src.Name,
         Connector: src.Conn, 
     }
 

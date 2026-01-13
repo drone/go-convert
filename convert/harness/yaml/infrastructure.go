@@ -46,6 +46,7 @@ type (
 		HarnessImageConnectorRef     string                              `json:"harnessImageConnectorRef,omitempty"     yaml:"harnessImageConnectorRef,omitempty"`
 		ImagePullPolicy              string                              `json:"imagePullPolicy,omitempty"              yaml:"imagePullPolicy,omitempty"`
 		PodSpecOverlay               string                              `json:"podSpecOverlay,omitempty"               yaml:"podSpecOverlay,omitempty"`
+		RunAsUser                    *flexible.Field[int]                              `json:"runAsUser,omitempty"                    yaml:"runAsUser,omitempty"`
 	}
 
 	// InfrastructureVMSpec describes VM infrastructure

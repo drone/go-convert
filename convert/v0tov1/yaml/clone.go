@@ -31,7 +31,7 @@ type Limits struct {
 }
 
 type Clone struct {
-	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	Repo string `json:"repo,omitempty" yaml:"repo,omitempty"`
 	Connector string `json:"connector,omitempty" yaml:"connector,omitempty"`
 	Depth      *flexible.Field[int64]     `json:"depth,omitempty"`
 	Enabled   bool   `json:"enabled"`
@@ -50,7 +50,7 @@ type Clone struct {
 func (v *Clone) UnmarshalJSON(data []byte) error {
 	var out1 bool
 	var out2 = struct {
-		Name string `json:"name,omitempty" yaml:"name,omitempty"`
+		Repo string `json:"repo,omitempty" yaml:"repo,omitempty"`
 		Connector string `json:"connector,omitempty" yaml:"connector,omitempty"`
 		Depth      *flexible.Field[int64]     `json:"depth,omitempty"`
 		Enabled   bool      `json:"enabled"`
