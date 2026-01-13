@@ -101,13 +101,7 @@ func (c *PipelineConverter) convertCodebase(src v0.Codebase) (*v1.Clone) {
 		clone.Strategy = "deep_clone"
 	}
 	
-	if src.SslVerify != nil {
-		if _, ok := src.SslVerify.AsString(); ok {
-			clone.Insecure = src.SslVerify
-		} else if sslVerify, ok := src.SslVerify.AsStruct(); ok {
-			clone.Insecure = &flexible.Field[bool]{Value: !sslVerify}
-		}
-	}
+	clone.Insecure = src.SslVerify
 
 	if src.Resources != nil && src.Resources.Limits != nil {
 		clone.Resources = &v1.Resources{
