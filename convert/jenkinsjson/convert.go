@@ -931,6 +931,9 @@ func (d *Converter) collectStepsWithID(currentNode jenkinsjson.Node, stepGroupWi
 	case "robot":
 		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertRobot(currentNode, currentNode.ParameterMap), ID: id})
 
+	case "build":
+		*stepWithIDList = append(*stepWithIDList, StepWithID{Step: jenkinsjson.ConvertBuild(currentNode, variables, timeout, dockerImage), ID: id})
+
 	case "browserstack":
 		if _, exists := currentNode.ParameterMap["credentialsId"]; exists {
 			*stepWithIDList = append(*stepWithIDList, StepWithID{
