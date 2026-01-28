@@ -12,6 +12,7 @@ pipeline:
 
   clone:
     depth: 50
+    enabled: false
 
   env:
     GOOS: linux
@@ -57,9 +58,7 @@ pipeline:
   #
   - group:
       stages:
-      - service: 
-          items:
-          - petstore
+      - service: petstore
       - service:
           items:
           - petstore-frontend

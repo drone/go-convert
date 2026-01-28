@@ -50,13 +50,9 @@ func ConvertStepSaveCacheS3(src *v0.Step) *v1.StepTemplate {
 		with["archiveformat"] = strings.ToLower(spec.ArchiveFormat)
 	}
 
-	if spec.Override {
-		with["override"] = spec.Override
-	}
+	with["override"] = spec.Override
 
-	if spec.PathStyle {
-		with["pathstyle"] = spec.PathStyle
-	}
+	with["pathstyle"] = spec.PathStyle
 
 	return &v1.StepTemplate{
 		Uses: "saveCacheToS3",

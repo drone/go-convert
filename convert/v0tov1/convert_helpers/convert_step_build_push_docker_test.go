@@ -2,7 +2,7 @@ package converthelpers
 
 import (
 	"testing"
-
+	"github.com/drone/go-convert/internal/flexible"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	"github.com/google/go-cmp/cmp"
 )
@@ -101,7 +101,7 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 					ConnectorRef: "docker-connector",
 					Repo:         "myorg/complete",
 					Tags:         []string{"v2.0.0"},
-					Caching:      true,
+					Caching:      &flexible.Field[bool]{Value: true},
 					Dockerfile:   "Dockerfile.prod",
 					Context:      "./backend",
 					Target:       "production",
@@ -120,7 +120,7 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 				"connector":  "docker-connector",
 				"repo":       "myorg/complete",
 				"tags":       []string{"v2.0.0"},
-				"caching":    true,
+				"caching":    &flexible.Field[bool]{Value: true},
 				"dockerfile": "Dockerfile.prod",
 				"context":    "./backend",
 				"target":     "production",

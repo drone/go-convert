@@ -34,17 +34,7 @@ func ConvertStepCustomApproval(src *v0.Step) *v1.StepApproval {
 		env[envVar.Name] = envVar.Value
 	}
 
-	outputs := make([]*v1.Output, 0)
-	for _, outputVar := range spec.OutputVariables {
-		if outputVar == nil {
-			continue
-		}
-		outputs = append(outputs, &v1.Output{
-			Name:  outputVar.Name,
-			Type:  outputVar.Type,
-			Value: outputVar.Value,
-		})
-	}
+	outputs := ConvertOutputVariables(spec.OutputVariables)
 	shell := strings.ToLower(spec.Shell)
     script := ""
     if spec.Source != nil {
@@ -120,7 +110,13 @@ func ConvertStepServiceNowApproval(src *v0.Step) *v1.StepApproval {
     dst.With["retry"] = spec.RetryInterval
     dst.With["approve"] = convertCriteria(spec.ApprovalCriteria)
     dst.With["reject"] = convertCriteria(spec.RejectionCriteria)
-
+    if spec.ChangeWindow != nil {
+        changeWindow := map[string]interface{}{
+            "start": spec.ChangeWindow.StartField,
+            "end": spec.ChangeWindow.EndField,
+        }
+        dst.With["change-window"] = changeWindow
+    }
     download := map[string]interface{}{
         "source": "https://storage.googleapis.com/unified-plugins/servicenow-approval/v0.0.1/",
         "target": "$PLUGIN_PATH",

@@ -162,6 +162,8 @@ func ConvertFailureAction(action *v0.Action) interface{} {
 		return map[string]interface{}{
 			"manual-intervention": ConvertManualInterventionSpec(action),
 		}
+	case v0.ActionTypeMarkAsFailure:
+		return v1.ActionTypeFail
 	default:
 		// Default to ignore for unknown action types
 		return v1.ActionTypeIgnore

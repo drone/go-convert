@@ -46,13 +46,9 @@ func ConvertStepRestoreCacheS3(src *v0.Step) *v1.StepTemplate {
 		with["archiveformat"] = strings.ToLower(spec.ArchiveFormat)
 	}
 
-	if spec.PathStyle {
-		with["pathstyle"] = spec.PathStyle
-	}
-
-	if spec.FailIfKeyNotFound {
-		with["failIfKeyNotFound"] = spec.FailIfKeyNotFound
-	}
+	with["pathstyle"] = spec.PathStyle
+	
+	with["failIfKeyNotFound"] = spec.FailIfKeyNotFound
 
 	return &v1.StepTemplate{
 		Uses: "restoreCacheFromS3",

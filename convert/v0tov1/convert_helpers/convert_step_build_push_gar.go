@@ -39,7 +39,7 @@ func ConvertStepBuildAndPushGAR(src *v0.Step) *v1.StepTemplate {
 		with["tags"] = spec.Tags
 	}
 
-	if spec.Caching {
+	if spec.Caching != nil {
 		with["caching"] = spec.Caching
 	}
 

@@ -48,12 +48,18 @@ func (v *Volume) UnmarshalJSON(data []byte) error {
 	switch v.Uses {
 	case "bind":
 		v.With = new(VolumeBind)
-	case "claim":
+	case "persistent-volume-claim":
 		v.With = new(VolumeClaim)
-	case "config":
+	case "config-map":
 		v.With = new(VolumeConfigMap)
 	case "temp":
 		v.With = new(VolumeTemp)
+	case "secret":
+		v.With = new(VolumeSecret)
+	case "host-path":
+		v.With = new(VolumeHostPath)
+	case "empty-dir":
+		v.With = new(VolumeEmptyDir)
 	default:
 		return fmt.Errorf("unknown uses %s", v.Uses)
 	}

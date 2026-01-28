@@ -42,9 +42,7 @@ func ConvertStepSaveCacheGCS(src *v0.Step) *v1.StepTemplate {
 		with["archiveformat"] = strings.ToLower(spec.ArchiveFormat)
 	}
 
-	if spec.Override {
-		with["override"] = spec.Override
-	}
+	with["override"] = spec.Override
 
 	return &v1.StepTemplate{
 		Uses: "saveCacheToGCS",

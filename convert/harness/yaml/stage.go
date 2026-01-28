@@ -31,19 +31,31 @@ type (
 		Spec        interface{} `json:"spec,omitempty"         yaml:"spec,omitempty"`
 		Type        string      `json:"type,omitempty"         yaml:"type,omitempty"`
 		Vars        []*Variable `json:"variables,omitempty"    yaml:"variables,omitempty"`
-		When        *StageWhen  `json:"when,omitempty"         yaml:"when,omitempty"`
+		When        *flexible.Field[StageWhen]  `json:"when,omitempty"         yaml:"when,omitempty"`
 		Strategy    *Strategy   `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
 		FailureStrategies *flexible.Field[[]*FailureStrategy]   `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
+	}
+
+	StagePipeline struct {
+		Org string `json:"org,omitempty" yaml:"org,omitempty"`
+		Pipeline string `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
+		Project string `json:"project,omitempty" yaml:"project,omitempty"`
+		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+		Inputs *Pipeline `json:"inputs,omitempty" yaml:"inputs,omitempty"`
+		Outputs []*Output `json:"outputs,omitempty" yaml:"outputs,omitempty"`
+		InputSetRefs *flexible.Field[[]string] `json:"inputSetReferences,omitempty" yaml:"inputSetReferences,omitempty"`
 	}
 
 	StageCustom struct {
 		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
 		Environment *Environment `json:"environment,omitempty" yaml:"environment,omitempty"`
+		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	}
 
 	// StageApproval defines an approval stage.
 	StageApproval struct {
 		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
+		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	}
 
 	// StageCI defines a continuous integration stage.
@@ -57,6 +69,7 @@ type (
 		Runtime           *Runtime           `json:"runtime,omitempty"            yaml:"runtime,omitempty"`
 		Services          []*Service         `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
 		SharedPaths       []string           `json:"sharedPaths,omitempty"         yaml:"sharedPaths,omitempty"`
+		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"` 
 	}
 
 	// StageDeployment defines a deployment stage.
@@ -71,6 +84,7 @@ type (
 		Environments      *Environments        `json:"environments,omitempty" yaml:"environments,omitempty"`
 		Infrastructure    *DeploymentInfrastructure      `json:"infrastructure,omitempty" yaml:"infrastructure,omitempty"`
 		Tags              map[string]string    `json:"tags,omitempty"              yaml:"tags,omitempty"`
+		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	}	
 
 	DeploymentInfrastructure struct {
@@ -109,9 +123,14 @@ type (
 	// }
 
 	Repeat struct {
-		Times          flexible.Field[int64]      `yaml:"times,omitempty"`
-		Items          flexible.Field[[]string] `yaml:"items,omitempty"`
-		MaxConcurrency flexible.Field[int64]      `yaml:"maxConcurrency,omitempty"`
+		Times          *flexible.Field[int64]      `json:"times,omitempty" yaml:"times,omitempty"`
+		Items          *flexible.Field[[]string] `json:"items,omitempty" yaml:"items,omitempty"`
+		MaxConcurrency *flexible.Field[int64]      `json:"maxConcurrency,omitempty" yaml:"maxConcurrency,omitempty"`
+		Start          *flexible.Field[int64]      `json:"start,omitempty" yaml:"start,omitempty"`
+		End            *flexible.Field[int64]      `json:"end,omitempty" yaml:"end,omitempty"`
+		Unit           string     `json:"unit,omitempty" yaml:"unit,omitempty"`
+		NodeName       string     `json:"nodeName,omitempty" yaml:"nodeName,omitempty"`
+		PartitionSize  *flexible.Field[int64]      `json:"partitionSize,omitempty" yaml:"partitionSize,omitempty"`
 	}
 )
 
@@ -139,6 +158,8 @@ func (s *Stage) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StageCustom)
 	case StageTypeApproval:
 		s.Spec = new(StageApproval)
+	case StageTypePipeline:
+		s.Spec = new(StagePipeline)
 	default:
 		return fmt.Errorf("unknown stage type %s", s.Type)
 	}

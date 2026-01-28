@@ -35,22 +35,20 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 
 	// Container mapping
 	var container *v1.Container
-	if sp.Image != "" || sp.ConnRef != "" || sp.Privileged || sp.ImagePullPolicy != "" {
+	if sp.Image != "" || sp.ConnRef != "" || sp.ImagePullPolicy != "" {
 		pull := ""
 		if strings.EqualFold(sp.ImagePullPolicy, "Always") {
 			pull = "always"
 		} else if strings.EqualFold(sp.ImagePullPolicy, "Never") {
 			pull = "never"
 		} else if strings.EqualFold(sp.ImagePullPolicy, "IfNotPresent") {
-			pull = "if-not-present"
+			pull = "if-not-exists"
 		}
 		cpu := ""
 		memory := ""
-		if sp.Resources != nil && sp.Resources.Limits.CPU != nil {
-			cpu = sp.Resources.Limits.CPU.String()
-		}
-		if sp.Resources != nil && sp.Resources.Limits.Memory != nil {
-			memory = sp.Resources.Limits.Memory.String()
+		if sp.Resources != nil && sp.Resources.Limits != nil {
+			cpu = sp.Resources.Limits.GetCPUString()
+			memory = sp.Resources.Limits.GetMemoryString()
 		}
 		container = &v1.Container{
 			Image:      sp.Image,
@@ -59,6 +57,7 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 			Pull:       pull,
 			Cpu:        cpu,
 			Memory:     memory,
+			User:       sp.RunAsUser,
 		}
 	}
 
@@ -94,18 +93,7 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 		dst.Script = v1.Stringorslice{script}
 	}
 
-	outputs := make([]*v1.Output, 0)
-	for _, outputVar := range sp.Outputs {
-		if outputVar == nil {
-			continue
-		}
-		outputs = append(outputs, &v1.Output{
-			Name:  outputVar.Name,
-			Type:  outputVar.Type,
-			Value: outputVar.Value,
-		})
-	}
-	dst.Outputs = outputs
+	dst.Outputs = ConvertOutputVariables(sp.Outputs)
 
 	// merge envVariables and step-level env into run env
 	for k, v := range sp.Env {

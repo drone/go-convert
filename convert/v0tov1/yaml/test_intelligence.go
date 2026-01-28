@@ -16,6 +16,10 @@
 
 package yaml
 
+import (
+	"github.com/drone/go-convert/internal/flexible"
+)
+
 type TestIntelligence struct {
-	Disabled bool `json:"disabled,omitempty"`
+	Disabled *flexible.Field[bool] `json:"disabled,omitempty"`
 }
