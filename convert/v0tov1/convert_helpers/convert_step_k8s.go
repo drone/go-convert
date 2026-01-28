@@ -174,6 +174,7 @@ func ConvertStepK8sApply(src *v0.Step) *v1.StepTemplate {
 	// Map filePaths to manifests (list)
 	manifests := make([]interface{}, 0, len(spec.FilePaths))
 	for _, p := range spec.FilePaths {
+		p = "<+runtime.manifestPath>/" + p
 		manifests = append(manifests, p)
 	}
 
@@ -426,7 +427,9 @@ func ConvertStepK8sDelete(src *v0.Step) *v1.StepTemplate {
 		case "ManifestPath":
 			sel = "manifests"
 			if sp.DeleteResources.Spec != nil {
-				items = sp.DeleteResources.Spec.ManifestPaths
+				for _,manifest_path := range sp.DeleteResources.Spec.ManifestPaths {
+					items = append(items, "<+runtime.manifestPath>/"+manifest_path)
+				}
 			}
 		case "ReleaseName":
 			sel = "release name"
