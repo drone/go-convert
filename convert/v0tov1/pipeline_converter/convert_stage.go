@@ -47,16 +47,16 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 
 	switch spec := src.Spec.(type) {
 	case *v0.StageApproval:
-		stage.Steps = c.ConvertSteps(spec.Execution.Steps)
+		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
 		stage.Timeout = spec.Timeout
 
 	case *v0.StageCustom:
-		stage.Steps = c.ConvertSteps(spec.Execution.Steps)
+		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
 		stage.Environment = convert_helpers.ConvertEnvironment(spec.Environment)
 		stage.Timeout = spec.Timeout
 
 	case *v0.StageCI:
-		stage.Steps = c.ConvertSteps(spec.Execution.Steps)
+		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
 
 		// Convert service dependencies to background steps and prepend them
 		if len(spec.Services) > 0 {
@@ -86,9 +86,9 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 	case *v0.StageDeployment:
 		// Convert deployment steps
 		if spec.Execution != nil {
-			stage.Steps = c.ConvertSteps(spec.Execution.Steps)
+			stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
 			if spec.Execution.RollbackSteps != nil {
-				stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps)
+				stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps, true)
 			}
 		}
 
@@ -115,6 +115,26 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		}
 		stage.Timeout = spec.Timeout
 
+	case *v0.StagePipeline:
+		uses, err := c.constructChainUses(spec)
+		if err != nil {
+			log.Printf("Warning!!! while converting Pipeline Stage: %s, error: %v\n", src.ID, err)
+		}
+		inputs := c.constructChainInputs(spec)
+		outputs := c.constructChainOutputs(spec)
+		stage.Chain = &v1.Chain{
+			Uses: uses,
+			With: &v1.ChainWith{
+				Inputs: inputs,
+				Outputs: outputs,
+				InputSets: spec.InputSetRefs,
+			},
+		}
+
+		
+		stage.Timeout = spec.Timeout
+
+
 	default:
 		log.Printf("Warning!!! stage type: %s (stage: %s) is not yet supported!\n", src.Type, src.ID)
 	}
@@ -128,4 +148,61 @@ func convertStageInputsToEnv(inputs map[string]*v1.Input) map[string]interface{}
 		env[input_name] = fmt.Sprintf("<+stage.variables.%v>", input_name)
 	}
 	return env
+}
+
+func(c *PipelineConverter) constructChainUses(spec *v0.StagePipeline) (string, error) {
+	if spec == nil {
+		return "", fmt.Errorf("pipeline chain spec is nil")
+	} 
+	if spec.Org == "" || spec.Project == "" || spec.Pipeline == "" {
+		return "", fmt.Errorf("pipeline chain spec is missing org, project or pipeline")
+	}
+	return fmt.Sprintf("%s/%s/%s", spec.Org, spec.Project, spec.Pipeline), nil
+} 
+
+func(c *PipelineConverter) constructChainInputs(spec *v0.StagePipeline) map[string]interface{} {
+	if spec == nil || spec.Inputs == nil {
+		return nil
+	}
+	inputs := map[string]interface{}{}
+
+	// Pipeline Variable Inputs
+	childInputs := c.convertVariables(spec.Inputs.Variables)
+	for input_name, input := range childInputs {
+		inputs[input_name] = input.Value
+	}
+
+	overlay := map[string]interface{}{}
+	
+
+	if spec.Inputs.Stages != nil {
+		stages := c.convertStages(spec.Inputs.Stages)
+		overlay["stages"] = stages
+	}
+	if spec.Inputs.Props.CI.Codebase != nil {
+		overlay["clone"] = c.convertCodebase(spec.Inputs.Props.CI.Codebase)
+	}
+	if spec.Inputs.DelegateSelectors != nil {
+		overlay["delegate"] = convert_helpers.ConvertDelegate(spec.Inputs.DelegateSelectors)
+	}
+
+	if len(overlay) > 0 {
+		inputs["overlay"] = overlay
+	} 
+	
+	return inputs
+}
+
+func(c *PipelineConverter) constructChainOutputs(spec *v0.StagePipeline) []*v1.ChainOutput {
+	if spec == nil || spec.Outputs == nil {
+		return nil
+	}
+	outputs := make([]*v1.ChainOutput, 0, len(spec.Outputs))
+	for _, output := range spec.Outputs {
+		outputs = append(outputs, &v1.ChainOutput{
+			Name: output.Name,
+			Value: output.Value,
+		})
+	}
+	return outputs
 }

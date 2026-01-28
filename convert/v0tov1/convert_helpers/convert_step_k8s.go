@@ -1,7 +1,10 @@
 package converthelpers
 
 import (
+	// "fmt"
+	"log"
 	"strconv"
+	"strings"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
@@ -11,7 +14,7 @@ import (
 // K8s step with configuration structs with JSON tags
 type K8sRollingDeployWith struct {
 	Flags      []interface{} `json:"flags,omitempty"`
-	SkipDryRun *flexible.Field[bool]          `json:"skipdryrun,omitempty"`
+	SkipDryRun *flexible.Field[bool]          `json:"skip_dry_run,omitempty"`
 	Pruning    *flexible.Field[bool]          `json:"pruning,omitempty"`
 }
 
@@ -22,8 +25,8 @@ type K8sRollingRollbackWith struct {
 
 type K8sApplyWith struct {
 	Manifests            []interface{} `json:"manifests,omitempty"`
-	SkipDryRun           *flexible.Field[bool]          `json:"skipdryrun,omitempty"`
-	SkipSteadyStateCheck *flexible.Field[bool]          `json:"skipsteadystatecheck,omitempty"`
+	SkipDryRun           *flexible.Field[bool]          `json:"skip_dry_run,omitempty"`
+	SkipSteadyStateCheck *flexible.Field[bool]          `json:"skip_steady_state_check,omitempty"`
 	Flags                []interface{} `json:"flags,omitempty"`
 }
 
@@ -45,29 +48,30 @@ type K8sDiffWith struct {
 
 type K8sRolloutWith struct {
 	Command                string        `json:"command,omitempty"`
-	SelectRolloutResources string        `json:"selectrolloutresources,omitempty"`
+	SelectRolloutResources string        `json:"select_rollout_resources,omitempty"`
 	Flags                  []interface{} `json:"flags,omitempty"`
 	Resources              []interface{} `json:"resources,omitempty"`
 	Manifests              []interface{} `json:"manifests,omitempty"`
 }
 
 type K8sScaleWith struct {
-	UnitType             string `json:"unittype,omitempty"`
+	UnitType             string `json:"unit_type,omitempty"`
 	Instances            *flexible.Field[int] `json:"instances,omitempty"`
 	Workload             string `json:"workload,omitempty"`
-	SkipSteadyStateCheck bool   `json:"skipsteadystatecheck,omitempty"`
+	SkipSteadyStateCheck *flexible.Field[bool]   `json:"skip_steady_state_check,omitempty"`
 }
 
 type K8sDryRunWith struct {
-	EncryptYamlOutput bool `json:"encryptyamloutput,omitempty"`
+	EncryptYamlOutput *flexible.Field[bool] `json:"encryptyamloutput,omitempty"`
 }
 
 type K8sDeleteWith struct {
-	SelectDeleteResources string        `json:"selectdeleteresources,omitempty"`
-	Resources             []interface{} `json:"resources,omitempty"`
-	Manifests             []interface{} `json:"manifests,omitempty"`
-	Releasename           []interface{} `json:"releasename,omitempty"`
-	Flags                 []interface{} `json:"flags,omitempty"`
+	SelectDeleteResources string               `json:"select_delete_resources,omitempty"`
+	Resources             []string       `json:"resources,omitempty"`
+	Manifests             []string        `json:"manifests,omitempty"`
+	Releasename           string       `json:"release,omitempty"`
+	Flags                 []interface{}        `json:"flags,omitempty"`
+	DeleteNamespaces      *flexible.Field[bool] `json:"delete_namespaces,omitempty"`
 }
 
 type K8sTrafficRoutingWith struct {
@@ -81,26 +85,34 @@ type K8sTrafficRoutingWith struct {
 
 type K8sCanaryDeployWith struct {
 	Provider     string        `json:"provider,omitempty"`
-	UnitType     string        `json:"unittype,omitempty"`
-	Instances    string        `json:"instances,omitempty"`
-	ResourceName string        `json:"resourcename,omitempty"`
+	UnitType     string        `json:"unit_type,omitempty"`
+	Instances    *flexible.Field[int]          `json:"instances,omitempty"`
+	ResourceName string        `json:"resource_name,omitempty"`
 	Hosts        []interface{} `json:"hosts,omitempty"`
 	Gateways     []interface{} `json:"gateways,omitempty"`
 	Routes       string        `json:"routes,omitempty"`
-	SkipDryRun   bool          `json:"skipdryrun,omitempty"`
+	SkipDryRun   *flexible.Field[bool]           `json:"skip_dry_run,omitempty"`
 	Flags        []interface{} `json:"flags,omitempty"`
 }
 
 type K8sBlueGreenDeployWith struct {
 	Provider              string        `json:"provider,omitempty"`
-	ResourceName          string        `json:"resourcename,omitempty"`
+	ResourceName          string        `json:"resource_name,omitempty"`
 	Hosts                 []interface{} `json:"hosts,omitempty"`
 	Gateways              []interface{} `json:"gateways,omitempty"`
 	Routes                string        `json:"routes,omitempty"`
-	SkipDryRun            bool          `json:"skipdryrun,omitempty"`
-	Pruning               bool          `json:"pruning,omitempty"`
-	SkipUnchangedManifest bool          `json:"skipunchangedmanifest,omitempty"`
+	SkipDryRun            *flexible.Field[bool]           `json:"skip_dry_run,omitempty"`
+	Pruning               *flexible.Field[bool]           `json:"pruning,omitempty"`
+	SkipUnchangedManifest *flexible.Field[bool]           `json:"skip_unchanged_manifest,omitempty"`
 	Flags                 []interface{} `json:"flags,omitempty"`
+}
+
+type K8sPatchWith struct {
+	Workload             string                `json:"workload,omitempty" yaml:"workload,omitempty"`
+	SkipSteadyStateCheck *flexible.Field[bool] `json:"skip_steady_state_check,omitempty" yaml:"skip_steady_state_check,omitempty"`
+	Content              string                `json:"content,omitempty" yaml:"content,omitempty"`
+	MergeStrategy        string                `json:"strategy,omitempty" yaml:"strategy,omitempty"` // merge | strategic | json
+
 }
 
 // ConvertStepK8sRollingDeploy converts a v0 K8sRollingDeploy step to v1 template spec only
@@ -178,7 +190,7 @@ func ConvertStepK8sApply(src *v0.Step) *v1.StepTemplate {
 }
 
 // ConvertStepK8sBGSwapServices converts a v0 K8sBGSwapServices step to v1 template spec only
-func ConvertStepK8sBGSwapServices(src *v0.Step) *v1.StepTemplate {
+func ConvertStepK8sBGSwapServices(src *v0.Step, isRollback bool) *v1.StepTemplate {
 	if src == nil {
 		return nil
 	}
@@ -189,7 +201,17 @@ func ConvertStepK8sBGSwapServices(src *v0.Step) *v1.StepTemplate {
 		}
 	}
 
-	with := K8sBGSwapServicesWith{}
+	with := map[string]interface{}{}
+
+	if !isRollback {
+		with["stable_service"] = "<+exportedVariables.getValue(\"stage.bluegreenprepareactionoutput.PLUGIN_STABLE_SERVICE\")>"
+		with["stage_service"] = "<+exportedVariables.getValue(\"stage.bluegreenprepareactionoutput.PLUGIN_STAGE_SERVICE\")>"
+		with["is_openshift"] = "<+exportedVariables.getValue(\"stage.bluegreenapplyactionoutput.HARNESS_IS_OPENSHIFT\")>"
+	} else {
+		with["stable_service"] = "${{rollback.data.PLUGIN_STABLE_SERVICE}}"
+		with["stage_service"] = "${{rollback.data.PLUGIN_STAGE_SERVICE}}"
+		with["is_openshift"] = "${{rollback.data.HARNESS_IS_OPENSHIFT}}"
+	}
 
 	return &v1.StepTemplate{
 		Uses: v1.StepTypeK8sBGSwapServices,
@@ -216,7 +238,7 @@ func ConvertStepK8sBlueGreenStageScaleDown(src *v0.Step) *v1.StepTemplate {
 }
 
 // ConvertStepK8sCanaryDelete converts a v0 K8sCanaryDelete step to v1 template spec only
-func ConvertStepK8sCanaryDelete(src *v0.Step) *v1.StepTemplate {
+func ConvertStepK8sCanaryDelete(src *v0.Step, isRollback bool) *v1.StepTemplate {
 	if src == nil {
 		return nil
 	}
@@ -227,7 +249,16 @@ func ConvertStepK8sCanaryDelete(src *v0.Step) *v1.StepTemplate {
 		}
 	}
 
-	with := K8sCanaryDeleteWith{}
+	with := map[string]interface{}{}
+
+	if !isRollback {
+		with["resources"] = "<+exportedVariables.getValue(\"stage.canaryprepareactionoutput.PLUGIN_CANARY_WORKLOADS\")>"
+		with["is_openshift"] = "<+exportedVariables.getValue(\"stage.canaryapplyactionoutput.HARNESS_IS_OPENSHIFT\")>"
+	} else {
+		with["select_delete_resources"] = "resources"
+		with["resources"] = "${{rollback.data.PLUGIN_CANARY_WORKLOADS}}"
+		with["is_openshift"] = "${{rollback.data.HARNESS_IS_OPENSHIFT}}"
+	}
 
 	return &v1.StepTemplate{
 		Uses: v1.StepTypeK8sCanaryDelete,
@@ -288,8 +319,7 @@ func ConvertStepK8sRollout(src *v0.Step) *v1.StepTemplate {
 				}
 			}
 		case "ReleaseName":
-			sel = "releasename"
-			// releasenameNeeded = true
+			sel = "release name"
 		}
 	}
 
@@ -298,9 +328,7 @@ func ConvertStepK8sRollout(src *v0.Step) *v1.StepTemplate {
 		SelectRolloutResources: sel,
 		Flags:                  []interface{}{},
 	}
-	// if releasenameNeeded {
-	// 	with["releasename"] = "<+input>"
-	// }
+
 	if len(resourcesList) > 0 {
 		with.Resources = resourcesList
 	}
@@ -387,6 +415,7 @@ func ConvertStepK8sDelete(src *v0.Step) *v1.StepTemplate {
 
 	sel := ""
 	var items []string
+	var deleteNamespace *flexible.Field[bool]
 	if sp.DeleteResources != nil {
 		switch sp.DeleteResources.Type {
 		case "ResourceName":
@@ -400,32 +429,28 @@ func ConvertStepK8sDelete(src *v0.Step) *v1.StepTemplate {
 				items = sp.DeleteResources.Spec.ManifestPaths
 			}
 		case "ReleaseName":
-			sel = "releasename"
+			sel = "release name"
 			if sp.DeleteResources.Spec != nil {
-				items = sp.DeleteResources.Spec.ReleaseNames
+				// items = sp.DeleteResources.Spec.ReleaseNames
+				deleteNamespace = sp.DeleteResources.Spec.DeleteNamespace
 			}
 		}
 	}
 
-	// cast items to []interface{} for generic map
-	resources := make([]interface{}, 0, len(items))
-	for _, it := range items {
-		resources = append(resources, it)
-	}
-
 	with := K8sDeleteWith{
 		SelectDeleteResources: sel,
+		DeleteNamespaces:       deleteNamespace,
 		Flags:                 []interface{}{},
 	}
 
 	// Set the appropriate field based on selection type
 	switch sel {
 	case "resources":
-		with.Resources = resources
+		with.Resources = items
 	case "manifests":
-		with.Manifests = resources
-	case "releasename":
-		with.Releasename = resources
+		with.Manifests = items
+	case "release name":
+		with.Releasename = "${{infra.releaseName}}"
 	}
 
 	return &v1.StepTemplate{
@@ -450,7 +475,7 @@ func ConvertStepK8sTrafficRouting(src *v0.Step) *v1.StepTemplate {
 	gateways := []interface{}{}
 	provider := ""
 	resourceName := ""
-	routes := "[]"
+	routes := ""
 
 	// Extract traffic routing configuration
 	if spec.TrafficRouting != nil {
@@ -521,6 +546,7 @@ func ConvertTrafficRoutingRoutes(routes []*v0.K8sTrafficRoutingRoute) string {
 				destMap := map[string]interface{}{
 					"host":   dest.Destination.Host,
 					"weight": dest.Destination.Weight,
+					"port": dest.Destination.Port,
 				}
 				destinations = append(destinations, destMap)
 			}
@@ -549,7 +575,11 @@ func ConvertTrafficRoutingRoutes(routes []*v0.K8sTrafficRoutingRoute) string {
 				if j > 0 {
 					jsonStr += ","
 				}
-				jsonStr += `{"host":"` + dest["host"].(string) + `","weight":` + strconv.Itoa(dest["weight"].(int)) + `}`
+				hostWeight := `{"host":"` + dest["host"].(string) + `","weight":` + strconv.Itoa(dest["weight"].(int))
+				if port, ok := dest["port"].(int); ok && port > 0 {
+					hostWeight += `,"port":` + strconv.Itoa(port)
+				}
+				jsonStr += hostWeight + `}`
 			}
 			jsonStr += `]`
 		}
@@ -576,9 +606,9 @@ func ConvertStepK8sCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 	gateways := []interface{}{}
 	provider := ""
 	resourceName := ""
-	routes := "[]"
+	routes := ""
 	unitType := ""
-	instances := ""
+	var instances *flexible.Field[int]
 
 	// Extract instance selection
 	if spec.InstanceSelection != nil {
@@ -586,12 +616,12 @@ func ConvertStepK8sCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 		case "Count":
 			unitType = "count"
 			if spec.InstanceSelection.Spec != nil {
-				instances = strconv.Itoa(spec.InstanceSelection.Spec.Count)
+				instances = spec.InstanceSelection.Spec.Count
 			}
 		case "Percentage":
 			unitType = "percentage"
 			if spec.InstanceSelection.Spec != nil {
-				instances = strconv.Itoa(spec.InstanceSelection.Spec.Percentage)
+				instances = spec.InstanceSelection.Spec.Percentage
 			}
 		}
 	}
@@ -645,7 +675,7 @@ func ConvertStepK8sBlueGreenDeploy(src *v0.Step) *v1.StepTemplate {
 	gateways := []interface{}{}
 	provider := ""
 	resourceName := ""
-	routes := "[]"
+	routes := ""
 
 	// Check if traffic routing is configured
 	if spec.TrafficRouting != nil {
@@ -689,4 +719,38 @@ func ConvertStepK8sBlueGreenDeploy(src *v0.Step) *v1.StepTemplate {
 		Uses: v1.StepTypeK8sBlueGreenDeploy,
 		With: with,
 	}
+}
+
+// ConvertStepK8sPatch converts a v0 K8sPatch step to v1 template spec only
+func ConvertStepK8sPatch(src *v0.Step) *v1.StepTemplate {
+	if src == nil || src.Spec == nil {
+		return nil
+	}
+	// Extract the typed spec
+	spec, ok := src.Spec.(*v0.StepK8sPatch)
+	if !ok {
+		return nil
+	}
+
+	with := K8sPatchWith {
+		Workload: spec.Workload,
+		SkipSteadyStateCheck: spec.SkipSteadyStateCheck,
+		MergeStrategy: strings.ToLower(spec.MergeStrategy),
+	}
+	if spec.Source != nil {
+		switch spec.Source.Type {
+		case "Inline":
+			if source, ok := spec.Source.Spec.(*v0.SourceSpecInline); ok {
+				with.Content = source.Content
+			}
+		default:
+			log.Printf("Warning!!! Conversion for Soruce type %v in K8s Patch step(id: %v) is not yet supported", spec.Source.Type, src.ID)
+		}
+	}
+
+	return &v1.StepTemplate{
+		Uses: v1.StepTypeK8sPatch,
+		With: with,
+	}
+
 }

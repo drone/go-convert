@@ -55,12 +55,12 @@ type (
 
 	// CI defines CI pipeline properties.
 	CI struct {
-		Codebase Codebase `json:"codebase,omitempty" yaml:"codebase,omitempty"`
+		Codebase *Codebase `json:"codebase,omitempty" yaml:"codebase,omitempty"`
 	}
 
 	// BuildIntelligence defines the build intelligence settings.
 	BuildIntelligence struct {
-		Enabled bool `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+		Enabled *flexible.Field[bool] `json:"enabled,omitempty" yaml:"enabled,omitempty"`
 	}
 
 	// Cache defines the cache settings.
@@ -178,7 +178,7 @@ type (
 		Conn       string            `json:"connectorRef,omitempty"   yaml:"connectorRef,omitempty"`
 		Image      string            `json:"image,omitempty"          yaml:"image,omitempty"`
 		Resources  *Resources        `json:"resources,omitempty"      yaml:"resources,omitempty"`
-		Privileged bool              `json:"privileged,omitempty"     yaml:"privileged,omitempty"`
+		Privileged *flexible.Field[bool]              `json:"privileged,omitempty"     yaml:"privileged,omitempty"`
 	}
 
 	Resources struct {

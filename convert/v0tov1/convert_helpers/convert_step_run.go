@@ -35,7 +35,7 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 
 	// Container mapping
 	var container *v1.Container
-	if sp.Image != "" || sp.ConnRef != "" || sp.Privileged || sp.ImagePullPolicy != "" {
+	if sp.Image != "" || sp.ConnRef != "" || sp.ImagePullPolicy != "" {
 		pull := ""
 		if strings.EqualFold(sp.ImagePullPolicy, "Always") {
 			pull = "always"

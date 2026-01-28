@@ -10,6 +10,9 @@ import (
 
 // ConvertCloneCodebase converts v0 cloneCodebase bool to v1 Clone
 func ConvertCloneCodebase(clone bool) *v1.Clone {
+	if !clone {
+		return nil
+	}
 	return &v1.Clone{
 		Enabled: clone,
 	}
@@ -31,9 +34,9 @@ func ConvertCaching(cache *v0.Cache) *v1.Cache {
 }
 
 // ConvertBuildIntelligence converts v0 BuildIntelligence to v1 bool
-func ConvertBuildIntelligence(bi *v0.BuildIntelligence) bool {
+func ConvertBuildIntelligence(bi *v0.BuildIntelligence) *flexible.Field[bool] {
 	if bi == nil {
-		return false
+		return nil
 	}
 	return bi.Enabled
 }

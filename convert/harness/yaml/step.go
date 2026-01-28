@@ -86,7 +86,7 @@ type (
 		Account                string            `json:"account,omitempty"                yaml:"account,omitempty"`
 		ImageName              string            `json:"imageName,omitempty"              yaml:"imageName,omitempty"`
 		Tags                   []string          `json:"tags,omitempty"                   yaml:"tags,omitempty"`
-		Caching                bool              `json:"caching,omitempty"                yaml:"caching,omitempty"`
+		Caching                *flexible.Field[bool]              `json:"caching,omitempty"                yaml:"caching,omitempty"`
 		BaseImageConnectorRefs interface{}       `json:"baseImageConnectorRefs,omitempty" yaml:"baseImageConnectorRefs,omitempty"`
 		Dockerfile             string            `json:"dockerfile,omitempty"             yaml:"dockerfile,omitempty"`
 		Context                string            `json:"context,omitempty"                yaml:"context,omitempty"`
@@ -109,7 +109,7 @@ type (
 		ProjectID              string            `json:"projectID,omitempty"              yaml:"projectID,omitempty"`
 		ImageName              string            `json:"imageName,omitempty"              yaml:"imageName,omitempty"`
 		Tags                   []string          `json:"tags,omitempty"                   yaml:"tags,omitempty"`
-		Caching                bool              `json:"caching,omitempty"                yaml:"caching,omitempty"`
+		Caching                *flexible.Field[bool]              `json:"caching,omitempty"                yaml:"caching,omitempty"`
 		BaseImageConnectorRefs interface{}       `json:"baseImageConnectorRefs,omitempty" yaml:"baseImageConnectorRefs,omitempty"`
 		Dockerfile             string            `json:"dockerfile,omitempty"             yaml:"dockerfile,omitempty"`
 		Context                string            `json:"context,omitempty"                yaml:"context,omitempty"`
@@ -127,8 +127,8 @@ type (
 		Context                string            `json:"context,omitempty"                 yaml:"context,omitempty"`
 		Dockerfile             string            `json:"dockerfile,omitempty"              yaml:"dockerfile,omitempty"`
 		Labels                 map[string]string `json:"labels,omitempty"                  yaml:"labels,omitempty"`
-		Optimize               bool              `json:"optimize,omitempty"                yaml:"optimize,omitempty"`
-		Privileged             bool              `json:"privileged,omitempty"              yaml:"privileged,omitempty"`
+		Optimize               *flexible.Field[bool]              `json:"optimize,omitempty"                yaml:"optimize,omitempty"`
+		Privileged             *flexible.Field[bool]              `json:"privileged,omitempty"              yaml:"privileged,omitempty"`
 		RemoteCacheRepo        string            `json:"remoteCacheRepo,omitempty"         yaml:"remoteCacheRepo,omitempty"`
 		Repo                   string            `json:"repo,omitempty"                    yaml:"repo,omitempty"`
 		Reports                []*Report         `json:"reports,omitempty"                 yaml:"reports,omitempty"`
@@ -136,7 +136,7 @@ type (
 		RunAsUser              string            `json:"runAsUser,omitempty"               yaml:"runAsUser,omitempty"`
 		Tags                   []string          `json:"tags,omitempty"                    yaml:"tags,omitempty"`
 		Target                 string            `json:"target,omitempty"                  yaml:"target,omitempty"`
-		Caching                bool              `json:"caching,omitempty"                 yaml:"caching,omitempty"`
+		Caching                *flexible.Field[bool]              `json:"caching,omitempty"                 yaml:"caching,omitempty"`
 		Env                    map[string]string `json:"envVariables,omitempty"            yaml:"envVariables,omitempty"`
 		BaseImageConnectorRefs interface{}       `json:"baseImageConnectorRefs,omitempty"  yaml:"baseImageConnectorRefs,omitempty"`
 	}
@@ -162,8 +162,8 @@ type (
 		ApprovalMessage                 string           `json:"approvalMessage,omitempty"                 yaml:"approvalMessage,omitempty"`
 		Approvers                       *Approvers       `json:"approvers,omitempty"                       yaml:"approvers,omitempty"`
 		ApproverInputs                  []*ApproverInput `json:"approverInputs,omitempty"                  yaml:"approverInputs,omitempty"`
-		IncludePipelineExecutionHistory bool             `json:"includePipelineExecutionHistory,omitempty" yaml:"includePipelineExecutionHistory,omitempty"`
-		IsAutoRejectEnabled             bool             `json:"isAutoRejectEnabled,omitempty"             yaml:"isAutoRejectEnabled,omitempty"`
+		IncludePipelineExecutionHistory *flexible.Field[bool]             `json:"includePipelineExecutionHistory,omitempty" yaml:"includePipelineExecutionHistory,omitempty"`
+		IsAutoRejectEnabled             *flexible.Field[bool]             `json:"isAutoRejectEnabled,omitempty"             yaml:"isAutoRejectEnabled,omitempty"`
 		AutoApproval                    *AutoApproval    `json:"autoApproval,omitempty"                    yaml:"autoApproval,omitempty"`
 	}
 
@@ -185,7 +185,7 @@ type (
 	}
 
 	CriteriaSpec struct {
-		MatchAnyCondition bool         `json:"matchAnyCondition,omitempty" yaml:"matchAnyCondition,omitempty"`
+		MatchAnyCondition *flexible.Field[bool]         `json:"matchAnyCondition,omitempty" yaml:"matchAnyCondition,omitempty"`
 		Conditions        []*Condition `json:"conditions,omitempty"        yaml:"conditions,omitempty"`
 		Expression        string       `json:"expression,omitempty"        yaml:"expression,omitempty"` // For Jexl type
 	}
@@ -202,7 +202,7 @@ type (
 		Bucket            string `json:"bucket,omitempty"            yaml:"bucket,omitempty"`
 		Key               string `json:"key,omitempty"               yaml:"key,omitempty"`
 		ArchiveFormat     string `json:"archiveFormat,omitempty"     yaml:"archiveFormat,omitempty"`
-		FailIfKeyNotFound bool   `json:"failIfKeyNotFound,omitempty" yaml:"failIfKeyNotFound,omitempty"`
+		FailIfKeyNotFound *flexible.Field[bool]   `json:"failIfKeyNotFound,omitempty" yaml:"failIfKeyNotFound,omitempty"`
 		RunAsUser         string `json:"runAsUser,omitempty"         yaml:"runAsUser,omitempty"`
 	}
 
@@ -214,8 +214,8 @@ type (
 		Key               string `json:"key,omitempty"               yaml:"key,omitempty"`
 		Endpoint          string `json:"endpoint,omitempty"          yaml:"endpoint,omitempty"`
 		ArchiveFormat     string `json:"archiveFormat,omitempty"     yaml:"archiveFormat,omitempty"`
-		PathStyle         bool   `json:"pathStyle,omitempty"         yaml:"pathStyle,omitempty"`
-		FailIfKeyNotFound bool   `json:"failIfKeyNotFound,omitempty" yaml:"failIfKeyNotFound,omitempty"`
+		PathStyle         *flexible.Field[bool]   `json:"pathStyle,omitempty"         yaml:"pathStyle,omitempty"`
+		FailIfKeyNotFound *flexible.Field[bool]   `json:"failIfKeyNotFound,omitempty" yaml:"failIfKeyNotFound,omitempty"`
 		RunAsUser         string `json:"runAsUser,omitempty"         yaml:"runAsUser,omitempty"`
 	}
 
@@ -229,12 +229,12 @@ type (
 		Image            string            `json:"image,omitempty"            yaml:"image,omitempty"`
 		Shell            string            `json:"shell,omitempty"            yaml:"shell,omitempty"`
 		Command          string            `json:"command,omitempty"          yaml:"command,omitempty"`
-		Privileged       bool              `json:"privileged,omitempty"       yaml:"privileged,omitempty"`
+		Privileged       *flexible.Field[bool]              `json:"privileged,omitempty"       yaml:"privileged,omitempty"`
 		Reports          *Report           `json:"reports,omitempty"          yaml:"reports,omitempty"`
 		Env              map[string]string `json:"envVariables,omitempty"     yaml:"envVariables,omitempty"`
 		Outputs          []*Output         `json:"outputVariables,omitempty"  yaml:"outputVariables,omitempty"`
 		ImagePullPolicy  string            `json:"imagePullPolicy,omitempty"  yaml:"imagePullPolicy,omitempty"`
-		IntelligenceMode bool              `json:"intelligenceMode,omitempty" yaml:"intelligenceMode,omitempty"`
+		IntelligenceMode *flexible.Field[bool]              `json:"intelligenceMode,omitempty" yaml:"intelligenceMode,omitempty"`
 		Globs            []string          `json:"globs,omitempty"            yaml:"globs,omitempty"`
 		RunAsUser        string            `json:"runAsUser,omitempty"        yaml:"runAsUser,omitempty"`
 		Resources        *Resources        `json:"resources,omitempty"        yaml:"resources,omitempty"`
@@ -247,7 +247,7 @@ type (
 		Key           string   `json:"key,omitempty"           yaml:"key,omitempty"`
 		SourcePaths   []string `json:"sourcePaths,omitempty"   yaml:"sourcePaths,omitempty"`
 		ArchiveFormat string   `json:"archiveFormat,omitempty" yaml:"archiveFormat,omitempty"`
-		Override      bool     `json:"override,omitempty"      yaml:"override,omitempty"`
+		Override      *flexible.Field[bool]     `json:"override,omitempty"      yaml:"override,omitempty"`
 		RunAsUser     string   `json:"runAsUser,omitempty"     yaml:"runAsUser,omitempty"`
 	}
 
@@ -260,8 +260,8 @@ type (
 		SourcePaths   []string `json:"sourcePaths,omitempty"   yaml:"sourcePaths,omitempty"`
 		Endpoint      string   `json:"endpoint,omitempty"      yaml:"endpoint,omitempty"`
 		ArchiveFormat string   `json:"archiveFormat,omitempty" yaml:"archiveFormat,omitempty"`
-		Override      bool     `json:"override,omitempty"      yaml:"override,omitempty"`
-		PathStyle     bool     `json:"pathStyle,omitempty"     yaml:"pathStyle,omitempty"`
+		Override      *flexible.Field[bool]     `json:"override,omitempty"      yaml:"override,omitempty"`
+		PathStyle     *flexible.Field[bool]     `json:"pathStyle,omitempty"     yaml:"pathStyle,omitempty"`
 		RunAsUser     string   `json:"runAsUser,omitempty"     yaml:"runAsUser,omitempty"`
 	}
 
@@ -338,7 +338,7 @@ type (
 		ConnRef         string                 `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
 		Image           string                 `json:"image,omitempty"           yaml:"image,omitempty"`
 		ImagePullPolicy string                 `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
-		Privileged      bool                   `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
+		Privileged      *flexible.Field[bool]                    `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
 		Reports         *Report                `json:"reports,omitempty"         yaml:"reports,omitempty"`
 		Resources       *Resources             `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		RunAsUser       string                 `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
@@ -352,7 +352,7 @@ type (
 		ConnRef        string     `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
 		BuildType      *flexible.Field[Build]     `json:"build,omitempty"    yaml:"build,omitempty"`
 		CloneDirectory string     `json:"cloneDirectory,omitempty"    yaml:"cloneDirectory,omitempty"`
-		Privileged     bool       `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
+		Privileged     *flexible.Field[bool]       `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
 		Depth          *flexible.Field[int]     `json:"depth,omitempty"    yaml:"cloneDirectory,omitempty"`
 		Resources      *Resources `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		SSLVerify      string     `json:"sslVerify,omitempty"    yaml:"cloneDirectory,omitempty"`
@@ -382,9 +382,9 @@ type (
 		Image           string            `json:"image,omitempty"           yaml:"image,omitempty"           v1path:".container.image"`
 		ImagePullPolicy string            `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty" v1path:".container.pull"`
 		Outputs         []*Output         `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty" v1path:".outputs"`
-		Privileged      bool              `json:"privileged,omitempty"      yaml:"privileged,omitempty"      v1path:".container.privileged"`
+		Privileged      *flexible.Field[bool]               `json:"privileged,omitempty"      yaml:"privileged,omitempty"      v1path:".container.privileged"`
 		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"       v1path:"-"`
-		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"       v1path:"-"`
+		RunAsUser       *flexible.Field[int]            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"       v1path:"-"`
 		Reports         *Report           `json:"reports,omitempty"         yaml:"reports,omitempty"         v1path:".report"`
 		Shell           string            `json:"shell,omitempty"           yaml:"shell,omitempty"           v1path:".shell"`
 	}
@@ -398,7 +398,7 @@ type (
 		Image           string            `json:"image,omitempty"           yaml:"image,omitempty"`
 		ImagePullPolicy string            `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
 		PortBindings    map[string]string `json:"portBindings,omitempty"    yaml:"portBindings,omitempty"`
-		Privileged      bool              `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
+		Privileged      *flexible.Field[bool]               `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
 		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
 		Reports         *Report           `json:"reports,omitempty"         yaml:"reports,omitempty"`
@@ -410,7 +410,7 @@ type (
 		EnvironmentVariables []*Variable      `json:"environmentVariables,omitempty" yaml:"environmentVariables,omitempty"`
 		ExecutionTarget      *ExecutionTarget `json:"executionTarget,omitempty"      yaml:"executionTarget,omitempty"`
 		Metadata             string           `json:"metadata,omitempty"             yaml:"metadata,omitempty"`
-		OnDelegate           bool             `json:"onDelegate,omitempty"           yaml:"onDelegate,omitempty"`
+		OnDelegate           *flexible.Field[bool]             `json:"onDelegate,omitempty"           yaml:"onDelegate,omitempty"`
 		OutputVariables      []*Output        `json:"outputVariables,omitempty"      yaml:"outputVariables,omitempty"`
 		Shell                string           `json:"shell,omitempty"                yaml:"shell,omitempty"` // Bash|Powershell
 		Source               *Source          `json:"source,omitempty"               yaml:"source,omitempty"`
@@ -529,7 +529,7 @@ type (
 
 	Approvers struct {
 		MinimumCount             int      `json:"minimumCount,omitempty" yaml:"minimumCount,omitempty"`
-		DisallowPipelineExecutor bool     `json:"disallowPipelineExecutor,omitempty" yaml:"disallowPipelineExecutor,omitempty"`
+		DisallowPipelineExecutor *flexible.Field[bool]     `json:"disallowPipelineExecutor,omitempty" yaml:"disallowPipelineExecutor,omitempty"`
 		UserGroups               []string `json:"userGroups,omitempty" yaml:"userGroups,omitempty"`
 	}
 
@@ -638,6 +638,8 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepK8sCanaryDeploy)
 	case StepTypeK8sBlueGreenDeploy:
 		s.Spec = new(StepK8sBlueGreenDeploy)
+	case StepTypeK8sPatch:
+		s.Spec = new(StepK8sPatch)
 	case StepTypeJiraCreate:
 		s.Spec = new(StepJiraCreate)
 	case StepTypeJiraUpdate:
@@ -652,6 +654,8 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepHelmBlueGreenSwapStep)
 	case StepTypeHelmCanaryDeploy:
 		s.Spec = new(StepHelmCanaryDeploy)
+	case StepTypeHelmCanaryDelete:
+		s.Spec = new(StepHelmCanaryDelete)
 	case StepTypeHelmDelete:
 		s.Spec = new(StepHelmDelete)
 	case StepTypeHelmDeploy:

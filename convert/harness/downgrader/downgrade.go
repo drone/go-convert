@@ -183,7 +183,7 @@ func (d *Downgrader) downgrade(src []*v1.Config) ([]byte, error) {
 				config.Pipeline.Tags[tag] = ""
 			}
 		}
-		config.Pipeline.Props.CI.Codebase = v0.Codebase{
+		config.Pipeline.Props.CI.Codebase = &v0.Codebase{
 			Name:  d.codebaseName,
 			Conn:  d.codebaseConn,
 			Build: flexible.Field[v0.Build]{Value: "<+input>"},
@@ -623,7 +623,14 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 	if spec_.Connector != "" {
 		connectorRef = spec_.Connector
 	}
-
+	var runAsUser *flexible.Field[int]
+	if spec_.User != "" {
+		runAsUser.SetString(spec_.User)
+	}
+	var privileged *flexible.Field[bool]
+	if spec_.Privileged {
+		privileged = &flexible.Field[bool]{Value: true}
+	}
 	return &v0.Step{
 		ID:      id,
 		Name:    convertName(src.Name),
@@ -637,8 +644,8 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 			Image:           convertImage(spec_.Image, d.defaultImage),
 			ImagePullPolicy: convertImagePull(spec_.Pull),
 			Outputs:         outputs, // Add this line
-			Privileged:      spec_.Privileged,
-			RunAsUser:       spec_.User,
+			Privileged:      privileged,
+			RunAsUser:       runAsUser,
 			Reports:         convertReports(spec_.Reports),
 			Shell:           strings.Title(spec_.Shell),
 		},
@@ -717,6 +724,10 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 	if spec_.Entrypoint != "" {
 		entypoint = []string{spec_.Entrypoint}
 	}
+	var privileged *flexible.Field[bool]
+	if spec_.Privileged {
+		privileged = &flexible.Field[bool]{Value: true}
+	}
 	return &v0.Step{
 		ID:   id,
 		Name: convertName(src.Name),
@@ -728,7 +739,7 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 			Env:             spec_.Envs,
 			Image:           spec_.Image,
 			ImagePullPolicy: convertImagePull(spec_.Pull),
-			Privileged:      spec_.Privileged,
+			Privileged:      privileged,
 			RunAsUser:       spec_.User,
 			PortBindings:    convertPorts(spec_.Ports),
 		},
@@ -758,6 +769,10 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 		slug.Create(src.Type))
 	if src.Name == "" {
 		src.Name = id
+	}
+	var privileged *flexible.Field[bool]
+	if spec_.Privileged {
+		privileged = &flexible.Field[bool]{Value: true}
 	}
 
 	switch spec_.Image {
@@ -802,7 +817,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 				Image:           spec_.Image,
 				ImagePullPolicy: convertImagePull(spec_.Pull),
 				Settings:        convertSettings(spec_.With),
-				Privileged:      spec_.Privileged,
+				Privileged:      privileged,
 				RunAsUser:       spec_.User,
 			},
 			When: convertStepWhen(src.When, id),
@@ -996,7 +1011,7 @@ func (d *Downgrader) convertUseIntelligence() *v0.BuildIntelligence {
 		return nil
 	}
 	return &v0.BuildIntelligence{
-		Enabled: true,
+		Enabled: &flexible.Field[bool]{Value: true},
 	}
 }
 

@@ -36,6 +36,16 @@ type (
 		FailureStrategies *flexible.Field[[]*FailureStrategy]   `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
 	}
 
+	StagePipeline struct {
+		Org string `json:"org,omitempty" yaml:"org,omitempty"`
+		Pipeline string `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
+		Project string `json:"project,omitempty" yaml:"project,omitempty"`
+		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+		Inputs *Pipeline `json:"inputs,omitempty" yaml:"inputs,omitempty"`
+		Outputs []*Output `json:"outputs,omitempty" yaml:"outputs,omitempty"`
+		InputSetRefs *flexible.Field[[]string] `json:"inputSetReferences,omitempty" yaml:"inputSetReferences,omitempty"`
+	}
+
 	StageCustom struct {
 		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
 		Environment *Environment `json:"environment,omitempty" yaml:"environment,omitempty"`
@@ -148,6 +158,8 @@ func (s *Stage) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StageCustom)
 	case StageTypeApproval:
 		s.Spec = new(StageApproval)
+	case StageTypePipeline:
+		s.Spec = new(StagePipeline)
 	default:
 		return fmt.Errorf("unknown stage type %s", s.Type)
 	}

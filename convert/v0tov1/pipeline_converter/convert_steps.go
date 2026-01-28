@@ -11,7 +11,7 @@ import (
 )
 
 // convertSteps converts a list of v0.Steps to list of v1.Step.
-func (c *PipelineConverter) ConvertSteps(src []*v0.Steps) []*v1.Step {
+func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool) []*v1.Step {
 	if len(src) == 0 {
 		return nil
 	}
@@ -21,14 +21,14 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps) []*v1.Step {
 			continue
 		}
 		if s.Step != nil {
-			if step := c.ConvertSingleStep(s.Step); step != nil {
+			if step := c.ConvertSingleStep(s.Step, isRollBack); step != nil {
 				dst = append(dst, step)
 			}
 			continue
 		}
 		if s.Parallel != nil {
 			parallel_group := &v1.StepGroup{
-				Steps: c.ConvertSteps(s.Parallel),
+				Steps: c.ConvertSteps(s.Parallel, isRollBack),
 			}
 			parallel := &v1.Step{
 				Parallel: parallel_group,
@@ -42,7 +42,7 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps) []*v1.Step {
 				Id:   s.StepGroup.ID,
 				Env:  s.StepGroup.Env,
 				Group: &v1.StepGroup{
-					Steps: c.ConvertSteps(s.StepGroup.Steps),
+					Steps: c.ConvertSteps(s.StepGroup.Steps, isRollBack),
 				},
 				OnFailure: convert_helpers.ConvertFailureStrategies(s.StepGroup.FailureStrategies),
 				Strategy:  convert_helpers.ConvertStrategy(s.StepGroup.Strategy),
@@ -57,7 +57,7 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps) []*v1.Step {
 	return dst
 }
 
-func (c *PipelineConverter) ConvertSingleStep(src *v0.Step) *v1.Step {
+func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool) *v1.Step {
 	if src == nil {
 		return nil
 	}
@@ -88,11 +88,11 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step) *v1.Step {
 	case v0.StepTypeK8sApply:
 		step.Template = convert_helpers.ConvertStepK8sApply(src)
 	case v0.StepTypeK8sBGSwapServices:
-		step.Template = convert_helpers.ConvertStepK8sBGSwapServices(src)
+		step.Template = convert_helpers.ConvertStepK8sBGSwapServices(src, isRollback)
 	case v0.StepTypeK8sBlueGreenStageScaleDown:
 		step.Template = convert_helpers.ConvertStepK8sBlueGreenStageScaleDown(src)
 	case v0.StepTypeK8sCanaryDelete:
-		step.Template = convert_helpers.ConvertStepK8sCanaryDelete(src)
+		step.Template = convert_helpers.ConvertStepK8sCanaryDelete(src, isRollback)
 	case v0.StepTypeK8sDiff:
 		step.Template = convert_helpers.ConvertStepK8sDiff(src)
 	case v0.StepTypeK8sDelete:
@@ -109,12 +109,16 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step) *v1.Step {
 		step.Template = convert_helpers.ConvertStepK8sCanaryDeploy(src)
 	case v0.StepTypeK8sBlueGreenDeploy:
 		step.Template = convert_helpers.ConvertStepK8sBlueGreenDeploy(src)
+	case v0.StepTypeK8sPatch:
+		step.Template = convert_helpers.ConvertStepK8sPatch(src)
 	case v0.StepTypeHelmBGDeploy:
 		step.Template = convert_helpers.ConvertStepHelmBGDeploy(src)
 	case v0.StepTypeHelmBlueGreenSwapStep:
 		step.Template = convert_helpers.ConvertStepHelmBlueGreenSwapStep(src)
 	case v0.StepTypeHelmCanaryDeploy:
 		step.Template = convert_helpers.ConvertStepHelmCanaryDeploy(src)
+	case v0.StepTypeHelmCanaryDelete:
+		step.Template = convert_helpers.ConvertStepHelmCanaryDelete(src)
 	case v0.StepTypeHelmDelete:
 		step.Template = convert_helpers.ConvertStepHelmDelete(src)
 	case v0.StepTypeHelmDeploy:

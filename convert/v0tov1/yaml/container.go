@@ -16,7 +16,10 @@
 
 package yaml
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"github.com/drone/go-convert/internal/flexible"
+)
 
 type Container struct {
 	Args        Stringorslice     `json:"args,omitempty" yaml:"args,omitempty"`
@@ -33,10 +36,10 @@ type Container struct {
 	Network     string            `json:"network,omitempty" yaml:"network,omitempty"`
 	NetworkMode string            `json:"network-mode,omitempty" yaml:"network-mode,omitempty"`
 	Ports       []string          `json:"ports,omitempty" yaml:"ports,omitempty"`
-	Privileged  bool              `json:"privileged,omitempty" yaml:"privileged,omitempty"`
+	Privileged  *flexible.Field[bool]              `json:"privileged,omitempty" yaml:"privileged,omitempty"`
 	Pull        string            `json:"pull,omitempty" yaml:"pull,omitempty"`
 	ShmSize     StringorInt       `json:"shm-size,omitempty" yaml:"shm-size,omitempty"`
-	User        string       `json:"user,omitempty" yaml:"user,omitempty"`
+	User        *flexible.Field[int]        `json:"user,omitempty" yaml:"user,omitempty"`
 	Volumes     []*Mount          `json:"volumes,omitempty" yaml:"volumes,omitempty"`
 	Workdir     string            `json:"workdir,omitempty" yaml:"workdir,omitempty"`
 }
@@ -59,10 +62,10 @@ func (v *Container) UnmarshalJSON(data []byte) error {
 		Network     string            `json:"network,omitempty" yaml:"network,omitempty"`
 		NetworkMode string            `json:"network-mode,omitempty" yaml:"network-mode,omitempty"`
 		Ports       []string          `json:"ports,omitempty" yaml:"ports,omitempty"`
-		Privileged  bool              `json:"privileged,omitempty" yaml:"privileged,omitempty"`
+		Privileged  *flexible.Field[bool]              `json:"privileged,omitempty" yaml:"privileged,omitempty"`
 		Pull        string            `json:"pull,omitempty" yaml:"pull,omitempty"`
 		ShmSize     StringorInt       `json:"shm-size,omitempty" yaml:"shm-size,omitempty"`
-		User        string       `json:"user,omitempty" yaml:"user,omitempty"`
+		User        *flexible.Field[int]        `json:"user,omitempty" yaml:"user,omitempty"`
 		Volumes     []*Mount          `json:"volumes,omitempty" yaml:"volumes,omitempty"`
 		Workdir     string            `json:"workdir,omitempty" yaml:"workdir,omitempty"`
 	}{}

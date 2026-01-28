@@ -1,10 +1,11 @@
 package converthelpers
 
 import (
-
 	"strings"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
@@ -18,7 +19,7 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 
 	// Container
 	var container *v1.Container
-	if sp.Image != "" || sp.ConnRef != "" || sp.Privileged || sp.ImagePullPolicy != "" {
+	if sp.Image != "" || sp.ConnRef != "" || sp.ImagePullPolicy != "" {
 		pull := ""
 		if strings.EqualFold(sp.ImagePullPolicy, "Always") {
 			pull = "always"
@@ -73,12 +74,22 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 	}
 
 	//intelligence
-	var intelligence *v1.TestIntelligence
-	if !sp.IntelligenceMode {
-		intelligence = &v1.TestIntelligence{
-			Disabled: true,
+	var disabled *flexible.Field[bool]
+	if sp.IntelligenceMode != nil {
+		if val, ok := sp.IntelligenceMode.AsStruct(); ok {
+			// It's a boolean value
+			disabled = &flexible.Field[bool]{Value: val}
+		} else if expr, ok := sp.IntelligenceMode.AsString(); ok {
+			// Convert <+expression> to <+!expression>
+			modifiedExpr := "<+!" + expr + ">"
+			disabled = &flexible.Field[bool]{}
+			disabled.SetExpression(modifiedExpr)
 		}
 	}
+	intelligence := &v1.TestIntelligence{
+		Disabled: disabled,
+	}
+	
 
 	dst := &v1.StepTest{
 		Env: sp.Env,

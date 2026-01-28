@@ -2,7 +2,7 @@ package converthelpers
 
 import (
 	"testing"
-
+	"github.com/drone/go-convert/internal/flexible"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	"github.com/google/go-cmp/cmp"
 )
@@ -39,7 +39,7 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 					Host:         "europe-west1-docker.pkg.dev",
 					ProjectID:    "prod-project",
 					ImageName:    "backend-service",
-					Caching:      true,
+					Caching:      &flexible.Field[bool]{Value: true},
 					BuildArgs: map[string]string{
 						"GO_VERSION": "1.21",
 						"APP_ENV":    "production",
@@ -50,7 +50,7 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				"connector": "gcp-connector",
 				"registry":  "europe-west1-docker.pkg.dev/prod-project",
 				"repo":      "backend-service",
-				"caching":   true,
+				"caching":   &flexible.Field[bool]{Value: true},
 				"buildargs": map[string]string{
 					"GO_VERSION": "1.21",
 					"APP_ENV":    "production",
@@ -179,7 +179,7 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 					ProjectID:    "complete-project",
 					ImageName:    "complete-app",
 					Tags:         []string{"v2.0.0"},
-					Caching:      true,
+					Caching:      &flexible.Field[bool]{Value: true},
 					Dockerfile:   "Dockerfile.prod",
 					Context:      "./app",
 					Target:       "production",
@@ -201,7 +201,7 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				"registry":   "us-central1-docker.pkg.dev/complete-project",
 				"repo":       "complete-app",
 				"tags":       []string{"v2.0.0"},
-				"caching":    true,
+				"caching":    &flexible.Field[bool]{Value: true},
 				"dockerfile": "Dockerfile.prod",
 				"context":    "./app",
 				"target":     "production",
