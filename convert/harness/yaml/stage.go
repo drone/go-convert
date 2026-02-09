@@ -106,7 +106,7 @@ type (
 
 	StageWhen struct {
 		PipelineStatus string `json:"pipelineStatus,omitempty" yaml:"pipelineStatus,omitempty"`
-		Condition      string `json:"condition,omitempty" yaml:"condition,omitempty"`
+		Condition      *flexible.Field[bool] `json:"condition,omitempty" yaml:"condition,omitempty"`
 	}
 
 	Strategy struct {
@@ -146,7 +146,11 @@ func (s *Stage) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, obj); err != nil {
 		return err
 	}
-
+	// If spec is missing or empty, leave it as nil
+	if len(obj.Spec) == 0 || string(obj.Spec) == "null" {
+		s.Spec = nil
+		return nil
+	}
 	switch s.Type {
 	case StageTypeCI:
 		s.Spec = new(StageCI)

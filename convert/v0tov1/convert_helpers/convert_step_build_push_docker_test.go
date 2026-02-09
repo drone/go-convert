@@ -19,13 +19,13 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 				Spec: &v0.StepBuildAndPushDockerRegistry{
 					ConnectorRef: "docker-connector",
 					Repo:         "myorg/myapp",
-					Tags:         []string{"latest", "v1.0.0"},
+					Tags:         &flexible.Field[[]string]{Value: []string{"latest", "v1.0.0"}},
 				},
 			},
 			expected: map[string]interface{}{
 				"connector": "docker-connector",
 				"repo":      "myorg/myapp",
-				"tags":      []string{"latest", "v1.0.0"},
+				"tags":      &flexible.Field[[]string]{Value: []string{"latest", "v1.0.0"}},
 			},
 		},
 		{
@@ -100,7 +100,7 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 				Spec: &v0.StepBuildAndPushDockerRegistry{
 					ConnectorRef: "docker-connector",
 					Repo:         "myorg/complete",
-					Tags:         []string{"v2.0.0"},
+					Tags:         &flexible.Field[[]string]{Value: []string{"v2.0.0"}},
 					Caching:      &flexible.Field[bool]{Value: true},
 					Dockerfile:   "Dockerfile.prod",
 					Context:      "./backend",
@@ -119,7 +119,7 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 			expected: map[string]interface{}{
 				"connector":  "docker-connector",
 				"repo":       "myorg/complete",
-				"tags":       []string{"v2.0.0"},
+				"tags":       &flexible.Field[[]string]{Value: []string{"v2.0.0"}},
 				"caching":    &flexible.Field[bool]{Value: true},
 				"dockerfile": "Dockerfile.prod",
 				"context":    "./backend",

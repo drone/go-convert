@@ -27,7 +27,7 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 		with["repo"] = spec.Repo
 	}
 
-	if len(spec.Tags) > 0 {
+	if spec.Tags != nil {
 		with["tags"] = spec.Tags
 	}
 

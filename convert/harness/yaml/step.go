@@ -85,7 +85,7 @@ type (
 		Region                 string            `json:"region,omitempty"                 yaml:"region,omitempty"`
 		Account                string            `json:"account,omitempty"                yaml:"account,omitempty"`
 		ImageName              string            `json:"imageName,omitempty"              yaml:"imageName,omitempty"`
-		Tags                   []string          `json:"tags,omitempty"                   yaml:"tags,omitempty"`
+		Tags                   *flexible.Field[[]string]          `json:"tags,omitempty"                   yaml:"tags,omitempty"`
 		Caching                *flexible.Field[bool]              `json:"caching,omitempty"                yaml:"caching,omitempty"`
 		BaseImageConnectorRefs interface{}       `json:"baseImageConnectorRefs,omitempty" yaml:"baseImageConnectorRefs,omitempty"`
 		Dockerfile             string            `json:"dockerfile,omitempty"             yaml:"dockerfile,omitempty"`
@@ -108,7 +108,7 @@ type (
 		Host                   string            `json:"host,omitempty"                   yaml:"host,omitempty"`
 		ProjectID              string            `json:"projectID,omitempty"              yaml:"projectID,omitempty"`
 		ImageName              string            `json:"imageName,omitempty"              yaml:"imageName,omitempty"`
-		Tags                   []string          `json:"tags,omitempty"                   yaml:"tags,omitempty"`
+		Tags                   *flexible.Field[[]string]          `json:"tags,omitempty"                   yaml:"tags,omitempty"`
 		Caching                *flexible.Field[bool]              `json:"caching,omitempty"                yaml:"caching,omitempty"`
 		BaseImageConnectorRefs interface{}       `json:"baseImageConnectorRefs,omitempty" yaml:"baseImageConnectorRefs,omitempty"`
 		Dockerfile             string            `json:"dockerfile,omitempty"             yaml:"dockerfile,omitempty"`
@@ -134,7 +134,7 @@ type (
 		Reports                []*Report         `json:"reports,omitempty"                 yaml:"reports,omitempty"`
 		Resources              *Resources        `json:"resources,omitempty"               yaml:"resources,omitempty"`
 		RunAsUser              string            `json:"runAsUser,omitempty"               yaml:"runAsUser,omitempty"`
-		Tags                   []string          `json:"tags,omitempty"                    yaml:"tags,omitempty"`
+		Tags                   *flexible.Field[[]string]          `json:"tags,omitempty"                    yaml:"tags,omitempty"`
 		Target                 string            `json:"target,omitempty"                  yaml:"target,omitempty"`
 		Caching                *flexible.Field[bool]              `json:"caching,omitempty"                 yaml:"caching,omitempty"`
 		Env                    map[string]string `json:"envVariables,omitempty"            yaml:"envVariables,omitempty"`
@@ -528,9 +528,9 @@ type (
 	//
 
 	Approvers struct {
-		MinimumCount             int      `json:"minimumCount,omitempty" yaml:"minimumCount,omitempty"`
+		MinimumCount             *flexible.Field[int]      `json:"minimumCount,omitempty" yaml:"minimumCount,omitempty"`
 		DisallowPipelineExecutor *flexible.Field[bool]     `json:"disallowPipelineExecutor,omitempty" yaml:"disallowPipelineExecutor,omitempty"`
-		UserGroups               []string `json:"userGroups,omitempty" yaml:"userGroups,omitempty"`
+		UserGroups               *flexible.Field[[]string] `json:"userGroups,omitempty" yaml:"userGroups,omitempty"`
 	}
 
 	ApproverInput struct {
@@ -555,7 +555,7 @@ type (
 
 	StepWhen struct {
 		StageStatus string `json:"stageStatus,omitempty" yaml:"stageStatus,omitempty"`
-		Condition   string `json:"condition,omitempty" yaml:"condition,omitempty"`
+		Condition   *flexible.Field[bool] `json:"condition,omitempty" yaml:"condition,omitempty"`
 	}
 
 	AutoApproval struct {

@@ -1250,7 +1250,7 @@ func convertStepWhen(when *v1.When, stepId string) *flexible.Field[v0.StepWhen] 
 	}
 
 	if len(conditions) > 0 {
-		newWhen.Condition = strings.Join(conditions, " && ")
+		newWhen.Condition = &flexible.Field[bool]{Value: strings.Join(conditions, " && ")}
 	}
 
 	return &flexible.Field[v0.StepWhen]{Value: newWhen}
@@ -1363,7 +1363,7 @@ func convertStageWhen(when *v1.When, stepId string) *flexible.Field[v0.StageWhen
 	}
 
 	if len(conditions) > 0 {
-		newWhen.Condition = strings.Join(conditions, " && ")
+		newWhen.Condition = &flexible.Field[bool]{Value: strings.Join(conditions, " && ")}
 	}
 
 	return &flexible.Field[v0.StageWhen]{Value: newWhen}

@@ -35,7 +35,7 @@ func ConvertStepBuildAndPushGAR(src *v0.Step) *v1.StepTemplate {
 		with["repo"] = spec.ImageName
 	}
 
-	if len(spec.Tags) > 0 {
+	if spec.Tags != nil {
 		with["tags"] = spec.Tags
 	}
 

@@ -24,9 +24,19 @@ func ConvertStepWhen(src *flexible.Field[v0.StepWhen]) string {
 		}
 
 		// Add custom condition if present
-		if when.Condition != "" {
-			parts = append(parts, "("+when.Condition+")")
-		}
+        if when.Condition != nil && !when.Condition.IsNil() {
+            // Check if it's an expression string
+            if condExpr, ok := when.Condition.AsString(); ok && condExpr != "" {
+                parts = append(parts, "("+condExpr+")")
+            } else if condBool, ok := when.Condition.AsStruct(); ok {
+                // Convert boolean to string representation
+                if condBool {
+                    parts = append(parts, "(true)")
+                } else {
+                    parts = append(parts, "(false)")
+                }
+            }
+        }
 
 		// Combine with &&
 		if len(parts) == 0 {
@@ -59,9 +69,19 @@ func ConvertStageWhen(src *flexible.Field[v0.StageWhen]) string {
 		}
 
 		// Add custom condition if present
-		if when.Condition != "" {
-			parts = append(parts, "("+when.Condition+")")
-		}
+        if when.Condition != nil && !when.Condition.IsNil() {
+            // Check if it's an expression string
+            if condExpr, ok := when.Condition.AsString(); ok && condExpr != "" {
+                parts = append(parts, "("+condExpr+")")
+            } else if condBool, ok := when.Condition.AsStruct(); ok {
+                // Convert boolean to string representation
+                if condBool {
+                    parts = append(parts, "(true)")
+                } else {
+                    parts = append(parts, "(false)")
+                }
+            }
+        }
 
 		// Combine with &&
 		if len(parts) == 0 {
