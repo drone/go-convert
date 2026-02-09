@@ -24,21 +24,23 @@ func ConvertCaching(cache *v0.Cache) *v1.Cache {
 		return nil
 	}
 
-	disabled := !cache.Enabled
-	if !disabled {
-		return nil
-	}
 	return &v1.Cache{
-		Disabled: disabled,
+		Enabled:  cache.Enabled,
+		Key:      cache.Key,
+		Path:     cache.Paths,
+		Policy:   cache.Policy,
+		Override: cache.Override,
 	}
 }
 
 // ConvertBuildIntelligence converts v0 BuildIntelligence to v1 bool
-func ConvertBuildIntelligence(bi *v0.BuildIntelligence) *flexible.Field[bool] {
+func ConvertBuildIntelligence(bi *v0.BuildIntelligence) *v1.BuildIntelligence {
 	if bi == nil {
 		return nil
 	}
-	return bi.Enabled
+	return &v1.BuildIntelligence{
+		Enabled: bi.Enabled,
+	}
 }
 
 func ConvertRuntime(runtime *v0.Runtime) *v1.Runtime {

@@ -68,6 +68,8 @@ type (
 		Enabled bool     `json:"enabled,omitempty" yaml:"enabled,omitempty"`
 		Key     string   `json:"key,omitempty"     yaml:"key,omitempty"`
 		Paths   []string `json:"paths,omitempty"   yaml:"paths,omitempty"`
+		Policy  string   `json:"policy,omitempty"  yaml:"policy,omitempty"`
+		Override bool    `json:"override,omitempty"  yaml:"override,omitempty"`
 	}
 
 	// Codebase defines a codebase.

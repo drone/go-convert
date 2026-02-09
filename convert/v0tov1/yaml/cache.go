@@ -18,8 +18,9 @@ package yaml
 
 // Cache defines pipeline caching behavior.
 type Cache struct {
-	Disabled bool          `json:"disabled,omitempty"`
+	Enabled bool          `json:"enabled"`
 	Key      string        `json:"key,omitempty"`
-	Path     Stringorslice `json:"path,omitempty"`
+	Path     []string `json:"path,omitempty"`
 	Policy   string        `json:"policy,omitempty"`
+	Override bool    `json:"override,omitempty"`
 }
