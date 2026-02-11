@@ -50,8 +50,8 @@ type Stage struct {
 	Template    *StageTemplate         `json:"template,omitempty" yaml:"template,omitempty"`
 	Timeout     string                 `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Volumes     []*Volume              `json:"volumes,omitempty" yaml:"volumes,omitempty"`
-	Workspace   *Workspace             `json:"workspace,omitempty" yaml:"workspace,omitempty"`
-
+	// Workspace   *Workspace             `json:"workspace,omitempty" yaml:"workspace,omitempty"`
+	Workspace string `json:"workspace,omitempty" yaml:"workspace,omitempty"`
 	// Context temporarily stores information from the
 	// matrix and template expansion. Context is not part of
 	// the yaml schema.

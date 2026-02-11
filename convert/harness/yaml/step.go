@@ -688,6 +688,10 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepServiceNowCreate)
 	case StepTypeServiceNowUpdate:
 		s.Spec = new(StepServiceNowUpdate)
+	case StepTypeIACMTerraformPlugin:
+		s.Spec = new(StepIACMTerraformPlugin)
+	case StepTypeIACMOpenTofuPlugin:
+		s.Spec = new(StepIACMOpenTofuPlugin)
 	default:
 		// log.Printf("unknown step type while unmarshalling %s", s.Type)
 		return fmt.Errorf("unknown step type %s", s.Type)

@@ -67,4 +67,8 @@ const (
 
 	// Approval
 	StepTypeVerify = "Verify"
+
+	// IACM
+	StepTypeIACMTerraformPlugin = "terraformStep"
+	StepTypeIACMOpenTofuPlugin  = "openTofuStep"
 )

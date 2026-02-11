@@ -99,7 +99,7 @@ type (
 	BuildSpec struct {
 		Branch string `json:"branch,omitempty" yaml:"branch,omitempty"`
 		Tag string `json:"tag,omitempty" yaml:"tag,omitempty"`
-		Number string `json:"number,omitempty" yaml:"number,omitempty"`
+		Number *flexible.Field[int] `json:"number,omitempty" yaml:"number,omitempty"`
 		CommitSha string `json:"commitSha,omitempty" yaml:"commitSha,omitempty"`
 	}
 

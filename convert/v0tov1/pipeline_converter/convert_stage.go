@@ -55,6 +55,21 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		stage.Environment = convert_helpers.ConvertEnvironment(spec.Environment)
 		stage.Timeout = spec.Timeout
 
+	case *v0.StageIACM:
+		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
+		stage.Timeout = spec.Timeout
+		
+		if spec.Infrastructure != nil {
+			stage.Runtime = convert_helpers.ConvertInfrastructureToRuntime(spec.Infrastructure)
+		} else if spec.Runtime != nil {
+			stage.Runtime = convert_helpers.ConvertRuntime(spec.Runtime)
+		} else {
+			log.Printf("Warning!!! No runtime or infrastructure found in IACM stage: %s\n", src.ID)
+		}
+		stage.Platform = convert_helpers.ConvertPlatform(spec.Platform)
+
+		stage.Workspace = spec.Workspace
+
 	case *v0.StageCI:
 		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
 

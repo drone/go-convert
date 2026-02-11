@@ -72,11 +72,12 @@ func (c *PipelineConverter) convertCodebase(src *v0.Codebase) (*v1.Clone) {
             } else if build.Type == "tag" && build.Spec.Tag != "" {
                 cloneRef.Name = build.Spec.Tag
 				cloneRef.Type = "tag"
-            } else if build.Type == "PR" && build.Spec.Number != "" {
-                cloneRef.Name = build.Spec.Number
-				cloneRef.Type = "pr"
+            } else if build.Type == "PR" && build.Spec.Number != nil {
+                cloneRef.Number = build.Spec.Number
+				cloneRef.Type = "pull-request"
             } else if build.Type == "commitSha" && build.Spec.CommitSha != "" {
                 cloneRef.Sha = build.Spec.CommitSha
+				cloneRef.Type = "commit"
             }
 
             clone.Ref = cloneRef

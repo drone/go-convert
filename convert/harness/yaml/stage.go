@@ -58,6 +58,16 @@ type (
 		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	}
 
+	// StageIACM defines an IACM stage.
+	StageIACM struct {
+		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
+		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+		Workspace string `json:"workspace,omitempty" yaml:"workspace,omitempty"`
+		Infrastructure *Infrastructure `json:"infrastructure,omitempty" yaml:"infrastructure,omitempty"`
+		Runtime *Runtime `json:"runtime,omitempty" yaml:"runtime,omitempty"`
+		Platform *Platform `json:"platform,omitempty" yaml:"platform,omitempty"`
+	}
+
 	// StageCI defines a continuous integration stage.
 	StageCI struct {
 		BuildIntelligence *BuildIntelligence `json:"buildIntelligence,omitempty"   yaml:"buildIntelligence,omitempty"`
@@ -164,6 +174,8 @@ func (s *Stage) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StageApproval)
 	case StageTypePipeline:
 		s.Spec = new(StagePipeline)
+	case StageTypeIACM:
+		s.Spec = new(StageIACM)
 	default:
 		return fmt.Errorf("unknown stage type %s", s.Type)
 	}

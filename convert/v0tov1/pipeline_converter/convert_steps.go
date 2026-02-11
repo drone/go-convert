@@ -173,6 +173,10 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool) *v1
 		step.RunTest = convert_helpers.ConvertStepTestIntelligence(src)
 	case v0.StepTypeGitClone:
 		step.Template = convert_helpers.ConvertStepGitClone(src)
+	case v0.StepTypeIACMTerraformPlugin:
+		step.Template = convert_helpers.ConvertStepIACMTerraformPlugin(src)
+	case v0.StepTypeIACMOpenTofuPlugin:
+		step.Template = convert_helpers.ConvertStepIACMOpenTofuPlugin(src)
 	default:
 		// Unknown step type, return nil
 		log.Println("Warning!!! step type: " + src.Type + " is not yet supported!")

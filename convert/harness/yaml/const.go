@@ -33,6 +33,7 @@ const (
 	StageTypeFeatureFlag           = "FeatureFlag"
 	StageTypeCustom                = "Custom"
 	StageTypePipeline              = "Pipeline"
+	StageTypeIACM                  = "IACM"
 )
 
 type InfraType string
@@ -116,6 +117,14 @@ const (
 
 	// Approval
 	StepTypeVerify = "Verify"
+
+	// IACM
+	StepTypeIACMTerraformPlugin = "IACMTerraformPlugin"
+	StepTypeIACMOpenTofuPlugin = "IACMOpenTofuPlugin"
+
+	// Terraform
+	StepTypeTerraformPlan = "TerraformPlan"
+	StepTypeTerraformApply = "TerraformApply"
 )
 
 type Shell string

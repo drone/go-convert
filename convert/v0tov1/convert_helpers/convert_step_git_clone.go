@@ -31,11 +31,12 @@ func ConvertStepGitClone(src *v0.Step) *v1.StepTemplate {
 				with["branch"] = build.Spec.Branch
 			} else if build.Type == "tag" && build.Spec.Tag != "" {
 				with["tag"] = build.Spec.Tag
+			} else if build.Type == "PR" && build.Spec.Number != nil {
+				with["pr"] = build.Spec.Number
+			} else if build.Type == "commitSha" && build.Spec.CommitSha != "" {
+				with["commitSha"] = build.Spec.CommitSha
 			}
-		} else if expr, ok := sp.BuildType.AsString(); ok {
-			// Build is an expression string
-			with["build"] = expr
-		}
+		} 
 	}
 
 	// Clone directory
