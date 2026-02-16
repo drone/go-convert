@@ -27,7 +27,7 @@ type Container struct {
 	Cpu         string       `json:"cpu,omitempty" yaml:"cpu,omitempty"`
 	Credentials *Credentials      `json:"credentials,omitempty" yaml:"credentials,omitempty"`
 	Dns         Stringorslice     `json:"dns,omitempty" yaml:"dns,omitempty"`
-	Entrypoint  Stringorslice     `json:"entrypoint,omitempty" yaml:"entrypoint,omitempty"`
+	Entrypoint  *flexible.Field[[]string]     `json:"entrypoint,omitempty" yaml:"entrypoint,omitempty"`
 	Env         map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
 	ExtraHosts  Stringorslice     `json:"extra-hosts,omitempty" yaml:"extra-hosts,omitempty"`
 	Group       StringorInt       `json:"group,omitempty" yaml:"group,omitempty"`
@@ -53,7 +53,7 @@ func (v *Container) UnmarshalJSON(data []byte) error {
 		Cpu         string       `json:"cpu,omitempty" yaml:"cpu,omitempty"`
 		Credentials *Credentials      `json:"credentials,omitempty" yaml:"credentials,omitempty"`
 		Dns         Stringorslice     `json:"dns,omitempty" yaml:"dns,omitempty"`
-		Entrypoint  Stringorslice     `json:"entrypoint,omitempty" yaml:"entrypoint,omitempty"`
+		Entrypoint  *flexible.Field[[]string]     `json:"entrypoint,omitempty" yaml:"entrypoint,omitempty"`
 		Env         map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
 		ExtraHosts  Stringorslice     `json:"extra-hosts,omitempty" yaml:"extra-hosts,omitempty"`
 		Group       StringorInt       `json:"group,omitempty" yaml:"group,omitempty"`

@@ -17,6 +17,7 @@ package converthelpers
 import (
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 // ConvertDeploymentService converts v0 DeploymentService to v1 ServiceRef
@@ -48,11 +49,15 @@ func ConvertDeploymentServices(src *v0.DeploymentServices) *v1.ServiceRef {
 			serviceRefs = append(serviceRefs, service.ServiceRef)
 		}
 	}
-
+	var parallel *flexible.Field[bool]
+	if src.Metadata != nil {
+		parallel = src.Metadata.Parallel
+	}
 	if len(serviceRefs) > 0 {
 		return &v1.ServiceRef{
 			Items:      serviceRefs,
 			MultiService: true,
+			Sequential: flexible.NegateBool(parallel),
 		}
 	}
 
@@ -139,7 +144,7 @@ func ConvertEnvironments(src *v0.Environments) *v1.EnvironmentRef {
 			Items: items,
 		}
 		if src.Metadata != nil {
-			result.Sequential = !src.Metadata.Parallel
+			result.Sequential = flexible.NegateBool(src.Metadata.Parallel)
 		}
 		return result
 	}

@@ -47,7 +47,7 @@ pipeline:
           items:
           - name: prod
       - environment:
-          parallel: true
+          sequential: true
           items:
           - name: test
           - name: prod
@@ -64,7 +64,7 @@ pipeline:
           - petstore-frontend
           - petstore-backend
       - service:
-          parallel: true
+          sequential: true
           items:
           - petstore-frontend
           - petstore-backend

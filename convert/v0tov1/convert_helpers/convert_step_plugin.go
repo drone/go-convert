@@ -62,17 +62,9 @@ func ConvertStepPlugin(src *v0.Step) *v1.StepRun {
 
 	dst := &v1.StepRun{
 		Container: container,
-		Env:       map[string]interface{}{},
+		Env:       sp.Env,
 		Report:    report,
 		With:      sp.Settings,
-	}
-
-	// merge envVariables and step-level env into run env
-	for k, v := range sp.Env {
-		if dst.Env == nil {
-			dst.Env = make(map[string]interface{})
-		}
-		dst.Env[k] = v
 	}
 
 	return dst

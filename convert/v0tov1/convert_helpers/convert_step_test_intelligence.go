@@ -74,20 +74,8 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 	}
 
 	//intelligence
-	var disabled *flexible.Field[bool]
-	if sp.IntelligenceMode != nil {
-		if val, ok := sp.IntelligenceMode.AsStruct(); ok {
-			// It's a boolean value
-			disabled = &flexible.Field[bool]{Value: val}
-		} else if expr, ok := sp.IntelligenceMode.AsString(); ok {
-			// Convert <+expression> to <+!expression>
-			modifiedExpr := "<+!" + expr + ">"
-			disabled = &flexible.Field[bool]{}
-			disabled.SetExpression(modifiedExpr)
-		}
-	}
 	intelligence := &v1.TestIntelligence{
-		Disabled: disabled,
+		Disabled: flexible.NegateBool(sp.IntelligenceMode),
 	}
 	
 

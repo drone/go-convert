@@ -84,7 +84,7 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 
 	dst := &v1.StepRun{
 		Container: container,
-		Env:       map[string]interface{}{},
+		Env:       sp.Env,
 		Report:    report,
 		Shell:     shell,
 	}
@@ -95,12 +95,11 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 
 	dst.Outputs = ConvertOutputVariables(sp.Outputs)
 
-	// merge envVariables and step-level env into run env
-	for k, v := range sp.Env {
-		if dst.Env == nil {
-			dst.Env = make(map[string]interface{})
+	if sp.Alias != nil {
+		dst.Alias = &v1.OutputAlias{
+			Key:   sp.Alias.Key,
+			Scope: sp.Alias.Scope,
 		}
-		dst.Env[k] = v
 	}
 
 	return dst

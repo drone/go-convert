@@ -105,15 +105,15 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 					Dockerfile:   "Dockerfile.prod",
 					Context:      "./backend",
 					Target:       "production",
-					Labels: map[string]string{
+					Labels: &flexible.Field[map[string]string]{Value: map[string]string{
 						"version": "2.0.0",
-					},
-					BuildArgs: map[string]string{
+					}},
+					BuildArgs: &flexible.Field[map[string]string]{Value: map[string]string{
 						"NODE_VERSION": "20",
-					},
-					Env: map[string]string{
+					}},
+					Env: &flexible.Field[map[string]string]{Value: map[string]string{
 						"BUILD_ENV": "prod",
-					},
+					}},
 				},
 			},
 			expected: map[string]interface{}{
@@ -124,15 +124,15 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 				"dockerfile": "Dockerfile.prod",
 				"context":    "./backend",
 				"target":     "production",
-				"labels": map[string]string{
-					"version": "2.0.0",
-				},
-				"buildargs": map[string]string{
-					"NODE_VERSION": "20",
-				},
-				"envvars": map[string]string{
-					"BUILD_ENV": "prod",
-				},
+				"labels": &flexible.Field[map[string]string]{Value: map[string]string{
+						"version": "2.0.0",
+				}},
+				"buildargs": &flexible.Field[map[string]string]{Value: map[string]string{
+						"NODE_VERSION": "20",
+				}},
+				"envvars": &flexible.Field[map[string]string]{Value: map[string]string{
+						"BUILD_ENV": "prod",
+				}},
 			},
 		},
 	}

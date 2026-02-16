@@ -16,11 +16,14 @@
 
 package yaml
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"github.com/drone/go-convert/internal/flexible"
+)
 
 type ServiceRef struct {
 	Items       []string `json:"items,omitempty"`
-	Parallel    bool     `json:"parallel,omitempty"`
+	Sequential    *flexible.Field[bool]     `json:"sequential,omitempty"`
 	MultiService bool     `json:"-"` // Don't serialize this field
 }
 
@@ -29,7 +32,7 @@ func (v *ServiceRef) UnmarshalJSON(data []byte) error {
 	var out1 Stringorslice
 	var out2 = struct {
 		Items       []string `json:"items,omitempty"`
-		Parallel    bool     `json:"parallel,omitempty"`
+		Sequential    *flexible.Field[bool]     `json:"sequential,omitempty"`
 		MultiService bool     `json:"-"`
 	}{}
 
@@ -48,8 +51,8 @@ func (v *ServiceRef) UnmarshalJSON(data []byte) error {
 
 // MarshalJSON implements the json.Marshaler interface.
 func (v *ServiceRef) MarshalJSON() ([]byte, error) {
-	// If there's exactly one item, no parallel flag, and not forced to be array, marshal as a simple string
-	if len(v.Items) == 1 && !v.Parallel && !v.MultiService {
+	// If there's exactly one item, and not forced to be array, marshal as a simple string
+	if len(v.Items) == 1 && !v.MultiService {
 		return json.Marshal(v.Items[0])
 	}
 	

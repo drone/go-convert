@@ -631,6 +631,10 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 	if spec_.Privileged {
 		privileged = &flexible.Field[bool]{Value: true}
 	}
+	var env *flexible.Field[map[string]interface{}]
+	if len(spec_.Envs) > 0 {
+		env = &flexible.Field[map[string]interface{}]{Value: spec_.Envs}
+	}
 	return &v0.Step{
 		ID:      id,
 		Name:    convertName(src.Name),
@@ -638,7 +642,7 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 		Timeout: convertTimeout(src.Timeout),
 
 		Spec: &v0.StepRun{
-			Env:             spec_.Envs,
+			Env:             env,
 			Command:         spec_.Run,
 			ConnRef:         connectorRef,
 			Image:           convertImage(spec_.Image, d.defaultImage),
@@ -720,13 +724,17 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 		src.Name = id
 	}
 	// convert the entrypoint string to a slice.
-	var entypoint []string
+	var entypoint *flexible.Field[[]string]
 	if spec_.Entrypoint != "" {
-		entypoint = []string{spec_.Entrypoint}
+		entypoint = &flexible.Field[[]string]{Value: []string{spec_.Entrypoint}}
 	}
 	var privileged *flexible.Field[bool]
 	if spec_.Privileged {
 		privileged = &flexible.Field[bool]{Value: true}
+	}
+	var env *flexible.Field[map[string]interface{}]
+	if len(spec_.Envs) > 0 {
+		env = &flexible.Field[map[string]interface{}]{Value: spec_.Envs}
 	}
 	return &v0.Step{
 		ID:   id,
@@ -736,7 +744,7 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 			Command:         spec_.Run,
 			ConnRef:         d.dockerhubConn,
 			Entrypoint:      entypoint,
-			Env:             spec_.Envs,
+			Env:             env,
 			Image:           spec_.Image,
 			ImagePullPolicy: convertImagePull(spec_.Pull),
 			Privileged:      privileged,
@@ -806,13 +814,17 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 			When: convertStepWhen(src.When, id),
 		}
 	default:
+		var env *flexible.Field[map[string]interface{}]
+		if len(spec_.Envs) > 0 {
+			env = &flexible.Field[map[string]interface{}]{Value: spec_.Envs}
+		}
 		return &v0.Step{
 			ID:      id,
 			Name:    src.Name,
 			Type:    v0.StepTypePlugin,
 			Timeout: convertTimeout(src.Timeout),
 			Spec: &v0.StepPlugin{
-				Env:             spec_.Envs,
+				Env:             env,
 				ConnRef:         d.dockerhubConn,
 				Image:           spec_.Image,
 				ImagePullPolicy: convertImagePull(spec_.Pull),

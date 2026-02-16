@@ -40,10 +40,10 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 					ProjectID:    "prod-project",
 					ImageName:    "backend-service",
 					Caching:      &flexible.Field[bool]{Value: true},
-					BuildArgs: map[string]string{
+					BuildArgs: &flexible.Field[map[string]string]{Value: map[string]string{
 						"GO_VERSION": "1.21",
 						"APP_ENV":    "production",
-					},
+					}},
 				},
 			},
 			expected: map[string]interface{}{
@@ -51,10 +51,10 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				"registry":  "europe-west1-docker.pkg.dev/prod-project",
 				"repo":      "backend-service",
 				"caching":   &flexible.Field[bool]{Value: true},
-				"buildargs": map[string]string{
+				"buildargs": &flexible.Field[map[string]string]{Value: map[string]string{
 					"GO_VERSION": "1.21",
 					"APP_ENV":    "production",
-				},
+				}},
 			},
 		},
 		{
@@ -183,17 +183,17 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 					Dockerfile:   "Dockerfile.prod",
 					Context:      "./app",
 					Target:       "production",
-					Labels: map[string]string{
+					Labels: &flexible.Field[map[string]string]{Value: map[string]string{
 						"version": "2.0.0",
 						"team":    "platform",
-					},
-					BuildArgs: map[string]string{
+					}},
+					BuildArgs: &flexible.Field[map[string]string]{Value: map[string]string{
 						"PYTHON_VERSION": "3.11",
-					},
-					Env: map[string]string{
+					}},
+					Env: &flexible.Field[map[string]string]{Value: map[string]string{
 						"BUILD_ENV": "prod",
 						"LOG_LEVEL": "info",
-					},
+					}},
 				},
 			},
 			expected: map[string]interface{}{
@@ -205,17 +205,17 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				"dockerfile": "Dockerfile.prod",
 				"context":    "./app",
 				"target":     "production",
-				"labels": map[string]string{
-					"version": "2.0.0",
-					"team":    "platform",
-				},
-				"buildargs": map[string]string{
-					"PYTHON_VERSION": "3.11",
-				},
-				"envvars": map[string]string{
-					"BUILD_ENV": "prod",
-					"LOG_LEVEL": "info",
-				},
+				"labels": &flexible.Field[map[string]string]{Value: map[string]string{
+						"version": "2.0.0",
+						"team":    "platform",
+				}},
+				"buildargs": &flexible.Field[map[string]string]{Value: map[string]string{
+						"PYTHON_VERSION": "3.11",
+				}},
+				"envvars": &flexible.Field[map[string]string]{Value: map[string]string{
+						"BUILD_ENV": "prod",
+						"LOG_LEVEL": "info",
+				}},
 			},
 		},
 	}

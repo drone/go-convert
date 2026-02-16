@@ -16,7 +16,10 @@
 
 package yaml
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"github.com/drone/go-convert/internal/flexible"
+)
 
 type Output struct {
 	Name  string `json:"name,omitempty"      yaml:"name,omitempty"`
@@ -24,14 +27,20 @@ type Output struct {
 	Mask  bool   `json:"mask,omitempty" yaml:"mask,omitempty"`
 }
 
+type OutputAlias struct {
+	Key string `json:"key,omitempty" yaml:"key,omitempty"`
+	Scope string `json:"scope,omitempty" yaml:"scope,omitempty"`
+}
+
 type StepRun struct {
 	Container *Container        `json:"container,omitempty" yaml:"container,omitempty"`
-	Env       map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
+	Env       *flexible.Field[map[string]interface{}] `json:"env,omitempty" yaml:"env,omitempty"`
 	Report    *ReportList       `json:"report,omitempty" yaml:"report,omitempty"`
 	Script    Stringorslice     `json:"script,omitempty" yaml:"script,omitempty"`
 	Shell     string            `json:"shell,omitempty" yaml:"shell,omitempty"`
 	Outputs   []*Output          `json:"output,omitempty" yaml:"output,omitempty"`
 	With      map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
+	Alias     *OutputAlias `json:"output-alias,omitempty" yaml:"output-alias,omitempty"`
 }
 
 
@@ -40,12 +49,13 @@ func (v *StepRun) UnmarshalJSON(data []byte) error {
 	var out1 Stringorslice
 	var out2 = struct {
 		Container *Container        `json:"container,omitempty" yaml:"container,omitempty"`
-		Env       map[string]interface{} `json:"env,omitempty" yaml:"env,omitempty"`
+		Env       *flexible.Field[map[string]interface{}] `json:"env,omitempty" yaml:"env,omitempty"`
 		Report    *ReportList       `json:"report,omitempty" yaml:"report,omitempty"`
 		Script    Stringorslice     `json:"script,omitempty" yaml:"script,omitempty"`
 		Shell     string            `json:"shell,omitempty" yaml:"shell,omitempty"`
 		Outputs   []*Output          `json:"output,omitempty" yaml:"output,omitempty"`
 		With      map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
+		Alias     *OutputAlias `json:"output-alias,omitempty" yaml:"output-alias,omitempty"`
 	}{}
 
 	if err := json.Unmarshal(data, &out1); err == nil {

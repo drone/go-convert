@@ -129,6 +129,33 @@ func (f *Field[T]) IsNil() bool {
 	return f.Value == nil
 }
 
+// NegateBool negates a boolean flexible field.
+// For struct values, it negates the boolean directly.
+// For expressions, it wraps the expression with <+!...> to negate it.
+// Returns nil if the input field is nil.
+func NegateBool(field *Field[bool]) *Field[bool] {
+	if field == nil {
+		return nil
+	}
+
+	result := &Field[bool]{}
+
+	if val, ok := field.AsStruct(); ok {
+		// It's a boolean value - negate it
+		result.Set(!val)
+		return result
+	}
+
+	if expr, ok := field.AsString(); ok {
+		// It's an expression - wrap with negation
+		modifiedExpr := "<+!" + expr + ">"
+		result.SetExpression(modifiedExpr)
+		return result
+	}
+
+	return nil
+}
+
 // // Convert applies a conversion function directly to the field, preserving expressions
 // func Convert[From, To any](field *Field[From], converter func(From) To) *Field[To] {
 // 	if field == nil {

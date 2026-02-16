@@ -298,12 +298,7 @@ func ConvertServiceDependencyToBackgroundStep(src *v0.Service) *v1.Step {
 
     background := &v1.StepRun{
         Container: container,
-        Env:       map[string]interface{}{},
-    }
-
-    // Add environment variables
-    for k, v := range src.Spec.Env {
-        background.Env[k] = v
+		Env: src.Spec.Env,
     }
 
     // Create the step

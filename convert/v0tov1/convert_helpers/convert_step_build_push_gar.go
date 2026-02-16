@@ -43,15 +43,15 @@ func ConvertStepBuildAndPushGAR(src *v0.Step) *v1.StepTemplate {
 		with["caching"] = spec.Caching
 	}
 
-	if len(spec.Env) > 0 {
+	if spec.Env != nil {
 		with["envvars"] = spec.Env
 	}
 
-	if len(spec.Labels) > 0 {
+	if spec.Labels != nil {
 		with["labels"] = spec.Labels
 	}
 
-	if len(spec.BuildArgs) > 0 {
+	if spec.BuildArgs != nil {
 		with["buildargs"] = spec.BuildArgs
 	}
 

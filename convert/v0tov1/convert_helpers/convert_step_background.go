@@ -57,6 +57,7 @@ func ConvertStepBackground(src *v0.Step) *v1.StepRun {
 			Pull:       pull,
 			Cpu:        cpu,
 			Memory:     memory,
+			Entrypoint: sp.Entrypoint,
 		}
 
 		container.Ports = []string{}
@@ -89,7 +90,7 @@ func ConvertStepBackground(src *v0.Step) *v1.StepRun {
 
 	dst := &v1.StepRun{
 		Container: container,
-		Env:       map[string]interface{}{},
+		Env:       sp.Env,
 		Report:    report,
 		Shell: shell,
 	}
@@ -98,22 +99,6 @@ func ConvertStepBackground(src *v0.Step) *v1.StepRun {
 	if sp.Command != "" {
 		dst.Script = v1.Stringorslice{sp.Command}
 	}
-
-	// Add entrypoint if present
-	if len(sp.Entrypoint) > 0 {
-		if container != nil {
-			container.Entrypoint = sp.Entrypoint
-		}
-	}
-
-	// Merge environment variables
-	for k, v := range sp.Env {
-		if dst.Env == nil {
-			dst.Env = make(map[string]interface{})
-		}
-		dst.Env[k] = v
-	}
-
 
 	return dst
 }
