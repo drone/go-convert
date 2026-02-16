@@ -16,9 +16,11 @@
 
 package yaml
 
+import "github.com/drone/go-convert/internal/flexible"
+
 type StepTest struct {
 	Container    *Container        `json:"container,omitempty"`
-	Env          map[string]string `json:"env,omitempty"`
+	Env          *flexible.Field[map[string]string] `json:"env,omitempty"`
 	Intelligence *TestIntelligence `json:"intelligence,omitempty"`
 	Match        Stringorslice     `json:"match,omitempty"`
 	Outputs      []*Output         `json:"output,omitempty"`

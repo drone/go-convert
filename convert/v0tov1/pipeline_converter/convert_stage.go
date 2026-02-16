@@ -1,6 +1,7 @@
 package pipelineconverter
 
 import (
+	"fmt"
 	"log"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
@@ -28,102 +29,195 @@ func (c *PipelineConverter) convertStages(src []*v0.Stages) []*v1.Stage {
 	return dst
 }
 
-// convertStage converts a v0 Stage to a v1 Stage.
 func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 	if src == nil {
 		return nil
 	}
 
-	var steps []*v1.Step
-	var rollback []*v1.Step
-	var service *v1.ServiceRef
-	var environment *v1.EnvironmentRef
+	stage := &v1.Stage{
+		Id:        src.ID,
+		Name:      src.Name,
+		OnFailure: convert_helpers.ConvertFailureStrategies(src.FailureStrategies),
+		Inputs:    c.convertVariables(src.Vars),
+		Delegate:  convert_helpers.ConvertDelegate(src.DelegateSelectors),
+		Strategy:  convert_helpers.ConvertStrategy(src.Strategy),
+		If:        convert_helpers.ConvertStageWhen(src.When),
+	}
+	stage.Env = convertStageInputsToEnv(stage.Inputs)
 
 	switch spec := src.Spec.(type) {
-
 	case *v0.StageApproval:
-		steps = c.ConvertSteps(spec.Execution.Steps)
+		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
+		stage.Timeout = spec.Timeout
 
 	case *v0.StageCustom:
-		steps = c.ConvertSteps(spec.Execution.Steps)
-		environment = convert_helpers.ConvertEnvironment(spec.Environment)
+		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
+		stage.Environment = convert_helpers.ConvertEnvironment(spec.Environment)
+		stage.Timeout = spec.Timeout
+
+	case *v0.StageIACM:
+		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
+		stage.Timeout = spec.Timeout
+		
+		if spec.Infrastructure != nil {
+			stage.Runtime = convert_helpers.ConvertInfrastructureToRuntime(spec.Infrastructure)
+		} else if spec.Runtime != nil {
+			stage.Runtime = convert_helpers.ConvertRuntime(spec.Runtime)
+		} else {
+			log.Printf("Warning!!! No runtime or infrastructure found in IACM stage: %s\n", src.ID)
+		}
+		stage.Platform = convert_helpers.ConvertPlatform(spec.Platform)
+
+		stage.Workspace = spec.Workspace
 
 	case *v0.StageCI:
-		steps = c.ConvertSteps(spec.Execution.Steps)
-		clone := convert_helpers.ConvertCloneCodebase(spec.Clone)
-		cache := convert_helpers.ConvertCaching(spec.Cache)
-		buildIntelligence := convert_helpers.ConvertBuildIntelligence(spec.BuildIntelligence)
-		runtime := convert_helpers.ConvertInfrastructure(spec.Infrastructure)
-		platform := convert_helpers.ConvertPlatform(spec.Platform)
+		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
 
-		// Create stage with CI-specific fields
-		stage := &v1.Stage{
-			Id:                src.ID,
-			Name:              src.Name,
-			Steps:             steps,
-			Clone:             clone,
-			Cache:             cache,
-			BuildIntelligence: buildIntelligence,
-			Runtime:           runtime,
-			Platform:          platform,
-			OnFailure:         convert_helpers.ConvertFailureStrategies(src.FailureStrategies),
-			Inputs:            c.convertVariables(src.Vars),
-			Delegate:          convert_helpers.ConvertDelegate(src.DelegateSelectors),
-			Strategy:          convert_helpers.ConvertStrategy(src.Strategy),
-			If:                convert_helpers.ConvertStageWhen(src.When),
+		// Convert service dependencies to background steps and prepend them
+		if len(spec.Services) > 0 {
+			backgroundSteps := convert_helpers.ConvertServiceDependenciesToBackgroundSteps(spec.Services)
+			if len(backgroundSteps) > 0 {
+				stage.Steps = append(backgroundSteps, stage.Steps...)
+			}
 		}
-		return stage
+
+		stage.Clone = convert_helpers.ConvertCloneCodebase(spec.Clone)
+		stage.Cache = convert_helpers.ConvertCaching(spec.Cache)
+		stage.BuildIntelligence = convert_helpers.ConvertBuildIntelligence(spec.BuildIntelligence)
+		stage.Timeout = spec.Timeout
+
+		// Convert shared paths to volumes
+		volumes := convert_helpers.ConvertSharedPaths(spec.SharedPaths)
+		if spec.Infrastructure != nil {
+			stage.Runtime = convert_helpers.ConvertInfrastructureToRuntime(spec.Infrastructure)
+		} else if spec.Runtime != nil {
+			stage.Runtime = convert_helpers.ConvertRuntime(spec.Runtime)
+		} else {
+			log.Printf("Warning!!! No runtime or infrastructure found in CI stage: %s\n", src.ID)
+		}
+		stage.Volumes = volumes
+		stage.Platform = convert_helpers.ConvertPlatform(spec.Platform)
 
 	case *v0.StageDeployment:
 		// Convert deployment steps
 		if spec.Execution != nil {
-			steps = c.ConvertSteps(spec.Execution.Steps)
-			// Convert rollback steps with different path
+			stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
 			if spec.Execution.RollbackSteps != nil {
-				rollback = c.ConvertSteps(spec.Execution.RollbackSteps)
+				stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps, true)
 			}
 		}
+
+		// Convert environment configuration
 		deprecatedInfraDefinition := false
-		// Convert environment configuration - check all possible sources
 		if spec.Environment != nil {
-			environment = convert_helpers.ConvertEnvironment(spec.Environment)
+			stage.Environment = convert_helpers.ConvertEnvironment(spec.Environment)
 		} else if spec.Environments != nil {
-			environment = convert_helpers.ConvertEnvironments(spec.Environments)
+			stage.Environment = convert_helpers.ConvertEnvironments(spec.Environments)
 		} else if spec.EnvironmentGroup != nil {
-			environment = convert_helpers.ConvertEnvironmentGroup(spec.EnvironmentGroup)
+			stage.Environment = convert_helpers.ConvertEnvironmentGroup(spec.EnvironmentGroup)
 		} else if spec.Infrastructure != nil {
-			// Convert infrastructure to environment configuration
 			log.Printf("Warning!!! Deprecated infrastructure definition found in Deployment stage: %s, infrastructure and service definition will be skipped\n", src.ID)
 			deprecatedInfraDefinition = true
 		}
 
 		// Convert service configuration
 		if spec.Service != nil {
-			service = convert_helpers.ConvertDeploymentService(spec.Service)
+			stage.Service = convert_helpers.ConvertDeploymentService(spec.Service)
 		} else if spec.Services != nil {
-			service = convert_helpers.ConvertDeploymentServices(spec.Services)
+			stage.Service = convert_helpers.ConvertDeploymentServices(spec.Services)
 		} else if spec.ServiceConfig != nil && !deprecatedInfraDefinition {
-			service = convert_helpers.ConvertDeploymentServiceConfig(spec.ServiceConfig)
+			stage.Service = convert_helpers.ConvertDeploymentServiceConfig(spec.ServiceConfig)
 		}
+		stage.Timeout = spec.Timeout
+
+	case *v0.StagePipeline:
+		uses, err := c.constructChainUses(spec)
+		if err != nil {
+			log.Printf("Warning!!! while converting Pipeline Stage: %s, error: %v\n", src.ID, err)
+		}
+		inputs := c.constructChainInputs(spec)
+		outputs := c.constructChainOutputs(spec)
+		stage.Chain = &v1.Chain{
+			Uses: uses,
+			With: &v1.ChainWith{
+				Inputs: inputs,
+				Outputs: outputs,
+				InputSets: spec.InputSetRefs,
+			},
+		}
+
+		
+		stage.Timeout = spec.Timeout
+
 
 	default:
 		log.Printf("Warning!!! stage type: %s (stage: %s) is not yet supported!\n", src.Type, src.ID)
 	}
 
-	onFailure := convert_helpers.ConvertFailureStrategies(src.FailureStrategies)
-	strategy := convert_helpers.ConvertStrategy(src.Strategy)
-	inputs := c.convertVariables(src.Vars)
-	return &v1.Stage{
-		Id:          src.ID,
-		Name:        src.Name,
-		Steps:       steps,
-		Rollback:    rollback,
-		Service:     service,
-		Environment: environment,
-		OnFailure:   onFailure,
-		Inputs:      inputs,
-		Delegate:    convert_helpers.ConvertDelegate(src.DelegateSelectors),
-		Strategy:    strategy,
-		If:          convert_helpers.ConvertStageWhen(src.When),
+	return stage
+}
+
+func convertStageInputsToEnv(inputs map[string]*v1.Input) map[string]interface{} {
+	env := map[string]interface{}{}
+	for input_name := range inputs {
+		env[input_name] = fmt.Sprintf("<+stage.variables.%v>", input_name)
 	}
+	return env
+}
+
+func(c *PipelineConverter) constructChainUses(spec *v0.StagePipeline) (string, error) {
+	if spec == nil {
+		return "", fmt.Errorf("pipeline chain spec is nil")
+	} 
+	if spec.Org == "" || spec.Project == "" || spec.Pipeline == "" {
+		return "", fmt.Errorf("pipeline chain spec is missing org, project or pipeline")
+	}
+	return fmt.Sprintf("%s/%s/%s", spec.Org, spec.Project, spec.Pipeline), nil
+} 
+
+func(c *PipelineConverter) constructChainInputs(spec *v0.StagePipeline) map[string]interface{} {
+	if spec == nil || spec.Inputs == nil {
+		return nil
+	}
+	inputs := map[string]interface{}{}
+
+	// Pipeline Variable Inputs
+	childInputs := c.convertVariables(spec.Inputs.Variables)
+	for input_name, input := range childInputs {
+		inputs[input_name] = input.Value
+	}
+
+	overlay := map[string]interface{}{}
+	
+
+	if spec.Inputs.Stages != nil {
+		stages := c.convertStages(spec.Inputs.Stages)
+		overlay["stages"] = stages
+	}
+	if spec.Inputs.Props.CI.Codebase != nil {
+		overlay["clone"] = c.convertCodebase(spec.Inputs.Props.CI.Codebase)
+	}
+	if spec.Inputs.DelegateSelectors != nil {
+		overlay["delegate"] = convert_helpers.ConvertDelegate(spec.Inputs.DelegateSelectors)
+	}
+
+	if len(overlay) > 0 {
+		inputs["overlay"] = overlay
+	} 
+	
+	return inputs
+}
+
+func(c *PipelineConverter) constructChainOutputs(spec *v0.StagePipeline) []*v1.ChainOutput {
+	if spec == nil || spec.Outputs == nil {
+		return nil
+	}
+	outputs := make([]*v1.ChainOutput, 0, len(spec.Outputs))
+	for _, output := range spec.Outputs {
+		outputs = append(outputs, &v1.ChainOutput{
+			Name: output.Name,
+			Value: output.Value,
+		})
+	}
+	return outputs
 }

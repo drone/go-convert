@@ -45,12 +45,10 @@ func ConvertStepRestoreCacheS3(src *v0.Step) *v1.StepTemplate {
 		// Convert to lowercase as per v1 spec
 		with["archiveformat"] = strings.ToLower(spec.ArchiveFormat)
 	}
-
-	if spec.PathStyle {
+	if spec.PathStyle != nil {
 		with["pathstyle"] = spec.PathStyle
 	}
-
-	if spec.FailIfKeyNotFound {
+	if spec.FailIfKeyNotFound != nil {
 		with["failIfKeyNotFound"] = spec.FailIfKeyNotFound
 	}
 

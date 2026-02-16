@@ -1,19 +1,19 @@
 package converthelpers
 
 import (
-	"strconv"
-
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 // Helm step with configuration structs with JSON tags
 type HelmBGDeployWith struct {
 	Flags                      []string            `json:"flags,omitempty"`
-	IgnoreFailedReleaseHistory bool                `json:"ignorefailedreleasehistory,omitempty"`
-	SkipSteadyStateCheck       bool                `json:"skipsteadystatecheck,omitempty"`
-	UseUpgradeWithInstall      bool                `json:"useupgradewithinstall,omitempty"`
-	Envvars                    []map[string]string `json:"envvars,omitempty"`
+	IgnoreFailedReleaseHistory *flexible.Field[bool] `json:"ignore_failed_release,omitempty"`
+	SkipSteadyStateCheck       *flexible.Field[bool] `json:"skip_deploy_steady_check,omitempty"`
+	UseUpgradeWithInstall      *flexible.Field[bool] `json:"upgrade_with_install,omitempty"`
+	Envvars                    []map[string]string   `json:"deploy_env_vars,omitempty"`
+	ChartTest                  *flexible.Field[bool] `json:"deploy_test,omitempty"`
 }
 
 type HelmBlueGreenSwapStepWith struct {
@@ -22,33 +22,36 @@ type HelmBlueGreenSwapStepWith struct {
 
 type HelmCanaryDeployWith struct {
 	Flags                      []string            `json:"flags,omitempty"`
-	Envvars                    []map[string]string `json:"envvars,omitempty"`
-	IgnoreFailedReleaseHistory bool                `json:"ignorefailedreleasehistory,omitempty"`
-	SkipSteadyStateCheck       bool                `json:"skipsteadystatecheck,omitempty"`
-	UseUpgradeWithInstall      bool                `json:"useupgradewithinstall,omitempty"`
+	Envvars                    []map[string]string `json:"deploy_env_vars,omitempty"`
+	IgnoreFailedReleaseHistory *flexible.Field[bool] `json:"ignore_failed_release,omitempty"`
+	SkipSteadyStateCheck       *flexible.Field[bool] `json:"skip_deploy_steady_check,omitempty"`
+	UseUpgradeWithInstall      *flexible.Field[bool] `json:"upgrade_with_install,omitempty"`
 	InstanceUnitType           string              `json:"instanceunittype,omitempty"`
-	Instances                  string              `json:"instances,omitempty"`
+	Instances                  *flexible.Field[int]               `json:"instances,omitempty"`
+    ChartTest             *flexible.Field[bool]                 `json:"deploy_test,omitempty"`
 }
 
 type HelmDeleteWith struct {
-	ReleaseName string              `json:"releasename,omitempty"`
-	DryRun      bool                `json:"dryrun,omitempty"`
-	Flags       []string            `json:"flags,omitempty"`
-	Envvars     []map[string]string `json:"envvars,omitempty"`
+	ReleaseName string              `json:"release,omitempty"`
+	DryRun      *flexible.Field[bool]                 `json:"dry_run,omitempty"`
+	Flags       []string            `json:"deploy_flags,omitempty"`
+	Envvars     []map[string]string `json:"deploy_env_vars,omitempty"`
 }
 
 type HelmDeployWith struct {
-	Flags                      []string            `json:"flags,omitempty"`
-	Envvars                    []map[string]string `json:"envvars,omitempty"`
-	IgnoreFailedReleaseHistory bool                `json:"ignorefailedreleasehistory,omitempty"`
-	SkipSteadyStateCheck       bool                `json:"skipsteadystatecheck,omitempty"`
-	UseUpgradeWithInstall      bool                `json:"useupgradewithinstall,omitempty"`
+    Flags                 []string            `json:"flags,omitempty"`
+    DeployEnvVars         []map[string]string `json:"deploy_env_vars,omitempty"`      
+    IgnoreFailedRelease   *flexible.Field[bool]                 `json:"ignore_failed_release,omitempty"` 
+    SkipDeploySteadyCheck *flexible.Field[bool]                 `json:"skip_deploy_steady_check,omitempty"` 
+    UpgradeWithInstall    *flexible.Field[bool]                 `json:"upgrade_with_install,omitempty"`  
+    ChartTest             *flexible.Field[bool]                 `json:"deploy_test,omitempty"`           
 }
 
 type HelmRollbackWith struct {
 	Flags                []string            `json:"flags,omitempty"`
 	Envvars              []map[string]string `json:"envvars,omitempty"`
-	SkipSteadyStateCheck bool                `json:"skipsteadystatecheck,omitempty"`
+	SkipSteadyStateCheck *flexible.Field[bool]                 `json:"skip_steady_check,omitempty"`
+	ChartTest            *flexible.Field[bool]                 `json:"test,omitempty"`
 }
 
 func ConvertStepHelmBGDeploy(src *v0.Step) *v1.StepTemplate {
@@ -76,17 +79,10 @@ func ConvertStepHelmBGDeploy(src *v0.Step) *v1.StepTemplate {
 	}
 
 	// Add boolean flags based on v0 spec
-	if spec.IgnoreReleaseHistFailStatus {
-		with.IgnoreFailedReleaseHistory = true
-	}
-
-	if spec.SkipSteadyStateCheck {
-		with.SkipSteadyStateCheck = true
-	}
-
-	if spec.UseUpgradeInstall {
-		with.UseUpgradeWithInstall = true
-	}
+	with.IgnoreFailedReleaseHistory = spec.IgnoreReleaseHistFailStatus
+	with.SkipSteadyStateCheck = spec.SkipSteadyStateCheck
+	with.UseUpgradeWithInstall = spec.UseUpgradeInstall
+	with.ChartTest = spec.RunChartTests
 
 	return &v1.StepTemplate{
 		Uses: v1.StepTypeHelmBGDeploy,
@@ -126,18 +122,18 @@ func ConvertStepHelmCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 
 	// instance selection mapping
 	unitType := ""
-	instances := ""
+	var instances *flexible.Field[int]
 	if sel := spec.InstanceSelection; sel != nil {
 		switch sel.Type {
 		case "Count":
 			unitType = "count"
 			if sel.Spec != nil {
-				instances = strconv.Itoa(sel.Spec.Count)
+				instances = sel.Spec.Count
 			}
 		case "Percentage":
 			unitType = "percentage"
 			if sel.Spec != nil {
-				instances = strconv.Itoa(sel.Spec.Percentage)
+				instances = sel.Spec.Percentage
 			}
 		}
 	}
@@ -153,21 +149,12 @@ func ConvertStepHelmCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 		Envvars: envvars, // include empty array if none
 	}
 
-	if spec.IgnoreReleaseHistFailStatus {
-		with.IgnoreFailedReleaseHistory = true
-	}
-	if spec.SkipSteadyStateCheck {
-		with.SkipSteadyStateCheck = true
-	}
-	if spec.UseUpgradeInstall {
-		with.UseUpgradeWithInstall = true
-	}
-	if unitType != "" {
-		with.InstanceUnitType = unitType
-	}
-	if instances != "" {
-		with.Instances = instances
-	}
+	with.IgnoreFailedReleaseHistory = spec.IgnoreReleaseHistFailStatus
+	with.SkipSteadyStateCheck = spec.SkipSteadyStateCheck
+	with.UseUpgradeWithInstall = spec.UseUpgradeInstall 
+	with.InstanceUnitType = unitType
+	with.Instances = instances
+	with.ChartTest = spec.RunChartTests
 
 	return &v1.StepTemplate{
 		Uses: v1.StepTypeHelmCanaryDeploy,
@@ -213,49 +200,39 @@ func ConvertStepHelmDelete(src *v0.Step) *v1.StepTemplate {
 
 // ConvertStepHelmDeploy converts v0 HelmDeploy (basic) to v1 helmDeployBasicStep@1.0.0
 func ConvertStepHelmDeploy(src *v0.Step) *v1.StepTemplate {
-	if src == nil || src.Spec == nil {
-		return nil
-	}
-	sp, ok := src.Spec.(*v0.StepHelmDeploy)
-	if !ok || sp == nil {
-		return nil
-	}
+    if src == nil || src.Spec == nil {
+        return nil
+    }
+    sp, ok := src.Spec.(*v0.StepHelmDeploy)
+    if !ok || sp == nil {
+        return nil
+    }
 
-	// map env vars
-	envvars := make([]map[string]string, 0, len(sp.EnvironmentVariables))
-	for k, v := range sp.EnvironmentVariables {
-		envvars = append(envvars, map[string]string{
-			"key":   k,
-			"value": v,
-		})
-	}
+    // map env vars with new field name
+    envvars := make([]map[string]string, 0, len(sp.EnvironmentVariables))
+    for k, v := range sp.EnvironmentVariables {
+        envvars = append(envvars, map[string]string{
+            "key":   k,
+            "value": v,
+        })
+    }
 
-	with := HelmDeployWith{
-		Flags:   []string{},
-		Envvars: envvars,
-	}
+    with := HelmDeployWith{
+        Flags:         []string{},
+        DeployEnvVars: envvars, // Changed from Envvars
+    }
 
-	if sp.IgnoreReleaseHistFailStatus {
-		with.IgnoreFailedReleaseHistory = true
-	}
-	if sp.SkipSteadyStateCheck {
-		with.SkipSteadyStateCheck = true
-	}
-	if sp.UseUpgradeInstall {
-		with.UseUpgradeWithInstall = true
-	}
-	// TODO
-	// if sp.SkipDryRun {
-	// 	with["skipdryrun"] = true
-	// }
-	// if sp.SkipCleanup {
-	// 	with["skipcleanup"] = true
-	// }
+	with.IgnoreFailedRelease = sp.IgnoreReleaseHistFailStatus 
+	with.SkipDeploySteadyCheck = sp.SkipSteadyStateCheck 
+	with.UpgradeWithInstall = sp.UseUpgradeInstall	 
+	with.ChartTest = sp.RunChartTests	 
 
-	return &v1.StepTemplate{
-		Uses: v1.StepTypeHelmDeploy,
-		With: with,
-	}
+    // Note: skipDryRun and skipCleanup have NO v1 equivalents - intentionally omitted
+
+    return &v1.StepTemplate{
+        Uses: v1.StepTypeHelmDeploy,
+        With: with,
+    }
 }
 
 // ConvertStepHelmRollback converts v0 HelmRollback to v1 helmRollbackStep@1.0.0
@@ -281,12 +258,25 @@ func ConvertStepHelmRollback(src *v0.Step) *v1.StepTemplate {
 		Flags:   []string{},
 		Envvars: envvars,
 	}
-	if sp.SkipSteadyStateCheck {
-		with.SkipSteadyStateCheck = true
-	}
+	with.SkipSteadyStateCheck = sp.SkipSteadyStateCheck
+	with.ChartTest = sp.RunChartTests
 
 	return &v1.StepTemplate{
 		Uses: v1.StepTypeHelmRollback,
 		With: with,
+	}
+}
+
+func ConvertStepHelmCanaryDelete(src *v0.Step) *v1.StepTemplate {
+	if src == nil || src.Spec == nil {
+		return nil
+	}
+	sp, ok := src.Spec.(*v0.StepHelmCanaryDelete)
+	if !ok || sp == nil {
+		return nil
+	}
+
+	return &v1.StepTemplate{
+		Uses: v1.StepTypeHelmCanaryDelete,
 	}
 }

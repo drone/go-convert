@@ -16,12 +16,17 @@
 
 package yaml
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/drone/go-convert/internal/flexible"
+)
 
 type CloneRef struct {
 	Name string `json:"name,omitempty"`
 	Sha  string `json:"sha,omitempty"`
 	Type string `json:"type,omitempty"`
+	Number *flexible.Field[int] `json:"number,omitempty"`
 }
 
 // UnmarshalJSON implement the json.Unmarshaler interface.
@@ -31,6 +36,7 @@ func (v *CloneRef) UnmarshalJSON(data []byte) error {
 		Name string `json:"name,omitempty"`
 		Sha  string `json:"sha,omitempty"`
 		Type string `json:"type,omitempty"`
+		Number *flexible.Field[int] `json:"number,omitempty"`
 	}{}
 
 	if err := json.Unmarshal(data, &out1); err == nil {

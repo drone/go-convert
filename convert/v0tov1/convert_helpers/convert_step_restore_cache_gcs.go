@@ -38,9 +38,10 @@ func ConvertStepRestoreCacheGCS(src *v0.Step) *v1.StepTemplate {
 		with["archiveformat"] = strings.ToLower(spec.ArchiveFormat)
 	}
 
-	if spec.FailIfKeyNotFound {
+	if spec.FailIfKeyNotFound != nil {
 		with["failIfKeyNotFound"] = spec.FailIfKeyNotFound
 	}
+	
 
 	return &v1.StepTemplate{
 		Uses: "restoreCacheFromGCS",

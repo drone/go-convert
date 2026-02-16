@@ -16,6 +16,10 @@
 
 package yaml
 
+import "github.com/drone/go-convert/internal/flexible"
+
 type VolumeClaim struct {
-	Name string `json:"name,omitempty"`
+	Name      string                `json:"name,omitempty"`
+	MountPath string                `json:"mount-path,omitempty"`
+	ReadOnly  *flexible.Field[bool] `json:"read-only,omitempty"`
 }

@@ -183,7 +183,7 @@ func (d *Downgrader) downgrade(src []*v1.Config) ([]byte, error) {
 				config.Pipeline.Tags[tag] = ""
 			}
 		}
-		config.Pipeline.Props.CI.Codebase = v0.Codebase{
+		config.Pipeline.Props.CI.Codebase = &v0.Codebase{
 			Name:  d.codebaseName,
 			Conn:  d.codebaseConn,
 			Build: flexible.Field[v0.Build]{Value: "<+input>"},
@@ -407,16 +407,18 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		if kube, ok := spec.Runtime.Spec.(*v1.RuntimeKube); ok {
 			infra = &v0.Infrastructure{
 				Type: v0.InfraTypeKubernetesDirect,
-				Spec: &v0.InfraSpec{
+				Spec: &v0.InfrastructureKubernetesDirectSpec{
 					Namespace: kube.Namespace,
 					Conn:      kube.Connector,
 				},
 			}
-			if infra.Spec.Namespace == "" {
-				kube.Namespace = d.kubeNamespace
-			}
-			if infra.Spec.Conn == "" {
-				kube.Connector = d.kubeConnector
+			if k8sSpec, ok := infra.Spec.(*v0.InfrastructureKubernetesDirectSpec); ok {
+				if k8sSpec.Namespace == "" {
+					k8sSpec.Namespace = d.kubeNamespace
+				}
+				if k8sSpec.Conn == "" {
+					k8sSpec.Conn = d.kubeConnector
+				}
 			}
 		}
 
@@ -445,7 +447,7 @@ func (d *Downgrader) convertStage(stage *v1.Stage) *v0.Stage {
 		runtime = nil
 		infra = &v0.Infrastructure{
 			Type: v0.InfraTypeKubernetesDirect,
-			Spec: &v0.InfraSpec{
+			Spec: &v0.InfrastructureKubernetesDirectSpec{
 				Namespace: d.kubeNamespace,
 				Conn:      d.kubeConnector,
 			},
@@ -621,7 +623,18 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 	if spec_.Connector != "" {
 		connectorRef = spec_.Connector
 	}
-
+	var runAsUser *flexible.Field[int]
+	if spec_.User != "" {
+		runAsUser.SetString(spec_.User)
+	}
+	var privileged *flexible.Field[bool]
+	if spec_.Privileged {
+		privileged = &flexible.Field[bool]{Value: true}
+	}
+	var env *flexible.Field[map[string]interface{}]
+	if len(spec_.Envs) > 0 {
+		env = &flexible.Field[map[string]interface{}]{Value: spec_.Envs}
+	}
 	return &v0.Step{
 		ID:      id,
 		Name:    convertName(src.Name),
@@ -629,14 +642,14 @@ func (d *Downgrader) convertStepRun(src *v1.Step) *v0.Step {
 		Timeout: convertTimeout(src.Timeout),
 
 		Spec: &v0.StepRun{
-			Env:             spec_.Envs,
+			Env:             env,
 			Command:         spec_.Run,
 			ConnRef:         connectorRef,
 			Image:           convertImage(spec_.Image, d.defaultImage),
 			ImagePullPolicy: convertImagePull(spec_.Pull),
 			Outputs:         outputs, // Add this line
-			Privileged:      spec_.Privileged,
-			RunAsUser:       spec_.User,
+			Privileged:      privileged,
+			RunAsUser:       runAsUser,
 			Reports:         convertReports(spec_.Reports),
 			Shell:           strings.Title(spec_.Shell),
 		},
@@ -711,9 +724,17 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 		src.Name = id
 	}
 	// convert the entrypoint string to a slice.
-	var entypoint []string
+	var entypoint *flexible.Field[[]string]
 	if spec_.Entrypoint != "" {
-		entypoint = []string{spec_.Entrypoint}
+		entypoint = &flexible.Field[[]string]{Value: []string{spec_.Entrypoint}}
+	}
+	var privileged *flexible.Field[bool]
+	if spec_.Privileged {
+		privileged = &flexible.Field[bool]{Value: true}
+	}
+	var env *flexible.Field[map[string]interface{}]
+	if len(spec_.Envs) > 0 {
+		env = &flexible.Field[map[string]interface{}]{Value: spec_.Envs}
 	}
 	return &v0.Step{
 		ID:   id,
@@ -723,10 +744,10 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 			Command:         spec_.Run,
 			ConnRef:         d.dockerhubConn,
 			Entrypoint:      entypoint,
-			Env:             spec_.Envs,
+			Env:             env,
 			Image:           spec_.Image,
 			ImagePullPolicy: convertImagePull(spec_.Pull),
-			Privileged:      spec_.Privileged,
+			Privileged:      privileged,
 			RunAsUser:       spec_.User,
 			PortBindings:    convertPorts(spec_.Ports),
 		},
@@ -757,6 +778,10 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 	if src.Name == "" {
 		src.Name = id
 	}
+	var privileged *flexible.Field[bool]
+	if spec_.Privileged {
+		privileged = &flexible.Field[bool]{Value: true}
+	}
 
 	switch spec_.Image {
 	case harness.GitPluginImage:
@@ -768,7 +793,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 
 			Spec: &v0.StepGitClone{
 				Repository: setting["git_url"].(string),
-				BuildType:  "<+input>",
+				BuildType:  &flexible.Field[v0.Build]{Value: "<+input>"},
 				// TODO this directory should be populated differently for each clone
 				CloneDirectory: "./",
 			},
@@ -789,18 +814,22 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 			When: convertStepWhen(src.When, id),
 		}
 	default:
+		var env *flexible.Field[map[string]interface{}]
+		if len(spec_.Envs) > 0 {
+			env = &flexible.Field[map[string]interface{}]{Value: spec_.Envs}
+		}
 		return &v0.Step{
 			ID:      id,
 			Name:    src.Name,
 			Type:    v0.StepTypePlugin,
 			Timeout: convertTimeout(src.Timeout),
 			Spec: &v0.StepPlugin{
-				Env:             spec_.Envs,
+				Env:             env,
 				ConnRef:         d.dockerhubConn,
 				Image:           spec_.Image,
 				ImagePullPolicy: convertImagePull(spec_.Pull),
 				Settings:        convertSettings(spec_.With),
-				Privileged:      spec_.Privileged,
+				Privileged:      privileged,
 				RunAsUser:       spec_.User,
 			},
 			When: convertStepWhen(src.When, id),
@@ -994,7 +1023,7 @@ func (d *Downgrader) convertUseIntelligence() *v0.BuildIntelligence {
 		return nil
 	}
 	return &v0.BuildIntelligence{
-		Enabled: true,
+		Enabled: &flexible.Field[bool]{Value: true},
 	}
 }
 
@@ -1132,7 +1161,7 @@ func convertPlatform(platform *v1.Platform, runtime *v0.Runtime) *v0.Platform {
 	}
 }
 
-func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
+func convertStepWhen(when *v1.When, stepId string) *flexible.Field[v0.StepWhen] {
 	if when == nil {
 		return nil
 	}
@@ -1233,10 +1262,10 @@ func convertStepWhen(when *v1.When, stepId string) *v0.StepWhen {
 	}
 
 	if len(conditions) > 0 {
-		newWhen.Condition = strings.Join(conditions, " && ")
+		newWhen.Condition = &flexible.Field[bool]{Value: strings.Join(conditions, " && ")}
 	}
 
-	return newWhen
+	return &flexible.Field[v0.StepWhen]{Value: newWhen}
 }
 
 func convertOutput(output string) *v0.Output {
@@ -1245,7 +1274,7 @@ func convertOutput(output string) *v0.Output {
 	}
 }
 
-func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
+func convertStageWhen(when *v1.When, stepId string) *flexible.Field[v0.StageWhen] {
 	if when == nil {
 		return nil
 	}
@@ -1346,10 +1375,10 @@ func convertStageWhen(when *v1.When, stepId string) *v0.StageWhen {
 	}
 
 	if len(conditions) > 0 {
-		newWhen.Condition = strings.Join(conditions, " && ")
+		newWhen.Condition = &flexible.Field[bool]{Value: strings.Join(conditions, " && ")}
 	}
 
-	return newWhen
+	return &flexible.Field[v0.StageWhen]{Value: newWhen}
 }
 
 func extractStringSlice(input interface{}) []string {

@@ -20,12 +20,13 @@ import "github.com/drone/go-convert/internal/flexible"
 
 type Stage struct {
 	Approval    *StageApproval         `json:"approval,omitempty" yaml:"approval,omitempty"`
-	BuildIntelligence bool `json:"buildIntelligence,omitempty" yaml:"buildIntelligence,omitempty"`
+	BuildIntelligence *BuildIntelligence `json:"build-intelligence,omitempty" yaml:"build-intelligence,omitempty"`
 	Cache       *Cache                 `json:"cache,omitempty" yaml:"cache,omitempty"`
 	Clone       *Clone                 `json:"clone,omitempty" yaml:"clone,omitempty"`
+	Chain       *Chain                 `json:"chain,omitempty" yaml:"chain,omitempty"`
 	Concurrency *Concurrency           `json:"concurrency,omitempty" yaml:"concurrency,omitempty"`
 	Delegate    *flexible.Field[*Delegate]                 `json:"delegate,omitempty" yaml:"delegate,omitempty"`
-	Env         map[string]string      `json:"env,omitempty" yaml:"env,omitempty"`
+	Env         map[string]interface{}      `json:"env,omitempty" yaml:"env,omitempty"`
 	Environment *EnvironmentRef        `json:"environment,omitempty" yaml:"environment,omitempty"`
 	Group       *StageGroup            `json:"group,omitempty" yaml:"group,omitempty"`
 	Id          string                 `json:"id,omitempty" yaml:"id,omitempty"`
@@ -47,9 +48,10 @@ type Stage struct {
 	Steps       []*Step                `json:"steps,omitempty" yaml:"steps"`
 	Strategy    *Strategy              `json:"strategy,omitempty" yaml:"strategy,omitempty"`
 	Template    *StageTemplate         `json:"template,omitempty" yaml:"template,omitempty"`
+	Timeout     string                 `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Volumes     []*Volume              `json:"volumes,omitempty" yaml:"volumes,omitempty"`
-	Workspace   *Workspace             `json:"workspace,omitempty" yaml:"workspace,omitempty"`
-
+	// Workspace   *Workspace             `json:"workspace,omitempty" yaml:"workspace,omitempty"`
+	Workspace string `json:"workspace,omitempty" yaml:"workspace,omitempty"`
 	// Context temporarily stores information from the
 	// matrix and template expansion. Context is not part of
 	// the yaml schema.

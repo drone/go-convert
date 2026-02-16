@@ -19,7 +19,7 @@ func ConvertStepPlugin(src *v0.Step) *v1.StepRun {
 
 	// Container mapping
 	var container *v1.Container
-	if sp.Image != "" || sp.ConnRef != "" || sp.Privileged || sp.ImagePullPolicy != "" {
+	if sp.Image != "" || sp.ConnRef != "" || sp.ImagePullPolicy != "" {
 		pull := ""
 		if strings.EqualFold(sp.ImagePullPolicy, "Always") {
 			pull = "always"
@@ -30,11 +30,9 @@ func ConvertStepPlugin(src *v0.Step) *v1.StepRun {
 		}
 		cpu := ""
 		memory := ""
-		if sp.Resources != nil && sp.Resources.Limits.CPU != nil {
-			cpu = sp.Resources.Limits.CPU.String()
-		}
-		if sp.Resources != nil && sp.Resources.Limits.Memory != nil {
-			memory = sp.Resources.Limits.Memory.String()
+		if sp.Resources != nil && sp.Resources.Limits != nil {
+			cpu = sp.Resources.Limits.GetCPUString()
+			memory = sp.Resources.Limits.GetMemoryString()
 		}
 		container = &v1.Container{
 			Image:      sp.Image,
@@ -64,17 +62,9 @@ func ConvertStepPlugin(src *v0.Step) *v1.StepRun {
 
 	dst := &v1.StepRun{
 		Container: container,
-		Env:       map[string]interface{}{},
+		Env:       sp.Env,
 		Report:    report,
 		With:      sp.Settings,
-	}
-
-	// merge envVariables and step-level env into run env
-	for k, v := range sp.Env {
-		if dst.Env == nil {
-			dst.Env = make(map[string]interface{})
-		}
-		dst.Env[k] = v
 	}
 
 	return dst

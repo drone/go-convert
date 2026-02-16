@@ -50,7 +50,7 @@ func ConvertStepHarnessApproval(src *v0.Step) *v1.StepApproval {
 	// Map approvers fields
 	if spec.Approvers != nil {
 		// Map minimumCount to approvers-min-count
-		if spec.Approvers.MinimumCount > 0 {
+		if spec.Approvers.MinimumCount != nil {
 			dst.With["approvers-min-count"] = spec.Approvers.MinimumCount
 		}
 
@@ -58,7 +58,7 @@ func ConvertStepHarnessApproval(src *v0.Step) *v1.StepApproval {
 		dst.With["block-executor"] = spec.Approvers.DisallowPipelineExecutor
 
 		// Map userGroups to user-groups
-		if len(spec.Approvers.UserGroups) > 0 {
+		if spec.Approvers.UserGroups != nil {
 			dst.With["user-groups"] = spec.Approvers.UserGroups
 		}
 	}

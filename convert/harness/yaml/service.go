@@ -1,4 +1,6 @@
 package yaml
+
+import "github.com/drone/go-convert/internal/flexible"
 type (
 	DeploymentServices struct {
 		Values   []*DeploymentService `json:"values,omitempty" yaml:"values,omitempty"`
@@ -24,7 +26,7 @@ type (
 
 	// ServicesMetadata defines the services metadata
 	ServicesMetadata struct {
-		Parallel bool `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+		Parallel *flexible.Field[bool] `json:"parallel,omitempty" yaml:"parallel,omitempty"`
 	}
 
 	// ServiceInputs defines the service inputs for deployment

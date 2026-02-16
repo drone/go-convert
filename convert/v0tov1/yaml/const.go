@@ -43,7 +43,7 @@ const (
 	StepTypeK8sRollingDeploy           = "k8sRollingDeployStep"
 	StepTypeK8sRollingRollback         = "k8sRollingRollbackStep"
 	StepTypeK8sApply                   = "k8sApplyStep"
-	StepTypeK8sBGSwapServices          = "k8sBlueGreenSwapServicesStep"
+	StepTypeK8sBGSwapServices          = "k8sBlueGreenSwapServicesSelectorsStep"
 	StepTypeK8sBlueGreenStageScaleDown = "k8sBlueGreenStageScaleDownStep"
 	StepTypeK8sCanaryDelete            = "k8sCanaryDeleteStep"
 	StepTypeK8sDelete                  = "k8sDeleteStep"
@@ -54,15 +54,21 @@ const (
 	StepTypeK8sTrafficRouting          = "k8sTrafficRoutingStep"
 	StepTypeK8sCanaryDeploy            = "k8sCanaryDeployStep"
 	StepTypeK8sBlueGreenDeploy         = "k8sBlueGreenDeployStep"
+	StepTypeK8sPatch                   = "k8sPatchStep"
 
 	// Helm
 	StepTypeHelmBGDeploy          = "helmDeployBluegreenStep"
 	StepTypeHelmBlueGreenSwapStep = "helmBluegreenSwapStep"
 	StepTypeHelmCanaryDeploy      = "helmDeployCanaryStep"
+	StepTypeHelmCanaryDelete      = "helmDeleteStep"
 	StepTypeHelmDelete            = "helmDeleteStep"
 	StepTypeHelmDeploy            = "helmDeployBasicStep"
 	StepTypeHelmRollback          = "helmRollbackStep"
 
 	// Approval
 	StepTypeVerify = "Verify"
+
+	// IACM
+	StepTypeIACMTerraformPlugin = "terraformStep"
+	StepTypeIACMOpenTofuPlugin  = "openTofuStep"
 )

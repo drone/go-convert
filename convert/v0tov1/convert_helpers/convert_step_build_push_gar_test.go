@@ -2,7 +2,7 @@ package converthelpers
 
 import (
 	"testing"
-
+	"github.com/drone/go-convert/internal/flexible"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	"github.com/google/go-cmp/cmp"
 )
@@ -21,14 +21,14 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 					Host:         "us-central1-docker.pkg.dev",
 					ProjectID:    "my-gcp-project",
 					ImageName:    "my-app",
-					Tags:         []string{"latest", "v1.0.0"},
+					Tags:         &flexible.Field[[]string]{Value: []string{"latest", "v1.0.0"}},
 				},
 			},
 			expected: map[string]interface{}{
 				"connector": "gcp-connector",
 				"registry":  "us-central1-docker.pkg.dev/my-gcp-project",
 				"repo":      "my-app",
-				"tags":      []string{"latest", "v1.0.0"},
+				"tags":      &flexible.Field[[]string]{Value: []string{"latest", "v1.0.0"}},
 			},
 		},
 		{
@@ -39,22 +39,22 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 					Host:         "europe-west1-docker.pkg.dev",
 					ProjectID:    "prod-project",
 					ImageName:    "backend-service",
-					Caching:      true,
-					BuildArgs: map[string]string{
+					Caching:      &flexible.Field[bool]{Value: true},
+					BuildArgs: &flexible.Field[map[string]string]{Value: map[string]string{
 						"GO_VERSION": "1.21",
 						"APP_ENV":    "production",
-					},
+					}},
 				},
 			},
 			expected: map[string]interface{}{
 				"connector": "gcp-connector",
 				"registry":  "europe-west1-docker.pkg.dev/prod-project",
 				"repo":      "backend-service",
-				"caching":   true,
-				"buildargs": map[string]string{
+				"caching":   &flexible.Field[bool]{Value: true},
+				"buildargs": &flexible.Field[map[string]string]{Value: map[string]string{
 					"GO_VERSION": "1.21",
 					"APP_ENV":    "production",
-				},
+				}},
 			},
 		},
 		{
@@ -178,44 +178,44 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 					Host:         "us-central1-docker.pkg.dev",
 					ProjectID:    "complete-project",
 					ImageName:    "complete-app",
-					Tags:         []string{"v2.0.0"},
-					Caching:      true,
+					Tags:         &flexible.Field[[]string]{Value: []string{"v2.0.0"}},
+					Caching:      &flexible.Field[bool]{Value: true},
 					Dockerfile:   "Dockerfile.prod",
 					Context:      "./app",
 					Target:       "production",
-					Labels: map[string]string{
+					Labels: &flexible.Field[map[string]string]{Value: map[string]string{
 						"version": "2.0.0",
 						"team":    "platform",
-					},
-					BuildArgs: map[string]string{
+					}},
+					BuildArgs: &flexible.Field[map[string]string]{Value: map[string]string{
 						"PYTHON_VERSION": "3.11",
-					},
-					Env: map[string]string{
+					}},
+					Env: &flexible.Field[map[string]string]{Value: map[string]string{
 						"BUILD_ENV": "prod",
 						"LOG_LEVEL": "info",
-					},
+					}},
 				},
 			},
 			expected: map[string]interface{}{
 				"connector":  "gcp-connector",
 				"registry":   "us-central1-docker.pkg.dev/complete-project",
 				"repo":       "complete-app",
-				"tags":       []string{"v2.0.0"},
-				"caching":    true,
+				"tags":      &flexible.Field[[]string]{Value: []string{"v2.0.0"}},
+				"caching":    &flexible.Field[bool]{Value: true},
 				"dockerfile": "Dockerfile.prod",
 				"context":    "./app",
 				"target":     "production",
-				"labels": map[string]string{
-					"version": "2.0.0",
-					"team":    "platform",
-				},
-				"buildargs": map[string]string{
-					"PYTHON_VERSION": "3.11",
-				},
-				"envvars": map[string]string{
-					"BUILD_ENV": "prod",
-					"LOG_LEVEL": "info",
-				},
+				"labels": &flexible.Field[map[string]string]{Value: map[string]string{
+						"version": "2.0.0",
+						"team":    "platform",
+				}},
+				"buildargs": &flexible.Field[map[string]string]{Value: map[string]string{
+						"PYTHON_VERSION": "3.11",
+				}},
+				"envvars": &flexible.Field[map[string]string]{Value: map[string]string{
+						"BUILD_ENV": "prod",
+						"LOG_LEVEL": "info",
+				}},
 			},
 		},
 	}

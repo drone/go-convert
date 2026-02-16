@@ -1,10 +1,11 @@
 package converthelpers
 
 import (
-
 	"strings"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
@@ -18,7 +19,7 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 
 	// Container
 	var container *v1.Container
-	if sp.Image != "" || sp.ConnRef != "" || sp.Privileged || sp.ImagePullPolicy != "" {
+	if sp.Image != "" || sp.ConnRef != "" || sp.ImagePullPolicy != "" {
 		pull := ""
 		if strings.EqualFold(sp.ImagePullPolicy, "Always") {
 			pull = "always"
@@ -29,11 +30,9 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 		}
 		cpu := ""
 		memory := ""
-		if sp.Resources != nil && sp.Resources.Limits.CPU != nil {
-			cpu = sp.Resources.Limits.CPU.String()
-		}
-		if sp.Resources != nil && sp.Resources.Limits.Memory != nil {
-			memory = sp.Resources.Limits.Memory.String()
+		if sp.Resources != nil && sp.Resources.Limits != nil {
+			cpu = sp.Resources.Limits.GetCPUString()
+			memory = sp.Resources.Limits.GetMemoryString()
 		}
 		container = &v1.Container{
 			Image:      sp.Image,
@@ -66,17 +65,7 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 	}
 
 	// outputs
-	var outputs []*v1.Output
-	for _, outputVar := range sp.Outputs {
-		if outputVar == nil {
-			continue
-		}
-		outputs = append(outputs, &v1.Output{
-			Name:  outputVar.Name,
-			Type:  outputVar.Type,
-			Value: outputVar.Value,
-		})
-	}
+	outputs := ConvertOutputVariables(sp.Outputs)
 
 	//glob to match
 	var match v1.Stringorslice
@@ -85,12 +74,10 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 	}
 
 	//intelligence
-	var intelligence *v1.TestIntelligence
-	if !sp.IntelligenceMode {
-		intelligence = &v1.TestIntelligence{
-			Disabled: true,
-		}
+	intelligence := &v1.TestIntelligence{
+		Disabled: flexible.NegateBool(sp.IntelligenceMode),
 	}
+	
 
 	dst := &v1.StepTest{
 		Env: sp.Env,

@@ -24,7 +24,7 @@ type (
 
 	// EnvironmentMetadata defines environment metadata
 	EnvironmentMetadata struct {
-		Parallel bool `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+		Parallel *flexible.Field[bool] `json:"parallel,omitempty" yaml:"parallel,omitempty"`
 	}
 
 	InfrastructureDefinition struct {

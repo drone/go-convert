@@ -12,6 +12,7 @@ pipeline:
 
   clone:
     depth: 50
+    enabled: false
 
   env:
     GOOS: linux
@@ -46,7 +47,7 @@ pipeline:
           items:
           - name: prod
       - environment:
-          parallel: true
+          sequential: true
           items:
           - name: test
           - name: prod
@@ -57,15 +58,13 @@ pipeline:
   #
   - group:
       stages:
-      - service: 
-          items:
-          - petstore
+      - service: petstore
       - service:
           items:
           - petstore-frontend
           - petstore-backend
       - service:
-          parallel: true
+          sequential: true
           items:
           - petstore-frontend
           - petstore-backend

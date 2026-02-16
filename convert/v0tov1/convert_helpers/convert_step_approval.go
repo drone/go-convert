@@ -5,6 +5,7 @@ import (
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 	"fmt"
 	"strings"
+    "github.com/drone/go-convert/internal/flexible"
 )
 
 func ConvertStepCustomApproval(src *v0.Step) *v1.StepApproval {
@@ -26,25 +27,19 @@ func ConvertStepCustomApproval(src *v0.Step) *v1.StepApproval {
 	dst.With["script-timeout"] = spec.ScriptTimeout
 	dst.With["retry"] = spec.RetryInterval
 
-	env := make(map[string]interface{})
+	env_map := make(map[string]interface{})
+    var env *flexible.Field[map[string]interface{}]
 	for _, envVar := range spec.EnvironmentVariables {
 		if envVar == nil || envVar.Name == "" || envVar.Value == "" {
 			continue
 		}
-		env[envVar.Name] = envVar.Value
+		env_map[envVar.Name] = envVar.Value
 	}
+    if len(env_map) > 0 {
+        env = &flexible.Field[map[string]interface{}]{Value: env_map}
+    }
 
-	outputs := make([]*v1.Output, 0)
-	for _, outputVar := range spec.OutputVariables {
-		if outputVar == nil {
-			continue
-		}
-		outputs = append(outputs, &v1.Output{
-			Name:  outputVar.Name,
-			Type:  outputVar.Type,
-			Value: outputVar.Value,
-		})
-	}
+	outputs := ConvertOutputVariables(spec.OutputVariables)
 	shell := strings.ToLower(spec.Shell)
     script := ""
     if spec.Source != nil {
@@ -120,7 +115,13 @@ func ConvertStepServiceNowApproval(src *v0.Step) *v1.StepApproval {
     dst.With["retry"] = spec.RetryInterval
     dst.With["approve"] = convertCriteria(spec.ApprovalCriteria)
     dst.With["reject"] = convertCriteria(spec.RejectionCriteria)
-
+    if spec.ChangeWindow != nil {
+        changeWindow := map[string]interface{}{
+            "start": spec.ChangeWindow.StartField,
+            "end": spec.ChangeWindow.EndField,
+        }
+        dst.With["change-window"] = changeWindow
+    }
     download := map[string]interface{}{
         "source": "https://storage.googleapis.com/unified-plugins/servicenow-approval/v0.0.1/",
         "target": "$PLUGIN_PATH",

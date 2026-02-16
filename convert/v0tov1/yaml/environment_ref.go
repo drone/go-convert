@@ -18,12 +18,16 @@ package yaml
 
 import (
 	"encoding/json"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 type EnvironmentRef struct {
 	Items    []*EnvironmentItem `json:"items,omitempty" yaml:"items,omitempty"`
-	Parallel bool               `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+	Sequential *flexible.Field[bool]             `json:"sequential,omitempty" yaml:"sequential,omitempty"`
 	Group    interface{}        `json:"group,omitempty" yaml:"group,omitempty"`
+	Name     string             `json:"name,omitempty" yaml:"name,omitempty"`
+	Id 	     string             `json:"id,omitempty" yaml:"id,omitempty"`
+	DeployTo interface{}        `json:"deploy-to,omitempty"`
 }
 
 // UnmarshalJSON implement the json.Unmarshaler interface.
@@ -31,7 +35,7 @@ func (v *EnvironmentRef) UnmarshalJSON(data []byte) error {
 	var out1 string
 	var out2 = struct {
 		Items    []*EnvironmentItem `json:"items,omitempty" yaml:"items,omitempty"`
-		Parallel bool               `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+		Sequential *flexible.Field[bool]             `json:"sequential,omitempty" yaml:"sequential,omitempty"`
 		Group    interface{}        `json:"group,omitempty" yaml:"group,omitempty"`
 	}{}
 
@@ -43,7 +47,7 @@ func (v *EnvironmentRef) UnmarshalJSON(data []byte) error {
 	}
 
 	if err := json.Unmarshal(data, &out2); err == nil {
-		v.Parallel = out2.Parallel
+		v.Sequential = out2.Sequential
 		v.Items = out2.Items
 		v.Group = out2.Group
 		return nil

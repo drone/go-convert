@@ -15,23 +15,21 @@
 package converthelpers
 
 import (
+	"fmt"
 	"strings"
-
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
 
-// ConvertStepRunSpec converts a v0 Run step to v1 run spec only
-func ConvertStepRun(src *v0.Step) *v1.StepRun {
+// ConvertStepBackground converts a v0 Background step to v1 background spec
+func ConvertStepBackground(src *v0.Step) *v1.StepRun {
 	if src == nil || src.Spec == nil {
 		return nil
 	}
-	sp, ok := src.Spec.(*v0.StepRun)
+	sp, ok := src.Spec.(*v0.StepBackground)
 	if !ok {
 		return nil
 	}
-
-	script := sp.Command
 
 	// Container mapping
 	var container *v1.Container
@@ -42,14 +40,16 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 		} else if strings.EqualFold(sp.ImagePullPolicy, "Never") {
 			pull = "never"
 		} else if strings.EqualFold(sp.ImagePullPolicy, "IfNotPresent") {
-			pull = "if-not-exists"
+			pull = "if-not-present"
 		}
+
 		cpu := ""
 		memory := ""
 		if sp.Resources != nil && sp.Resources.Limits != nil {
 			cpu = sp.Resources.Limits.GetCPUString()
 			memory = sp.Resources.Limits.GetMemoryString()
 		}
+
 		container = &v1.Container{
 			Image:      sp.Image,
 			Connector:  sp.ConnRef,
@@ -57,7 +57,13 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 			Pull:       pull,
 			Cpu:        cpu,
 			Memory:     memory,
-			User:       sp.RunAsUser,
+			Entrypoint: sp.Entrypoint,
+		}
+
+		container.Ports = []string{}
+		for hostPort,containerPort := range sp.PortBindings {
+			port := fmt.Sprintf("%s:%s", hostPort, containerPort)
+			container.Ports = append(container.Ports, port)
 		}
 	}
 
@@ -86,20 +92,12 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 		Container: container,
 		Env:       sp.Env,
 		Report:    report,
-		Shell:     shell,
-	}
-	if script != "" {
-		// use single string so it marshals as block scalar in YAML
-		dst.Script = v1.Stringorslice{script}
+		Shell: shell,
 	}
 
-	dst.Outputs = ConvertOutputVariables(sp.Outputs)
-
-	if sp.Alias != nil {
-		dst.Alias = &v1.OutputAlias{
-			Key:   sp.Alias.Key,
-			Scope: sp.Alias.Scope,
-		}
+	// Add command if present
+	if sp.Command != "" {
+		dst.Script = v1.Stringorslice{sp.Command}
 	}
 
 	return dst

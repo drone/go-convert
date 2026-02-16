@@ -32,6 +32,8 @@ const (
 	StageTypeDeployment            = "Deployment"
 	StageTypeFeatureFlag           = "FeatureFlag"
 	StageTypeCustom                = "Custom"
+	StageTypePipeline              = "Pipeline"
+	StageTypeIACM                  = "IACM"
 )
 
 type InfraType string
@@ -102,17 +104,27 @@ const (
 	StepTypeK8sTrafficRouting          = "K8sTrafficRouting"
 	StepTypeK8sCanaryDeploy            = "K8sCanaryDeploy"
 	StepTypeK8sBlueGreenDeploy         = "K8sBlueGreenDeploy"
+	StepTypeK8sPatch                   = "K8sPatch"
 
 	// Helm
 	StepTypeHelmBGDeploy          = "HelmBGDeploy"
 	StepTypeHelmBlueGreenSwapStep = "HelmBlueGreenSwapStep"
 	StepTypeHelmCanaryDeploy      = "HelmCanaryDeploy"
+	StepTypeHelmCanaryDelete      = "HelmCanaryDelete"
 	StepTypeHelmDelete            = "HelmDelete"
 	StepTypeHelmDeploy            = "HelmDeploy"
 	StepTypeHelmRollback          = "HelmRollback"
 
 	// Approval
 	StepTypeVerify = "Verify"
+
+	// IACM
+	StepTypeIACMTerraformPlugin = "IACMTerraformPlugin"
+	StepTypeIACMOpenTofuPlugin = "IACMOpenTofuPlugin"
+
+	// Terraform
+	StepTypeTerraformPlan = "TerraformPlan"
+	StepTypeTerraformApply = "TerraformApply"
 )
 
 type Shell string

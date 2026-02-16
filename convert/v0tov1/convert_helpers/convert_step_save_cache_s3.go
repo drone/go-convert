@@ -38,7 +38,7 @@ func ConvertStepSaveCacheS3(src *v0.Step) *v1.StepTemplate {
 	}
 
 	if len(spec.SourcePaths) > 0 {
-		with["mount"] = spec.SourcePaths
+		with["source_path"] = spec.SourcePaths
 	}
 
 	if spec.Endpoint != "" {
@@ -50,11 +50,10 @@ func ConvertStepSaveCacheS3(src *v0.Step) *v1.StepTemplate {
 		with["archiveformat"] = strings.ToLower(spec.ArchiveFormat)
 	}
 
-	if spec.Override {
+	if spec.Override != nil {
 		with["override"] = spec.Override
 	}
-
-	if spec.PathStyle {
+	if spec.PathStyle != nil {
 		with["pathstyle"] = spec.PathStyle
 	}
 

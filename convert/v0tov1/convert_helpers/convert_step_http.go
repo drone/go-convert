@@ -7,6 +7,7 @@ import (
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 // HTTPStepWith represents the 'with' configuration for httpStep@1.0.0 template
@@ -133,6 +134,6 @@ func ConvertStepHTTP(src *v0.Step) *v1.StepRun {
 
 	return &v1.StepRun{
 		Container: container,
-		Env:       env,
+		Env:       &flexible.Field[map[string]interface{}]{Value: env},
 	}
 }

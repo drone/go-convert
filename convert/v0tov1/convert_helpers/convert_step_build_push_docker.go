@@ -27,11 +27,11 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 		with["repo"] = spec.Repo
 	}
 
-	if len(spec.Tags) > 0 {
+	if spec.Tags != nil {
 		with["tags"] = spec.Tags
 	}
 
-	if spec.Caching {
+	if spec.Caching != nil {
 		with["caching"] = spec.Caching
 	}
 
@@ -53,7 +53,7 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 		}
 	}
 
-	if len(spec.Env) > 0 {
+	if spec.Env != nil {
 		with["envvars"] = spec.Env
 	}
 
@@ -65,11 +65,11 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 		with["context"] = spec.Context
 	}
 
-	if len(spec.Labels) > 0 {
+	if spec.Labels != nil {
 		with["labels"] = spec.Labels
 	}
 
-	if len(spec.BuildArgs) > 0 {
+	if spec.BuildArgs != nil {
 		with["buildargs"] = spec.BuildArgs
 	}
 

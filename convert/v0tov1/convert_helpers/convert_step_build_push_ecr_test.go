@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -21,7 +22,7 @@ func TestConvertStepBuildAndPushECR(t *testing.T) {
 					Region:       "us-east-1",
 					Account:      "123456789012",
 					ImageName:    "my-app",
-					Tags:         []string{"latest", "v1.0.0"},
+					Tags:         &flexible.Field[[]string]{Value: []string{"latest", "v1.0.0"}},
 				},
 			},
 			expected: map[string]interface{}{
@@ -29,7 +30,7 @@ func TestConvertStepBuildAndPushECR(t *testing.T) {
 				"region":    "us-east-1",
 				"registry":  "123456789012.dkr.ecr.us-east-1.amazonaws.com",
 				"repo":      "my-app",
-				"tags":      []string{"latest", "v1.0.0"},
+				"tags":      &flexible.Field[[]string]{Value: []string{"latest", "v1.0.0"}},
 			},
 		},
 		{

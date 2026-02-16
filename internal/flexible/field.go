@@ -15,22 +15,20 @@ type Field[T any] struct {
 
 // UnmarshalJSON implements json.Unmarshaler for automatic handling of multiple types
 func (f *Field[T]) UnmarshalJSON(data []byte) error {
-	// Try to unmarshal as different types in order of preference
-
-	// Try string first
-	var str string
-	if err := json.Unmarshal(data, &str); err == nil {
-		f.Value = str
+	// Try to unmarshal as struct T first
+	var structValue T
+	if err := json.Unmarshal(data, &structValue); err == nil {
+		f.Value = structValue
 		return nil
 	}
 
-	// Finally try to unmarshal as struct T
-	var structValue T
-	if err := json.Unmarshal(data, &structValue); err != nil {
-		return fmt.Errorf("failed to unmarshal as string, int, float, bool, or struct: %v", err)
+	// Fall back to string
+	var str string
+	if err := json.Unmarshal(data, &str); err != nil {
+		return fmt.Errorf("failed to unmarshal as struct or string: %v", err)
 	}
 
-	f.Value = structValue
+	f.Value = str
 	return nil
 }
 
@@ -52,22 +50,20 @@ func (f Field[T]) MarshalYAML() (interface{}, error) {
 
 // UnmarshalYAML implements yaml.Unmarshaler for YAML deserialization
 func (f *Field[T]) UnmarshalYAML(node *yaml.Node) error {
-	// Try to unmarshal as different types in order of preference
-
-	// Try string first
-	var str string
-	if err := node.Decode(&str); err == nil {
-		f.Value = str
+	// Try to unmarshal as struct T first
+	var structValue T
+	if err := node.Decode(&structValue); err == nil {
+		f.Value = structValue
 		return nil
 	}
 
-	// Finally try to unmarshal as struct T
-	var structValue T
-	if err := node.Decode(&structValue); err != nil {
-		return fmt.Errorf("failed to unmarshal as string, int, float, bool, or struct: %v", err)
+	// Fall back to string
+	var str string
+	if err := node.Decode(&str); err != nil {
+		return fmt.Errorf("failed to unmarshal as struct or string: %v", err)
 	}
 
-	f.Value = structValue
+	f.Value = str
 	return nil
 }
 
@@ -131,6 +127,33 @@ func (f *Field[T]) SetExpression(expr string) {
 // IsNil returns true if the field is nil/empty
 func (f *Field[T]) IsNil() bool {
 	return f.Value == nil
+}
+
+// NegateBool negates a boolean flexible field.
+// For struct values, it negates the boolean directly.
+// For expressions, it wraps the expression with <+!...> to negate it.
+// Returns nil if the input field is nil.
+func NegateBool(field *Field[bool]) *Field[bool] {
+	if field == nil {
+		return nil
+	}
+
+	result := &Field[bool]{}
+
+	if val, ok := field.AsStruct(); ok {
+		// It's a boolean value - negate it
+		result.Set(!val)
+		return result
+	}
+
+	if expr, ok := field.AsString(); ok {
+		// It's an expression - wrap with negation
+		modifiedExpr := "<+!" + expr + ">"
+		result.SetExpression(modifiedExpr)
+		return result
+	}
+
+	return nil
 }
 
 // // Convert applies a conversion function directly to the field, preserving expressions

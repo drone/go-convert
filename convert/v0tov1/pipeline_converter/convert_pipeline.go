@@ -8,6 +8,7 @@ import (
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 type PipelineConverter struct {}
@@ -30,7 +31,7 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 	inputs := c.convertVariables(src.Variables)
 	stages := c.convertStages(src.Stages)
 
-	repo,clone := c.convertCodebase(src.Props.CI.Codebase)
+	clone := c.convertCodebase(src.Props.CI.Codebase)
 	dst := &v1.Pipeline{
 		Id:            src.ID,
 		Name:          src.Name,
@@ -39,27 +40,80 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 		Barriers:      barriers,
 		Clone:         clone,
 		Notifications: convert_helpers.ConvertNotifications(src.NotificationRules),
-		Repo:          repo,
 		Delegate: convert_helpers.ConvertDelegate(src.DelegateSelectors),
 	}
 
 	return dst
 }
 
-func (c *PipelineConverter) convertCodebase(src v0.Codebase) (*v1.Repository, *v1.Clone) {
-	if src.Conn == "" && src.Name == "" {
-		return nil, &v1.Clone{
-			Disabled: true,
+func (c *PipelineConverter) convertCodebase(src *v0.Codebase) (*v1.Clone) {
+    if src == nil {
+        return &v1.Clone{
+			Enabled: false,
+		}
+    }
+
+    clone := &v1.Clone{
+        Enabled: true,
+		Repo:      src.Name,
+        Connector: src.Conn, 
+    }
+
+    // Handle Build field - can be either a string expression or a Build struct
+    if !src.Build.IsNil() {
+        if build, ok := src.Build.AsStruct(); ok {
+            // Build is a struct with Type and Spec
+            cloneRef := &v1.CloneRef{}
+
+            // Extract name from Spec based on type
+            if build.Type == "branch" && build.Spec.Branch != "" {
+                cloneRef.Name = build.Spec.Branch
+				cloneRef.Type = "branch"
+            } else if build.Type == "tag" && build.Spec.Tag != "" {
+                cloneRef.Name = build.Spec.Tag
+				cloneRef.Type = "tag"
+            } else if build.Type == "PR" && build.Spec.Number != nil {
+                cloneRef.Number = build.Spec.Number
+				cloneRef.Type = "pull-request"
+            } else if build.Type == "commitSha" && build.Spec.CommitSha != "" {
+                cloneRef.Sha = build.Spec.CommitSha
+				cloneRef.Type = "commit"
+            }
+
+            clone.Ref = cloneRef
+        }
+    }
+	clone.Depth = src.Depth
+	clone.Lfs = src.Lfs
+	
+	clone.Tags = src.FetchTags
+	clone.Trace = src.Debug
+	clone.CloneDir = src.CloneDirectory
+
+	if src.SubmoduleStrategy == "true" {
+		clone.Submodules = &flexible.Field[bool]{Value: true}
+	} else if src.SubmoduleStrategy == "false" {
+		clone.Submodules = &flexible.Field[bool]{Value: false}
+	}
+
+	if src.PrCloneStrategy == "MergeCommit" {
+		clone.Strategy = "merge_commit"
+	} else if src.PrCloneStrategy == "SourceBranch" {
+		clone.Strategy = "deep_clone"
+	}
+	
+	clone.Insecure = src.SslVerify
+
+	if src.Resources != nil && src.Resources.Limits != nil {
+		clone.Resources = &v1.Resources{
+			Limits: &v1.Limits{
+				CPU:    src.Resources.Limits.GetCPUString(),
+				Memory: src.Resources.Limits.GetMemoryString(),
+			},
 		}
 	}
-	repo := &v1.Repository{
-		Name:  src.Name,
-		Connector:  src.Conn,
-	}
-	clone := &v1.Clone{
-		Disabled: false,
-	}
-	return repo, clone
+
+    return clone
 }
 
 // convertVariables converts a list of v0 Variables to v1 Inputs.
