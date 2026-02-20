@@ -65,11 +65,11 @@ type (
 
 	// Cache defines the cache settings.
 	Cache struct {
-		Enabled bool     `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+		Enabled *flexible.Field[bool]     `json:"enabled,omitempty" yaml:"enabled,omitempty"`
 		Key     string   `json:"key,omitempty"     yaml:"key,omitempty"`
 		Paths   []string `json:"paths,omitempty"   yaml:"paths,omitempty"`
 		Policy  string   `json:"policy,omitempty"  yaml:"policy,omitempty"`
-		Override bool    `json:"override,omitempty"  yaml:"override,omitempty"`
+		Override *flexible.Field[bool]    `json:"override,omitempty"  yaml:"override,omitempty"`
 	}
 
 	// Codebase defines a codebase.

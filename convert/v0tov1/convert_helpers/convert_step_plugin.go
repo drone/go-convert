@@ -19,7 +19,7 @@ func ConvertStepPlugin(src *v0.Step) *v1.StepRun {
 
 	// Container mapping
 	var container *v1.Container
-	if sp.Image != "" || sp.ConnRef != "" || sp.ImagePullPolicy != "" {
+			if sp.Image != "" || sp.ConnRef != "" || sp.Privileged != nil || (sp.Resources != nil && sp.Resources.Limits != nil )|| sp.RunAsUser != nil {
 		pull := ""
 		if strings.EqualFold(sp.ImagePullPolicy, "Always") {
 			pull = "always"
@@ -42,6 +42,7 @@ func ConvertStepPlugin(src *v0.Step) *v1.StepRun {
 			Cpu:        cpu,
 			Memory:     memory,
 			Entrypoint: sp.Entrypoint,
+			User:       sp.RunAsUser,
 		}
 	}
 
