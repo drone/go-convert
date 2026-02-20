@@ -736,6 +736,10 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 	if len(spec_.Envs) > 0 {
 		env = &flexible.Field[map[string]interface{}]{Value: spec_.Envs}
 	}
+	var runAsUser *flexible.Field[int]
+	if spec_.User != "" {
+		runAsUser.SetString(spec_.User)
+	}
 	return &v0.Step{
 		ID:   id,
 		Name: convertName(src.Name),
@@ -748,7 +752,7 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 			Image:           spec_.Image,
 			ImagePullPolicy: convertImagePull(spec_.Pull),
 			Privileged:      privileged,
-			RunAsUser:       spec_.User,
+			RunAsUser:       runAsUser,
 			PortBindings:    convertPorts(spec_.Ports),
 		},
 		When: convertStepWhen(src.When, id),
@@ -781,6 +785,10 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 	var privileged *flexible.Field[bool]
 	if spec_.Privileged {
 		privileged = &flexible.Field[bool]{Value: true}
+	}
+	var runAsUser *flexible.Field[int]
+	if spec_.User != "" {
+		runAsUser.SetString(spec_.User)
 	}
 
 	switch spec_.Image {
@@ -830,7 +838,7 @@ func (d *Downgrader) convertStepPlugin(src *v1.Step) *v0.Step {
 				ImagePullPolicy: convertImagePull(spec_.Pull),
 				Settings:        convertSettings(spec_.With),
 				Privileged:      privileged,
-				RunAsUser:       spec_.User,
+				RunAsUser:       runAsUser,
 			},
 			When: convertStepWhen(src.When, id),
 		}
@@ -1032,7 +1040,7 @@ func convertCache(src *v1.Cache) *v0.Cache {
 		return nil
 	}
 	return &v0.Cache{
-		Enabled: src.Enabled,
+		Enabled: &flexible.Field[bool]{Value: src.Enabled},
 		Key:     src.Key,
 		Paths:   src.Paths,
 	}

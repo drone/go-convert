@@ -70,7 +70,7 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool) *v1
 	// Convert step-specific settings
 	switch src.Type {
 	case v0.StepTypeAction:
-		step.Action = convert_helpers.ConvertStepAction(src)
+		step.Run = convert_helpers.ConvertStepAction(src)
 	case v0.StepTypeJiraCreate:
 		step.Template = convert_helpers.ConvertStepJiraCreate(src)
 	case v0.StepTypeJiraUpdate:
@@ -177,9 +177,11 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool) *v1
 		step.Template = convert_helpers.ConvertStepIACMTerraformPlugin(src)
 	case v0.StepTypeIACMOpenTofuPlugin:
 		step.Template = convert_helpers.ConvertStepIACMOpenTofuPlugin(src)
+	case v0.StepTypeBitrise:
+		step.Run = convert_helpers.ConvertStepBitrise(src)
 	default:
 		// Unknown step type, return nil
-		log.Println("Warning!!! step type: " + src.Type + " is not yet supported!")
+		log.Println("Warning!!! step type: " + src.Type + " is not yet supported!, step_id: " + src.ID)
 		step.Template = &v1.StepTemplate{
 			Uses: src.Type,
 		}

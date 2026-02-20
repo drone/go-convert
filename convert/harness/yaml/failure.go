@@ -23,7 +23,7 @@ const (
 	FailureTypeTimeout                 FailureType = "Timeout"
 	FailureTypeUnknown                 FailureType = "Unknown"
 	FailureTypeVerification            FailureType = "Verification"
-	FailureTypeUserMarkFail            FailureType = "UserMarkFail"
+	FailureTypeUserMarkFail            FailureType = "UserMarkedFailure"
 )
 
 type ActionType string

@@ -16,11 +16,13 @@
 
 package yaml
 
+import "github.com/drone/go-convert/internal/flexible"
+
 // Cache defines pipeline caching behavior.
 type Cache struct {
-	Enabled bool          `json:"enabled"`
+	Enabled *flexible.Field[bool]          `json:"enabled"`
 	Key      string        `json:"key,omitempty"`
 	Path     []string `json:"path,omitempty"`
 	Policy   string        `json:"policy,omitempty"`
-	Override bool    `json:"override,omitempty"`
+	Override *flexible.Field[bool]    `json:"override,omitempty"`
 }

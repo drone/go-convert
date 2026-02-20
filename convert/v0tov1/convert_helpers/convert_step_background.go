@@ -16,6 +16,7 @@ package converthelpers
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
@@ -33,7 +34,7 @@ func ConvertStepBackground(src *v0.Step) *v1.StepRun {
 
 	// Container mapping
 	var container *v1.Container
-	if sp.Image != "" || sp.ConnRef != "" || sp.ImagePullPolicy != "" {
+	if sp.Image != "" || sp.ConnRef != "" || sp.Privileged != nil || (sp.Resources != nil && sp.Resources.Limits != nil )|| sp.RunAsUser != nil {
 		pull := ""
 		if strings.EqualFold(sp.ImagePullPolicy, "Always") {
 			pull = "always"
@@ -58,12 +59,23 @@ func ConvertStepBackground(src *v0.Step) *v1.StepRun {
 			Cpu:        cpu,
 			Memory:     memory,
 			Entrypoint: sp.Entrypoint,
+			User:       sp.RunAsUser,
 		}
 
 		container.Ports = []string{}
-		for hostPort,containerPort := range sp.PortBindings {
-			port := fmt.Sprintf("%s:%s", hostPort, containerPort)
-			container.Ports = append(container.Ports, port)
+		if len(sp.PortBindings) > 0 {
+			// Sort keys for deterministic output
+			keys := make([]string, 0, len(sp.PortBindings))
+			for k := range sp.PortBindings {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
+			
+			for _, hostPort := range keys {
+				containerPort := sp.PortBindings[hostPort]
+				port := fmt.Sprintf("%s:%s", hostPort, containerPort)
+				container.Ports = append(container.Ports, port)
+			}
 		}
 	}
 
