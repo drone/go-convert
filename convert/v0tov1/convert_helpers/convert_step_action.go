@@ -15,12 +15,14 @@
 package converthelpers
 
 import (
+	"fmt"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 // ConvertStepActionSpec converts a v0 step action to v1 action spec only
-func ConvertStepAction(src *v0.Step) *v1.StepAction {
+func ConvertStepAction(src *v0.Step) *v1.StepRun {
 	if src == nil || src.Spec == nil {
 		return nil
 	}
@@ -31,21 +33,38 @@ func ConvertStepAction(src *v0.Step) *v1.StepAction {
 		return nil
 	}
 
-	dst := &v1.StepAction{
-		Uses: spec.Uses,
-		With: spec.With,
-		Env:  spec.Envs,
+	script := fmt.Sprintf("plugin -kind action -name %v", spec.Uses)
+	env_map := map[string]interface{}{}
+	var env *flexible.Field[map[string]interface{}]
+	for k, v := range spec.With {
+		env_map["PLUGIN_WITH_"+k] = v
+	}
+	for k, v := range spec.Envs {
+		env_map[k] = v
+	} 	
+	if len(env_map)>0 {
+		env = &flexible.Field[map[string]interface{}]{Value: env_map}
+	}
+	dst := &v1.StepRun{
+		Script: v1.Stringorslice{script},
+		Env:    env,
 	}
 
-	// Merge step-level environment variables with action-level environment variables
-	if src.Env != nil {
-		if dst.Env == nil {
-			dst.Env = make(map[string]string)
-		}
-		for k, v := range src.Env {
-			dst.Env[k] = v
-		}
-	}
+	// dst := &v1.StepAction{
+	// 	Uses: spec.Uses,
+	// 	With: spec.With,
+	// 	Env:  spec.Envs,
+	// }
+
+	// // Merge step-level environment variables with action-level environment variables
+	// if src.Env != nil {
+	// 	if dst.Env == nil {
+	// 		dst.Env = make(map[string]string)
+	// 	}
+	// 	for k, v := range src.Env {
+	// 		dst.Env[k] = v
+	// 	}
+	// }
 
 	return dst
 }

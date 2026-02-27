@@ -14,6 +14,7 @@ type (
 	}
 
 	StepIACMOpenTofuPlugin struct {
+		CommonStepSpec
 		Command string `json:"command,omitempty" yaml:"command,omitempty"`
 		Target *flexible.Field[[]string] `json:"target,omitempty" yaml:"target,omitempty"`
 		Replace *flexible.Field[[]string] `json:"replace,omitempty" yaml:"replace,omitempty"`

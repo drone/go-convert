@@ -236,7 +236,7 @@ type (
 		ImagePullPolicy  string            `json:"imagePullPolicy,omitempty"  yaml:"imagePullPolicy,omitempty"`
 		IntelligenceMode *flexible.Field[bool]              `json:"intelligenceMode,omitempty" yaml:"intelligenceMode,omitempty"`
 		Globs            []string          `json:"globs,omitempty"            yaml:"globs,omitempty"`
-		RunAsUser        string            `json:"runAsUser,omitempty"        yaml:"runAsUser,omitempty"`
+		RunAsUser        *flexible.Field[int]             `json:"runAsUser,omitempty"        yaml:"runAsUser,omitempty"`
 		Resources        *Resources        `json:"resources,omitempty"        yaml:"resources,omitempty"`
 	}
 
@@ -341,23 +341,23 @@ type (
 		Privileged      *flexible.Field[bool]                    `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
 		Reports         *Report                `json:"reports,omitempty"         yaml:"reports,omitempty"`
 		Resources       *Resources             `json:"resources,omitempty"       yaml:"resources,omitempty"`
-		RunAsUser       string                 `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
+		RunAsUser       *flexible.Field[int]                 `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
 		Settings        map[string]interface{} `json:"settings,omitempty"        yaml:"settings,omitempty"`
 		Entrypoint      *flexible.Field[[]string]               `json:"entrypoint,omitempty"      yaml:"entrypoint,omitempty"`
 	}
 
 	StepGitClone struct {
 		CommonStepSpec
-		Repository     string     `json:"repoName,omitempty"    yaml:"repoNama,omitempty"`
+		Repository     string     `json:"repoName,omitempty"    yaml:"repoName,omitempty"`
 		ConnRef        string     `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
 		BuildType      *flexible.Field[Build]     `json:"build,omitempty"    yaml:"build,omitempty"`
 		CloneDirectory string     `json:"cloneDirectory,omitempty"    yaml:"cloneDirectory,omitempty"`
 		Privileged     *flexible.Field[bool]       `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
-		Depth          *flexible.Field[int]     `json:"depth,omitempty"    yaml:"cloneDirectory,omitempty"`
+		Depth          *flexible.Field[int]     `json:"depth,omitempty"    yaml:"depth,omitempty"`
 		Resources      *Resources `json:"resources,omitempty"       yaml:"resources,omitempty"`
-		SSLVerify      string     `json:"sslVerify,omitempty"    yaml:"cloneDirectory,omitempty"`
+		SSLVerify      string     `json:"sslVerify,omitempty"    yaml:"sslVerify,omitempty"`
 		RunAsUser      string     `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
-		Timeout        string     `json:"timeout,omitempty"    yaml:"cloneDirectory,omitempty"`
+		Timeout        string     `json:"timeout,omitempty"    yaml:"timeout,omitempty"`
 	}
 
 	StepAction struct {
@@ -406,7 +406,7 @@ type (
 		PortBindings    map[string]string `json:"portBindings,omitempty"    yaml:"portBindings,omitempty"`
 		Privileged      *flexible.Field[bool]               `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
 		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"`
-		RunAsUser       string            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
+		RunAsUser       *flexible.Field[int]            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"       v1path:"-"`
 		Reports         *Report           `json:"reports,omitempty"         yaml:"reports,omitempty"`
 		Shell           string            `json:"shell,omitempty"           yaml:"shell,omitempty"`
 	}
@@ -698,6 +698,8 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepIACMTerraformPlugin)
 	case StepTypeIACMOpenTofuPlugin:
 		s.Spec = new(StepIACMOpenTofuPlugin)
+	case StepTypeBitrise:
+		s.Spec = new(StepBitrise)
 	default:
 		// log.Printf("unknown step type while unmarshalling %s", s.Type)
 		return fmt.Errorf("unknown step type %s", s.Type)
