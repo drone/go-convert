@@ -33,7 +33,7 @@ func ConvertStepSaveCacheGCS(src *v0.Step) *v1.StepTemplate {
 		with["cachekey"] = spec.Key
 	}
 
-	if len(spec.SourcePaths) > 0 {
+	if spec.SourcePaths != nil {
 		with["mount"] = spec.SourcePaths
 	}
 

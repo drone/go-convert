@@ -9,14 +9,16 @@ import (
 )
 
 func ConvertStrategy(src *v0.Strategy) *v1.Strategy {
-	if src == nil {
+	if src == nil || (src.Matrix == nil && src.Parallelism == nil && src.Repeat == nil) {
 		return nil
 	}
 	dst := &v1.Strategy{}
 	if src.Matrix != nil {
 		matrix, maxParallel := convertMatrix(src.Matrix)
 		dst.Matrix = matrix
-		dst.MaxParallel = maxParallel
+		if maxParallel != nil {
+			dst.MaxParallel = maxParallel
+		}
 	}
 	if src.Repeat != nil {
 		repeat, maxParallel := convertRepeat(src.Repeat)
@@ -30,11 +32,23 @@ func ConvertStrategy(src *v0.Strategy) *v1.Strategy {
             Iterations: src.Parallelism,
         }
     }
+    if dst.For == nil && dst.Matrix == nil && dst.Repeat == nil {
+        return nil
+    }
 	return dst
 }
 
-func convertMatrix(src map[string]interface{}) (*v1.Matrix, *flexible.Field[int64]) {
+func convertMatrix(src *flexible.Field[map[string]interface{}]) (*flexible.Field[*v1.Matrix], *flexible.Field[int64]) {
     if src == nil {
+        return nil, nil
+    }
+    
+    var matrix map[string]interface{} 
+    if src_struct ,ok := src.AsStruct(); ok {
+        matrix = src_struct
+    } else if src_str, ok := src.AsString(); ok && src_str != "" && src_str != "<+input>" {
+        return &flexible.Field[*v1.Matrix]{Value: src_str}, nil
+    } else {
         return nil, nil
     }
 
@@ -42,7 +56,7 @@ func convertMatrix(src map[string]interface{}) (*v1.Matrix, *flexible.Field[int6
     exclude := make([]map[string]string, 0)
     var maxParallel *flexible.Field[int64]
     
-    for k, v := range src {
+    for k, v := range matrix {
         switch k {
         case "exclude":
             // Handle exclude configurations
@@ -75,9 +89,11 @@ func convertMatrix(src map[string]interface{}) (*v1.Matrix, *flexible.Field[int6
         }
     }
 
-    return &v1.Matrix{
-        Axis:    axis,
-        Exclude: exclude,
+    return &flexible.Field[*v1.Matrix]{
+        Value: &v1.Matrix{
+            Axis:    axis,
+            Exclude: exclude,
+        },
     }, maxParallel
 }
 

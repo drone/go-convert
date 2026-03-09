@@ -18,11 +18,13 @@ package yaml
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 type Delegate struct {
 	Filter  []string
-	Inherit bool
+	Inherit *flexible.Field[bool]
 }
 
 // UnmarshalJSON implement the json.Unmarshaler interface.
@@ -34,7 +36,8 @@ func (v *Delegate) UnmarshalJSON(data []byte) error {
 	}
 
 	if len(out) == 1 && out[0] == "inherit-from-infrastructure" {
-		v.Inherit = true
+		v.Inherit = &flexible.Field[bool]{}
+		v.Inherit.Set(true)
 	} else {
 		v.Filter = out
 	}
@@ -44,20 +47,40 @@ func (v *Delegate) UnmarshalJSON(data []byte) error {
 
 // MarshalJSON implement the json.Marshaler interface.
 func (v *Delegate) MarshalJSON() ([]byte, error) {
-	switch {
-	case v.Inherit:
-		return json.Marshal("inherit-from-infrastructure")
-	default:
-		return json.Marshal(v.Filter)
+	if v.Inherit != nil {
+		if val, ok := v.Inherit.AsStruct(); ok && val {
+			return json.Marshal("inherit-from-infrastructure")
+		}
+		if expr, ok := v.Inherit.AsString(); ok {
+			return json.Marshal(expr)
+		}
 	}
+	return json.Marshal(v.Filter)
 }
 
 // MarshalYAML implement the yaml.Marshaler interface.
 func (v *Delegate) MarshalYAML() (interface{}, error) {
-	switch {
-	case v.Inherit:
-		return "inherit-from-infrastructure", nil
-	default:
-		return v.Filter, nil
+	if v.Inherit != nil {
+		if val, ok := v.Inherit.AsStruct(); ok && val {
+			return "inherit-from-infrastructure", nil
+		}
+		if expr, ok := v.Inherit.AsString(); ok {
+			return expr, nil
+		}
 	}
+	return v.Filter, nil
+}
+
+// formatDelegateExpression creates a ternary expression for delegate:
+// <+ <+originalExpr> ? "inherit-from-infrastructure" : ["delegate1","delegate2",...] >
+func FormatDelegateExpression(originalExpr string, filter []string) string {
+	filterStr := "["
+	for i, f := range filter {
+		if i > 0 {
+			filterStr += ","
+		}
+		filterStr += fmt.Sprintf("%q", f)
+	}
+	filterStr += "]"
+	return fmt.Sprintf("<+ %s ? \"inherit-from-infrastructure\" : %s>", originalExpr, filterStr)
 }

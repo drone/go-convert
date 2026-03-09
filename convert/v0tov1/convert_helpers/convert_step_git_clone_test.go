@@ -99,7 +99,7 @@ func TestConvertStepGitClone(t *testing.T) {
 					Repository:     "my-repo",
 					CloneDirectory: "/workspace/src",
 					Depth:          &flexible.Field[int]{Value: 50},
-					SSLVerify:      "false",
+					SSLVerify:      &flexible.Field[bool]{Value: false},
 					BuildType: &flexible.Field[v0.Build]{Value: v0.Build{
 						Type: "branch",
 						Spec: v0.BuildSpec{Branch: "develop"},
@@ -112,7 +112,7 @@ func TestConvertStepGitClone(t *testing.T) {
 				"branch":         "develop",
 				"cloneDirectory": "/workspace/src",
 				"depth":          &flexible.Field[int]{Value: 50},
-				"sslVerify":      "false",
+				"sslVerify":      &flexible.Field[bool]{Value: false},
 			},
 		},
 		{

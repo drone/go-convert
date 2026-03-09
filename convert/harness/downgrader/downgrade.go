@@ -177,11 +177,14 @@ func (d *Downgrader) downgrade(src []*v1.Config) ([]byte, error) {
 
 		config.Pipeline.Org = d.pipelineOrg
 		config.Pipeline.Project = d.pipelineProj
-		config.Pipeline.Tags = make(map[string]string)
+		tagsMap := make(map[string]string)
 		for _, tag := range strings.Split(p.Type, ",") {
 			if tag != "" {
-				config.Pipeline.Tags[tag] = ""
+				tagsMap[tag] = ""
 			}
+		}
+		if len(tagsMap) > 0 {
+			config.Pipeline.Tags = &flexible.Field[map[string]string]{Value: tagsMap}
 		}
 		config.Pipeline.Props.CI.Codebase = &v0.Codebase{
 			Name:  d.codebaseName,
@@ -493,7 +496,7 @@ func convertStrategy(v1Strategy *v1.Strategy) *v0.Strategy {
 	switch v1Strategy.Type {
 	case "matrix":
 		v0Matrix := convertMatrix(v1Strategy.Spec.(*v1.Matrix))
-		v0Strategy.Matrix = v0Matrix
+		v0Strategy.Matrix = &flexible.Field[map[string]interface{}]{Value: v0Matrix}
 	default:
 	}
 
@@ -696,9 +699,12 @@ func convertReports(reports []*v1.Report) *v0.Report {
 	for _, report := range reports {
 		allPaths = append(allPaths, report.Path...)
 	}
-
+	var paths *flexible.Field[[]string]
+	if len(allPaths) > 0 {
+		paths = &flexible.Field[[]string]{Value: allPaths}
+	}
 	reportJunit := v0.ReportJunit{
-		Paths: allPaths,
+		Paths: paths,
 	}
 
 	v0Report := v0.Report{
@@ -898,15 +904,18 @@ func (d *Downgrader) convertStepPluginToDocker(src *v1.Step) *v0.Step {
 		stepDocker.Labels = extractStringMap(labelsInterface)
 	}
 
-	return &v0.Step{
+	step := &v0.Step{
 		ID:      id,
 		Name:    src.Name,
 		Type:    v0.StepTypeBuildAndPushDockerRegistry,
 		Timeout: convertTimeout(src.Timeout),
 		Spec:    stepDocker,
 		When:    convertStepWhen(src.When, id),
-		Env:     spec_.Envs,
 	}
+	if len(spec_.Envs) > 0 {
+		step.Env = &flexible.Field[map[string]string]{Value: spec_.Envs}
+	}
+	return step
 }
 
 func (d *Downgrader) convertStepPluginToTrivy(src *v1.Step) *v0.Step {
@@ -949,15 +958,18 @@ func (d *Downgrader) convertStepPluginToTrivy(src *v1.Step) *v0.Step {
 		Image:      image,
 	}
 
-	return &v0.Step{
+	step := &v0.Step{
 		ID:      id,
 		Name:    src.Name,
 		Type:    v0.StepTypeAquaTrivy,
 		Timeout: convertTimeout(src.Timeout),
 		Spec:    stepTrivy,
 		When:    convertStepWhen(src.When, id),
-		Env:     spec_.Envs,
 	}
+	if len(spec_.Envs) > 0 {
+		step.Env = &flexible.Field[map[string]string]{Value: spec_.Envs}
+	}
+	return step
 }
 
 // helper function to convert an Action step from the v1
@@ -1042,7 +1054,7 @@ func convertCache(src *v1.Cache) *v0.Cache {
 	return &v0.Cache{
 		Enabled: &flexible.Field[bool]{Value: src.Enabled},
 		Key:     src.Key,
-		Paths:   src.Paths,
+		Paths:   &flexible.Field[[]string]{Value: src.Paths},
 	}
 }
 

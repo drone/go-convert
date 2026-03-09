@@ -39,7 +39,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		Name:      src.Name,
 		OnFailure: convert_helpers.ConvertFailureStrategies(src.FailureStrategies),
 		Inputs:    c.convertVariables(src.Vars),
-		Delegate:  convert_helpers.ConvertDelegate(src.DelegateSelectors),
+		Delegate:  convert_helpers.ConvertDelegate(src.DelegateSelectors, nil),
 		Strategy:  convert_helpers.ConvertStrategy(src.Strategy),
 		If:        convert_helpers.ConvertStageWhen(src.When),
 	}
@@ -52,7 +52,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 
 	case *v0.StageCustom:
 		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
-		stage.Environment = convert_helpers.ConvertEnvironment(spec.Environment)
+		stage.Environment = convert_helpers.ConvertEnvironment(spec.Environment, c.stageCtx)
 		stage.Timeout = spec.Timeout
 
 	case *v0.StageIACM:
@@ -60,7 +60,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		stage.Timeout = spec.Timeout
 		
 		if spec.Infrastructure != nil {
-			stage.Runtime = convert_helpers.ConvertInfrastructureToRuntime(spec.Infrastructure)
+			stage.Runtime = convert_helpers.ConvertInfrastructureToRuntime(spec.Infrastructure, c.stageCtx)
 		} else if spec.Runtime != nil {
 			stage.Runtime = convert_helpers.ConvertRuntime(spec.Runtime)
 		} else {
@@ -89,7 +89,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		// Convert shared paths to volumes
 		volumes := convert_helpers.ConvertSharedPaths(spec.SharedPaths)
 		if spec.Infrastructure != nil {
-			stage.Runtime = convert_helpers.ConvertInfrastructureToRuntime(spec.Infrastructure)
+			stage.Runtime = convert_helpers.ConvertInfrastructureToRuntime(spec.Infrastructure, c.stageCtx)
 		} else if spec.Runtime != nil {
 			stage.Runtime = convert_helpers.ConvertRuntime(spec.Runtime)
 		} else {
@@ -110,9 +110,9 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		// Convert environment configuration
 		deprecatedInfraDefinition := false
 		if spec.Environment != nil {
-			stage.Environment = convert_helpers.ConvertEnvironment(spec.Environment)
+			stage.Environment = convert_helpers.ConvertEnvironment(spec.Environment, c.stageCtx)
 		} else if spec.Environments != nil {
-			stage.Environment = convert_helpers.ConvertEnvironments(spec.Environments)
+			stage.Environment = convert_helpers.ConvertEnvironments(spec.Environments, c.stageCtx)
 		} else if spec.EnvironmentGroup != nil {
 			stage.Environment = convert_helpers.ConvertEnvironmentGroup(spec.EnvironmentGroup)
 		} else if spec.Infrastructure != nil {
@@ -122,9 +122,9 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 
 		// Convert service configuration
 		if spec.Service != nil {
-			stage.Service = convert_helpers.ConvertDeploymentService(spec.Service)
+			stage.Service = convert_helpers.ConvertDeploymentService(spec.Service, c.stageCtx)
 		} else if spec.Services != nil {
-			stage.Service = convert_helpers.ConvertDeploymentServices(spec.Services)
+			stage.Service = convert_helpers.ConvertDeploymentServices(spec.Services, c.stageCtx)
 		} else if spec.ServiceConfig != nil && !deprecatedInfraDefinition {
 			stage.Service = convert_helpers.ConvertDeploymentServiceConfig(spec.ServiceConfig)
 		}
@@ -149,9 +149,17 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		
 		stage.Timeout = spec.Timeout
 
-
 	default:
 		log.Printf("Warning!!! stage type: %s (stage: %s) is not yet supported!\n", src.Type, src.ID)
+	}
+
+	// Populate stage context so future stages can resolve useFromStage references
+	if src.ID != "" {
+		c.stageCtx.Set(src.ID, &convert_helpers.StageConvertedData{
+			Service:     stage.Service,
+			Environment: stage.Environment,
+			Runtime:     stage.Runtime,
+		})
 	}
 
 	return stage
@@ -198,7 +206,7 @@ func(c *PipelineConverter) constructChainInputs(spec *v0.StagePipeline) map[stri
 		overlay["clone"] = c.convertCodebase(spec.Inputs.Props.CI.Codebase)
 	}
 	if spec.Inputs.DelegateSelectors != nil {
-		overlay["delegate"] = convert_helpers.ConvertDelegate(spec.Inputs.DelegateSelectors)
+		overlay["delegate"] = convert_helpers.ConvertDelegate(spec.Inputs.DelegateSelectors, nil)
 	}
 
 	if len(overlay) > 0 {

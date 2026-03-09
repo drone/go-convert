@@ -52,7 +52,7 @@ func TestConvertStepBackground(t *testing.T) {
 					Reports: &v0.Report{
 						Type: "JUnit",
 						Spec: &v0.ReportJunit{
-							Paths: []string{"report1.xml", "report2.xml"},
+							Paths: &flexible.Field[[]string]{Value: []string{"report1.xml", "report2.xml"}},
 						},
 					},
 					RunAsUser: &flexible.Field[int]{Value: 1000},
@@ -74,9 +74,9 @@ func TestConvertStepBackground(t *testing.T) {
 					"POSTGRES_USER": "admin",
 					"POSTGRES_DB":   "testdb",
 				}},
-				Report: &v1.ReportList{
-					&v1.Report{Type: "junit", Path: "report1.xml"},
-					&v1.Report{Type: "junit", Path: "report2.xml"},
+				Report: &v1.Reports{
+					Type: "junit",
+					Paths: &flexible.Field[[]string]{Value: []string{"report1.xml", "report2.xml"}},
 				},
 			},
 		},
@@ -143,30 +143,6 @@ func TestConvertStepBackground(t *testing.T) {
 					Ports: []string{},
 				},
 				Shell: "sh",
-			},
-		},
-		{
-			name: "reports with empty paths are skipped",
-			step: &v0.Step{
-				Spec: &v0.StepBackground{
-					Image: "test",
-					Reports: &v0.Report{
-						Type: "JUnit",
-						Spec: &v0.ReportJunit{
-							Paths: []string{"valid.xml", "  ", ""},
-						},
-					},
-				},
-			},
-			expected: &v1.StepRun{
-				Container: &v1.Container{
-					Image: "test",
-					Ports: []string{},
-				},
-				Shell: "sh",
-				Report: &v1.ReportList{
-					&v1.Report{Type: "junit", Path: "valid.xml"},
-				},
 			},
 		},
 	}

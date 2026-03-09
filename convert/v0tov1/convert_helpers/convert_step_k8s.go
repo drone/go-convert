@@ -499,8 +499,12 @@ func ConvertStepK8sTrafficRouting(src *v0.Step) *v1.StepTemplate {
 			}
 
 			// Convert routes using the reusable function
-			if len(routingSpec.Routes) > 0 {
-				routes = ConvertTrafficRoutingRoutes(routingSpec.Routes)
+			if routingSpec.Routes != nil {
+				if routesList, ok := routingSpec.Routes.AsStruct(); ok && len(routesList) > 0 {
+					routes = ConvertTrafficRoutingRoutes(routesList)
+				} else if routeExpr, ok := routingSpec.Routes.AsString(); ok {
+					routes = routeExpr
+				}
 			}
 		}
 	}
@@ -638,8 +642,12 @@ func ConvertStepK8sCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 			resourceName = routingSpec.Name
 
 			// Convert routes using the reusable function
-			if len(routingSpec.Routes) > 0 {
-				routes = ConvertTrafficRoutingRoutes(routingSpec.Routes)
+			if routingSpec.Routes != nil {
+				if routesList, ok := routingSpec.Routes.AsStruct(); ok && len(routesList) > 0 {
+					routes = ConvertTrafficRoutingRoutes(routesList)
+				} else if routeExpr, ok := routingSpec.Routes.AsString(); ok {
+					routes = routeExpr
+				}
 			}
 		}
 	}
@@ -700,8 +708,12 @@ func ConvertStepK8sBlueGreenDeploy(src *v0.Step) *v1.StepTemplate {
 				}
 			}
 
-			if len(routingSpec.Routes) > 0 {
-				routes = ConvertTrafficRoutingRoutes(routingSpec.Routes)
+			if routingSpec.Routes != nil {
+				if routesList, ok := routingSpec.Routes.AsStruct(); ok && len(routesList) > 0 {
+					routes = ConvertTrafficRoutingRoutes(routesList)
+				} else if routeExpr, ok := routingSpec.Routes.AsString(); ok {
+					routes = routeExpr
+				}
 			}
 		}
 	}

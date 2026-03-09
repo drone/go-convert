@@ -130,7 +130,7 @@ type (
 		RootService string                    `json:"rootService,omitempty" yaml:"rootService,omitempty"`
 		Hosts       interface{}               `json:"hosts,omitempty" yaml:"hosts,omitempty"`
 		Gateways    interface{}               `json:"gateways,omitempty" yaml:"gateways,omitempty"`
-		Routes      []*K8sTrafficRoutingRoute `json:"routes,omitempty" yaml:"routes,omitempty"`
+		Routes      *flexible.Field[[]*K8sTrafficRoutingRoute] `json:"routes,omitempty" yaml:"routes,omitempty"`
 	}
 
 	K8sTrafficRoutingRoute struct {

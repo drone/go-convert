@@ -61,6 +61,7 @@ const (
 	StepTypeBuildAndPushECR            = "BuildAndPushECR"
 	StepTypeBuildAndPushGCR            = "BuildAndPushGCR"
 	StepTypeBuildAndPushGAR            = "BuildAndPushGAR"
+	StepTypeBuildAndPushACR            = "BuildAndPushACR"
 	StepTypeFlagConfiguration          = "FlagConfiguration"
 	StepTypeGCSUpload                  = "GCSUpload"
 	StepTypeHarnessApproval            = "HarnessApproval"

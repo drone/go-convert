@@ -3,13 +3,15 @@ package yaml
 import "github.com/drone/go-convert/internal/flexible"
 type (
 	DeploymentServices struct {
-		Values   []*DeploymentService `json:"values,omitempty" yaml:"values,omitempty"`
+		Values   *flexible.Field[[]*DeploymentService] `json:"values,omitempty" yaml:"values,omitempty"`
 		Metadata *ServicesMetadata    `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+		UseFromStage *UseFromStage `json:"useFromStage,omitempty" yaml:"useFromStage,omitempty"`
 	}
 
 	// DeploymentService defines the service configuration for deployment
 	DeploymentService struct {
-		ServiceRef    string                       `json:"serviceRef,omitempty"    yaml:"serviceRef,omitempty"`
+		ServiceRef   string        `json:"serviceRef,omitempty"    yaml:"serviceRef,omitempty"`
+		UseFromStage *UseFromStage `json:"useFromStage,omitempty" yaml:"useFromStage,omitempty"`
 		// ServiceInputs *flexible.Field[ServiceInputs] `json:"serviceInputs,omitempty" yaml:"serviceInputs,omitempty"`
 	}
 
