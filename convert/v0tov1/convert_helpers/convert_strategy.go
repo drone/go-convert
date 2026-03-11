@@ -84,6 +84,8 @@ func convertMatrix(src *flexible.Field[map[string]interface{}]) (*flexible.Field
             } else if vString, ok := v.(string); ok {
                 maxParallel.SetString(vString)
             }
+        case "nodeName":
+            axis["node-name"] = v
         default:
             axis[k] = v
         }
