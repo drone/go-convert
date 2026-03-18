@@ -15,14 +15,25 @@
 package converthelpers
 
 import (
+	"fmt"
+	"log"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 	"github.com/drone/go-convert/internal/flexible"
 )
 
 // ConvertDeploymentService converts v0 DeploymentService to v1 ServiceRef
-func ConvertDeploymentService(src *v0.DeploymentService) *v1.ServiceRef {
+func ConvertDeploymentService(src *v0.DeploymentService, ctx *StageConversionContext) *v1.ServiceRef {
 	if src == nil {
+		return nil
+	}
+
+	// Handle useFromStage
+	if src.UseFromStage != nil && src.UseFromStage.Stage != "" {
+		if ref := ctx.GetService(src.UseFromStage.Stage); ref != nil {
+			return ref
+		}
+		log.Printf("Warning!!! service useFromStage '%s' not found in context\n", src.UseFromStage.Stage)
 		return nil
 	}
 
@@ -38,13 +49,43 @@ func ConvertDeploymentService(src *v0.DeploymentService) *v1.ServiceRef {
 }
 
 // ConvertDeploymentServices converts multiple v0 services to v1 ServiceRef
-func ConvertDeploymentServices(src *v0.DeploymentServices) *v1.ServiceRef {
-	if src == nil || len(src.Values) == 0 {
+func ConvertDeploymentServices(src *v0.DeploymentServices, ctx *StageConversionContext) *v1.ServiceRef {
+	if src == nil {
+		return nil
+	}
+	// Handle useFromStage
+	if src.UseFromStage != nil && src.UseFromStage.Stage != "" {
+		if ref := ctx.GetService(src.UseFromStage.Stage); ref != nil {
+			return ref
+		}
+		log.Printf("Warning!!! services useFromStage '%s' not found in context\n", src.UseFromStage.Stage)
 		return nil
 	}
 
-	serviceRefs := make([]string, 0, len(src.Values))
-	for _, service := range src.Values {
+	// Handle Values as flexible.Field
+	if src.Values == nil {
+		return nil
+	}
+
+	// Check if Values is an expression
+	if expr, ok := src.Values.AsString(); ok {
+		// If expression is not <+input> or empty string, return nil and log
+		if expr != "<+input>" && expr != "" {
+			log.Printf("Warning: services.values contains unsupported expression '%s', skipping conversion\n", expr)
+			return nil
+		}
+		// For <+input> or empty string, continue with nil values (no services)
+		return nil
+	}
+
+	// Values is a struct (array of services)
+	values, ok := src.Values.AsStruct()
+	if !ok || len(values) == 0 {
+		return nil
+	}
+
+	serviceRefs := make([]string, 0, len(values))
+	for _, service := range values {
 		if service != nil && service.ServiceRef != "" {
 			serviceRefs = append(serviceRefs, service.ServiceRef)
 		}
@@ -83,22 +124,22 @@ func ConvertDeploymentServiceConfig(src *v0.DeploymentServiceConfig) *v1.Service
 }
 
 // ConvertEnvironment converts v0 Environment to v1 EnvironmentRef
-func ConvertEnvironment(src *v0.Environment) *v1.EnvironmentRef {
+func ConvertEnvironment(src *v0.Environment, ctx *StageConversionContext) *v1.EnvironmentRef {
 	if src == nil {
+		return nil
+	}
+	// Handle useFromStage
+	if src.UseFromStage != nil && src.UseFromStage.Stage != "" {
+		if ref := ctx.GetEnvironment(src.UseFromStage.Stage); ref != nil {
+			return ref
+		}
+		log.Printf("Warning!!! environment useFromStage '%s' not found in context\n", src.UseFromStage.Stage)
 		return nil
 	}
 
 	// Single environment deploying to all infrastructures
 	if src.EnvironmentRef != "" {
-		var deployTo interface{}
-		if infra, ok := src.InfrastructureDefinitions.AsString(); ok {
-			deployTo = infra
-		} else if infra, ok := src.InfrastructureDefinitions.AsStruct(); ok && len(infra) > 0 {
-			deployTo = infra[0].Identifier
-		}
-		if src.DeployToAll {
-			deployTo = "all"
-		}
+		deployTo := resolveDeployTo(src.DeployToAll, &src.InfrastructureDefinitions)
 		return &v1.EnvironmentRef{
 			Name:     src.EnvironmentRef,
 			Id:       src.EnvironmentRef,
@@ -110,27 +151,27 @@ func ConvertEnvironment(src *v0.Environment) *v1.EnvironmentRef {
 }
 
 // ConvertEnvironments converts v0 Environments to v1 EnvironmentRef
-func ConvertEnvironments(src *v0.Environments) *v1.EnvironmentRef {
-	if src == nil || len(src.Values) == 0 {
+func ConvertEnvironments(src *v0.Environments, ctx *StageConversionContext) *v1.EnvironmentRef {
+	if src == nil {
+		return nil
+	}
+	// Handle useFromStage
+	if src.UseFromStage != nil && src.UseFromStage.Stage != "" {
+		if ref := ctx.GetEnvironment(src.UseFromStage.Stage); ref != nil {
+			return ref
+		}
+		log.Printf("Warning!!! environments useFromStage '%s' not found in context\n", src.UseFromStage.Stage)
+		return nil
+	}
+
+	if len(src.Values) == 0 {
 		return nil
 	}
 
 	items := make([]*v1.EnvironmentItem, 0, len(src.Values))
 	for _, env := range src.Values {
 		if env.EnvironmentRef != "" {
-			var deployTo interface{}
-			if infra, ok := env.InfrastructureDefinitions.AsString(); ok {
-				deployTo = infra
-			} else if infra, ok := env.InfrastructureDefinitions.AsStruct(); ok {
-				infraList := make([]string, 0, len(infra))
-				for _, i := range infra {
-					infraList = append(infraList, i.Identifier)
-				}
-				deployTo = infraList
-			}
-			if env.DeployToAll {
-				deployTo = "all"
-			}
+			deployTo := resolveDeployTo(env.DeployToAll, &env.InfrastructureDefinitions)
 			items = append(items, &v1.EnvironmentItem{
 				Name:     env.EnvironmentRef,
 				Id:       env.EnvironmentRef,
@@ -237,5 +278,78 @@ func ConvertDeploymentInfrastructure(src *v0.DeploymentInfrastructure) *v1.Envir
 
 	return &v1.EnvironmentRef{
 		Items: []*v1.EnvironmentItem{envItem},
+	}
+}
+
+// resolveDeployTo determines the deploy-to value based on DeployToAll and infrastructure definitions.
+// - If DeployToAll is a boolean true → "all"
+// - If DeployToAll is <+input> → returns the infra value only (single string or list)
+// - If DeployToAll is any other expression → builds ternary: <+ <+expr> ? "all" : "infraValue" >
+// - If DeployToAll is nil/false → returns the infra value
+func resolveDeployTo(deployToAll *flexible.Field[bool], infraDefs *flexible.Field[[]*v0.InfrastructureDefinition]) interface{} {
+	// Compute infra value from infrastructure definitions
+	var infraValue interface{}
+	if infraDefs != nil {
+		if infra, ok := infraDefs.AsString(); ok {
+			infraValue = infra
+		} else if infra, ok := infraDefs.AsStruct(); ok {
+			if len(infra) == 1 {
+				infraValue = infra[0].Identifier
+			} else if len(infra) > 1 {
+				infraList := make([]string, 0, len(infra))
+				for _, i := range infra {
+					infraList = append(infraList, i.Identifier)
+				}
+				infraValue = infraList
+			}
+		}
+	}
+
+	if deployToAll == nil {
+		return infraValue
+	}
+
+	// Boolean value
+	if val, ok := deployToAll.AsStruct(); ok {
+		if val {
+			return "all"
+		}
+		return infraValue
+	}
+
+	// Expression value
+	if expr, ok := deployToAll.AsString(); ok {
+		if expr == "<+input>" {
+			// <+input> means deploy-to is the infra only
+			return infraValue
+		}
+		// Other expression: build ternary
+		// <+ <+originalExpr> ? "all" : "infraFromYaml">
+		infraStr := formatInfraForExpression(infraValue)
+		return fmt.Sprintf("<+ %s ? \"all\" : %s>", expr, infraStr)
+	}
+
+	return infraValue
+}
+
+// formatInfraForExpression formats infrastructure value for use in ternary expressions.
+// Single string → "infraName"
+// List → ["infra1","infra2",...]
+func formatInfraForExpression(infraValue interface{}) string {
+	switch v := infraValue.(type) {
+	case string:
+		return fmt.Sprintf("%q", v)
+	case []string:
+		result := "["
+		for i, s := range v {
+			if i > 0 {
+				result += ","
+			}
+			result += fmt.Sprintf("%q", s)
+		}
+		result += "]"
+		return result
+	default:
+		return "\"\""
 	}
 }

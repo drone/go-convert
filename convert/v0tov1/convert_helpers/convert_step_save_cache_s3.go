@@ -37,7 +37,7 @@ func ConvertStepSaveCacheS3(src *v0.Step) *v1.StepTemplate {
 		with["cachekey"] = spec.Key
 	}
 
-	if len(spec.SourcePaths) > 0 {
+	if spec.SourcePaths != nil {
 		with["source_path"] = spec.SourcePaths
 	}
 

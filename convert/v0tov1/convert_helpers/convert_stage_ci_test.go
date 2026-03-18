@@ -199,7 +199,7 @@ func TestConvertInfrastructureToRuntime(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := ConvertInfrastructureToRuntime(tt.input)
+			result := ConvertInfrastructureToRuntime(tt.input, NewStageConversionContext())
 			if diff := cmp.Diff(tt.expected, result); diff != "" {
 				t.Errorf("mismatch (-want +got):\n%s", diff)
 			}

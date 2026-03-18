@@ -28,7 +28,7 @@ type Step struct {
 	Background *StepRun               `json:"background,omitempty" yaml:"background,omitempty"`
 	Barrier    *StepBarrier           `json:"barrier,omitempty" yaml:"barrier,omitempty"`
 	Delegate   *flexible.Field[*Delegate]              `json:"delegate,omitempty" yaml:"delegate,omitempty"`
-	Env        map[string]string      `json:"env,omitempty" yaml:"env,omitempty"`
+	Env        *flexible.Field[map[string]string]      `json:"env,omitempty" yaml:"env,omitempty"`
 	Group      *StepGroup             `json:"group,omitempty" yaml:"group,omitempty"`
 	Id         string                 `json:"id,omitempty" yaml:"id,omitempty"`
 	If         string                 `json:"if,omitempty" yaml:"if,omitempty"`
@@ -68,7 +68,7 @@ func (v *Step) UnmarshalJSON(data []byte) error {
 		Background *StepRun               `json:"background,omitempty" yaml:"background,omitempty"`
 		Barrier    *StepBarrier           `json:"barrier,omitempty" yaml:"barrier,omitempty"`
 		Delegate   *flexible.Field[*Delegate]              `json:"delegate,omitempty" yaml:"delegate,omitempty"`
-		Env        map[string]string      `json:"env,omitempty" yaml:"env,omitempty"`
+		Env        *flexible.Field[map[string]string]      `json:"env,omitempty" yaml:"env,omitempty"`
 		Group      *StepGroup             `json:"group,omitempty" yaml:"group,omitempty"`
 		Id         string                 `json:"id,omitempty" yaml:"id,omitempty"`
 		If         string                 `json:"if,omitempty" yaml:"if,omitempty"`

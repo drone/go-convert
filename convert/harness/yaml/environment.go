@@ -13,13 +13,15 @@ type (
 
 	Environment struct {
 		EnvironmentRef string `json:"environmentRef,omitempty" yaml:"environmentRef,omitempty"`
-		DeployToAll    bool   `json:"deployToAll,omitempty"    yaml:"deployToAll,omitempty"`
+		DeployToAll    *flexible.Field[bool]   `json:"deployToAll,omitempty"    yaml:"deployToAll,omitempty"`
 		InfrastructureDefinitions flexible.Field[[]*InfrastructureDefinition] `json:"infrastructureDefinitions,omitempty" yaml:"infrastructureDefinitions,omitempty"`
+		UseFromStage              *UseFromStage                               `json:"useFromStage,omitempty" yaml:"useFromStage,omitempty"`
 	}
 
 	Environments struct {
 		Metadata *EnvironmentMetadata `json:"metadata,omitempty" yaml:"metadata,omitempty"`
 		Values []*Environment `json:"values,omitempty" yaml:"values,omitempty"`
+		UseFromStage *UseFromStage        `json:"useFromStage,omitempty" yaml:"useFromStage,omitempty"`
 	}
 
 	// EnvironmentMetadata defines environment metadata

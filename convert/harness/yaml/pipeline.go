@@ -33,7 +33,7 @@ type (
 		Props             Properties          `json:"properties,omitempty"        yaml:"properties,omitempty"`
 		Stages            []*Stages           `json:"stages,omitempty"            yaml:"stages"`
 		Variables         []*Variable         `json:"variables,omitempty"         yaml:"variables,omitempty"`
-		Tags              map[string]string   `json:"tags,omitempty"              yaml:"tags,omitempty"`
+		Tags              *flexible.Field[map[string]string]   `json:"tags,omitempty"              yaml:"tags,omitempty"`
 		FlowControl       *FlowControl        `json:"flowControl,omitempty"       yaml:"flowControl,omitempty"`
 		NotificationRules []*NotificationRule `json:"notificationRules,omitempty" yaml:"notificationRules,omitempty"`
 		DelegateSelectors *flexible.Field[[]string] `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
@@ -67,7 +67,7 @@ type (
 	Cache struct {
 		Enabled *flexible.Field[bool]     `json:"enabled,omitempty" yaml:"enabled,omitempty"`
 		Key     string   `json:"key,omitempty"     yaml:"key,omitempty"`
-		Paths   []string `json:"paths,omitempty"   yaml:"paths,omitempty"`
+		Paths   *flexible.Field[[]string] `json:"paths,omitempty"   yaml:"paths,omitempty"`
 		Policy  string   `json:"policy,omitempty"  yaml:"policy,omitempty"`
 		Override *flexible.Field[bool]    `json:"override,omitempty"  yaml:"override,omitempty"`
 	}
@@ -86,7 +86,7 @@ type (
 		FetchTags            *flexible.Field[bool]        `json:"fetchTags,omitempty"          yaml:"fetchTags,omitempty"`
 		PersistCredentials   *flexible.Field[bool]        `json:"persistCredentials,omitempty" yaml:"persistCredentials,omitempty"`
 		SparseCheckout       []string                    `json:"sparseCheckout,omitempty"     yaml:"sparseCheckout,omitempty"`
-		SubmoduleStrategy    string 					 `json:"submoduleStrategy,omitempty"  yaml:"submoduleStrategy,omitempty"`
+		SubmoduleStrategy    *flexible.Field[bool]  	 `json:"submoduleStrategy,omitempty"  yaml:"submoduleStrategy,omitempty"`
 		CloneDirectory       string                      `json:"cloneDirectory,omitempty"     yaml:"cloneDirectory,omitempty"`
 		PreFetchCommand      string                      `json:"preFetchCommand,omitempty"    yaml:"preFetchCommand,omitempty"`
 	}
@@ -156,7 +156,7 @@ type (
 	}
 
 	ReportJunit struct {
-		Paths []string `json:"paths" yaml:"paths,omitempty"`
+		Paths *flexible.Field[[]string] `json:"paths" yaml:"paths,omitempty"`
 	}
 
 	Service struct {

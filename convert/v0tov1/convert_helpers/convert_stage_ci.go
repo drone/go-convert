@@ -1,6 +1,7 @@
 package converthelpers
 
 import (
+	"log"
 	"strings"
 	"fmt"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
@@ -79,8 +80,17 @@ func ConvertRuntime(runtime *v0.Runtime) *v1.Runtime {
 }
 
 // ConvertInfrastructureToRuntime converts v0 Infrastructure to v1 Runtime
-func ConvertInfrastructureToRuntime(infra *v0.Infrastructure) *v1.Runtime {
+func ConvertInfrastructureToRuntime(infra *v0.Infrastructure, ctx *StageConversionContext) *v1.Runtime {
 	if infra == nil {
+		return nil
+	}
+
+	// Handle useFromStage
+	if infra.From != "" {
+		if ref := ctx.GetRuntime(infra.From); ref != nil {
+			return ref
+		}
+		log.Printf("Warning!!! infrastructure useFromStage '%s' not found in context\n", infra.From)
 		return nil
 	}
 

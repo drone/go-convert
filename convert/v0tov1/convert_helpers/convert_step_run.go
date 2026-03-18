@@ -62,17 +62,12 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 	}
 
 	// Reports mapping (JUnit)
-	var report *v1.ReportList
-	if sp.Reports != nil && strings.EqualFold(sp.Reports.Type, "JUnit") && sp.Reports.Spec != nil {
-		for _, p := range sp.Reports.Spec.Paths {
-			if strings.TrimSpace(p) == "" {
-				continue
-			}
-			r := &v1.Report{Type: "junit", Path: p}
-			if report == nil {
-				report = &v1.ReportList{}
-			}
-			*report = append(*report, r)
+	var report *v1.Reports
+	if sp.Reports != nil {
+		report = &v1.Reports{}
+		report.Type = strings.ToLower(sp.Reports.Type)
+		if sp.Reports.Spec != nil {
+			report.Paths = sp.Reports.Spec.Paths
 		}
 	}
 

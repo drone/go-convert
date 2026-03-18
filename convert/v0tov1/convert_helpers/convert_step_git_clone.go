@@ -55,7 +55,7 @@ func ConvertStepGitClone(src *v0.Step) *v1.StepTemplate {
 	}
 
 	// SSL Verify
-	if sp.SSLVerify != "" {
+	if sp.SSLVerify != nil {
 		with["sslVerify"] = sp.SSLVerify
 	}
 

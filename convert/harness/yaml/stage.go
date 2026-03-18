@@ -120,7 +120,7 @@ type (
 	}
 
 	Strategy struct {
-		Matrix      map[string]interface{} `json:"matrix,omitempty" yaml:"matrix,omitempty"`
+		Matrix      *flexible.Field[map[string]interface{}] `json:"matrix,omitempty" yaml:"matrix,omitempty"`
 		Parallelism *flexible.Field[int64]          `json:"parallelism,omitempty" yaml:"parallelism,omitempty"`
 		Repeat      *Repeat                `json:"repeat,omitempty" yaml:"repeat,omitempty"`
 	}
@@ -141,6 +141,10 @@ type (
 		Unit           string     `json:"unit,omitempty" yaml:"unit,omitempty"`
 		NodeName       string     `json:"nodeName,omitempty" yaml:"nodeName,omitempty"`
 		PartitionSize  *flexible.Field[int64]      `json:"partitionSize,omitempty" yaml:"partitionSize,omitempty"`
+	}
+
+	UseFromStage struct {
+		Stage string `json:"stage,omitempty" yaml:"stage,omitempty"`
 	}
 )
 
@@ -180,4 +184,23 @@ func (s *Stage) UnmarshalJSON(data []byte) error {
 		return fmt.Errorf("unknown stage type %s", s.Type)
 	}
 	return json.Unmarshal(obj.Spec, s.Spec)
+}
+
+func (s *Strategy) UnmarshalJSON(data []byte) error {
+	// If the value is an empty string, return nil strategy
+	if len(data) == 0 || string(data) == `""` || string(data) == "null" {
+		return nil
+	}
+
+	var str string
+	if err := json.Unmarshal(data, &str); err == nil{
+		return nil
+	}
+	type T Strategy
+	var obj T
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return err
+	}
+	*s = Strategy(obj)
+	return nil
 }

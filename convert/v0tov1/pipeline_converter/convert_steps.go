@@ -47,7 +47,7 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool) []*v1
 				OnFailure: convert_helpers.ConvertFailureStrategies(s.StepGroup.FailureStrategies),
 				Strategy:  convert_helpers.ConvertStrategy(s.StepGroup.Strategy),
 				Timeout:   s.StepGroup.Timeout,
-				Delegate:  convert_helpers.ConvertDelegate(s.StepGroup.DelegateSelectors),
+				Delegate:  convert_helpers.ConvertDelegate(s.StepGroup.DelegateSelectors, nil),
 				If:        convert_helpers.ConvertStepWhen(s.StepGroup.When),
 				Inputs:    c.convertVariables(s.StepGroup.Variables),
 			}
@@ -165,6 +165,8 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool) *v1
 		step.Template = convert_helpers.ConvertStepS3Upload(src)
 	case v0.StepTypeBuildAndPushGAR:
 		step.Template = convert_helpers.ConvertStepBuildAndPushGAR(src)
+	case v0.StepTypeBuildAndPushACR:
+		step.Template = convert_helpers.ConvertStepBuildAndPushACR(src)
 	case v0.StepTypeBuildAndPushDockerRegistry:
 		step.Template = convert_helpers.ConvertStepBuildAndPushDockerRegistry(src)
 	case v0.StepTypePlugin:
@@ -205,7 +207,7 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 	}
 
 	// Convert environment variables
-	if len(src.Env) > 0 {
+	if src.Env != nil {
 		dst.Env = src.Env
 	}
 
@@ -223,7 +225,7 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 
 	// extract delegate selectors and includeInfraSelectors from src using reflection
 	var delegate_selectors *flexible.Field[[]string]
-	var include_infra_selectors bool
+	var include_infra_selectors *flexible.Field[bool]
 
 	if src.Spec != nil {
 		// Use reflection to find embedded CommonStepSpec
@@ -243,38 +245,28 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 				if fieldType.Anonymous && fieldType.Type.Name() == "CommonStepSpec" {
 					// Extract DelegateSelectors (FlexibleField[[]string])
 					if delegateField := field.FieldByName("DelegateSelectors"); delegateField.IsValid() {
-						// Check if it's a pointer to FlexibleField[[]string]
 						if delegateField.Kind() == reflect.Ptr && !delegateField.IsNil() {
 							elemType := delegateField.Type().Elem()
 							if elemType.String() == "flexible.Field[[]string]" {
 								delegate_selectors = delegateField.Interface().(*flexible.Field[[]string])
 							}
 						}
+					}
 
-						// Extract IncludeInfraSelectors
-						if infraField := field.FieldByName("IncludeInfraSelectors"); infraField.IsValid() {
-							if infraField.Kind() == reflect.Bool {
-								include_infra_selectors = infraField.Bool()
+					// Extract IncludeInfraSelectors (*flexible.Field[bool])
+					if infraField := field.FieldByName("IncludeInfraSelectors"); infraField.IsValid() {
+						if infraField.Kind() == reflect.Ptr && !infraField.IsNil() {
+							elemType := infraField.Type().Elem()
+							if elemType.String() == "flexible.Field[bool]" {
+								include_infra_selectors = infraField.Interface().(*flexible.Field[bool])
 							}
 						}
-						break
 					}
+					break
 				}
 			}
 		}
 	}
 	// Convert delegate using the extracted values
-	delegate := convert_helpers.ConvertDelegate(delegate_selectors)
-
-	// Handle includeInfraSelectors for struct-based delegates
-	if include_infra_selectors && delegate != nil {
-		if str, ok := delegate.AsString(); !ok || str == "" {
-			if delegateStruct, ok := delegate.AsStruct(); ok {
-				delegateStruct.Inherit = true
-				delegate.Set(delegateStruct)
-			}
-		}
-	}
-
-	dst.Delegate = delegate
+	dst.Delegate = convert_helpers.ConvertDelegate(delegate_selectors, include_infra_selectors)
 }

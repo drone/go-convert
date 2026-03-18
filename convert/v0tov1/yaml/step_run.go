@@ -35,7 +35,7 @@ type OutputAlias struct {
 type StepRun struct {
 	Container *Container        `json:"container,omitempty" yaml:"container,omitempty"`
 	Env       *flexible.Field[map[string]interface{}] `json:"env,omitempty" yaml:"env,omitempty"`
-	Report    *ReportList       `json:"report,omitempty" yaml:"report,omitempty"`
+	Report    *Reports       `json:"report,omitempty" yaml:"report,omitempty"`
 	Script    Stringorslice     `json:"script,omitempty" yaml:"script,omitempty"`
 	Shell     string            `json:"shell,omitempty" yaml:"shell,omitempty"`
 	Outputs   []*Output          `json:"output,omitempty" yaml:"output,omitempty"`
@@ -50,7 +50,7 @@ func (v *StepRun) UnmarshalJSON(data []byte) error {
 	var out2 = struct {
 		Container *Container        `json:"container,omitempty" yaml:"container,omitempty"`
 		Env       *flexible.Field[map[string]interface{}] `json:"env,omitempty" yaml:"env,omitempty"`
-		Report    *ReportList       `json:"report,omitempty" yaml:"report,omitempty"`
+		Report    *Reports       `json:"report,omitempty" yaml:"report,omitempty"`
 		Script    Stringorslice     `json:"script,omitempty" yaml:"script,omitempty"`
 		Shell     string            `json:"shell,omitempty" yaml:"shell,omitempty"`
 		Outputs   []*Output          `json:"output,omitempty" yaml:"output,omitempty"`

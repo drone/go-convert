@@ -25,7 +25,9 @@ func ConvertStepCustomApproval(src *v0.Step) *v1.StepApproval {
 	}
 
 	dst.With["script-timeout"] = spec.ScriptTimeout
-	dst.With["retry"] = spec.RetryInterval
+	if spec.RetryInterval != "" {
+        dst.With["retry"] = spec.RetryInterval
+    }
 
 	env_map := make(map[string]interface{})
     var env *flexible.Field[map[string]interface{}]
@@ -73,7 +75,9 @@ func ConvertStepJiraApproval(src *v0.Step) *v1.StepApproval {
 		Uses: "jira",
 		With: make(map[string]interface{}),
 	}
-    dst.With["retry"] = spec.RetryInterval
+    if spec.RetryInterval != "" {
+        dst.With["retry"] = spec.RetryInterval
+    }
     dst.With["approve"] = convertCriteria(spec.ApprovalCriteria)
     dst.With["reject"] = convertCriteria(spec.RejectionCriteria)
 
@@ -112,7 +116,9 @@ func ConvertStepServiceNowApproval(src *v0.Step) *v1.StepApproval {
 		Uses: "servicenow",
 		With: make(map[string]interface{}),
 	}
-    dst.With["retry"] = spec.RetryInterval
+    if spec.RetryInterval != "" {
+        dst.With["retry"] = spec.RetryInterval
+    }
     dst.With["approve"] = convertCriteria(spec.ApprovalCriteria)
     dst.With["reject"] = convertCriteria(spec.RejectionCriteria)
     if spec.ChangeWindow != nil {

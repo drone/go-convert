@@ -8,13 +8,16 @@ import (
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
-	"github.com/drone/go-convert/internal/flexible"
 )
 
-type PipelineConverter struct {}
+type PipelineConverter struct {
+	stageCtx *convert_helpers.StageConversionContext
+}
 
 func NewPipelineConverter() *PipelineConverter {
-	return &PipelineConverter{}
+	return &PipelineConverter{
+		stageCtx: convert_helpers.NewStageConversionContext(),
+	}
 }
 
 // ConvertPipeline converts a v0 Pipeline to a v1 Pipeline.
@@ -40,7 +43,7 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 		Barriers:      barriers,
 		Clone:         clone,
 		Notifications: convert_helpers.ConvertNotifications(src.NotificationRules),
-		Delegate: convert_helpers.ConvertDelegate(src.DelegateSelectors),
+		Delegate: convert_helpers.ConvertDelegate(src.DelegateSelectors, nil),
 	}
 
 	return dst
@@ -90,18 +93,14 @@ func (c *PipelineConverter) convertCodebase(src *v0.Codebase) (*v1.Clone) {
 	clone.Trace = src.Debug
 	clone.CloneDir = src.CloneDirectory
 
-	if src.SubmoduleStrategy == "true" {
-		clone.Submodules = &flexible.Field[bool]{Value: true}
-	} else if src.SubmoduleStrategy == "false" {
-		clone.Submodules = &flexible.Field[bool]{Value: false}
-	}
+	clone.Submodules = src.SubmoduleStrategy
 
 	if src.PrCloneStrategy == "MergeCommit" {
 		clone.Strategy = "merge_commit"
 	} else if src.PrCloneStrategy == "SourceBranch" {
 		clone.Strategy = "deep_clone"
 	}
-	
+
 	clone.Insecure = src.SslVerify
 
 	if src.Resources != nil && src.Resources.Limits != nil {
