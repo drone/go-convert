@@ -194,8 +194,17 @@ func ConvertEnvironments(src *v0.Environments, ctx *StageConversionContext) *v1.
 }
 
 // ConvertEnvironmentGroup converts v0 EnvironmentGroup to v1 EnvironmentRef
-func ConvertEnvironmentGroup(src *v0.EnvironmentGroup) *v1.EnvironmentRef {
+func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionContext) *v1.EnvironmentRef {
 	if src == nil {
+		return nil
+	}
+
+	// Handle useFromStage
+	if src.UseFromStage != nil && src.UseFromStage.Stage != "" {
+		if ref := ctx.GetEnvironment(src.UseFromStage.Stage); ref != nil {
+			return ref
+		}
+		log.Printf("Warning!!! environmentGroup useFromStage '%s' not found in context\n", src.UseFromStage.Stage)
 		return nil
 	}
 

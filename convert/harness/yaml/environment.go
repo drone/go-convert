@@ -9,6 +9,7 @@ type (
 		Metadata     *EnvironmentMetadata `json:"metadata,omitempty"     yaml:"metadata,omitempty"`
 		DeployToAll  interface{}          `json:"deployToAll,omitempty"  yaml:"deployToAll,omitempty"`
 		Environments interface{}          `json:"environments,omitempty" yaml:"environments,omitempty"`
+		UseFromStage *UseFromStage        `json:"useFromStage,omitempty" yaml:"useFromStage,omitempty"`
 	}
 
 	Environment struct {
