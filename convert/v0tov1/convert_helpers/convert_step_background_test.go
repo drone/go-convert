@@ -27,7 +27,6 @@ func TestConvertStepBackground(t *testing.T) {
 					Image: "redis:latest",
 					Ports: []string{},
 				},
-				Shell: "sh",
 			},
 		},
 		{
@@ -92,7 +91,6 @@ func TestConvertStepBackground(t *testing.T) {
 					Image: "nginx:latest",
 					Ports: []string{},
 				},
-				Shell: "sh",
 			},
 		},
 		{
@@ -125,7 +123,6 @@ func TestConvertStepBackground(t *testing.T) {
 					Pull:  "never",
 					Ports: []string{},
 				},
-				Shell: "sh",
 			},
 		},
 		{
@@ -142,7 +139,6 @@ func TestConvertStepBackground(t *testing.T) {
 					Pull:  "if-not-present",
 					Ports: []string{},
 				},
-				Shell: "sh",
 			},
 		},
 	}

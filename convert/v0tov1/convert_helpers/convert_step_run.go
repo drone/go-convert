@@ -73,9 +73,6 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 
 	// Shell mapping - lower-case common values
 	shell := strings.ToLower(sp.Shell)
-	if shell == "" {
-		shell = "sh"
-	}
 
 	dst := &v1.StepRun{
 		Container: container,

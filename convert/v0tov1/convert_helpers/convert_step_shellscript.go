@@ -21,9 +21,6 @@ func ConvertStepShellScript(src *v0.Step) *v1.StepRun {
 	script := sp.Source.Spec.Script
 
 	shell := strings.ToLower(strings.TrimSpace(sp.Shell))
-	if shell == "" {
-		shell = "sh"
-	}
 
 	env_map := map[string]interface{}{}
 	var env *flexible.Field[map[string]interface{}]

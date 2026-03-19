@@ -57,9 +57,6 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 
 	// Shell
 	shell := strings.ToLower(sp.Shell)
-	if shell == "" {
-		shell = "sh"
-	}
 
 	// outputs
 	outputs := ConvertOutputVariables(sp.Outputs)
