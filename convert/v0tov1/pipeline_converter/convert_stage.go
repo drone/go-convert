@@ -114,7 +114,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		} else if spec.Environments != nil {
 			stage.Environment = convert_helpers.ConvertEnvironments(spec.Environments, c.stageCtx)
 		} else if spec.EnvironmentGroup != nil {
-			stage.Environment = convert_helpers.ConvertEnvironmentGroup(spec.EnvironmentGroup)
+			stage.Environment = convert_helpers.ConvertEnvironmentGroup(spec.EnvironmentGroup, c.stageCtx)
 		} else if spec.Infrastructure != nil {
 			log.Printf("Warning!!! Deprecated infrastructure definition found in Deployment stage: %s, infrastructure and service definition will be skipped\n", src.ID)
 			deprecatedInfraDefinition = true
