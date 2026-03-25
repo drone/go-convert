@@ -11,9 +11,6 @@ import (
 
 // ConvertCloneCodebase converts v0 cloneCodebase bool to v1 Clone
 func ConvertCloneCodebase(clone bool) *v1.Clone {
-	if !clone {
-		return nil
-	}
 	return &v1.Clone{
 		Enabled: clone,
 	}
