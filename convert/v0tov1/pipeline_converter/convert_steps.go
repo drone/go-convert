@@ -3,6 +3,7 @@ package pipelineconverter
 import (
 	"log"
 	"reflect"
+	"strings"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
@@ -11,7 +12,7 @@ import (
 )
 
 // convertSteps converts a list of v0.Steps to list of v1.Step.
-func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool) []*v1.Step {
+func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool, basePath string) []*v1.Step {
 	if len(src) == 0 {
 		return nil
 	}
@@ -21,14 +22,14 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool) []*v1
 			continue
 		}
 		if s.Step != nil {
-			if step := c.ConvertSingleStep(s.Step, isRollBack); step != nil {
+			if step := c.ConvertSingleStep(s.Step, isRollBack, basePath); step != nil {
 				dst = append(dst, step)
 			}
 			continue
 		}
 		if s.Parallel != nil {
 			parallel_group := &v1.StepGroup{
-				Steps: c.ConvertSteps(s.Parallel, isRollBack),
+				Steps: c.ConvertSteps(s.Parallel, isRollBack, basePath),
 			}
 			parallel := &v1.Step{
 				Parallel: parallel_group,
@@ -37,12 +38,13 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool) []*v1
 			continue
 		}
 		if s.StepGroup != nil {
+			groupPath := basePath + "." + s.StepGroup.ID + ".steps"
 			group := &v1.Step{
 				Name: s.StepGroup.Name,
 				Id:   s.StepGroup.ID,
 				Env:  s.StepGroup.Env,
 				Group: &v1.StepGroup{
-					Steps: c.ConvertSteps(s.StepGroup.Steps, isRollBack),
+					Steps: c.ConvertSteps(s.StepGroup.Steps, isRollBack, groupPath),
 				},
 				OnFailure: convert_helpers.ConvertFailureStrategies(s.StepGroup.FailureStrategies),
 				Strategy:  convert_helpers.ConvertStrategy(s.StepGroup.Strategy),
@@ -57,7 +59,7 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool) []*v1
 	return dst
 }
 
-func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool) *v1.Step {
+func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, basePath string) *v1.Step {
 	if src == nil {
 		return nil
 	}
@@ -65,6 +67,16 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool) *v1
 	step := &v1.Step{
 		Id:   src.ID,
 		Name: src.Name,
+	}
+
+	// Track step ID to v0 step type and path mapping
+	if src.ID != "" && src.Type != "" {
+		v0Path := basePath + "." + src.ID
+		c.stepTypeMap[src.ID] = &StepInfo{
+			Type:   src.Type,
+			V0Path: v0Path,
+			V1Path: convertV0PathToV1Path(v0Path),
+		}
 	}
 
 	// Convert step-specific settings
@@ -269,4 +281,15 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 	}
 	// Convert delegate using the extracted values
 	dst.Delegate = convert_helpers.ConvertDelegate(delegate_selectors, include_infra_selectors)
+}
+
+// convertV0PathToV1Path converts a v0 FQN step path to a v1 FQN step path.
+// It removes "spec.execution" segments from the path.
+// Example: "pipeline.stages.build.spec.execution.steps.compile" -> "pipeline.stages.build.steps.compile"
+func convertV0PathToV1Path(v0Path string) string {
+	// Remove "spec.execution" segments
+	result := strings.ReplaceAll(v0Path, ".spec.execution.", ".")
+	// Also handle if it starts with spec.execution (unlikely but safe)
+	result = strings.TrimPrefix(result, "spec.execution.")
+	return result
 }

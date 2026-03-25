@@ -88,7 +88,7 @@ func TestUseFromStage_DeploymentServiceAndEnvironment(t *testing.T) {
 		{Stage: secondStage},
 	}
 
-	v1Stages := converter.convertStages(v0Stages)
+	v1Stages := converter.convertStages(v0Stages, "pipeline")
 
 	if len(v1Stages) != 2 {
 		t.Fatalf("expected 2 stages, got %d", len(v1Stages))
@@ -164,7 +164,7 @@ func TestUseFromStage_CIInfrastructure(t *testing.T) {
 		{Stage: buildStage},
 	}
 
-	v1Stages := converter.convertStages(v0Stages)
+	v1Stages := converter.convertStages(v0Stages, "pipeline")
 
 	if len(v1Stages) != 2 {
 		t.Fatalf("expected 2 stages, got %d", len(v1Stages))
@@ -218,7 +218,7 @@ func TestUseFromStage_MissingReferenceDoesNotPanic(t *testing.T) {
 	}
 
 	v0Stages := []*v0.Stages{{Stage: stage}}
-	v1Stages := converter.convertStages(v0Stages)
+	v1Stages := converter.convertStages(v0Stages, "pipeline")
 
 	if len(v1Stages) != 1 {
 		t.Fatalf("expected 1 stage, got %d", len(v1Stages))
@@ -273,7 +273,7 @@ func TestUseFromStage_ServiceOnlyFromPreviousStage(t *testing.T) {
 		{Stage: secondStage},
 	}
 
-	v1Stages := converter.convertStages(v0Stages)
+	v1Stages := converter.convertStages(v0Stages, "pipeline")
 
 	second := v1Stages[1]
 	// Service from useFromStage
