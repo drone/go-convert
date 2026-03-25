@@ -4,7 +4,6 @@ go 1.19
 
 require (
 	dario.cat/mergo v1.0.0
-	github.com/alecthomas/participle/v2 v2.1.4
 	github.com/bmatcuk/doublestar v1.3.4
 	github.com/bradrydzewski/spec v1.0.2
 	github.com/buildkite/yaml v2.1.0+incompatible
@@ -18,6 +17,8 @@ require (
 	golang.org/x/text v0.16.0
 	gopkg.in/yaml.v3 v3.0.1
 )
+
+require github.com/peroxidemonke7/v0tov1_expressions v0.0.0-20260325033816-062cf47d40c4
 
 require (
 	github.com/tidwall/match v1.1.1 // indirect

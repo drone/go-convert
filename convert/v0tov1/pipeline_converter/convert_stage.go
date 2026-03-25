@@ -9,18 +9,18 @@ import (
 )
 
 // convertStages converts a list of v0 Stages to v1 Stages.
-func (c *PipelineConverter) convertStages(src []*v0.Stages) []*v1.Stage {
+func (c *PipelineConverter) convertStages(src []*v0.Stages, basePath string) []*v1.Stage {
 	dst := make([]*v1.Stage, 0)
 
 	for _, stages := range src {
 		if stages.Stage != nil {
-			dst = append(dst, c.convertStage(stages.Stage))
+			dst = append(dst, c.convertStage(stages.Stage, basePath))
 			continue
 		}
 		if stages.Parallel != nil {
 			stage := v1.Stage{
 				Parallel: &v1.StageGroup{
-					Stages: c.convertStages(stages.Parallel),
+					Stages: c.convertStages(stages.Parallel, basePath),
 				},
 			}
 			dst = append(dst, &stage)
@@ -29,10 +29,12 @@ func (c *PipelineConverter) convertStages(src []*v0.Stages) []*v1.Stage {
 	return dst
 }
 
-func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
+func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Stage {
 	if src == nil {
 		return nil
 	}
+
+	stagePath := basePath + ".stages." + src.ID
 
 	stage := &v1.Stage{
 		Id:        src.ID,
@@ -45,18 +47,21 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 	}
 	stage.Env = convertStageInputsToEnv(stage.Inputs)
 
+	stepsPath := stagePath + ".spec.execution.steps"
+	rollbackStepsPath := stagePath + ".spec.execution.rollbackSteps"
+
 	switch spec := src.Spec.(type) {
 	case *v0.StageApproval:
-		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
+		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath)
 		stage.Timeout = spec.Timeout
 
 	case *v0.StageCustom:
-		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
+		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath)
 		stage.Environment = convert_helpers.ConvertEnvironment(spec.Environment, c.stageCtx)
 		stage.Timeout = spec.Timeout
 
 	case *v0.StageIACM:
-		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
+		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath)
 		stage.Timeout = spec.Timeout
 		
 		if spec.Infrastructure != nil {
@@ -71,7 +76,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 		stage.Workspace = spec.Workspace
 
 	case *v0.StageCI:
-		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
+		stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath)
 
 		// Convert service dependencies to background steps and prepend them
 		if len(spec.Services) > 0 {
@@ -101,9 +106,9 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 	case *v0.StageDeployment:
 		// Convert deployment steps
 		if spec.Execution != nil {
-			stage.Steps = c.ConvertSteps(spec.Execution.Steps, false)
+			stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath)
 			if spec.Execution.RollbackSteps != nil {
-				stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps, true)
+				stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps, true, rollbackStepsPath)
 			}
 		}
 
@@ -144,9 +149,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage) *v1.Stage {
 				Outputs: outputs,
 				InputSets: spec.InputSetRefs,
 			},
-		}
-
-		
+		}		
 		stage.Timeout = spec.Timeout
 
 	default:
@@ -199,7 +202,7 @@ func(c *PipelineConverter) constructChainInputs(spec *v0.StagePipeline) map[stri
 	
 
 	if spec.Inputs.Stages != nil {
-		stages := c.convertStages(spec.Inputs.Stages)
+		stages := c.convertStages(spec.Inputs.Stages, "pipeline")
 		overlay["stages"] = stages
 	}
 	if spec.Inputs.Props.CI.Codebase != nil {

@@ -10,14 +10,27 @@ import (
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
 
+type StepInfo struct {
+	Type   string // v0 step type (e.g., "Run", "Action", "K8sRollingDeploy")
+	V0Path string // full v0 path (e.g., "pipeline.stages.build.spec.execution.steps.compile")
+	V1Path string // full v1 path (e.g., "pipeline.stages.build.steps.compile")
+}
+
 type PipelineConverter struct {
-	stageCtx *convert_helpers.StageConversionContext
+	stageCtx    *convert_helpers.StageConversionContext
+	stepTypeMap map[string]*StepInfo // maps step ID to step info (type + v0 path)
 }
 
 func NewPipelineConverter() *PipelineConverter {
 	return &PipelineConverter{
-		stageCtx: convert_helpers.NewStageConversionContext(),
+		stageCtx:    convert_helpers.NewStageConversionContext(),
+		stepTypeMap: make(map[string]*StepInfo),
 	}
+}
+
+// GetStepTypeMap returns the accumulated step ID to step info mapping.
+func (c *PipelineConverter) GetStepTypeMap() map[string]*StepInfo {
+	return c.stepTypeMap
 }
 
 // ConvertPipeline converts a v0 Pipeline to a v1 Pipeline.
@@ -32,7 +45,7 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 	}
 
 	inputs := c.convertVariables(src.Variables)
-	stages := c.convertStages(src.Stages)
+	stages := c.convertStages(src.Stages, "pipeline")
 
 	clone := c.convertCodebase(src.Props.CI.Codebase)
 	dst := &v1.Pipeline{
@@ -45,6 +58,9 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 		Notifications: convert_helpers.ConvertNotifications(src.NotificationRules),
 		Delegate: convert_helpers.ConvertDelegate(src.DelegateSelectors, nil),
 	}
+
+	// Post-process: convert Harness expressions in all string and flexible.Field values
+	PostProcessExpressions(dst, c.stepTypeMap)
 
 	return dst
 }
