@@ -176,7 +176,7 @@ type (
 	ServiceSpec struct {
 		Env        *flexible.Field[map[string]interface{}] `json:"envVariables,omitempty"   yaml:"envVariables,omitempty"`
 		Entrypoint *flexible.Field[[]string]         `json:"entrypoint,omitempty"     yaml:"entrypoint,omitempty"`
-		Args       []string          `json:"args,omitempty"           yaml:"args,omitempty"`
+		Args       *flexible.Field[[]string]         `json:"args,omitempty"           yaml:"args,omitempty"`
 		Conn       string            `json:"connectorRef,omitempty"   yaml:"connectorRef,omitempty"`
 		Image      string            `json:"image,omitempty"          yaml:"image,omitempty"`
 		Resources  *Resources        `json:"resources,omitempty"      yaml:"resources,omitempty"`
