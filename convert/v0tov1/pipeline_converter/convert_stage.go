@@ -34,7 +34,11 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 		return nil
 	}
 
-	stagePath := basePath + ".stages." + src.ID
+	stagePath := basePath
+	// if not inside template inputs
+	if src.ID != "" {
+		stagePath = basePath + ".stages." + src.ID
+	}
 
 	stage := &v1.Stage{
 		Id:   src.ID,
@@ -43,7 +47,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 
 	// Check for Template - if template exists, set it and continue converting rest
 	if src.Template != nil {
-		stage.Template = c.convertStageTemplate(src)
+		stage.Template = c.convertStageTemplate(src, basePath)
 	}
 
 	// Set common stage settings for non-template stages
