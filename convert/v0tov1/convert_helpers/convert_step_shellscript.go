@@ -18,7 +18,10 @@ func ConvertStepShellScript(src *v0.Step) *v1.StepRun {
 		return nil
 	}
 
-	script := sp.Source.Spec.Script
+	var script string
+	if sp.Source != nil {
+		script = sp.Source.Spec.Script
+	}
 
 	shell := strings.ToLower(strings.TrimSpace(sp.Shell))
 

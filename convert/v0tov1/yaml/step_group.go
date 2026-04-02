@@ -19,4 +19,5 @@ package yaml
 type StepGroup struct {
 	Parallel interface{} `json:"parallel,omitempty" yaml:"parallel,omitempty"`
 	Steps    []*Step     `json:"steps,omitempty" yaml:"steps,omitempty"`
+	Inputs   map[string]*Input `json:"inputs,omitempty" yaml:"inputs,omitempty"`
 }

@@ -21,4 +21,5 @@ type Template struct {
 	Inputs map[string]*Input `json:"inputs,omitempty"`
 	Stage  *Stage            `json:"stage,omitempty"`
 	Step   *Step             `json:"step,omitempty"`
+	Pipeline *Pipeline       `json:"pipeline,omitempty"`
 }

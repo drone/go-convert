@@ -24,16 +24,24 @@ import (
 type (
 	// Stage defines a pipeline stage.
 	Stage struct {
-		ID          string      `json:"identifier,omitempty"   yaml:"identifier,omitempty"`
-		Description string      `json:"description,omitempty"  yaml:"description,omitempty"`
-		Name        string      `json:"name,omitempty"         yaml:"name,omitempty"`
-		DelegateSelectors *flexible.Field[[]string] `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
-		Spec        interface{} `json:"spec,omitempty"         yaml:"spec,omitempty"`
-		Type        string      `json:"type,omitempty"         yaml:"type,omitempty"`
-		Vars        []*Variable `json:"variables,omitempty"    yaml:"variables,omitempty"`
-		When        *flexible.Field[StageWhen]  `json:"when,omitempty"         yaml:"when,omitempty"`
-		Strategy    *Strategy   `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
-		FailureStrategies *flexible.Field[[]*FailureStrategy]   `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
+		ID                string                              `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
+		Description       string                              `json:"description,omitempty"       yaml:"description,omitempty"`
+		Name              string                              `json:"name,omitempty"              yaml:"name,omitempty"`
+		DelegateSelectors *flexible.Field[[]string]           `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
+		Spec              interface{}                         `json:"spec,omitempty"              yaml:"spec,omitempty"`
+		Type              string                              `json:"type,omitempty"              yaml:"type,omitempty"`
+		Vars              []*Variable                         `json:"variables,omitempty"         yaml:"variables,omitempty"`
+		When              *flexible.Field[StageWhen]          `json:"when,omitempty"              yaml:"when,omitempty"`
+		Strategy          *Strategy                           `json:"strategy,omitempty"          yaml:"strategy,omitempty"`
+		FailureStrategies *flexible.Field[[]*FailureStrategy] `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
+		Template          *StageTemplate                      `json:"template,omitempty"          yaml:"template,omitempty"`
+	}
+
+	// StageTemplate defines a stage template reference.
+	StageTemplate struct {
+		TemplateRef    string `json:"templateRef,omitempty"    yaml:"templateRef,omitempty"`
+		VersionLabel   string `json:"versionLabel,omitempty"   yaml:"versionLabel,omitempty"`
+		TemplateInputs *Stage `json:"templateInputs,omitempty" yaml:"templateInputs,omitempty"`
 	}
 
 	StagePipeline struct {
@@ -160,11 +168,23 @@ func (s *Stage) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, obj); err != nil {
 		return err
 	}
+
+	// Validate: stage must have either template or type, not neither
+	if s.Template == nil && s.Type == "" {
+		return fmt.Errorf("stage '%s' must have either template or type field", s.ID)
+	}
+
 	// If spec is missing or empty, leave it as nil
 	if len(obj.Spec) == 0 || string(obj.Spec) == "null" {
 		s.Spec = nil
 		return nil
 	}
+
+	// If no type specified but spec exists, we can't unmarshal it
+	if s.Type == "" {
+		return nil
+	}
+
 	switch s.Type {
 	case StageTypeCI:
 		s.Spec = new(StageCI)

@@ -39,4 +39,5 @@ type Pipeline struct {
 	Status        *Status           `json:"status,omitempty" yaml:"status,omitempty"`
 	Timeout       string            `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Delegate      *flexible.Field[*Delegate]                 `json:"delegate,omitempty" yaml:"delegate,omitempty"`
+	Template      *PipelineTemplate `json:"template,omitempty" yaml:"template,omitempty"`
 }

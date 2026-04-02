@@ -34,6 +34,7 @@ type (
 		Env               *flexible.Field[map[string]string]  `json:"envVariables,omitempty"      yaml:"envVariables,omitempty"`
 		Strategy          *Strategy                           `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
 		FailureStrategies *flexible.Field[[]*FailureStrategy] `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
+		Template          *StepTemplate                       `json:"template,omitempty"          yaml:"template,omitempty"`
 	}
 
 	StepGroup struct { // TODO missing failure strategies
@@ -49,6 +50,19 @@ type (
 		Strategy          *Strategy                           `json:"strategy,omitempty"     yaml:"strategy,omitempty"`
 		Variables         []*Variable                         `json:"variables,omitempty"       yaml:"variables,omitempty"`
 		FailureStrategies *flexible.Field[[]*FailureStrategy] `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
+		Template          *StepGroupTemplate                  `json:"template,omitempty"          yaml:"template,omitempty"`
+	}
+
+	StepTemplate struct {
+		TemplateRef    string `json:"templateRef,omitempty"    yaml:"templateRef,omitempty"`
+		VersionLabel   string `json:"versionLabel,omitempty"   yaml:"versionLabel,omitempty"`
+		TemplateInputs *Step  `json:"templateInputs,omitempty" yaml:"templateInputs,omitempty"`
+	}
+
+	StepGroupTemplate struct {
+		TemplateRef    string     `json:"templateRef,omitempty"    yaml:"templateRef,omitempty"`
+		VersionLabel   string     `json:"versionLabel,omitempty"   yaml:"versionLabel,omitempty"`
+		TemplateInputs *StepGroup `json:"templateInputs,omitempty" yaml:"templateInputs,omitempty"`
 	}
 
 	//
@@ -601,6 +615,22 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 	obj := &T{S: (*S)(s)}
 	if err := json.Unmarshal(data, obj); err != nil {
 		return err
+	}
+
+	// Validate: step must have either template or type, not neither
+	if s.Template == nil && s.Type == "" {
+		return fmt.Errorf("step '%s' must have either template or type field", s.ID)
+	}
+
+	// If spec is missing or empty, leave it as nil
+	if len(obj.Spec) == 0 || string(obj.Spec) == "null" {
+		s.Spec = nil
+		return nil
+	}
+
+	// If no type specified but spec exists, we can't unmarshal it
+	if s.Type == "" {
+		return nil
 	}
 
 	switch s.Type {

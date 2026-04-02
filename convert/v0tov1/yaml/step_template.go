@@ -17,7 +17,17 @@
 package yaml
 
 type StepTemplate struct {
-	Env  map[string]string      `json:"env,omitempty" yaml:"env,omitempty"`
-	Uses string                 `json:"uses,omitempty" yaml:"uses,omitempty"`
-	With interface{} `json:"with,omitempty" yaml:"with,omitempty"`
+	Env  map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
+	Uses string            `json:"uses,omitempty" yaml:"uses,omitempty"`
+	With interface{}       `json:"with,omitempty" yaml:"with,omitempty"`
+}
+
+// StepTemplateWith represents the 'with' field for step templates
+type StepTemplateWith struct {
+	Overlay *StepTemplateOverlay `json:"overlay,omitempty" yaml:"overlay,omitempty"`
+}
+
+// StepTemplateOverlay represents the overlay configuration for step templates
+type StepTemplateOverlay struct {
+	Step *Step `json:"step,omitempty" yaml:"step,omitempty"`
 }
