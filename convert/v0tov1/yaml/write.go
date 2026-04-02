@@ -86,10 +86,25 @@ func WriteInputSetFile(path string, i *InputSet) error {
 	return os.WriteFile(path, b, 0o644)
 }
 
-// MarshalTemplate marshals the given Template into YAML.
+// MarshalTemplate marshals the given Template into YAML with a top-level
+//
+//	template:
+//	  step: ...
+//	  or
+//	  stage: ...
+//	  or
+//	  pipeline: ...
+//
+// This matches the expected Harness v1 YAML shape.
 func MarshalTemplate(t *Template) ([]byte, error) {
+	wrapper := struct {
+		Template *Template `json:"template"`
+	}{
+		Template: t,
+	}
+
 	// First marshal to JSON
-	jsonBytes, err := json.Marshal(t)
+	jsonBytes, err := json.Marshal(&wrapper)
 	if err != nil {
 		return nil, err
 	}
