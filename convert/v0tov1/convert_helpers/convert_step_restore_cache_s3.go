@@ -48,8 +48,9 @@ func ConvertStepRestoreCacheS3(src *v0.Step) *v1.StepTemplate {
 	if spec.PathStyle != nil {
 		with["pathstyle"] = spec.PathStyle
 	}
+	// v1 renamed failIfKeyNotFound → fail_if_key_not_found
 	if spec.FailIfKeyNotFound != nil {
-		with["failIfKeyNotFound"] = spec.FailIfKeyNotFound
+		with["fail_if_key_not_found"] = spec.FailIfKeyNotFound
 	}
 
 	return &v1.StepTemplate{

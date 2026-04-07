@@ -109,6 +109,7 @@ type (
 		Target                 string            `json:"target,omitempty"                 yaml:"target,omitempty"`
 		Env                    *flexible.Field[map[string]string] `json:"envVariables,omitempty"           yaml:"envVariables,omitempty"`
 		RunAsUser              string            `json:"runAsUser,omitempty"              yaml:"runAsUser,omitempty"`
+		RemoteCacheImage       string                             `json:"remoteCacheImage,omitempty"        yaml:"remoteCacheImage,omitempty"`
 	}
 
 	// Deprecated
@@ -132,6 +133,7 @@ type (
 		Target                 string            `json:"target,omitempty"                 yaml:"target,omitempty"`
 		Env                    *flexible.Field[map[string]string] `json:"envVariables,omitempty"           yaml:"envVariables,omitempty"`
 		RunAsUser              string            `json:"runAsUser,omitempty"              yaml:"runAsUser,omitempty"`
+		RemoteCacheImage       string                             `json:"remoteCacheImage,omitempty"        yaml:"remoteCacheImage,omitempty"`
 	}
    
 	StepBuildAndPushDockerRegistry struct {
@@ -170,6 +172,7 @@ type (
 		RunAsUser              string                             `json:"runAsUser,omitempty"               yaml:"runAsUser,omitempty"`
 		Env                    *flexible.Field[map[string]string] `json:"envVariables,omitempty"            yaml:"envVariables,omitempty"`
 		BaseImageConnectorRefs interface{}                        `json:"baseImageConnectorRefs,omitempty"  yaml:"baseImageConnectorRefs,omitempty"`
+		RemoteCacheImage       string                             `json:"remoteCacheImage,omitempty"        yaml:"remoteCacheImage,omitempty"`
 	}
 
 	StepFlagConfiguration struct {
