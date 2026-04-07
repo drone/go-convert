@@ -49,3 +49,81 @@ func WritePipelineFile(path string, p *Pipeline) error {
 	}
 	return os.WriteFile(path, b, 0o644)
 }
+
+// MarshalInputSet marshals the given InputSet into YAML with a top-level
+// 'inputs:' key, producing output in the form:
+//
+//	inputs:
+//	  overlay:
+//	    ...
+func MarshalInputSet(i *InputSet) ([]byte, error) {
+	wrapper := &InputSetConfig{
+		Inputs: i,
+	}
+
+	// First marshal to JSON
+	jsonBytes, err := json.Marshal(wrapper)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert JSON to interface{} for YAML marshaling
+	var jsonData interface{}
+	if err := json.Unmarshal(jsonBytes, &jsonData); err != nil {
+		return nil, err
+	}
+
+	// Marshal to YAML
+	return yaml.Marshal(jsonData)
+}
+
+// WriteInputSetFile writes the InputSet to the given file path.
+func WriteInputSetFile(path string, i *InputSet) error {
+	b, err := MarshalInputSet(i)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(path, b, 0o644)
+}
+
+// MarshalTemplate marshals the given Template into YAML with a top-level
+//
+//	template:
+//	  step: ...
+//	  or
+//	  stage: ...
+//	  or
+//	  pipeline: ...
+//
+// This matches the expected Harness v1 YAML shape.
+func MarshalTemplate(t *Template) ([]byte, error) {
+	wrapper := struct {
+		Template *Template `json:"template"`
+	}{
+		Template: t,
+	}
+
+	// First marshal to JSON
+	jsonBytes, err := json.Marshal(&wrapper)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert JSON to interface{} for YAML marshaling
+	var jsonData interface{}
+	if err := json.Unmarshal(jsonBytes, &jsonData); err != nil {
+		return nil, err
+	}
+
+	// Marshal to YAML
+	return yaml.Marshal(jsonData)
+}
+
+// WriteTemplateFile writes the Template to the given file path.
+func WriteTemplateFile(path string, t *Template) error {
+	b, err := MarshalTemplate(t)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(path, b, 0o644)
+}

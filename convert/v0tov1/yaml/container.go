@@ -22,7 +22,7 @@ import (
 )
 
 type Container struct {
-	Args        Stringorslice     `json:"args,omitempty" yaml:"args,omitempty"`
+	Args        *flexible.Field[[]string]     `json:"args,omitempty" yaml:"args,omitempty"`
 	Connector   string            `json:"connector,omitempty" yaml:"connector,omitempty"`
 	Cpu         string       `json:"cpu,omitempty" yaml:"cpu,omitempty"`
 	Credentials *Credentials      `json:"credentials,omitempty" yaml:"credentials,omitempty"`
@@ -48,7 +48,7 @@ type Container struct {
 func (v *Container) UnmarshalJSON(data []byte) error {
 	var out1 string
 	var out2 = struct {
-		Args        Stringorslice     `json:"args,omitempty" yaml:"args,omitempty"`
+		Args        *flexible.Field[[]string]     `json:"args,omitempty" yaml:"args,omitempty"`
 		Connector   string            `json:"connector,omitempty" yaml:"connector,omitempty"`
 		Cpu         string       `json:"cpu,omitempty" yaml:"cpu,omitempty"`
 		Credentials *Credentials      `json:"credentials,omitempty" yaml:"credentials,omitempty"`

@@ -42,16 +42,23 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool, baseP
 			group := &v1.Step{
 				Name: s.StepGroup.Name,
 				Id:   s.StepGroup.ID,
-				Env:  s.StepGroup.Env,
-				Group: &v1.StepGroup{
-					Steps: c.ConvertSteps(s.StepGroup.Steps, isRollBack, groupPath),
-				},
-				OnFailure: convert_helpers.ConvertFailureStrategies(s.StepGroup.FailureStrategies),
-				Strategy:  convert_helpers.ConvertStrategy(s.StepGroup.Strategy),
-				Timeout:   s.StepGroup.Timeout,
-				Delegate:  convert_helpers.ConvertDelegate(s.StepGroup.DelegateSelectors, nil),
-				If:        convert_helpers.ConvertStepWhen(s.StepGroup.When),
-				Inputs:    c.convertVariables(s.StepGroup.Variables),
+			}
+
+			// Check for Template - if template exists, convert it and skip normal conversion
+			if s.StepGroup.Template != nil {
+				group.Template = c.convertStepGroupTemplate(s.StepGroup, isRollBack, groupPath)
+			} else {
+				// Normal step group conversion
+				group.Env = s.StepGroup.Env
+				group.Group = &v1.StepGroup{
+					Steps:  c.ConvertSteps(s.StepGroup.Steps, isRollBack, groupPath),
+					Inputs: c.convertVariables(s.StepGroup.Variables),
+				}
+				group.OnFailure = convert_helpers.ConvertFailureStrategies(s.StepGroup.FailureStrategies)
+				group.Strategy = convert_helpers.ConvertStrategy(s.StepGroup.Strategy)
+				group.Timeout = s.StepGroup.Timeout
+				group.Delegate = convert_helpers.ConvertDelegate(s.StepGroup.DelegateSelectors, nil)
+				group.If = convert_helpers.ConvertStepWhen(s.StepGroup.When)
 			}
 			dst = append(dst, group)
 		}
@@ -77,6 +84,12 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 			V0Path: v0Path,
 			V1Path: convertV0PathToV1Path(v0Path),
 		}
+	}
+
+	// Check for Template - if template exists, convert it and return early
+	if src.Template != nil {
+		step.Template = c.convertStepTemplate(src, isRollback, basePath)
+		return step
 	}
 
 	// Convert step-specific settings

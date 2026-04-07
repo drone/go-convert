@@ -39,6 +39,16 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 		return nil
 	}
 
+	dst := &v1.Pipeline{
+		Id:   src.ID,
+		Name: src.Name,
+	}
+
+	// Check for Template - if template exists, set it and continue converting rest
+	if src.Template != nil {
+		dst.Template = c.convertPipelineTemplate(src)
+	}
+
 	var barriers []string
 	if src.FlowControl != nil {
 		barriers = convertBarriers(src.FlowControl.Barriers)
@@ -48,16 +58,12 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 	stages := c.convertStages(src.Stages, "pipeline")
 
 	clone := c.convertCodebase(src.Props.CI.Codebase)
-	dst := &v1.Pipeline{
-		Id:            src.ID,
-		Name:          src.Name,
-		Inputs:        inputs,
-		Stages:        stages,
-		Barriers:      barriers,
-		Clone:         clone,
-		Notifications: convert_helpers.ConvertNotifications(src.NotificationRules),
-		Delegate: convert_helpers.ConvertDelegate(src.DelegateSelectors, nil),
-	}
+	dst.Inputs = inputs
+	dst.Stages = stages
+	dst.Barriers = barriers
+	dst.Clone = clone
+	dst.Notifications = convert_helpers.ConvertNotifications(src.NotificationRules)
+	dst.Delegate = convert_helpers.ConvertDelegate(src.DelegateSelectors, nil)
 
 	// Post-process: convert Harness expressions in all string and flexible.Field values
 	PostProcessExpressions(dst, c.stepTypeMap)

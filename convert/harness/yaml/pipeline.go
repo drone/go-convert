@@ -19,24 +19,33 @@ import "github.com/drone/go-convert/internal/flexible"
 type (
 	// Config defines resource configuration.
 	Config struct {
-		Pipeline Pipeline `json:"pipeline" yaml:"pipeline"`
+		Pipeline Pipeline  `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
+		Template *Template `json:"template,omitempty" yaml:"template,omitempty"`
+		InputSet *InputSet `json:"inputSet,omitempty" yaml:"inputSet,omitempty"`
 	}
 
 	// Pipeline defines a pipeline.
 	Pipeline struct {
-		ID                string              `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
-		Name              string              `json:"name,omitempty"              yaml:"name,omitempty"`
-		Desc              string              `json:"description,omitempty"       yaml:"description,omitempty"`
-		Account           string              `json:"accountIdentifier,omitempty" yaml:"accountIdentifier,omitempty"`
-		Project           string              `json:"projectIdentifier,omitempty" yaml:"projectIdentifier,omitempty"`
-		Org               string              `json:"orgIdentifier,omitempty"     yaml:"orgIdentifier,omitempty"`
-		Props             Properties          `json:"properties,omitempty"        yaml:"properties,omitempty"`
-		Stages            []*Stages           `json:"stages,omitempty"            yaml:"stages"`
-		Variables         []*Variable         `json:"variables,omitempty"         yaml:"variables,omitempty"`
-		Tags              *flexible.Field[map[string]string]   `json:"tags,omitempty"              yaml:"tags,omitempty"`
-		FlowControl       *FlowControl        `json:"flowControl,omitempty"       yaml:"flowControl,omitempty"`
-		NotificationRules []*NotificationRule `json:"notificationRules,omitempty" yaml:"notificationRules,omitempty"`
-		DelegateSelectors *flexible.Field[[]string] `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
+		ID                string                             `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
+		Name              string                             `json:"name,omitempty"              yaml:"name,omitempty"`
+		Desc              string                             `json:"description,omitempty"       yaml:"description,omitempty"`
+		Account           string                             `json:"accountIdentifier,omitempty" yaml:"accountIdentifier,omitempty"`
+		Project           string                             `json:"projectIdentifier,omitempty" yaml:"projectIdentifier,omitempty"`
+		Org               string                             `json:"orgIdentifier,omitempty"     yaml:"orgIdentifier,omitempty"`
+		Props             Properties                         `json:"properties,omitempty"        yaml:"properties,omitempty"`
+		Stages            []*Stages                          `json:"stages,omitempty"            yaml:"stages"`
+		Variables         []*Variable                        `json:"variables,omitempty"         yaml:"variables,omitempty"`
+		Tags              *flexible.Field[map[string]string] `json:"tags,omitempty"              yaml:"tags,omitempty"`
+		FlowControl       *FlowControl                       `json:"flowControl,omitempty"       yaml:"flowControl,omitempty"`
+		NotificationRules []*NotificationRule                `json:"notificationRules,omitempty" yaml:"notificationRules,omitempty"`
+		DelegateSelectors *flexible.Field[[]string]          `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
+		Template          *PipelineTemplate                  `json:"template,omitempty"          yaml:"template,omitempty"`
+	}
+
+	PipelineTemplate struct {
+		TemplateRef    string    `json:"templateRef,omitempty"    yaml:"templateRef,omitempty"`
+		VersionLabel   string    `json:"versionLabel,omitempty"   yaml:"versionLabel,omitempty"`
+		TemplateInputs *Pipeline `json:"templateInputs,omitempty" yaml:"templateInputs,omitempty"`
 	}
 
 	FlowControl struct {
@@ -176,7 +185,7 @@ type (
 	ServiceSpec struct {
 		Env        *flexible.Field[map[string]interface{}] `json:"envVariables,omitempty"   yaml:"envVariables,omitempty"`
 		Entrypoint *flexible.Field[[]string]         `json:"entrypoint,omitempty"     yaml:"entrypoint,omitempty"`
-		Args       []string          `json:"args,omitempty"           yaml:"args,omitempty"`
+		Args       *flexible.Field[[]string]         `json:"args,omitempty"           yaml:"args,omitempty"`
 		Conn       string            `json:"connectorRef,omitempty"   yaml:"connectorRef,omitempty"`
 		Image      string            `json:"image,omitempty"          yaml:"image,omitempty"`
 		Resources  *Resources        `json:"resources,omitempty"      yaml:"resources,omitempty"`

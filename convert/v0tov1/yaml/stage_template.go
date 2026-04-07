@@ -17,6 +17,16 @@
 package yaml
 
 type StageTemplate struct {
-	Uses string                 `json:"uses,omitempty"`
-	With map[string]interface{} `json:"with,omitempty"`
+	Uses string      `json:"uses,omitempty" yaml:"uses,omitempty"`
+	With interface{} `json:"with,omitempty" yaml:"with,omitempty"`
+}
+
+// StageTemplateWith represents the 'with' field for stage templates
+type StageTemplateWith struct {
+	Overlay *StageTemplateOverlay `json:"overlay,omitempty" yaml:"overlay,omitempty"`
+}
+
+// StageTemplateOverlay represents the overlay configuration for stage templates
+type StageTemplateOverlay struct {
+	Stage *Stage `json:"stage,omitempty" yaml:"stage,omitempty"`
 }

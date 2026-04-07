@@ -239,7 +239,7 @@ func TestConvertServiceDependencyToBackgroundStep(t *testing.T) {
 						"REDIS_PORT": "6379",
 					}},
 					Entrypoint: &flexible.Field[[]string]{Value: []string{"redis-server"}},
-					Args:       []string{"--maxmemory", "256mb"},
+					Args:       &flexible.Field[[]string]{Value: []string{"--maxmemory", "256mb"}},
 					Privileged: &flexible.Field[bool]{Value: false},
 				},
 			},
@@ -251,7 +251,7 @@ func TestConvertServiceDependencyToBackgroundStep(t *testing.T) {
 						Image:      "redis:7",
 						Connector:  "docker-conn",
 						Entrypoint: &flexible.Field[[]string]{Value: []string{"redis-server"}},
-						Args:       v1.Stringorslice{"--maxmemory", "256mb"},
+						Args:       &flexible.Field[[]string]{Value: []string{"--maxmemory", "256mb"}},
 						Privileged: &flexible.Field[bool]{Value: false},
 					},
 					Env: &flexible.Field[map[string]interface{}]{Value: map[string]interface{}{
