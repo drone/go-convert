@@ -1,0 +1,31 @@
+- stepGroup:
+    identifier: Jacoco_reportse7f8bc
+    name: Jacoco reports
+    steps:
+      - step:
+          identifier: recordcoverage6ecee1
+          name: recordCoverage
+          spec:
+            image: plugins/coverage-report
+            settings:
+              fail_on_threshold: "true"
+              source_code_encoding: UTF-8
+              threshold_branch: "60"
+              threshold_line: "60"
+              tool: jacoco-xml
+          timeout: ""
+          type: Plugin
+      - step:
+          identifier: recordcoverage6ecee11
+          name: recordCoverage
+          spec:
+            image: plugins/coverage-report
+            settings:
+              fail_on_threshold: "true"
+              reports_path_pattern: '**/coverage.xml'
+              source_code_encoding: UTF-8
+              threshold_branch: "60"
+              threshold_line: "60"
+              tool: cobertura
+          timeout: ""
+          type: Plugin
