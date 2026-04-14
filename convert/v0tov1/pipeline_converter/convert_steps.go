@@ -156,6 +156,8 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 		step.Run = convert_helpers.ConvertStepHTTP(src)
 	case v0.StepTypeShellScript:
 		step.Run = convert_helpers.ConvertStepShellScript(src)
+	case v0.StepTypeShellScriptProvision:
+		step.Run = convert_helpers.ConvertStepShellScriptProvision(src)
 	case v0.StepTypeBarrier:
 		step.Barrier = convert_helpers.ConvertStepBarrier(src)
 	case v0.StepTypeQueue:
@@ -198,6 +200,8 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 		step.Run = convert_helpers.ConvertStepPlugin(src)
 	case v0.StepTypeTest:
 		step.RunTest = convert_helpers.ConvertStepTestIntelligence(src)
+	case v0.StepTypeRunTests:
+		step.RunTest = convert_helpers.ConvertStepRunTests(src)
 	case v0.StepTypeGitClone:
 		step.Template = convert_helpers.ConvertStepGitClone(src)
 	case v0.StepTypeIACMTerraformPlugin:
@@ -206,6 +210,8 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 		step.Template = convert_helpers.ConvertStepIACMOpenTofuPlugin(src)
 	case v0.StepTypeBitrise:
 		step.Run = convert_helpers.ConvertStepBitrise(src)
+	case v0.StepTypeContainer:
+		step.Run = convert_helpers.ConvertStepContainer(src)
 	default:
 		// Unknown step type, return nil
 		log.Println("Warning!!! step type: " + src.Type + " is not yet supported!, step_id: " + src.ID)

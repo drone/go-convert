@@ -251,7 +251,48 @@ type (
 	}
 
 	StepRunTests struct {
-		// TODO
+		CommonStepSpec
+		// Required fields
+		Language  string `json:"language,omitempty"  yaml:"language,omitempty"`  // Java, Kotlin, Scala, Csharp, Python, Ruby
+		BuildTool string `json:"buildTool,omitempty" yaml:"buildTool,omitempty"` // Maven, Bazel, Gradle, Dotnet, Nunitconsole, SBT, Pytest, Unittest, Rspec
+
+		// Command fields
+		Args        string `json:"args,omitempty"        yaml:"args,omitempty"`
+		PreCommand  string `json:"preCommand,omitempty"  yaml:"preCommand,omitempty"`
+		PostCommand string `json:"postCommand,omitempty" yaml:"postCommand,omitempty"`
+
+		// Test Intelligence fields
+		RunOnlySelectedTests *flexible.Field[bool] `json:"runOnlySelectedTests,omitempty" yaml:"runOnlySelectedTests,omitempty"` // Default: true
+		Packages             string                `json:"packages,omitempty"             yaml:"packages,omitempty"`             // Java/Kotlin/Scala
+		Namespaces           string                `json:"namespaces,omitempty"           yaml:"namespaces,omitempty"`           // C#
+		TestAnnotations      string                `json:"testAnnotations,omitempty"      yaml:"testAnnotations,omitempty"`
+		TestRoot             string                `json:"testRoot,omitempty"             yaml:"testRoot,omitempty"`
+
+		// Test Splitting fields
+		EnableTestSplitting *flexible.Field[bool] `json:"enableTestSplitting,omitempty" yaml:"enableTestSplitting,omitempty"`
+		TestSplitStrategy   string                `json:"testSplitStrategy,omitempty"   yaml:"testSplitStrategy,omitempty"` // ClassTiming, TestCount
+		TestGlobs           string                `json:"testGlobs,omitempty"           yaml:"testGlobs,omitempty"`
+
+		// Language-specific fields
+		BuildEnvironment string `json:"buildEnvironment,omitempty" yaml:"buildEnvironment,omitempty"` // .NET only
+		FrameworkVersion string `json:"frameworkVersion,omitempty" yaml:"frameworkVersion,omitempty"` // .NET only
+		PythonVersion    string `json:"pythonVersion,omitempty"    yaml:"pythonVersion,omitempty"`    // Python only
+
+		// Container fields
+		Image           string                `json:"image,omitempty"           yaml:"image,omitempty"`
+		ConnectorRef    string                `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
+		ImagePullPolicy string                `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"` // Always, Never, IfNotPresent
+		Privileged      *flexible.Field[bool] `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
+		RunAsUser       *flexible.Field[int]  `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
+		Shell           string                `json:"shell,omitempty"           yaml:"shell,omitempty"` // Sh, Bash, Powershell, Pwsh, Python
+		Resources       *Resources            `json:"resources,omitempty"       yaml:"resources,omitempty"`
+
+		// Output/Environment fields
+		OutputVariables []*Output                          `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty"`
+		EnvVariables    *flexible.Field[map[string]string] `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
+
+		// Reports
+		Reports *Report `json:"reports,omitempty" yaml:"reports,omitempty"`
 	}
 
 	StepTestIntelligence struct {
@@ -428,18 +469,34 @@ type (
 
 	StepBackground struct {
 		CommonStepSpec
-		Command         string            `json:"command,omitempty"         yaml:"command,omitempty"`
-		ConnRef         string            `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
-		Entrypoint      *flexible.Field[[]string]          `json:"entrypoint,omitempty"      yaml:"entrypoint,omitempty"`
+		Command         string                                  `json:"command,omitempty"         yaml:"command,omitempty"`
+		ConnRef         string                                  `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
+		Entrypoint      *flexible.Field[[]string]               `json:"entrypoint,omitempty"      yaml:"entrypoint,omitempty"`
 		Env             *flexible.Field[map[string]interface{}] `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
-		Image           string            `json:"image,omitempty"           yaml:"image,omitempty"`
-		ImagePullPolicy string            `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
-		PortBindings    map[string]string `json:"portBindings,omitempty"    yaml:"portBindings,omitempty"`
-		Privileged      *flexible.Field[bool]               `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
-		Resources       *Resources        `json:"resources,omitempty"       yaml:"resources,omitempty"`
-		RunAsUser       *flexible.Field[int]            `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"       v1path:"-"`
-		Reports         *Report           `json:"reports,omitempty"         yaml:"reports,omitempty"`
-		Shell           string            `json:"shell,omitempty"           yaml:"shell,omitempty"`
+		Image           string                                  `json:"image,omitempty"           yaml:"image,omitempty"`
+		ImagePullPolicy string                                  `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
+		PortBindings    map[string]string                       `json:"portBindings,omitempty"    yaml:"portBindings,omitempty"`
+		Privileged      *flexible.Field[bool]                   `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
+		Resources       *Resources                              `json:"resources,omitempty"       yaml:"resources,omitempty"`
+		RunAsUser       *flexible.Field[int]                    `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"       v1path:"-"`
+		Reports         *Report                                 `json:"reports,omitempty"         yaml:"reports,omitempty"`
+		Shell           string                                  `json:"shell,omitempty"           yaml:"shell,omitempty"`
+	}
+
+	StepContainer struct {
+		CommonStepSpec
+		Command         string                                  `json:"command,omitempty"         yaml:"command,omitempty"`
+		Infrastructure  *Infrastructure                         `json:"infrastructure,omitempty"  yaml:"infrastructure,omitempty"`
+		Image           string                                  `json:"image,omitempty"           yaml:"image,omitempty"`
+		ConnRef         string                                  `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
+		ImagePullPolicy string                                  `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
+		Entrypoint      *flexible.Field[[]string]               `json:"entrypoint,omitempty"      yaml:"entrypoint,omitempty"`
+		Env             *flexible.Field[map[string]interface{}] `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
+		Privileged      *flexible.Field[bool]                   `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
+		RunAsUser       *flexible.Field[int]                    `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
+		Shell           string                                  `json:"shell,omitempty"           yaml:"shell,omitempty"`
+		Settings        map[string]interface{}                  `json:"settings,omitempty"        yaml:"settings,omitempty"`
+		Outputs         []*Output                               `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty"`
 	}
 
 	StepShellScript struct {
@@ -460,6 +517,13 @@ type (
 		Image           string `json:"image,omitempty"           yaml:"image,omitempty"`
 		ImagePullPolicy string `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
 		RunAsUser       string `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
+	}
+
+	StepShellScriptProvision struct {
+		CommonStepSpec
+		EnvironmentVariables []*Variable `json:"environmentVariables,omitempty" yaml:"environmentVariables,omitempty"`
+		Metadata             string      `json:"metadata,omitempty"             yaml:"metadata,omitempty"`
+		Source               *Source     `json:"source,omitempty"               yaml:"source,omitempty"`
 	}
 
 	StepS3Upload struct {
@@ -659,6 +723,8 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepS3Upload)
 	case StepTypeShellScript:
 		s.Spec = new(StepShellScript)
+	case StepTypeShellScriptProvision:
+		s.Spec = new(StepShellScriptProvision)
 	case StepTypeHTTP:
 		s.Spec = new(StepHTTP)
 	case StepTypeHarnessApproval:
@@ -739,6 +805,8 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepBuildAndPushGAR)
 	case StepTypeTest:
 		s.Spec = new(StepTestIntelligence)
+	case StepTypeRunTests:
+		s.Spec = new(StepRunTests)
 	case StepTypeServiceNowCreate:
 		s.Spec = new(StepServiceNowCreate)
 	case StepTypeServiceNowUpdate:
@@ -749,6 +817,8 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepIACMOpenTofuPlugin)
 	case StepTypeBitrise:
 		s.Spec = new(StepBitrise)
+	case StepTypeContainer:
+		s.Spec = new(StepContainer)
 	default:
 		// log.Printf("unknown step type while unmarshalling %s", s.Type)
 		return fmt.Errorf("unknown step type %s", s.Type)

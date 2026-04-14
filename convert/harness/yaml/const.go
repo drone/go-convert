@@ -76,6 +76,7 @@ const (
 	StepTypeSaveCacheS3                = "SaveCacheS3"
 	StepTypeTest                       = "Test"
 	StepTypeGitClone                   = "GitClone"
+	StepTypeContainer                  = "Container"
 
 	// Feature Flags
 	StepTypeHTTP               = "Http"
@@ -89,6 +90,7 @@ const (
 	StepTypeShellScript        = "ShellScript"
 	StepTypeWait               = "Wait"
 	StepTypeCustomApproval     = "CustomApproval"
+	StepTypeShellScriptProvision = "ShellScriptProvision"
 
 	// CD / Kubernetes
 	StepTypeK8sRollingDeploy           = "K8sRollingDeploy"
