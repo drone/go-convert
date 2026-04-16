@@ -11,7 +11,8 @@ import (
 
 // Pipeline converts a Harness v0 pipeline YAML string into v1 YAML bytes.
 // The input must have a top-level "pipeline:" key.
-func Pipeline(yamlStr string) ([]byte, error) {
+// If refMapping is provided, template references in the output will be replaced.
+func Pipeline(yamlStr string, refMapping map[string]string) ([]byte, error) {
 	if err := validateTopLevelKey(yamlStr, "pipeline"); err != nil {
 		return nil, err
 	}
@@ -34,7 +35,9 @@ func Pipeline(yamlStr string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal v1 pipeline: %w", err)
 	}
-	return out, nil
+
+	// Apply template reference replacements if mapping is provided
+	return ReplaceTemplateRefs(out, refMapping)
 }
 
 // validateTopLevelKey returns an error when yamlStr does not start with "key:".

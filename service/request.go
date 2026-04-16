@@ -2,7 +2,8 @@ package service
 
 // ConvertRequest is the request body shared by all single-entity conversion endpoints.
 type ConvertRequest struct {
-	YAML string `json:"yaml"`
+	YAML               string            `json:"yaml"`
+	EntityRefMapping map[string]string `json:"entity_ref_mapping,omitempty"`
 }
 
 // ConvertResponse is the response body for a successful single-entity conversion.
@@ -18,9 +19,10 @@ type BatchConvertRequest struct {
 
 // BatchItem is one entity to convert inside a BatchConvertRequest.
 type BatchItem struct {
-	ID         string `json:"id"`
-	EntityType string `json:"entity_type"` // "pipeline" | "template" | "input-set"
-	YAML       string `json:"yaml"`
+	ID                 string            `json:"id"`
+	EntityType         string            `json:"entity_type"` // "pipeline" | "template" | "input-set"
+	YAML               string            `json:"yaml"`
+	EntityRefMapping map[string]string `json:"entity_ref_mapping,omitempty"`
 }
 
 // BatchConvertResponse is the response body for POST /api/v1/convert/batch.
@@ -37,6 +39,16 @@ type BatchResult struct {
 	YAML       *string `json:"yaml"`
 	Checksum   *string `json:"checksum"`
 	Error      *string `json:"error"`
+}
+
+// ChecksumRequest is the request body for POST /api/v1/checksum.
+type ChecksumRequest struct {
+	YAML string `json:"yaml"`
+}
+
+// ChecksumResponse is the response body for POST /api/v1/checksum.
+type ChecksumResponse struct {
+	Checksum string `json:"checksum"`
 }
 
 // ErrorResponse is the standard error body returned on non-2xx responses.

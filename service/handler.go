@@ -71,7 +71,7 @@ func (h *Handler) ConvertBatch(w http.ResponseWriter, r *http.Request) {
 	results := make([]BatchResult, 0, len(req.Items))
 	for _, item := range req.Items {
 		result := BatchResult{ID: item.ID, EntityType: item.EntityType}
-		outBytes, err := dispatch(item.EntityType, item.YAML)
+		outBytes, err := dispatch(item.EntityType, item.YAML, item.EntityRefMapping)
 		if err != nil {
 			e := err.Error()
 			result.Error = &e
@@ -86,6 +86,23 @@ func (h *Handler) ConvertBatch(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, BatchConvertResponse{Results: results})
 }
 
+// ComputeChecksum handles POST /api/v1/checksum.
+func (h *Handler) ComputeChecksum(w http.ResponseWriter, r *http.Request) {
+	var req ChecksumRequest
+	if err := h.decodeJSON(w, r, &req); err != nil {
+		writeError(w, http.StatusBadRequest, "INVALID_JSON", err.Error(), nil)
+		return
+	}
+	if strings.TrimSpace(req.YAML) == "" {
+		writeError(w, http.StatusBadRequest, "MISSING_FIELD", "'yaml' field is required and must not be empty", nil)
+		return
+	}
+
+	writeJSON(w, http.StatusOK, ChecksumResponse{
+		Checksum: Checksum([]byte(req.YAML)),
+	})
+}
+
 // convertSingle is the shared implementation for single-entity endpoints.
 func (h *Handler) convertSingle(w http.ResponseWriter, r *http.Request, entityType string) {
 	var req ConvertRequest
@@ -98,7 +115,7 @@ func (h *Handler) convertSingle(w http.ResponseWriter, r *http.Request, entityTy
 		return
 	}
 
-	outBytes, err := dispatch(entityType, req.YAML)
+	outBytes, err := dispatch(entityType, req.YAML, req.EntityRefMapping)
 	if err != nil {
 		code, status := classifyError(err)
 		writeError(w, status, code, err.Error(), nil)
@@ -112,14 +129,14 @@ func (h *Handler) convertSingle(w http.ResponseWriter, r *http.Request, entityTy
 }
 
 // dispatch routes a conversion request to the appropriate converter function.
-func dispatch(entityType, yamlStr string) ([]byte, error) {
+func dispatch(entityType, yamlStr string, refMapping map[string]string) ([]byte, error) {
 	switch entityType {
 	case entityPipeline:
-		return converter.Pipeline(yamlStr)
+		return converter.Pipeline(yamlStr, refMapping)
 	case entityTemplate:
-		return converter.Template(yamlStr)
+		return converter.Template(yamlStr, refMapping)
 	case entityInputSet:
-		return converter.InputSet(yamlStr)
+		return converter.InputSet(yamlStr, refMapping)
 	default:
 		return nil, fmt.Errorf("unknown entity_type %q (must be pipeline, template, or input-set)", entityType)
 	}

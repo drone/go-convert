@@ -41,7 +41,8 @@ type v1TemplateFields struct {
 // Template converts a Harness v0 template YAML string into v1 YAML bytes.
 // Supported template types are Pipeline, Stage, and Step.
 // The input must have a top-level "template:" key.
-func Template(yamlStr string) ([]byte, error) {
+// If refMapping is provided, template references in the output will be replaced.
+func Template(yamlStr string, refMapping map[string]string) ([]byte, error) {
 	if err := validateTopLevelKey(yamlStr, "template"); err != nil {
 		return nil, err
 	}
@@ -85,7 +86,13 @@ func Template(yamlStr string) ([]byte, error) {
 			Spec:       v1Spec,
 		},
 	}
-	return yaml.Marshal(out)
+	yamlBytes, err := yaml.Marshal(out)
+	if err != nil {
+		return nil, err
+	}
+
+	// Apply template reference replacements if mapping is provided
+	return ReplaceTemplateRefs(yamlBytes, refMapping)
 }
 
 // convertPipelineTemplateSpec converts the spec of a Pipeline-type template.

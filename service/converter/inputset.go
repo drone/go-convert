@@ -32,12 +32,13 @@ type v1InputSetFields struct {
 
 // InputSet converts a Harness v0 input set YAML string into v1 YAML bytes.
 // The input must have a top-level "inputSet:" key.
+// If refMapping is provided, template references in the output will be replaced.
 //
 // Conversion strategy:
 //   - pipeline.identifier  → inputset.pipeline  (reference to the target pipeline)
 //   - all other fields in the pipeline fragment are flattened into dotted key paths
 //     under inputset.inputs (e.g. "properties.ci.codebase.build.type": "PR")
-func InputSet(yamlStr string) ([]byte, error) {
+func InputSet(yamlStr string, refMapping map[string]string) ([]byte, error) {
 	if err := validateTopLevelKey(yamlStr, "inputSet"); err != nil {
 		return nil, err
 	}
@@ -70,7 +71,13 @@ func InputSet(yamlStr string) ([]byte, error) {
 	if len(inputs) > 0 {
 		out.Inputset.Inputs = inputs
 	}
-	return yaml.Marshal(out)
+	yamlBytes, err := yaml.Marshal(out)
+	if err != nil {
+		return nil, err
+	}
+
+	// Apply template reference replacements if mapping is provided
+	return ReplaceTemplateRefs(yamlBytes, refMapping)
 }
 
 // flattenInto recursively flattens nested map values into dot-separated keys

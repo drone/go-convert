@@ -61,6 +61,7 @@ func buildMux(h *Handler) *http.ServeMux {
 	mux.HandleFunc("POST /api/v1/convert/template", h.ConvertTemplate)
 	mux.HandleFunc("POST /api/v1/convert/input-set", h.ConvertInputSet)
 	mux.HandleFunc("POST /api/v1/convert/batch", h.ConvertBatch)
+	mux.HandleFunc("POST /api/v1/checksum", h.ComputeChecksum)
 	return mux
 }
 

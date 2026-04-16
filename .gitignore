@@ -8,3 +8,13 @@ convert/circle/reference/**
 .codegpt
 convert/v0tov1/test_pipelines/*
 convert/v0tov1/scripts/*
+# Service binaries
+go-convert-service
+server
+
+# Test coverage
+coverage.out
+coverage.html
+
+# Docker
+.dockerignore
