@@ -53,16 +53,28 @@ func (s *Server) Stop(ctx context.Context) error {
 	return s.httpServer.Shutdown(ctx)
 }
 
-// buildMux registers all routes. Go 1.22+ ServeMux supports "METHOD /path" patterns.
+// buildMux registers all routes. Compatible with Go 1.19+.
 func buildMux(h *Handler) *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /healthz", h.Healthz)
-	mux.HandleFunc("POST /api/v1/convert/pipeline", h.ConvertPipeline)
-	mux.HandleFunc("POST /api/v1/convert/template", h.ConvertTemplate)
-	mux.HandleFunc("POST /api/v1/convert/input-set", h.ConvertInputSet)
-	mux.HandleFunc("POST /api/v1/convert/batch", h.ConvertBatch)
-	mux.HandleFunc("POST /api/v1/checksum", h.ComputeChecksum)
+	mux.HandleFunc("/healthz", methodFilter("GET", h.Healthz))
+	mux.HandleFunc("/api/v1/convert/pipeline", methodFilter("POST", h.ConvertPipeline))
+	mux.HandleFunc("/api/v1/convert/template", methodFilter("POST", h.ConvertTemplate))
+	mux.HandleFunc("/api/v1/convert/input-set", methodFilter("POST", h.ConvertInputSet))
+	mux.HandleFunc("/api/v1/convert/batch", methodFilter("POST", h.ConvertBatch))
+	mux.HandleFunc("/api/v1/checksum", methodFilter("POST", h.ComputeChecksum))
 	return mux
+}
+
+// methodFilter wraps a handler to only accept requests with the specified HTTP method.
+// Returns 405 Method Not Allowed for other methods.
+func methodFilter(method string, handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != method {
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		handler(w, r)
+	}
 }
 
 // ---- middleware helpers ----

@@ -1,6 +1,6 @@
 module github.com/drone/go-convert
 
-go 1.22
+go 1.19
 
 require (
 	dario.cat/mergo v1.0.0
