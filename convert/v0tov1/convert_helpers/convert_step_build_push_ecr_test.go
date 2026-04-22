@@ -26,11 +26,13 @@ func TestConvertStepBuildAndPushECR(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "aws-connector",
-				"region":    "us-east-1",
-				"registry":  "123456789012.dkr.ecr.us-east-1.amazonaws.com",
-				"repo":      "my-app",
-				"tags":      &flexible.Field[[]string]{Value: []string{"latest", "v1.0.0"}},
+				"connector":  "aws-connector",
+				"region":     "us-east-1",
+				"account":    "123456789012",
+				"image_name": "my-app",
+				"tags":       &flexible.Field[[]string]{Value: []string{"latest", "v1.0.0"}},
+				"caching":    true,
+				"build_mode": "build_and_push",
 			},
 		},
 		{
@@ -47,9 +49,11 @@ func TestConvertStepBuildAndPushECR(t *testing.T) {
 			expected: map[string]interface{}{
 				"connector":          "aws-connector",
 				"region":             "eu-west-1",
-				"registry":           "111222333444.dkr.ecr.eu-west-1.amazonaws.com",
-				"repo":               "frontend",
+				"account":            "111222333444",
+				"image_name":         "frontend",
 				"baseimageconnector": "docker-hub-connector",
+				"caching":            true,
+				"build_mode":         "build_and_push",
 			},
 		},
 		{
@@ -68,15 +72,17 @@ func TestConvertStepBuildAndPushECR(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "aws-connector",
-				"region":    "ap-south-1",
-				"registry":  "555666777888.dkr.ecr.ap-south-1.amazonaws.com",
-				"repo":      "multi-base-app",
+				"connector":  "aws-connector",
+				"region":     "ap-south-1",
+				"account":    "555666777888",
+				"image_name": "multi-base-app",
 				"baseimageconnector": []interface{}{
 					"docker-hub-connector",
 					"gcr-connector",
 					"private-registry-connector",
 				},
+				"caching":    true,
+				"build_mode": "build_and_push",
 			},
 		},
 		{
@@ -90,9 +96,11 @@ func TestConvertStepBuildAndPushECR(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "aws-connector",
-				"region":    "us-east-1",
-				"repo":      "my-app",
+				"connector":  "aws-connector",
+				"region":     "us-east-1",
+				"image_name": "my-app",
+				"caching":    true,
+				"build_mode": "build_and_push",
 			},
 		},
 		{
@@ -106,8 +114,11 @@ func TestConvertStepBuildAndPushECR(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "aws-connector",
-				"repo":      "my-app",
+				"connector":  "aws-connector",
+				"account":    "123456789012",
+				"image_name": "my-app",
+				"caching":    true,
+				"build_mode": "build_and_push",
 			},
 		},
 		{
@@ -121,8 +132,10 @@ func TestConvertStepBuildAndPushECR(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "aws-connector",
-				"repo":      "my-app",
+				"connector":  "aws-connector",
+				"image_name": "my-app",
+				"caching":    true,
+				"build_mode": "build_and_push",
 			},
 		},
 	}

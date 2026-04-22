@@ -2,8 +2,9 @@ package converthelpers
 
 import (
 	"testing"
-	"github.com/drone/go-convert/internal/flexible"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -23,9 +24,11 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "docker-connector",
-				"repo":      "myorg/myapp",
-				"tags":      &flexible.Field[[]string]{Value: []string{"latest", "v1.0.0"}},
+				"connector":  "docker-connector",
+				"repo":       "myorg/myapp",
+				"tags":       &flexible.Field[[]string]{Value: []string{"latest", "v1.0.0"}},
+				"caching":    true,
+				"build_mode": "build_and_push",
 			},
 		},
 		{
@@ -41,6 +44,8 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 				"connector":          "docker-connector",
 				"repo":               "myorg/frontend",
 				"baseimageconnector": "gcr-connector",
+				"caching":            true,
+				"build_mode":         "build_and_push",
 			},
 		},
 		{
@@ -60,6 +65,8 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 				"connector":          "docker-connector",
 				"repo":               "myorg/multi-base",
 				"baseimageconnector": "primary-connector",
+				"caching":            true,
+				"build_mode":         "build_and_push",
 			},
 		},
 		{
@@ -78,6 +85,8 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 				"connector":          "docker-connector",
 				"repo":               "myorg/app",
 				"baseimageconnector": "first-connector",
+				"caching":            true,
+				"build_mode":         "build_and_push",
 			},
 		},
 		{
@@ -90,8 +99,10 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "docker-connector",
-				"repo":      "myorg/app",
+				"connector":  "docker-connector",
+				"repo":       "myorg/app",
+				"caching":    true,
+				"build_mode": "build_and_push",
 			},
 		},
 		{
@@ -121,17 +132,18 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 				"repo":       "myorg/complete",
 				"tags":       &flexible.Field[[]string]{Value: []string{"v2.0.0"}},
 				"caching":    &flexible.Field[bool]{Value: true},
+				"build_mode": "build_and_push",
 				"dockerfile": "Dockerfile.prod",
 				"context":    "./backend",
 				"target":     "production",
 				"labels": &flexible.Field[map[string]string]{Value: map[string]string{
-						"version": "2.0.0",
+					"version": "2.0.0",
 				}},
 				"buildargs": &flexible.Field[map[string]string]{Value: map[string]string{
-						"NODE_VERSION": "20",
+					"NODE_VERSION": "20",
 				}},
 				"envvars": &flexible.Field[map[string]string]{Value: map[string]string{
-						"BUILD_ENV": "prod",
+					"BUILD_ENV": "prod",
 				}},
 			},
 		},

@@ -74,8 +74,8 @@ func TestConvertStepGitClone(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "github-connector",
-				"commitSha": "abc123def456",
+				"connector":  "github-connector",
+				"commit_sha": "abc123def456",
 			},
 		},
 		{
@@ -88,7 +88,7 @@ func TestConvertStepGitClone(t *testing.T) {
 			},
 			expected: map[string]interface{}{
 				"connector": "github-connector",
-				"repoName":  "my-repo",
+				"repo_url":  "my-repo",
 			},
 		},
 		{
@@ -107,12 +107,12 @@ func TestConvertStepGitClone(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector":      "github-connector",
-				"repoName":       "my-repo",
-				"branch":         "develop",
-				"cloneDirectory": "/workspace/src",
-				"depth":          &flexible.Field[int]{Value: 50},
-				"sslVerify":      &flexible.Field[bool]{Value: false},
+				"connector":       "github-connector",
+				"repo_url":        "my-repo",
+				"branch":          "develop",
+				"clone_directory": "/workspace/src",
+				"depth":           &flexible.Field[int]{Value: 50},
+				"ssl_verify":      &flexible.Field[bool]{Value: false},
 			},
 		},
 		{

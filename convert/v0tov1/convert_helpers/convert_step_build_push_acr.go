@@ -1,6 +1,8 @@
 package converthelpers
 
 import (
+	"strings"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
@@ -23,8 +25,18 @@ func ConvertStepBuildAndPushACR(src *v0.Step) *v1.StepTemplate {
 		with["connector"] = spec.ConnectorRef
 	}
 
+	// v0 Repository contains the full image path (e.g., myregistry.azurecr.io/myapp)
+	// v1 splits it into registry (myregistry.azurecr.io) + image_name (myapp)
 	if spec.Repository != "" {
-		with["image_name"] = spec.Repository
+		parts := strings.SplitN(spec.Repository, "/", 2)
+		if len(parts) == 2 {
+			// Format: registry/image_name
+			with["registry"] = parts[0]
+			with["image_name"] = parts[1]
+		} else {
+			// No slash found, treat entire value as image_name
+			with["image_name"] = spec.Repository
+		}
 	}
 
 	if spec.SubscriptionId != "" {
@@ -37,7 +49,13 @@ func ConvertStepBuildAndPushACR(src *v0.Step) *v1.StepTemplate {
 
 	if spec.Caching != nil {
 		with["caching"] = spec.Caching
+	} else {
+		// caching is required in v1, default: true
+		with["caching"] = true
 	}
+
+	// build_mode is required in v1, default: build_and_push
+	with["build_mode"] = "build_and_push"
 
 	if spec.Env != nil {
 		with["envvars"] = spec.Env
@@ -65,6 +83,10 @@ func ConvertStepBuildAndPushACR(src *v0.Step) *v1.StepTemplate {
 
 	if spec.Target != "" {
 		with["target"] = spec.Target
+	}
+
+	if spec.RemoteCacheImage != "" {
+		with["remotecacheimage"] = spec.RemoteCacheImage
 	}
 
 	return &v1.StepTemplate{

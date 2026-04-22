@@ -68,8 +68,11 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 	}
 
 	//intelligence
-	intelligence := &v1.TestIntelligence{
-		Disabled: flexible.NegateBool(sp.IntelligenceMode),
+	var intelligence *v1.TestIntelligence
+	if sp.IntelligenceMode != nil {
+		intelligence = &v1.TestIntelligence{
+			Disabled: flexible.NegateBool(sp.IntelligenceMode),
+		}
 	}
 	
 

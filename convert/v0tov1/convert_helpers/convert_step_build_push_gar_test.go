@@ -2,8 +2,9 @@ package converthelpers
 
 import (
 	"testing"
-	"github.com/drone/go-convert/internal/flexible"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -25,10 +26,13 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "gcp-connector",
-				"registry":  "us-central1-docker.pkg.dev/my-gcp-project",
-				"repo":      "my-app",
-				"tags":      &flexible.Field[[]string]{Value: []string{"latest", "v1.0.0"}},
+				"connector":  "gcp-connector",
+				"host":       "us-central1-docker.pkg.dev",
+				"project_id": "my-gcp-project",
+				"image_name": "my-app",
+				"tags":       &flexible.Field[[]string]{Value: []string{"latest", "v1.0.0"}},
+				"caching":    true,
+				"build_mode": "build_and_push",
 			},
 		},
 		{
@@ -47,10 +51,12 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "gcp-connector",
-				"registry":  "europe-west1-docker.pkg.dev/prod-project",
-				"repo":      "backend-service",
-				"caching":   &flexible.Field[bool]{Value: true},
+				"connector":  "gcp-connector",
+				"host":       "europe-west1-docker.pkg.dev",
+				"project_id": "prod-project",
+				"image_name": "backend-service",
+				"caching":    &flexible.Field[bool]{Value: true},
+				"build_mode": "build_and_push",
 				"buildargs": &flexible.Field[map[string]string]{Value: map[string]string{
 					"GO_VERSION": "1.21",
 					"APP_ENV":    "production",
@@ -70,9 +76,12 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 			},
 			expected: map[string]interface{}{
 				"connector":          "gcp-connector",
-				"registry":           "asia-south1-docker.pkg.dev/dev-project",
-				"repo":               "frontend",
+				"host":               "asia-south1-docker.pkg.dev",
+				"project_id":         "dev-project",
+				"image_name":         "frontend",
 				"baseimageconnector": "docker-hub-connector",
+				"caching":            true,
+				"build_mode":         "build_and_push",
 			},
 		},
 		{
@@ -91,14 +100,17 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "gcp-connector",
-				"registry":  "us-west1-docker.pkg.dev/test-project",
-				"repo":      "multi-base-app",
+				"connector":  "gcp-connector",
+				"host":       "us-west1-docker.pkg.dev",
+				"project_id": "test-project",
+				"image_name": "multi-base-app",
 				"baseimageconnector": []interface{}{
 					"primary-connector",
 					"secondary-connector",
 					"tertiary-connector",
 				},
+				"caching":    true,
+				"build_mode": "build_and_push",
 			},
 		},
 		{
@@ -116,13 +128,16 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "gcp-connector",
-				"registry":  "us-east1-docker.pkg.dev/complex-project",
-				"repo":      "complex-app",
+				"connector":  "gcp-connector",
+				"host":       "us-east1-docker.pkg.dev",
+				"project_id": "complex-project",
+				"image_name": "complex-app",
 				"baseimageconnector": map[string]interface{}{
 					"base":    "docker-connector",
 					"builder": "gcr-connector",
 				},
+				"caching":    true,
+				"build_mode": "build_and_push",
 			},
 		},
 		{
@@ -136,8 +151,11 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "gcp-connector",
-				"repo":      "my-app",
+				"connector":  "gcp-connector",
+				"project_id": "my-project",
+				"image_name": "my-app",
+				"caching":    true,
+				"build_mode": "build_and_push",
 			},
 		},
 		{
@@ -151,8 +169,11 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "gcp-connector",
-				"repo":      "my-app",
+				"connector":  "gcp-connector",
+				"host":       "us-central1-docker.pkg.dev",
+				"image_name": "my-app",
+				"caching":    true,
+				"build_mode": "build_and_push",
 			},
 		},
 		{
@@ -166,8 +187,10 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "gcp-connector",
-				"repo":      "my-app",
+				"connector":  "gcp-connector",
+				"image_name": "my-app",
+				"caching":    true,
+				"build_mode": "build_and_push",
 			},
 		},
 		{
@@ -198,23 +221,25 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 			},
 			expected: map[string]interface{}{
 				"connector":  "gcp-connector",
-				"registry":   "us-central1-docker.pkg.dev/complete-project",
-				"repo":       "complete-app",
-				"tags":      &flexible.Field[[]string]{Value: []string{"v2.0.0"}},
+				"host":       "us-central1-docker.pkg.dev",
+				"project_id": "complete-project",
+				"image_name": "complete-app",
+				"tags":       &flexible.Field[[]string]{Value: []string{"v2.0.0"}},
 				"caching":    &flexible.Field[bool]{Value: true},
+				"build_mode": "build_and_push",
 				"dockerfile": "Dockerfile.prod",
 				"context":    "./app",
 				"target":     "production",
 				"labels": &flexible.Field[map[string]string]{Value: map[string]string{
-						"version": "2.0.0",
-						"team":    "platform",
+					"version": "2.0.0",
+					"team":    "platform",
 				}},
 				"buildargs": &flexible.Field[map[string]string]{Value: map[string]string{
-						"PYTHON_VERSION": "3.11",
+					"PYTHON_VERSION": "3.11",
 				}},
 				"envvars": &flexible.Field[map[string]string]{Value: map[string]string{
-						"BUILD_ENV": "prod",
-						"LOG_LEVEL": "info",
+					"BUILD_ENV": "prod",
+					"LOG_LEVEL": "info",
 				}},
 			},
 		},

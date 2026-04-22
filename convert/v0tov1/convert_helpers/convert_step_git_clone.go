@@ -34,19 +34,19 @@ func ConvertStepGitClone(src *v0.Step) *v1.StepTemplate {
 			} else if build.Type == "PR" && build.Spec.Number != nil {
 				with["pr"] = build.Spec.Number
 			} else if build.Type == "commitSha" && build.Spec.CommitSha != "" {
-				with["commitSha"] = build.Spec.CommitSha
+				with["commit_sha"] = build.Spec.CommitSha
 			}
-		} 
+		}
 	}
 
 	// Clone directory
 	if sp.CloneDirectory != "" {
-		with["cloneDirectory"] = sp.CloneDirectory
+		with["clone_directory"] = sp.CloneDirectory
 	}
 
-	// Repository name
+	// Repository name maps to repo_url in v1 (required)
 	if sp.Repository != "" {
-		with["repoName"] = sp.Repository
+		with["repo_url"] = sp.Repository
 	}
 
 	// Depth
@@ -56,7 +56,7 @@ func ConvertStepGitClone(src *v0.Step) *v1.StepTemplate {
 
 	// SSL Verify
 	if sp.SSLVerify != nil {
-		with["sslVerify"] = sp.SSLVerify
+		with["ssl_verify"] = sp.SSLVerify
 	}
 
 	dst := &v1.StepTemplate{

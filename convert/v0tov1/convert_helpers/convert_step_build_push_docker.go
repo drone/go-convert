@@ -33,7 +33,13 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 
 	if spec.Caching != nil {
 		with["caching"] = spec.Caching
+	} else {
+		// caching is required in v1, default: true
+		with["caching"] = true
 	}
+
+	// build_mode is required in v1, default: build_and_push
+	with["build_mode"] = "build_and_push"
 
 	// Handle baseImageConnectorRefs - can be string, []string, or expression
 	if spec.BaseImageConnectorRefs != nil {
@@ -75,6 +81,14 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 
 	if spec.Target != "" {
 		with["target"] = spec.Target
+	}
+
+	if spec.Optimize != nil {
+		with["optimize"] = spec.Optimize
+	}
+
+	if spec.RemoteCacheRepo != "" {
+		with["cacherepo"] = spec.RemoteCacheRepo
 	}
 
 	return &v1.StepTemplate{
