@@ -1,0 +1,90 @@
+# Default values for yaml-converter
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+  autoscaling:
+    enabled: false
+  pdb:
+    create: false
+  fips: false
+  commonAnnotations: {}
+  commonLabels: {}
+  kubeVersion: ""
+  loadbalancerURL: ""
+  imagePullSecrets: []
+
+replicaCount: 1
+
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 0
+
+image:
+  registry: docker.io
+  repository: harness/yaml-converter
+  pullPolicy: IfNotPresent
+  tag: "0.0.1"
+  digest: ""
+  imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: false
+  annotations: {}
+  name: "harness-default"
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext:
+  runAsUser: 65534
+  runAsNonRoot: true
+
+service:
+  type: ClusterIP
+  protocol: TCP
+  grpcPort: 8090
+  httpPort: 8092
+  annotations: {}
+
+resources:
+  limits:
+    memory: 256Mi
+  requests:
+    cpu: 0.25
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+  targetCPU: ""
+  targetMemory: ""
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+imagePullSecrets: {}
+
+rbac:
+  roles: []
+
+pdb:
+  create: false
+
+config:
+  PORT: "8090"
+  HTTP_PORT: "8092"
+  MAX_BATCH_SIZE: "100"
+  MAX_YAML_BYTES: "1048576"
+  LOG_LEVEL: "info"
+
+extraVolumes: []
+extraVolumeMounts: []
