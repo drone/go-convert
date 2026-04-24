@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package io.harness.pms.conversion.proto;
+
+option go_package = "github.com/drone/go-convert/proto";
+option java_multiple_files = true;
+option java_package = "io.harness.pms.conversion.proto";
+
+enum EntityType {
+  PIPELINE = 0;
+  TEMPLATE = 1;
+  INPUT_SET = 2;
+}
+
+message ConvertRequest {
+  EntityType entity_type = 1;
+  string yaml = 2;
+  map<string, string> template_ref_mapping = 3;
+  map<string, string> pipeline_ref_mapping = 4;
+}
+
+message ConvertResponse {
+  string yaml = 1;
+  string checksum = 2;
+}
+
+message ChecksumRequest {
+  string yaml = 1;
+}
+
+message ChecksumResponse {
+  string checksum = 1;
+}
+
+service GoConvertService {
+  rpc ConvertPipeline(ConvertRequest) returns (ConvertResponse);
+  rpc ConvertTemplate(ConvertRequest) returns (ConvertResponse);
+  rpc ConvertInputSet(ConvertRequest) returns (ConvertResponse);
+  rpc GetChecksum(ChecksumRequest) returns (ChecksumResponse);
+}

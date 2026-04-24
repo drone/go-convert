@@ -77,7 +77,7 @@ func (h *Handler) ConvertBatch(w http.ResponseWriter, r *http.Request) {
 			result.Error = &e
 		} else {
 			s := string(outBytes)
-			cs := Checksum(outBytes)
+			cs := Checksum([]byte(item.YAML))
 			result.YAML = &s
 			result.Checksum = &cs
 		}
@@ -124,7 +124,7 @@ func (h *Handler) convertSingle(w http.ResponseWriter, r *http.Request, entityTy
 
 	writeJSON(w, http.StatusOK, ConvertResponse{
 		YAML:     string(outBytes),
-		Checksum: Checksum(outBytes),
+		Checksum: Checksum([]byte(req.YAML)),
 	})
 }
 
