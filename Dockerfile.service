@@ -5,7 +5,7 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -o /bin/go-convert-service ./cmd/server
 
-FROM harness0.harness.io/oci/docker_artifacts/static-debian12:latest
+FROM gcr.io/distroless/static-debian12
 COPY --from=builder /bin/go-convert-service /go-convert-service
 EXPOSE 8090
 ENTRYPOINT ["/go-convert-service"]
