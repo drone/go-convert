@@ -21,8 +21,8 @@ func buildPipelineTrie() *Trie {
 
 	// Build main pipeline structure with proper hierarchy
 	trie.AddPath().
-		Node("pipeline").WithAlias("pipeline").WithV1Name("pipeline").
-		Node("stages").WithAlias("stages").WithV1Name("stages").
+		Node("pipeline").WithAlias("pipeline").WithV1Name("pipeline").WithID("pipeline_node").
+		Node("stages").WithAlias("stages").WithV1Name("stages").WithID("stages_node").
 		Node("*").WithAlias("stage").WithID("stage_node").WithV1Name("*").
 		Node("spec").WithAlias("spec").WithV1Name("-").WithID("stage_spec_node").
 		Node("execution").WithAlias("execution").WithV1Name("-").WithID("stage_execution_node").
@@ -30,6 +30,8 @@ func buildPipelineTrie() *Trie {
 		Node("*").WithAlias("step").WithV1Name("*").WithID("step_node").
 		Node("spec").WithAlias("spec").WithV1Name("-").WithID("step_spec_node")
 
+	// codebase expressions to seperate path,
+	// pipeline.properties.ci.codebase... expressions will get cut down to codebase.
 	trie.AddPath().
 		Node("codebase").WithAlias("codebase").WithID("codebase_node").WithV1Name("codebase")
 
@@ -57,12 +59,10 @@ func buildPipelineTrie() *Trie {
 		"step_node": {
 			StepsConversionRules,
 			FailureStrategiesConversionRules,
-			NotificationRulesConversionRules,
 		},
 		"stage_node": {
 			StageConversionRules,
 			FailureStrategiesConversionRules,
-			NotificationRulesConversionRules,
 		},
 		"stage_spec_node": {
 			DeploymentStageSpecConversionRules,
@@ -73,6 +73,10 @@ func buildPipelineTrie() *Trie {
 		},
 		"codebase_node": {
 			CodebaseConversionRules,
+		},
+		"pipeline_node": {
+			PipelineConversionRules,
+			NotificationRulesConversionRules,
 		},
 	}
 	for nodeID, ruleSets := range generalRules {
