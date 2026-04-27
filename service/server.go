@@ -8,17 +8,23 @@ import (
 	"net"
 	"net/http"
 	"time"
+
+	pb "github.com/drone/go-convert/proto"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/status"
 )
 
-// Server wraps an http.Server with structured logging and graceful shutdown.
+// Server wraps both an HTTP and gRPC server with structured logging and graceful shutdown.
 type Server struct {
 	httpServer *http.Server
+	grpcServer *grpc.Server
+	grpcPort   int
 	logger     *slog.Logger
 }
 
-// NewServer builds a Server that listens on the given port and applies all
-// middleware (recovery → requestID → logging) before the conversion handlers.
-func NewServer(port, maxBatchSize int, maxYAMLBytes int64, logger *slog.Logger) *Server {
+// NewServer builds a Server that listens on the given HTTP port and gRPC port,
+// applying middleware (recovery → requestID → logging) before the HTTP handlers.
+func NewServer(port, grpcPort, maxBatchSize int, maxYAMLBytes int64, logger *slog.Logger) *Server {
 	h := NewHandler(maxBatchSize, maxYAMLBytes)
 	mux := buildMux(h)
 	wrapped := chain(mux,
@@ -26,8 +32,14 @@ func NewServer(port, maxBatchSize int, maxYAMLBytes int64, logger *slog.Logger) 
 		requestIDMiddleware(),
 		loggingMiddleware(logger),
 	)
+
+	gs := grpc.NewServer(grpc.UnaryInterceptor(grpcLoggingInterceptor(logger)))
+	pb.RegisterGoConvertServiceServer(gs, &GRPCHandler{})
+
 	return &Server{
-		logger: logger,
+		logger:   logger,
+		grpcPort: grpcPort,
+		grpcServer: gs,
 		httpServer: &http.Server{
 			Addr:         fmt.Sprintf(":%d", port),
 			Handler:      wrapped,
@@ -38,18 +50,30 @@ func NewServer(port, maxBatchSize int, maxYAMLBytes int64, logger *slog.Logger) 
 	}
 }
 
+// StartGRPC starts the gRPC server in a goroutine; returns the listener error (if any).
+func (s *Server) StartGRPC() error {
+	addr := fmt.Sprintf(":%d", s.grpcPort)
+	ln, err := net.Listen("tcp", addr)
+	if err != nil {
+		return fmt.Errorf("failed to bind gRPC %s: %w", addr, err)
+	}
+	s.logger.Info("gRPC server listening", "addr", addr)
+	return s.grpcServer.Serve(ln)
+}
+
 // Start listens and serves HTTP, blocking until the server stops.
 func (s *Server) Start() error {
 	ln, err := net.Listen("tcp", s.httpServer.Addr)
 	if err != nil {
 		return fmt.Errorf("failed to bind %s: %w", s.httpServer.Addr, err)
 	}
-	s.logger.Info("server listening", "addr", s.httpServer.Addr)
+	s.logger.Info("HTTP server listening", "addr", s.httpServer.Addr)
 	return s.httpServer.Serve(ln)
 }
 
-// Stop gracefully shuts down the server using the provided context deadline.
+// Stop gracefully shuts down both the gRPC and HTTP servers.
 func (s *Server) Stop(ctx context.Context) error {
+	s.grpcServer.GracefulStop()
 	return s.httpServer.Shutdown(ctx)
 }
 
@@ -153,6 +177,21 @@ func (rw *responseWriter) Write(b []byte) (int, error) {
 		rw.WriteHeader(http.StatusOK)
 	}
 	return rw.ResponseWriter.Write(b)
+}
+
+// grpcLoggingInterceptor logs each gRPC call with method, status code, and latency.
+func grpcLoggingInterceptor(logger *slog.Logger) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		start := time.Now()
+		resp, err := handler(ctx, req)
+		st, _ := status.FromError(err)
+		logger.Info("grpc request",
+			"method", info.FullMethod,
+			"code", st.Code().String(),
+			"latency_ms", time.Since(start).Milliseconds(),
+		)
+		return resp, err
+	}
 }
 
 // loggingMiddleware logs each request with method, path, status, and latency.

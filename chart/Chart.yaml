@@ -1,0 +1,10 @@
+apiVersion: v2
+name: yaml-converter
+description: A Helm chart for Kubernetes
+type: application
+version: 0.1.0
+appVersion: "0.0.1"
+dependencies:
+  - name: harness-common
+    version: 1.x.x
+    repository: https://harness.github.io/helm-common

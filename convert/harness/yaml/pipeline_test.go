@@ -43,7 +43,7 @@ func TestParse(t *testing.T) {
 	// if they do not match, write the diff to the logs
 	// and fail the test.
 	if diff := cmp.Diff(got, want); len(diff) != 0 {
-		t.Errorf(diff)
+		t.Errorf("%s",diff)
 	}
 }
 

@@ -15,7 +15,8 @@ import (
 )
 
 func main() {
-	port         := intEnv("PORT", 8090)
+	grpcPort     := intEnv("PORT", 8090)
+	httpPort     := intEnv("HTTP_PORT", 8092)
 	maxBatchSize := intEnv("MAX_BATCH_SIZE", 100)
 	maxYAMLBytes := int64(intEnv("MAX_YAML_BYTES", 1*1024*1024)) // 1 MB default
 
@@ -26,7 +27,15 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: logLevel}))
 	slog.SetDefault(logger)
 
-	srv := service.NewServer(port, maxBatchSize, maxYAMLBytes, logger)
+	srv := service.NewServer(httpPort, grpcPort, maxBatchSize, maxYAMLBytes, logger)
+
+	// Start gRPC server in a separate goroutine.
+	go func() {
+		if err := srv.StartGRPC(); err != nil {
+			logger.Error("gRPC server exited with error", "err", err)
+			os.Exit(1)
+		}
+	}()
 
 	// Graceful shutdown on SIGINT / SIGTERM.
 	go func() {
