@@ -16,7 +16,7 @@ POST /api/v1/convert/expression
 {
   "expression": "<+pipeline.stages.build.spec.execution.steps.step1.output>",
   "context": {
-    "step_id": "step1",
+    "current_step_id": "step1",
     "current_step_type": "Run",
     "current_step_v1_path": "pipeline.stages.build.steps.step1",
     "step_type_map": {
@@ -44,7 +44,7 @@ POST /api/v1/convert/expression
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `step_id` | string | ID of the current step (when converting expressions inside a step) |
+| `current_step_id` | string | ID of the current step (when converting expressions inside a step) |
 | `current_step_type` | string | Type of the current step (e.g., "Run", "Action", "Plugin") |
 | `current_step_v1_path` | string | V1 FQN base path to the current step |
 | `step_type_map` | map[string]string | Maps step IDs to their types for all steps in the pipeline |
@@ -81,7 +81,7 @@ POST /api/v1/convert/expression
 Convert a simple expression without context:
 
 ```bash
-curl -X POST http://localhost:8090/api/v1/convert/expression \
+curl -X POST http://localhost:8092/api/v1/convert/expression \
   -H "Content-Type: application/json" \
   -d '{
     "expression": "<+pipeline.stages.build.spec.execution.steps.step1.output>"
@@ -101,7 +101,7 @@ Response:
 Convert a step-relative expression with step type context:
 
 ```bash
-curl -X POST http://localhost:8090/api/v1/convert/expression \
+curl -X POST http://localhost:8092/api/v1/convert/expression \
   -H "Content-Type: application/json" \
   -d '{
     "expression": "<+step.spec.command>",
@@ -124,7 +124,7 @@ Response:
 Convert to fully qualified names when `use_fqn` is enabled:
 
 ```bash
-curl -X POST http://localhost:8090/api/v1/convert/expression \
+curl -X POST http://localhost:8092/api/v1/convert/expression \
   -H "Content-Type: application/json" \
   -d '{
     "expression": "<+step.spec.command>",
@@ -149,7 +149,7 @@ Response:
 Convert multiple expressions at once:
 
 ```bash
-curl -X POST http://localhost:8090/api/v1/convert/expression \
+curl -X POST http://localhost:8092/api/v1/convert/expression \
   -H "Content-Type: application/json" \
   -d '{
     "expressions": [
@@ -177,12 +177,12 @@ Response:
 When converting expressions that reference other steps (using `steps.STEPID`):
 
 ```bash
-curl -X POST http://localhost:8090/api/v1/convert/expression \
+curl -X POST http://localhost:8092/api/v1/convert/expression \
   -H "Content-Type: application/json" \
   -d '{
     "expression": "<+steps.otherStep.spec.command>",
     "context": {
-      "step_id": "currentStep",
+      "current_step_id": "currentStep",
       "current_step_type": "Run",
       "current_step_v1_path": "pipeline.stages.build.steps.currentStep",
       "step_type_map": {
