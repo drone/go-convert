@@ -1,0 +1,4 @@
+{
+  "go_convert_repo": "path/to/go-convert",
+  "template_library_repo": "path/to/template-library"
+}
