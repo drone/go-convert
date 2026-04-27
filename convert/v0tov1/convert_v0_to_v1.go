@@ -76,6 +76,20 @@ func convertSingleFile(inputPath string) {
 	ext := filepath.Ext(inputPath)
 	outputPath := strings.TrimSuffix(inputPath, ext) + "_v1" + ext
 
+	// Setup expression logging for single file
+	exprLogPath := strings.TrimSuffix(inputPath, ext) + "_expressions.json"
+	exprLogger := pipeline_converter.GetExpressionLogger()
+	exprLogger.Enable(exprLogPath)
+	exprLogger.SetBatchMode(false)
+	exprLogger.SetCurrentFile(inputPath)
+	defer func() {
+		if err := exprLogger.Flush(); err != nil {
+			log.Printf("Warning: failed to write expression log: %v", err)
+		}
+		exprLogger.Clear()
+		exprLogger.Disable()
+	}()
+
 	// Benchmark: Read v0
 	readStart := time.Now()
 	v0Config, err := v0.ParseFile(inputPath)
@@ -138,6 +152,19 @@ func convertBaseDirectory(baseDir string) {
 		log.Fatalf("Failed to create output directory %s: %v", outputDir, err)
 	}
 
+	// Setup expression logging for batch mode - single log file for the directory
+	exprLogPath := filepath.Join(outputDir, "expressions.json")
+	exprLogger := pipeline_converter.GetExpressionLogger()
+	exprLogger.Enable(exprLogPath)
+	exprLogger.SetBatchMode(true)
+	defer func() {
+		if err := exprLogger.Flush(); err != nil {
+			log.Printf("Warning: failed to write expression log: %v", err)
+		}
+		exprLogger.Clear()
+		exprLogger.Disable()
+	}()
+
 	// Log to stdout only (Python script captures this)
 	log.SetOutput(os.Stdout)
 
@@ -159,12 +186,18 @@ func convertBaseDirectory(baseDir string) {
 		inputPath := filepath.Join(inputDir, name)
 		outputPath := filepath.Join(outputDir, name)
 
+		// Emit sentinel before parsing - we'll determine the type after parsing
+		log.Printf("CONVERTING %s", inputPath)
+
+		// Set current file for expression logging
+		exprLogger.SetCurrentFile(inputPath)
+
 		// Benchmark: Read v0
 		readStart := time.Now()
 		v0Config, err := v0.ParseFile(inputPath)
 		readDur := time.Since(readStart)
 		if err != nil {
-			log.Printf("ERROR_PIPELINE %s: failed to parse v0 file: %v", inputPath, err)
+			log.Printf("ERROR_PARSING %s: failed to parse v0 file: %v", inputPath, err)
 			continue
 		}
 
@@ -177,9 +210,6 @@ func convertBaseDirectory(baseDir string) {
 		var convDur, writeDur time.Duration
 
 		if v0Config.InputSet != nil {
-			// Sentinel: start of inputset conversion
-			log.Printf("CONVERTING_INPUTSET %s", inputPath)
-
 			v1InputSet := converter.ConvertInputSet(v0Config.InputSet)
 			convDur = time.Since(convStart)
 			if v1InputSet == nil {
@@ -193,9 +223,6 @@ func convertBaseDirectory(baseDir string) {
 			writeDur = time.Since(writeStart)
 			log.Printf("CONVERTED_INPUTSET %s -> %s (read=%v, convert=%v, write=%v)", inputPath, outputPath, readDur, convDur, writeDur)
 		} else if v0Config.Template != nil {
-			// Sentinel: start of template conversion
-			log.Printf("CONVERTING_TEMPLATE %s", inputPath)
-
 			v1Template := converter.ConvertTemplate(v0Config.Template)
 			convDur = time.Since(convStart)
 			if v1Template == nil {
@@ -209,9 +236,6 @@ func convertBaseDirectory(baseDir string) {
 			writeDur = time.Since(writeStart)
 			log.Printf("CONVERTED_TEMPLATE %s -> %s (read=%v, convert=%v, write=%v)", inputPath, outputPath, readDur, convDur, writeDur)
 		} else {
-			// Sentinel: start of pipeline conversion
-			log.Printf("CONVERTING_PIPELINE %s", inputPath)
-
 			v1Pipeline := converter.ConvertPipeline(&v0Config.Pipeline)
 			convDur = time.Since(convStart)
 			if v1Pipeline == nil {
@@ -249,6 +273,19 @@ func convertRecursiveDirectory(inputDir, outputDir string) {
 		log.Fatalf("Failed to setup log file: %v", err)
 	}
 	defer logFile.Close()
+
+	// Setup expression logging for batch mode - single log file for the directory
+	exprLogPath := filepath.Join(outputDir, "expressions.json")
+	exprLogger := pipeline_converter.GetExpressionLogger()
+	exprLogger.Enable(exprLogPath)
+	exprLogger.SetBatchMode(true)
+	defer func() {
+		if err := exprLogger.Flush(); err != nil {
+			log.Printf("Warning: failed to write expression log: %v", err)
+		}
+		exprLogger.Clear()
+		exprLogger.Disable()
+	}()
 
 	converted := 0
 	skipped := 0
@@ -311,6 +348,10 @@ func convertRecursiveDirectory(inputDir, outputDir string) {
 }
 
 func convertFile(inputPath, outputPath string) bool {
+	// Set current file for expression logging
+	exprLogger := pipeline_converter.GetExpressionLogger()
+	exprLogger.SetCurrentFile(inputPath)
+
 	// Benchmark: Read v0
 	log.Printf("Converting %s to %s", inputPath, outputPath)
 	readStart := time.Now()

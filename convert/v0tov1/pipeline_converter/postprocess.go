@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
-	convertexpressions "github.com/peroxidemonke7/v0tov1_expressions/convertexpressions"
+	convertexpressions "github.com/drone/go-convert/convert/convertexpressions"
 )
 
 // expressionProcessor walks v1 pipeline structs and converts Harness expressions
@@ -15,6 +15,7 @@ type expressionProcessor struct {
 	currentStepID     string               // set when inside a v1.Step
 	currentStepType   string               // set when inside a v1.Step
 	currentStepV1Path string               // set when inside a v1.Step
+	useFQN            bool                 // whether to use fully qualified names for step expressions
 
 	// Cached derived maps, built lazily on first processString call.
 	flatTypeMap   map[string]string // step ID → type
@@ -24,13 +25,15 @@ type expressionProcessor struct {
 
 // PostProcessExpressions walks the converted v1 pipeline and converts all Harness
 // expressions in string and flexible.Field values using ConvertExpressionWithTrie.
-func PostProcessExpressions(pipeline *v1.Pipeline, stepTypeMap map[string]*StepInfo) {
+// useFQN controls whether to use fully qualified names for step expressions (default true).
+func PostProcessExpressions(pipeline *v1.Pipeline, stepTypeMap map[string]*StepInfo, useFQN bool) {
 	if pipeline == nil {
 		return
 	}
 
 	p := &expressionProcessor{
 		stepTypeMap: stepTypeMap,
+		useFQN:      useFQN,
 	}
 
 	p.processValue(reflect.ValueOf(pipeline))
@@ -246,7 +249,6 @@ func (p *expressionProcessor) processMap(val reflect.Value) {
 // processString processes a string that may contain one or more <+...> expressions.
 // Each expression is converted using trie-based context-aware rules.
 // Step type resolution happens lazily inside the trie when it encounters step.spec expressions.
-// FQN mode is enabled to convert relative step expressions to fully qualified paths.
 func (p *expressionProcessor) processString(s string) string {
 	spans := convertexpressions.FindHarnessExprs(s)
 	if len(spans) == 0 {
@@ -258,6 +260,10 @@ func (p *expressionProcessor) processString(s string) string {
 	// FQN mode replaces v1Path at step_node with the step's v1 FQN base path.
 	ctx := p.buildConversionContext()
 
+	// Get expression logger for logging conversions
+	logger := GetExpressionLogger()
+	logger.SetIncludeContext(true)
+
 	var b strings.Builder
 	prev := 0
 	for _, span := range spans {
@@ -268,6 +274,10 @@ func (p *expressionProcessor) processString(s string) string {
 		// Apply trie-based context-aware conversion rules
 		// Step type resolution happens lazily inside the trie
 		converted := convertexpressions.ConvertExpressionWithTrie(expr, ctx, false)
+
+		// Log the conversion with full context
+		logger.LogConversion(expr, converted, ctx)
+		
 
 		b.WriteString(converted)
 		prev = span[1]
@@ -299,7 +309,7 @@ func (p *expressionProcessor) buildConversionContext() *convertexpressions.Conve
 		CurrentStepV1Path: p.currentStepV1Path,
 		StepTypeMap:       p.flatTypeMap,
 		StepV1PathMap:     p.stepV1PathMap,
-		UseFQN:            true,
+		UseFQN:            p.useFQN,
 	}
 }
 

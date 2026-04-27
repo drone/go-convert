@@ -567,7 +567,8 @@ func hasResolvableContext(convContext *ConversionContext, ctx *matchContext) boo
 // tryMatchChild attempts to match remaining parts through a child node using both
 // context-specific and general rules. The order depends on whether context is available.
 // isSkipped indicates the child node suppresses its output (v1Name="-").
-func (t *Trie) tryMatchChild(child *TrieNode, parts []pathPart, nextIndex int, ctx *matchContext, convContext *ConversionContext, isSkipped bool) (string, bool) {
+// skippedSegment is the original segment name when isSkipped=true (used for passthrough).
+func (t *Trie) tryMatchChild(child *TrieNode, parts []pathPart, nextIndex int, ctx *matchContext, convContext *ConversionContext, isSkipped bool, skippedSegment string) (string, bool) {
 	hasCtx := hasResolvableContext(convContext, ctx)
 
 	if hasCtx {
@@ -580,6 +581,12 @@ func (t *Trie) tryMatchChild(child *TrieNode, parts []pathPart, nextIndex int, c
 			if !isSkipped || !t.isSkippedNodePassthrough(result, ctx, parts, nextIndex) {
 				return result, true
 			}
+			// Skipped node passthrough: only preserve segment if path ENDS at the skipped node
+			// (not when children matched but didn't transform)
+			if nextIndex >= len(parts) {
+				return result + "." + skippedSegment, true
+			}
+			// Children matched with passthrough - don't accept this match
 		}
 	} else {
 		// No context: try general rules first, then deterministic context fallback
@@ -587,6 +594,11 @@ func (t *Trie) tryMatchChild(child *TrieNode, parts []pathPart, nextIndex int, c
 			if !isSkipped || !t.isSkippedNodePassthrough(result, ctx, parts, nextIndex) {
 				return result, true
 			}
+			// Skipped node passthrough: only preserve segment if path ENDS at the skipped node
+			if nextIndex >= len(parts) {
+				return result + "." + skippedSegment, true
+			}
+			// Children matched with passthrough - don't accept this match
 		}
 		if result, matched := t.tryContextMatch(child, parts, nextIndex, ctx, convContext); matched {
 			return result, true
@@ -622,8 +634,15 @@ func (t *Trie) matchRecursive(node *TrieNode, parts []pathPart, index int, ctx *
 		}
 
 		isSkipped := child.v1Name == "-"
+		skippedSegment := ""
+		if isSkipped {
+			skippedSegment = currentPart.name
+			if currentPart.arrayIndex != "" {
+				skippedSegment += currentPart.arrayIndex
+			}
+		}
 
-		if result, matched := t.tryMatchChild(child, parts, index+1, ctx, convContext, isSkipped); matched {
+		if result, matched := t.tryMatchChild(child, parts, index+1, ctx, convContext, isSkipped, skippedSegment); matched {
 			return result, true
 		}
 
@@ -675,7 +694,7 @@ func (t *Trie) matchRecursive(node *TrieNode, parts []pathPart, index int, ctx *
 			}
 		}
 
-		if result, matched := t.tryMatchChild(node.wildcardChild, parts, index+1, ctx, convContext, false); matched {
+		if result, matched := t.tryMatchChild(node.wildcardChild, parts, index+1, ctx, convContext, false, ""); matched {
 			return result, true
 		}
 
