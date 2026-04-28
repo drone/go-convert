@@ -52,7 +52,7 @@ func ConvertStepBuildAndPushGAR(src *v0.Step) *v1.StepTemplate {
 	with["build_mode"] = "build_and_push"
 
 	if spec.Env != nil {
-		with["envvars"] = spec.Env
+		with["env_vars"] = spec.Env
 	}
 
 	if spec.Labels != nil {
@@ -60,11 +60,23 @@ func ConvertStepBuildAndPushGAR(src *v0.Step) *v1.StepTemplate {
 	}
 
 	if spec.BuildArgs != nil {
-		with["buildargs"] = spec.BuildArgs
+		with["build_args"] = spec.BuildArgs
 	}
 
+	// Handle baseImageConnectorRefs - can be string, []string, or expression
 	if spec.BaseImageConnectorRefs != nil {
-		with["baseimageconnector"] = spec.BaseImageConnectorRefs
+		switch v := spec.BaseImageConnectorRefs.(type) {
+		case []interface{}:
+			if len(v) > 0 {
+				with["base_image_connector"] = v[0]
+			}
+		case []string:
+			if len(v) > 0 {
+				with["base_image_connector"] = v[0]
+			}
+		default:
+			with["base_image_connector"] = spec.BaseImageConnectorRefs
+		}
 	}
 
 	if spec.Dockerfile != "" {
@@ -79,8 +91,12 @@ func ConvertStepBuildAndPushGAR(src *v0.Step) *v1.StepTemplate {
 		with["target"] = spec.Target
 	}
 
+	if spec.Optimize != nil {
+		with["optimize"] = spec.Optimize
+	}
+
 	if spec.RemoteCacheImage != "" {
-		with["remotecacheimage"] = spec.RemoteCacheImage
+		with["remote_cache_image"] = spec.RemoteCacheImage
 	}
 
 	return &v1.StepTemplate{

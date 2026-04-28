@@ -46,6 +46,10 @@ func ConvertStepEmail(src *v0.Step) *v1.StepTemplate {
 		with.CcUserGroups = ccUgs[:len(ccUgs)-1]
 	}
 
+	// smtp_config: no v0 field
+	// attachments: no v0 field
+	// log_level: no v0 field; template default is "info"
+
 	return &v1.StepTemplate{
 		Uses: "email",
 		With: with,

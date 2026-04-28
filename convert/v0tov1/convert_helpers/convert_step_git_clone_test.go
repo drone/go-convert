@@ -26,8 +26,9 @@ func TestConvertStepGitClone(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "github-connector",
-				"branch":    "main",
+				"connector":    "github-connector",
+				"build_target": "Git Branch",
+				"branch":       "main",
 			},
 		},
 		{
@@ -42,8 +43,9 @@ func TestConvertStepGitClone(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "github-connector",
-				"tag":       "v1.0.0",
+				"connector":    "github-connector",
+				"build_target": "Tag",
+				"tag":          "v1.0.0",
 			},
 		},
 		{
@@ -58,8 +60,9 @@ func TestConvertStepGitClone(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector": "github-connector",
-				"pr":        &flexible.Field[int]{Value: 42},
+				"connector":    "github-connector",
+				"build_target": "Pull Request",
+				"pr":           "42",
 			},
 		},
 		{
@@ -74,8 +77,9 @@ func TestConvertStepGitClone(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector":  "github-connector",
-				"commit_sha": "abc123def456",
+				"connector":    "github-connector",
+				"build_target": "Commit",
+				"commit_sha":   "abc123def456",
 			},
 		},
 		{
@@ -88,18 +92,23 @@ func TestConvertStepGitClone(t *testing.T) {
 			},
 			expected: map[string]interface{}{
 				"connector": "github-connector",
-				"repo_url":  "my-repo",
+				"repo_name": "my-repo",
 			},
 		},
 		{
 			name: "all optional fields",
 			step: &v0.Step{
 				Spec: &v0.StepGitClone{
-					ConnRef:        "github-connector",
-					Repository:     "my-repo",
-					CloneDirectory: "/workspace/src",
-					Depth:          &flexible.Field[int]{Value: 50},
-					SSLVerify:      &flexible.Field[bool]{Value: false},
+					ConnRef:           "github-connector",
+					Repository:        "my-repo",
+					CloneDirectory:    "/workspace/src",
+					Depth:             &flexible.Field[int]{Value: 50},
+					Lfs:               &flexible.Field[bool]{Value: true},
+					Debug:             &flexible.Field[bool]{Value: true},
+					FetchTags:         &flexible.Field[bool]{Value: true},
+					SparseCheckout:    &flexible.Field[[]string]{Value: []string{"src", "lib"}},
+					SubmoduleStrategy: &flexible.Field[bool]{Value: "recursive"},
+					PreFetchCommand:   "git config --global user.email test@test.com",
 					BuildType: &flexible.Field[v0.Build]{Value: v0.Build{
 						Type: "branch",
 						Spec: v0.BuildSpec{Branch: "develop"},
@@ -107,12 +116,18 @@ func TestConvertStepGitClone(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector":       "github-connector",
-				"repo_url":        "my-repo",
-				"branch":          "develop",
-				"clone_directory": "/workspace/src",
-				"depth":           &flexible.Field[int]{Value: 50},
-				"ssl_verify":      &flexible.Field[bool]{Value: false},
+				"connector":          "github-connector",
+				"repo_name":          "my-repo",
+				"build_target":       "Git Branch",
+				"branch":             "develop",
+				"clone_directory":    "/workspace/src",
+				"depth":              "50",
+				"lfs_enabled":        true,
+				"debug":              true,
+				"fetch_tags":         true,
+				"sparse_checkout":    "src,lib",
+				"submodule_strategy": "recursive",
+				"pre_fetch":          "git config --global user.email test@test.com",
 			},
 		},
 		{
@@ -121,6 +136,44 @@ func TestConvertStepGitClone(t *testing.T) {
 				Spec: &v0.StepGitClone{},
 			},
 			expected: map[string]interface{}{},
+		},
+		{
+			name: "expression in build type",
+			step: &v0.Step{
+				Spec: &v0.StepGitClone{
+					ConnRef:   "github-connector",
+					BuildType: &flexible.Field[v0.Build]{Value: "<+input>"},
+				},
+			},
+			expected: map[string]interface{}{
+				"connector":    "github-connector",
+			},
+		},
+		{
+			name: "expression in depth",
+			step: &v0.Step{
+				Spec: &v0.StepGitClone{
+					ConnRef: "github-connector",
+					Depth:   &flexible.Field[int]{Value: "<+pipeline.variables.clone_depth>"},
+				},
+			},
+			expected: map[string]interface{}{
+				"connector": "github-connector",
+				"depth":     "<+pipeline.variables.clone_depth>",
+			},
+		},
+		{
+			name: "output file paths content",
+			step: &v0.Step{
+				Spec: &v0.StepGitClone{
+					ConnRef:                "github-connector",
+					OutputFilePathsContent: &flexible.Field[[]string]{Value: []string{"file1.txt", "file2.txt"}},
+				},
+			},
+			expected: map[string]interface{}{
+				"connector":          "github-connector",
+				"file_paths_content": "file1.txt,file2.txt",
+			},
 		},
 	}
 

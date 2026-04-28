@@ -41,11 +41,11 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector":          "docker-connector",
-				"repo":               "myorg/frontend",
-				"baseimageconnector": "gcr-connector",
-				"caching":            true,
-				"build_mode":         "build_and_push",
+				"connector":            "docker-connector",
+				"repo":                 "myorg/frontend",
+				"base_image_connector": "gcr-connector",
+				"caching":              true,
+				"build_mode":           "build_and_push",
 			},
 		},
 		{
@@ -62,11 +62,11 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector":          "docker-connector",
-				"repo":               "myorg/multi-base",
-				"baseimageconnector": "primary-connector",
-				"caching":            true,
-				"build_mode":         "build_and_push",
+				"connector":            "docker-connector",
+				"repo":                 "myorg/multi-base",
+				"base_image_connector": "primary-connector",
+				"caching":              true,
+				"build_mode":           "build_and_push",
 			},
 		},
 		{
@@ -82,11 +82,11 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector":          "docker-connector",
-				"repo":               "myorg/app",
-				"baseimageconnector": "first-connector",
-				"caching":            true,
-				"build_mode":         "build_and_push",
+				"connector":            "docker-connector",
+				"repo":                 "myorg/app",
+				"base_image_connector": "first-connector",
+				"caching":              true,
+				"build_mode":           "build_and_push",
 			},
 		},
 		{
@@ -139,12 +139,65 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 				"labels": &flexible.Field[map[string]string]{Value: map[string]string{
 					"version": "2.0.0",
 				}},
-				"buildargs": &flexible.Field[map[string]string]{Value: map[string]string{
+				"build_args": &flexible.Field[map[string]string]{Value: map[string]string{
 					"NODE_VERSION": "20",
 				}},
-				"envvars": &flexible.Field[map[string]string]{Value: map[string]string{
+				"env_vars": &flexible.Field[map[string]string]{Value: map[string]string{
 					"BUILD_ENV": "prod",
 				}},
+			},
+		},
+		{
+			name: "run_as_user as integer value",
+			step: &v0.Step{
+				Spec: &v0.StepBuildAndPushDockerRegistry{
+					ConnectorRef: "docker-connector",
+					Repo:         "myorg/app",
+					RunAsUser:    &flexible.Field[int]{Value: 1000},
+				},
+			},
+			expected: map[string]interface{}{
+				"connector":  "docker-connector",
+				"repo":       "myorg/app",
+				"caching":    true,
+				"build_mode": "build_and_push",
+			},
+		},
+		{
+			name: "run_as_user as expression",
+			step: &v0.Step{
+				Spec: &v0.StepBuildAndPushDockerRegistry{
+					ConnectorRef: "docker-connector",
+					Repo:         "myorg/app",
+					RunAsUser:    &flexible.Field[int]{Value: "<+input>"},
+				},
+			},
+			expected: map[string]interface{}{
+				"connector":  "docker-connector",
+				"repo":       "myorg/app",
+				"caching":    true,
+				"build_mode": "build_and_push",
+			},
+		},
+		{
+			name: "cpu and memory resource limits as expressions",
+			step: &v0.Step{
+				Spec: &v0.StepBuildAndPushDockerRegistry{
+					ConnectorRef: "docker-connector",
+					Repo:         "myorg/app",
+					Resources: &v0.Resources{
+						Limits: &v0.Limits{
+							CPU:    &flexible.Field[*v0.MilliSize]{Value: "<+input>"},
+							Memory: &flexible.Field[*v0.BytesSize]{Value: "<+input>"},
+						},
+					},
+				},
+			},
+			expected: map[string]interface{}{
+				"connector":  "docker-connector",
+				"repo":       "myorg/app",
+				"caching":    true,
+				"build_mode": "build_and_push",
 			},
 		},
 	}

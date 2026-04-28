@@ -9,7 +9,7 @@ import (
 
 // ConvertStepGCSUpload converts a v0 GCSUpload step to v1 template format
 func ConvertStepGCSUpload(src *v0.Step) *v1.StepTemplate {
-	if src == nil {
+	if src == nil || src.Spec == nil {
 		return nil
 	}
 
@@ -31,10 +31,11 @@ func ConvertStepGCSUpload(src *v0.Step) *v1.StepTemplate {
 
 	// Combine bucket and target into single target field: <bucket>/<target>
 	if spec.Bucket != "" && spec.Target != "" {
-		target := fmt.Sprintf("%s/%s", spec.Bucket, spec.Target)
-		with["target"] = target
+		with["target"] = fmt.Sprintf("%s/%s", spec.Bucket, spec.Target)
 	} else if spec.Bucket != "" {
 		with["target"] = spec.Bucket
+	} else if spec.Target != "" {
+		with["target"] = spec.Target
 	}
 
 	return &v1.StepTemplate{
