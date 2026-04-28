@@ -29,6 +29,15 @@ type Runtime struct {
 	Shell      bool               `json:"shell,omitempty"`
 }
 
+// MarshalJSON implement the json.Marshaler interface.
+func (v Runtime) MarshalJSON() ([]byte, error) {
+	if v.Shell {
+		return json.Marshal("shell")
+	}
+	type RuntimeAlias Runtime
+	return json.Marshal((*RuntimeAlias)(&v))
+}
+
 // UnmarshalJSON implement the json.Unmarshaler interface.
 func (v *Runtime) UnmarshalJSON(data []byte) error {
 	var out1 string

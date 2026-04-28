@@ -7,7 +7,7 @@ import (
 
 // ConvertStepArtifactoryUpload converts a v0 ArtifactoryUpload step to v1 template format
 func ConvertStepArtifactoryUpload(src *v0.Step) *v1.StepTemplate {
-	if src == nil {
+	if src == nil || src.Spec == nil {
 		return nil
 	}
 

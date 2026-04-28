@@ -39,6 +39,10 @@ func ConvertStepServiceNowCreate(src *v0.Step) *v1.StepTemplate {
 		with["fields"] = fields
 	}
 
+	// form_template: no v0 field
+	// standard_template: no v0 field
+	// log_level: no v0 field; template default is "error"
+
 	return &v1.StepTemplate{
 		Uses: "serviceNowCreate",
 		With: with,
@@ -79,6 +83,12 @@ func ConvertStepServiceNowUpdate(src *v0.Step) *v1.StepTemplate {
 	if len(fields) > 0 {
 		with["fields"] = fields
 	}
+
+	// update_multiple: no v0 field; template default is false
+	// change_request_number: no v0 field
+	// change_task_type: no v0 field
+	// template: no v0 field
+	// log_level: no v0 field; template default is "error"
 
 	return &v1.StepTemplate{
 		Uses: "serviceNowUpdate",

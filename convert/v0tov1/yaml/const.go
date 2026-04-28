@@ -57,12 +57,12 @@ const (
 	StepTypeK8sPatch                   = "k8sPatchStep"
 
 	// Helm
-	StepTypeHelmBGDeploy          = "helmDeployBluegreenStep"
-	StepTypeHelmBlueGreenSwapStep = "helmBluegreenSwapStep"
-	StepTypeHelmCanaryDeploy      = "helmDeployCanaryStep"
-	StepTypeHelmCanaryDelete      = "helmDeleteStep"
+	StepTypeHelmBGDeploy          = "helmBlueGreenDeployStep"
+	StepTypeHelmBlueGreenSwapStep = "helmBlueGreenSwapStep"
+	StepTypeHelmCanaryDeploy      = "helmCanaryDeployStep"
+	StepTypeHelmCanaryDelete      = "helmCanaryDeleteStep"
 	StepTypeHelmDelete            = "helmDeleteStep"
-	StepTypeHelmDeploy            = "helmDeployBasicStep"
+	StepTypeHelmDeploy            = "helmBasicDeployStep"
 	StepTypeHelmRollback          = "helmRollbackStep"
 
 	// Approval
