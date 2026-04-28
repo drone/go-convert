@@ -16,7 +16,6 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 
-	// Create the with parameters map
 	with := make(map[string]interface{})
 
 	if spec.ConnectorRef != "" {
@@ -43,24 +42,22 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 
 	// Handle baseImageConnectorRefs - can be string, []string, or expression
 	if spec.BaseImageConnectorRefs != nil {
-		// If it's a slice, take the first element
 		switch v := spec.BaseImageConnectorRefs.(type) {
 		case []interface{}:
 			if len(v) > 0 {
-				with["baseimageconnector"] = v[0]
+				with["base_image_connector"] = v[0]
 			}
 		case []string:
 			if len(v) > 0 {
-				with["baseimageconnector"] = v[0]
+				with["base_image_connector"] = v[0]
 			}
 		default:
-			// Single value or expression
-			with["baseimageconnector"] = spec.BaseImageConnectorRefs
+			with["base_image_connector"] = spec.BaseImageConnectorRefs
 		}
 	}
 
 	if spec.Env != nil {
-		with["envvars"] = spec.Env
+		with["env_vars"] = spec.Env
 	}
 
 	if spec.Dockerfile != "" {
@@ -76,7 +73,7 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 	}
 
 	if spec.BuildArgs != nil {
-		with["buildargs"] = spec.BuildArgs
+		with["build_args"] = spec.BuildArgs
 	}
 
 	if spec.Target != "" {
@@ -88,7 +85,7 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 	}
 
 	if spec.RemoteCacheRepo != "" {
-		with["cacherepo"] = spec.RemoteCacheRepo
+		with["cache_repo"] = spec.RemoteCacheRepo
 	}
 
 	return &v1.StepTemplate{

@@ -57,7 +57,7 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				"image_name": "backend-service",
 				"caching":    &flexible.Field[bool]{Value: true},
 				"build_mode": "build_and_push",
-				"buildargs": &flexible.Field[map[string]string]{Value: map[string]string{
+				"build_args": &flexible.Field[map[string]string]{Value: map[string]string{
 					"GO_VERSION": "1.21",
 					"APP_ENV":    "production",
 				}},
@@ -79,7 +79,7 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				"host":               "asia-south1-docker.pkg.dev",
 				"project_id":         "dev-project",
 				"image_name":         "frontend",
-				"baseimageconnector": "docker-hub-connector",
+				"base_image_connector": "docker-hub-connector",
 				"caching":            true,
 				"build_mode":         "build_and_push",
 			},
@@ -100,17 +100,13 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector":  "gcp-connector",
-				"host":       "us-west1-docker.pkg.dev",
-				"project_id": "test-project",
-				"image_name": "multi-base-app",
-				"baseimageconnector": []interface{}{
-					"primary-connector",
-					"secondary-connector",
-					"tertiary-connector",
-				},
-				"caching":    true,
-				"build_mode": "build_and_push",
+				"connector":          "gcp-connector",
+				"host":               "us-west1-docker.pkg.dev",
+				"project_id":         "test-project",
+				"image_name":         "multi-base-app",
+				"base_image_connector": "primary-connector",
+				"caching":            true,
+				"build_mode":         "build_and_push",
 			},
 		},
 		{
@@ -132,7 +128,7 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 				"host":       "us-east1-docker.pkg.dev",
 				"project_id": "complex-project",
 				"image_name": "complex-app",
-				"baseimageconnector": map[string]interface{}{
+				"base_image_connector": map[string]interface{}{
 					"base":    "docker-connector",
 					"builder": "gcr-connector",
 				},
@@ -234,10 +230,10 @@ func TestConvertStepBuildAndPushGAR(t *testing.T) {
 					"version": "2.0.0",
 					"team":    "platform",
 				}},
-				"buildargs": &flexible.Field[map[string]string]{Value: map[string]string{
+				"build_args": &flexible.Field[map[string]string]{Value: map[string]string{
 					"PYTHON_VERSION": "3.11",
 				}},
-				"envvars": &flexible.Field[map[string]string]{Value: map[string]string{
+				"env_vars": &flexible.Field[map[string]string]{Value: map[string]string{
 					"BUILD_ENV": "prod",
 					"LOG_LEVEL": "info",
 				}},

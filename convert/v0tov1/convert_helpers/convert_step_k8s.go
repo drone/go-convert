@@ -62,7 +62,7 @@ type K8sScaleWith struct {
 }
 
 type K8sDryRunWith struct {
-	EncryptYamlOutput *flexible.Field[bool] `json:"encryptyamloutput,omitempty"`
+	EncryptYamlOutput *flexible.Field[bool] `json:"encrypt_yaml_output,omitempty"`
 }
 
 type K8sDeleteWith struct {
@@ -75,12 +75,12 @@ type K8sDeleteWith struct {
 }
 
 type K8sTrafficRoutingWith struct {
-	Config       string        `json:"config,omitempty"`
+	Config       string        `json:"config_type,omitempty"`
 	Provider     string        `json:"provider,omitempty"`
 	Hosts        []interface{} `json:"hosts,omitempty"`
 	Gateways     []interface{} `json:"gateways,omitempty"`
 	Routes       string        `json:"routes,omitempty"`
-	ResourceName string        `json:"resourcename,omitempty"`
+	ResourceName string        `json:"resource_name,omitempty"`
 }
 
 type K8sCanaryDeployWith struct {
@@ -92,6 +92,7 @@ type K8sCanaryDeployWith struct {
 	Gateways     []interface{} `json:"gateways,omitempty"`
 	Routes       string        `json:"routes,omitempty"`
 	SkipDryRun   *flexible.Field[bool]           `json:"skip_dry_run,omitempty"`
+	TrafficShift bool          `json:"traffic_shift,omitempty"`
 	Flags        []interface{} `json:"flags,omitempty"`
 }
 
@@ -104,6 +105,7 @@ type K8sBlueGreenDeployWith struct {
 	SkipDryRun            *flexible.Field[bool]           `json:"skip_dry_run,omitempty"`
 	Pruning               *flexible.Field[bool]           `json:"pruning,omitempty"`
 	SkipUnchangedManifest *flexible.Field[bool]           `json:"skip_unchanged_manifest,omitempty"`
+	TrafficShift          bool          `json:"traffic_shift,omitempty"`
 	Flags                 []interface{} `json:"flags,omitempty"`
 }
 
@@ -298,25 +300,23 @@ func ConvertStepK8sRollout(src *v0.Step) *v1.StepTemplate {
 	}
 
 	sel := ""
-	// If ReleaseName is selected, v1 wants a separate releasename input.
-	// releasenameNeeded := false
 	// Hold optional list outputs for resources/manifests
 	var resourcesList []interface{}
 	var manifestsList []interface{}
 	if sp.Resources != nil {
 		switch sp.Resources.Type {
 		case "ResourceName":
-			sel = "resourcename"
+			sel = "resources"
 			if sp.Resources.Spec != nil {
 				for _, r := range sp.Resources.Spec.ResourceNames {
 					resourcesList = append(resourcesList, r)
 				}
 			}
 		case "ManifestPath":
-			sel = "manifestpath"
+			sel = "manifests"
 			if sp.Resources.Spec != nil {
 				for _, m := range sp.Resources.Spec.ManifestPaths {
-					manifestsList = append(manifestsList, m)
+					manifestsList = append(manifestsList, "<+runtime.manifestPath>/"+m)
 				}
 			}
 		case "ReleaseName":
@@ -634,7 +634,9 @@ func ConvertStepK8sCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 	}
 
 	// Extract traffic routing configuration (reusing logic from K8sTrafficRouting)
+	trafficShift := false
 	if spec.TrafficRouting != nil {
+		trafficShift = true
 		provider = spec.TrafficRouting.Provider
 
 		if spec.TrafficRouting.Spec != nil {
@@ -661,6 +663,7 @@ func ConvertStepK8sCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 		Gateways:     gateways,
 		Routes:       routes,
 		SkipDryRun:   spec.SkipDryRun,
+		TrafficShift: trafficShift,
 		Flags:        []interface{}{},
 	}
 
@@ -689,7 +692,9 @@ func ConvertStepK8sBlueGreenDeploy(src *v0.Step) *v1.StepTemplate {
 	routes := ""
 
 	// Check if traffic routing is configured
+	trafficShift := false
 	if spec.TrafficRouting != nil {
+		trafficShift = true
 		provider = spec.TrafficRouting.Provider
 
 		if spec.TrafficRouting.Spec != nil {
@@ -727,6 +732,7 @@ func ConvertStepK8sBlueGreenDeploy(src *v0.Step) *v1.StepTemplate {
 		SkipDryRun:            spec.SkipDryRun,
 		Pruning:               spec.PruningEnabled,
 		SkipUnchangedManifest: spec.SkipUnchangedManifest,
+		TrafficShift:          trafficShift,
 		Flags:                 []interface{}{},
 	}
 

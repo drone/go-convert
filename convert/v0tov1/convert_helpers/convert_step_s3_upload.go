@@ -7,7 +7,7 @@ import (
 
 // ConvertStepS3Upload converts a v0 S3Upload step to v1 template format
 func ConvertStepS3Upload(src *v0.Step) *v1.StepTemplate {
-	if src == nil {
+	if src == nil || src.Spec == nil {
 		return nil
 	}
 

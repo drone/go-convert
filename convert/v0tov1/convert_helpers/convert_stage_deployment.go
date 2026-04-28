@@ -17,6 +17,7 @@ package converthelpers
 import (
 	"fmt"
 	"log"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 	"github.com/drone/go-convert/internal/flexible"
@@ -40,7 +41,7 @@ func ConvertDeploymentService(src *v0.DeploymentService, ctx *StageConversionCon
 	// For single service, return simple string reference
 	if src.ServiceRef != "" {
 		return &v1.ServiceRef{
-			Items:      []string{src.ServiceRef},
+			Items:        []string{src.ServiceRef},
 			MultiService: false,
 		}
 	}
@@ -90,15 +91,16 @@ func ConvertDeploymentServices(src *v0.DeploymentServices, ctx *StageConversionC
 			serviceRefs = append(serviceRefs, service.ServiceRef)
 		}
 	}
-	var parallel *flexible.Field[bool]
-	if src.Metadata != nil {
-		parallel = src.Metadata.Parallel
+	// by default set to true
+	var sequential *flexible.Field[bool] = &flexible.Field[bool]{Value: true}
+	if src.Metadata != nil && src.Metadata.Parallel != nil {
+		sequential = flexible.NegateBool(src.Metadata.Parallel)
 	}
 	if len(serviceRefs) > 0 {
 		return &v1.ServiceRef{
-			Items:      serviceRefs,
+			Items:        serviceRefs,
 			MultiService: true,
-			Sequential: flexible.NegateBool(parallel),
+			Sequential:   sequential,
 		}
 	}
 
@@ -168,6 +170,12 @@ func ConvertEnvironments(src *v0.Environments, ctx *StageConversionContext) *v1.
 		return nil
 	}
 
+	// by default set to true
+	var sequential *flexible.Field[bool] = &flexible.Field[bool]{Value: true}
+	if src.Metadata != nil && src.Metadata.Parallel != nil {
+		sequential = flexible.NegateBool(src.Metadata.Parallel)
+	}
+
 	items := make([]*v1.EnvironmentItem, 0, len(src.Values))
 	for _, env := range src.Values {
 		if env.EnvironmentRef != "" {
@@ -182,10 +190,8 @@ func ConvertEnvironments(src *v0.Environments, ctx *StageConversionContext) *v1.
 
 	if len(items) > 0 {
 		result := &v1.EnvironmentRef{
-			Items: items,
-		}
-		if src.Metadata != nil {
-			result.Sequential = flexible.NegateBool(src.Metadata.Parallel)
+			Items:      items,
+			Sequential: sequential,
 		}
 		return result
 	}
@@ -218,52 +224,109 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 
 	// Handle explicit group with environments
 	if src.Environments != nil {
-		switch envs := src.Environments.(type) {
-		case []interface{}:
-			items := make([]*v1.EnvironmentItem, 0, len(envs))
-			for _, env := range envs {
-				if envMap, ok := env.(map[string]interface{}); ok {
-					if envRef, ok := envMap["environmentRef"].(string); ok {
-						var deployTo interface{}
-						deployTo = "all"
-						if deployToAll, ok := envMap["deployToAll"].(bool); ok && deployToAll {
-							deployTo = "all"
-						}
-						if infra, ok := envMap["infrastructureDefinitions"].(map[string]interface{}); ok {
-							infraList := make([]string, 0, len(infra))
-							for _, i := range infra {
-								infraList = append(infraList, i.(string))
-							}
-							deployTo = infraList
-						}
-
-						items = append(items, &v1.EnvironmentItem{
-							Name:     envRef,
-							Id:       envRef,
-							DeployTo: deployTo,
-						})
-					}
-				}
+		items, sequential := parseEnvironmentGroupEnvironments(src.Environments, src.Metadata)
+		if len(items) > 0 {
+			groupConfig := map[string]interface{}{
+				"name":       src.EnvGroupRef,
+				"sequential": sequential,
+				"items":      items,
 			}
-			if len(items) > 0 {
-				// Explicit group with environments
-				groupConfig := map[string]interface{}{
-					"name":     src.EnvGroupRef,
-					"parallel": false,
-					"items":    items,
-				}
-				if src.Metadata != nil {
-					groupConfig["parallel"] = src.Metadata.Parallel
-				}
-
-				return &v1.EnvironmentRef{
-					Group: groupConfig,
-				}
+			return &v1.EnvironmentRef{
+				Group: groupConfig,
 			}
 		}
 	}
 
 	return nil
+}
+
+// parseEnvironmentGroupEnvironments parses the environments field which can be:
+// 1. []interface{} - direct array of environment objects
+// 2. map[string]interface{} with "metadata" and "values" keys
+func parseEnvironmentGroupEnvironments(environments interface{}, groupMetadata *v0.EnvironmentMetadata) ([]*v1.EnvironmentItem, bool) {
+	// Default sequential to true (parallel: false)
+	sequential := true
+
+	// Check group-level metadata first
+	if groupMetadata != nil && groupMetadata.Parallel != nil {
+		if val, ok := groupMetadata.Parallel.AsStruct(); ok {
+			sequential = !val
+		}
+	}
+
+	var envList []interface{}
+
+	switch envs := environments.(type) {
+	case []interface{}:
+		// Direct array of environments
+		envList = envs
+
+	case map[string]interface{}:
+		// Object with metadata and values
+		if metadata, ok := envs["metadata"].(map[string]interface{}); ok {
+			if parallel, ok := metadata["parallel"].(bool); ok {
+				sequential = !parallel
+			}
+		}
+		if values, ok := envs["values"].([]interface{}); ok {
+			envList = values
+		}
+
+	default:
+		return nil, sequential
+	}
+
+	items := make([]*v1.EnvironmentItem, 0, len(envList))
+	for _, env := range envList {
+		if envMap, ok := env.(map[string]interface{}); ok {
+			envRef, _ := envMap["environmentRef"].(string)
+			if envRef == "" {
+				continue
+			}
+
+			deployTo := extractDeployTo(envMap)
+			items = append(items, &v1.EnvironmentItem{
+				Name:     envRef,
+				Id:       envRef,
+				DeployTo: deployTo,
+			})
+		}
+	}
+
+	return items, sequential
+}
+
+// extractDeployTo extracts the deploy-to value from an environment map
+func extractDeployTo(envMap map[string]interface{}) interface{} {
+	// Check deployToAll first
+	if deployToAll, ok := envMap["deployToAll"].(bool); ok && deployToAll {
+		return "all"
+	}
+
+	// Check infrastructureDefinitions
+	if infraDefs, ok := envMap["infrastructureDefinitions"].([]interface{}); ok {
+		if len(infraDefs) == 1 {
+			if infraMap, ok := infraDefs[0].(map[string]interface{}); ok {
+				if id, ok := infraMap["identifier"].(string); ok {
+					return id
+				}
+			}
+		} else if len(infraDefs) > 1 {
+			infraList := make([]string, 0, len(infraDefs))
+			for _, infra := range infraDefs {
+				if infraMap, ok := infra.(map[string]interface{}); ok {
+					if id, ok := infraMap["identifier"].(string); ok {
+						infraList = append(infraList, id)
+					}
+				}
+			}
+			if len(infraList) > 0 {
+				return infraList
+			}
+		}
+	}
+
+	return "all"
 }
 
 // ConvertDeploymentInfrastructure converts v0 DeploymentInfrastructure to v1 EnvironmentRef

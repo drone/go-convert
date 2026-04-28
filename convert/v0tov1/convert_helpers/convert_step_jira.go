@@ -40,6 +40,8 @@ func ConvertStepJiraCreate(src *v0.Step) *v1.StepTemplate {
 
 	with["fields"] = fields
 
+	// log_level: no v0 field; template default is "info"
+
 	return &v1.StepTemplate{
 		Uses: "jiraCreate",
 		With: with,
@@ -81,6 +83,8 @@ func ConvertStepJiraUpdate(src *v0.Step) *v1.StepTemplate {
 			with["transition"] = sp.TransitionTo.TransitionName
 		}
 	}
+
+	// log_level: no v0 field; template default is "info"
 
 	return &v1.StepTemplate{
 		Uses: "jiraUpdate",

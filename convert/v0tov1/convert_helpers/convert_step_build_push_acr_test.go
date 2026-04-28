@@ -28,7 +28,7 @@ func TestConvertStepBuildAndPushACR(t *testing.T) {
 				"connector":      "azure-connector",
 				"registry":       "myregistry.azurecr.io",
 				"image_name":     "myapp",
-				"subscriptionid": "sub-123",
+				"subscription_id": "sub-123",
 				"tags":           &flexible.Field[[]string]{Value: []string{"latest", "v1.0.0"}},
 				"caching":        true,
 				"build_mode":     "build_and_push",
@@ -93,21 +93,21 @@ func TestConvertStepBuildAndPushACR(t *testing.T) {
 				"connector":          "azure-connector",
 				"registry":           "complete.azurecr.io",
 				"image_name":         "myapp",
-				"subscriptionid":     "sub-456",
+				"subscription_id":     "sub-456",
 				"tags":               &flexible.Field[[]string]{Value: []string{"v2.0.0"}},
 				"caching":            &flexible.Field[bool]{Value: true},
 				"build_mode":         "build_and_push",
 				"dockerfile":         "Dockerfile.prod",
 				"context":            "./app",
 				"target":             "production",
-				"baseimageconnector": "docker-connector",
+				"base_image_connector": "docker-connector",
 				"labels": &flexible.Field[map[string]string]{Value: map[string]string{
 					"version": "2.0.0",
 				}},
-				"buildargs": &flexible.Field[map[string]string]{Value: map[string]string{
+				"build_args": &flexible.Field[map[string]string]{Value: map[string]string{
 					"NODE_VERSION": "20",
 				}},
-				"envvars": &flexible.Field[map[string]string]{Value: map[string]string{
+				"env_vars": &flexible.Field[map[string]string]{Value: map[string]string{
 					"BUILD_ENV": "prod",
 				}},
 			},
