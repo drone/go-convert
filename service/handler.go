@@ -103,6 +103,57 @@ func (h *Handler) ComputeChecksum(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// ConvertExpression handles POST /api/v1/convert/expression.
+// Converts Harness v0 expressions to v1 format with optional context.
+func (h *Handler) ConvertExpression(w http.ResponseWriter, r *http.Request) {
+	var req ExpressionConvertRequest
+	if err := h.decodeJSON(w, r, &req); err != nil {
+		writeError(w, http.StatusBadRequest, "INVALID_JSON", err.Error(), nil)
+		return
+	}
+
+	// Validate that at least one of expression or expressions is provided
+	if req.Expression == "" && len(req.Expressions) == 0 {
+		writeError(w, http.StatusBadRequest, "MISSING_FIELD",
+			"either 'expression' or 'expressions' field is required", nil)
+		return
+	}
+
+	// Build the expression context
+	var ctx *converter.ExpressionContext
+	if req.Context != nil {
+		ctx = &converter.ExpressionContext{
+			CurrentStepID:     req.Context.CurrentStepID,
+			CurrentStepType:   req.Context.CurrentStepType,
+			CurrentStepV1Path: req.Context.CurrentStepV1Path,
+			StepTypeMap:       req.Context.StepTypeMap,
+			StepV1PathMap:     req.Context.StepV1PathMap,
+			UseFQN:            req.Context.UseFQN,
+		}
+	}
+
+	// Handle single expression
+	if req.Expression != "" {
+		converted := converter.ConvertExpression(req.Expression, ctx)
+		checksum := Checksum([]byte(converted))
+		writeJSON(w, http.StatusOK, ExpressionConvertResponse{
+			Expression: converted,
+			Checksum:   checksum,
+		})
+		return
+	}
+
+	// Handle multiple expressions
+	converted := converter.ConvertExpressions(req.Expressions, ctx)
+	// Compute checksum of the JSON representation of the map
+	mapBytes, _ := json.Marshal(converted)
+	checksum := Checksum(mapBytes)
+	writeJSON(w, http.StatusOK, ExpressionConvertResponse{
+		Expressions: converted,
+		Checksum:    checksum,
+	})
+}
+
 // convertSingle is the shared implementation for single-entity endpoints.
 func (h *Handler) convertSingle(w http.ResponseWriter, r *http.Request, entityType string) {
 	var req ConvertRequest
@@ -180,7 +231,9 @@ func (h *Handler) decodeJSON(w http.ResponseWriter, r *http.Request, v interface
 func writeJSON(w http.ResponseWriter, status int, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
+	enc := json.NewEncoder(w)
+	enc.SetEscapeHTML(false) // Don't escape <, >, & in expressions
+	_ = enc.Encode(v)
 }
 
 // writeError writes a standard ErrorResponse JSON body.

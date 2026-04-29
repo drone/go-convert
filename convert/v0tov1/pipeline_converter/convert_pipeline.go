@@ -66,7 +66,7 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 	dst.Delegate = convert_helpers.ConvertDelegate(src.DelegateSelectors, nil)
 
 	// Post-process: convert Harness expressions in all string and flexible.Field values
-	PostProcessExpressions(dst, c.stepTypeMap)
+	PostProcessExpressions(dst, c.stepTypeMap, true)
 
 	return dst
 }

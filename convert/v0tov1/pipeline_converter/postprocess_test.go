@@ -103,7 +103,7 @@ func TestPostProcessExpressions_Pipeline(t *testing.T) {
 		},
 	}
 
-	PostProcessExpressions(pipeline, stepTypeMap)
+	PostProcessExpressions(pipeline, stepTypeMap, true)
 
 	// Stage If condition should have spec.execution.steps → steps converted
 	expectedIf := "<+pipeline.stages.build.steps.runStep1.output>"
@@ -135,7 +135,7 @@ func TestPostProcessExpressions_FlexibleFieldExpression(t *testing.T) {
 		},
 	}
 
-	PostProcessExpressions(pipeline, stepTypeMap)
+	PostProcessExpressions(pipeline, stepTypeMap, true)
 
 	// FlexibleField with expression should have spec.execution.steps → steps converted
 	str, ok := pipeline.Stages[0].Steps[0].Env.AsString()
@@ -165,7 +165,7 @@ func TestPostProcessExpressions_MapStringValues(t *testing.T) {
 		},
 	}
 
-	PostProcessExpressions(pipeline, stepTypeMap)
+	PostProcessExpressions(pipeline, stepTypeMap, true)
 
 	if val, ok := pipeline.Stages[0].Env["STEP_OUTPUT"].(string); ok {
 		expected := "<+pipeline.stages.build.steps.runStep1.output>"
@@ -185,7 +185,7 @@ func TestPostProcessExpressions_MapStringValues(t *testing.T) {
 
 func TestPostProcessExpressions_NilPipeline(t *testing.T) {
 	// Should not panic
-	PostProcessExpressions(nil, nil)
+	PostProcessExpressions(nil, nil, true)
 }
 
 func TestPostProcessExpressions_StageIdentifier(t *testing.T) {
@@ -202,7 +202,7 @@ func TestPostProcessExpressions_StageIdentifier(t *testing.T) {
 		},
 	}
 
-	PostProcessExpressions(pipeline, stepTypeMap)
+	PostProcessExpressions(pipeline, stepTypeMap, true)
 
 	expected := "<+stage.steps.step1.output>"
 	if pipeline.Stages[0].If != expected {
@@ -237,7 +237,7 @@ func TestPostProcessExpressions_StringorsliceScript(t *testing.T) {
 		},
 	}
 
-	PostProcessExpressions(pipeline, stepTypeMap)
+	PostProcessExpressions(pipeline, stepTypeMap, true)
 
 	// First script line should have spec.execution.steps → steps converted
 	expected0 := "echo <+pipeline.stages.build.steps.runStep1.output>"
@@ -280,7 +280,7 @@ func TestPostProcessExpressions_StepNeeds(t *testing.T) {
 		},
 	}
 
-	PostProcessExpressions(pipeline, stepTypeMap)
+	PostProcessExpressions(pipeline, stepTypeMap, true)
 
 	// Needs should have spec.execution.steps → steps converted
 	expected := "<+stage.steps.step1.status>"
@@ -310,7 +310,7 @@ func TestPostProcessExpressions_InterfaceSlice(t *testing.T) {
 		},
 	}
 
-	PostProcessExpressions(pipeline, stepTypeMap)
+	PostProcessExpressions(pipeline, stepTypeMap, true)
 
 	items, ok := pipeline.Stages[0].Outputs["items"].([]interface{})
 	if !ok {
@@ -358,7 +358,7 @@ func TestPostProcessExpressions_NestedMapInterface(t *testing.T) {
 		},
 	}
 
-	PostProcessExpressions(pipeline, stepTypeMap)
+	PostProcessExpressions(pipeline, stepTypeMap, true)
 
 	// Check direct value
 	if direct, ok := pipeline.Stages[0].Steps[0].With["direct"].(string); ok {
