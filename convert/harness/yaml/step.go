@@ -845,10 +845,7 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 	case StepTypeContainer:
 		s.Spec = new(StepContainer)
 	default:
-		// log.Printf("unknown step type while unmarshalling %s", s.Type)
-		// DO NOT COMMIT
-		return nil
-		// return fmt.Errorf("unknown step type %s", s.Type)
+		return fmt.Errorf("unknown step type %s", s.Type)
 	}
 
 	return json.Unmarshal(obj.Spec, s.Spec)
