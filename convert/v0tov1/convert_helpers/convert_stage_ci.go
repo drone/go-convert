@@ -1,10 +1,10 @@
 package converthelpers
 
 import (
-	"log"
-	"strings"
 	"fmt"
+	"strings"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	"github.com/drone/go-convert/convert/v0tov1/messagelog"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 	flexible "github.com/drone/go-convert/internal/flexible"
 )
@@ -87,7 +87,11 @@ func ConvertInfrastructureToRuntime(infra *v0.Infrastructure, ctx *StageConversi
 		if ref := ctx.GetRuntime(infra.From); ref != nil {
 			return ref
 		}
-		log.Printf("Warning!!! infrastructure useFromStage '%s' not found in context\n", infra.From)
+		messagelog.GetMessageLogger().LogWarning(
+			"USE_FROM_STAGE_NOT_FOUND",
+			fmt.Sprintf("infrastructure useFromStage %q not found in context", infra.From),
+			messagelog.WithContext(map[string]string{"from_stage": infra.From, "kind": "infrastructure"}),
+		)
 		return nil
 	}
 
@@ -130,10 +134,10 @@ func ConvertInfrastructureToRuntime(infra *v0.Infrastructure, ctx *StageConversi
 				}
 				return &v1.Runtime{
 					VM: &v1.RuntimeInstance{
-						Pool: pool,
-						Os: vmSpec.Spec.OS,
+						Pool:                  pool,
+						Os:                    vmSpec.Spec.OS,
 						HarnessImageConnector: vmSpec.Spec.HarnessImageConnectorRef,
-						Timeout: vmSpec.Spec.Timeout,
+						Timeout:               vmSpec.Spec.Timeout,
 					},
 				}
 			}
@@ -278,80 +282,80 @@ func ConvertPlatform(platform *v0.Platform) *v1.Platform {
 
 // ConvertServiceDependencyToBackgroundStep converts a v0 Service dependency to v1 background step
 func ConvertServiceDependencyToBackgroundStep(src *v0.Service) *v1.Step {
-    if src == nil || src.Spec == nil {
-        return nil
-    }
+	if src == nil || src.Spec == nil {
+		return nil
+	}
 
-    // Container mapping
-    var container *v1.Container
-    if src.Spec.Image != "" || src.Spec.Conn != "" {
-        cpu := ""
-        memory := ""
-        if src.Spec.Resources != nil && src.Spec.Resources.Limits != nil {
-            memory = src.Spec.Resources.Limits.GetMemoryString()
+	// Container mapping
+	var container *v1.Container
+	if src.Spec.Image != "" || src.Spec.Conn != "" {
+		cpu := ""
+		memory := ""
+		if src.Spec.Resources != nil && src.Spec.Resources.Limits != nil {
+			memory = src.Spec.Resources.Limits.GetMemoryString()
 			cpu = src.Spec.Resources.Limits.GetCPUString()
-        }
+		}
 
-        container = &v1.Container{
-            Image:      src.Spec.Image,
-            Connector:  src.Spec.Conn,
-            Cpu:        cpu,
-            Memory:     memory,
-            Entrypoint: src.Spec.Entrypoint,
-            Args:       src.Spec.Args,
-            Privileged: src.Spec.Privileged,
-        }
-    }
+		container = &v1.Container{
+			Image:      src.Spec.Image,
+			Connector:  src.Spec.Conn,
+			Cpu:        cpu,
+			Memory:     memory,
+			Entrypoint: src.Spec.Entrypoint,
+			Args:       src.Spec.Args,
+			Privileged: src.Spec.Privileged,
+		}
+	}
 
-    background := &v1.StepRun{
-        Container: container,
-		Env: src.Spec.Env,
-    }
+	background := &v1.StepRun{
+		Container: container,
+		Env:       src.Spec.Env,
+	}
 
-    // Create the step
-    step := &v1.Step{
-        Id:         src.ID,
-        Name:       src.Name,
-        Background: background,
-    }
+	// Create the step
+	step := &v1.Step{
+		Id:         src.ID,
+		Name:       src.Name,
+		Background: background,
+	}
 
-    return step
+	return step
 }
 
 // ConvertServiceDependenciesToBackgroundSteps converts v0 service dependencies to v1 background steps
 func ConvertServiceDependenciesToBackgroundSteps(services []*v0.Service) []*v1.Step {
-    if len(services) == 0 {
-        return nil
-    }
+	if len(services) == 0 {
+		return nil
+	}
 
-    steps := make([]*v1.Step, 0, len(services))
-    for _, service := range services {
-        if step := ConvertServiceDependencyToBackgroundStep(service); step != nil {
-            steps = append(steps, step)
-        }
-    }
+	steps := make([]*v1.Step, 0, len(services))
+	for _, service := range services {
+		if step := ConvertServiceDependencyToBackgroundStep(service); step != nil {
+			steps = append(steps, step)
+		}
+	}
 
-    return steps
+	return steps
 }
 
 // ConvertSharedPaths converts v0 SharedPaths to v1 Volumes
 func ConvertSharedPaths(sharedPaths []string) []*v1.Volume {
-    if len(sharedPaths) == 0 {
-        return nil
-    }
+	if len(sharedPaths) == 0 {
+		return nil
+	}
 
-    volumes := make([]*v1.Volume, 0, len(sharedPaths))
-    for i, path := range sharedPaths {
-        volume := &v1.Volume{
-            Name: fmt.Sprintf("shared-%d", i),
-            Uses: "empty-dir",
-            With: &v1.VolumeEmptyDir{
-                MountPath: path,
-            },
-        }
-        volumes = append(volumes, volume)
-    }
-    return volumes
+	volumes := make([]*v1.Volume, 0, len(sharedPaths))
+	for i, path := range sharedPaths {
+		volume := &v1.Volume{
+			Name: fmt.Sprintf("shared-%d", i),
+			Uses: "empty-dir",
+			With: &v1.VolumeEmptyDir{
+				MountPath: path,
+			},
+		}
+		volumes = append(volumes, volume)
+	}
+	return volumes
 }
 
 // ConvertInfrastructureToVolumes converts v0 Infrastructure volumes to v1 Volumes
@@ -396,7 +400,7 @@ func convertInfraVolume(v0Vol *v0.Volume, index int) *v1.Volume {
 			v1Vol.With = &v1.VolumeEmptyDir{
 				MountPath: v0Vol.MountPath,
 				Medium:    spec.Medium,
-				Size:     spec.Size,
+				Size:      spec.Size,
 			}
 		}
 

@@ -16,9 +16,9 @@ package converthelpers
 
 import (
 	"fmt"
-	"log"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	"github.com/drone/go-convert/convert/v0tov1/messagelog"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 	"github.com/drone/go-convert/internal/flexible"
 )
@@ -34,7 +34,11 @@ func ConvertDeploymentService(src *v0.DeploymentService, ctx *StageConversionCon
 		if ref := ctx.GetService(src.UseFromStage.Stage); ref != nil {
 			return ref
 		}
-		log.Printf("Warning!!! service useFromStage '%s' not found in context\n", src.UseFromStage.Stage)
+		messagelog.GetMessageLogger().LogWarning(
+			"USE_FROM_STAGE_NOT_FOUND",
+			fmt.Sprintf("service useFromStage %q not found in context", src.UseFromStage.Stage),
+			messagelog.WithContext(map[string]string{"from_stage": src.UseFromStage.Stage, "kind": "service"}),
+		)
 		return nil
 	}
 
@@ -59,7 +63,11 @@ func ConvertDeploymentServices(src *v0.DeploymentServices, ctx *StageConversionC
 		if ref := ctx.GetService(src.UseFromStage.Stage); ref != nil {
 			return ref
 		}
-		log.Printf("Warning!!! services useFromStage '%s' not found in context\n", src.UseFromStage.Stage)
+		messagelog.GetMessageLogger().LogWarning(
+			"USE_FROM_STAGE_NOT_FOUND",
+			fmt.Sprintf("services useFromStage %q not found in context", src.UseFromStage.Stage),
+			messagelog.WithContext(map[string]string{"from_stage": src.UseFromStage.Stage, "kind": "services"}),
+		)
 		return nil
 	}
 
@@ -72,7 +80,11 @@ func ConvertDeploymentServices(src *v0.DeploymentServices, ctx *StageConversionC
 	if expr, ok := src.Values.AsString(); ok {
 		// If expression is not <+input> or empty string, return nil and log
 		if expr != "<+input>" && expr != "" {
-			log.Printf("Warning: services.values contains unsupported expression '%s', skipping conversion\n", expr)
+			messagelog.GetMessageLogger().LogWarning(
+				"UNSUPPORTED_EXPRESSION",
+				fmt.Sprintf("services.values contains unsupported expression %q; skipping conversion", expr),
+				messagelog.WithContext(map[string]string{"expression": expr, "field": "services.values"}),
+			)
 			return nil
 		}
 		// For <+input> or empty string, continue with nil values (no services)
@@ -135,7 +147,11 @@ func ConvertEnvironment(src *v0.Environment, ctx *StageConversionContext) *v1.En
 		if ref := ctx.GetEnvironment(src.UseFromStage.Stage); ref != nil {
 			return ref
 		}
-		log.Printf("Warning!!! environment useFromStage '%s' not found in context\n", src.UseFromStage.Stage)
+		messagelog.GetMessageLogger().LogWarning(
+			"USE_FROM_STAGE_NOT_FOUND",
+			fmt.Sprintf("environment useFromStage %q not found in context", src.UseFromStage.Stage),
+			messagelog.WithContext(map[string]string{"from_stage": src.UseFromStage.Stage, "kind": "environment"}),
+		)
 		return nil
 	}
 
@@ -162,7 +178,11 @@ func ConvertEnvironments(src *v0.Environments, ctx *StageConversionContext) *v1.
 		if ref := ctx.GetEnvironment(src.UseFromStage.Stage); ref != nil {
 			return ref
 		}
-		log.Printf("Warning!!! environments useFromStage '%s' not found in context\n", src.UseFromStage.Stage)
+		messagelog.GetMessageLogger().LogWarning(
+			"USE_FROM_STAGE_NOT_FOUND",
+			fmt.Sprintf("environments useFromStage %q not found in context", src.UseFromStage.Stage),
+			messagelog.WithContext(map[string]string{"from_stage": src.UseFromStage.Stage, "kind": "environments"}),
+		)
 		return nil
 	}
 
@@ -210,7 +230,11 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 		if ref := ctx.GetEnvironment(src.UseFromStage.Stage); ref != nil {
 			return ref
 		}
-		log.Printf("Warning!!! environmentGroup useFromStage '%s' not found in context\n", src.UseFromStage.Stage)
+		messagelog.GetMessageLogger().LogWarning(
+			"USE_FROM_STAGE_NOT_FOUND",
+			fmt.Sprintf("environmentGroup useFromStage %q not found in context", src.UseFromStage.Stage),
+			messagelog.WithContext(map[string]string{"from_stage": src.UseFromStage.Stage, "kind": "environmentGroup"}),
+		)
 		return nil
 	}
 

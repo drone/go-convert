@@ -14,6 +14,7 @@ const (
 	entityPipeline = "pipeline"
 	entityTemplate = "template"
 	entityInputSet = "input-set"
+	entityTrigger  = "trigger"
 )
 
 // Handler holds the HTTP handler methods for the conversion service.
@@ -50,6 +51,11 @@ func (h *Handler) ConvertInputSet(w http.ResponseWriter, r *http.Request) {
 	h.convertSingle(w, r, entityInputSet)
 }
 
+// ConvertTrigger handles POST /api/v1/convert/trigger.
+func (h *Handler) ConvertTrigger(w http.ResponseWriter, r *http.Request) {
+	h.convertSingle(w, r, entityTrigger)
+}
+
 // ConvertBatch handles POST /api/v1/convert/batch.
 // The response is always HTTP 200; per-item errors are reported inline.
 func (h *Handler) ConvertBatch(w http.ResponseWriter, r *http.Request) {
@@ -71,15 +77,16 @@ func (h *Handler) ConvertBatch(w http.ResponseWriter, r *http.Request) {
 	results := make([]BatchResult, 0, len(req.Items))
 	for _, item := range req.Items {
 		result := BatchResult{ID: item.ID, EntityType: item.EntityType}
-		outBytes, err := dispatch(item.EntityType, item.YAML, item.EntityRefMapping)
+		res, err := dispatch(item.EntityType, item.YAML, item.EntityRefMapping, item.ContextPipelineYAML)
 		if err != nil {
 			e := err.Error()
 			result.Error = &e
 		} else {
-			s := string(outBytes)
+			s := string(res.YAML)
 			cs := Checksum([]byte(item.YAML))
 			result.YAML = &s
 			result.Checksum = &cs
+			result.Report = buildReport(res.Summary, res.UnknownFields)
 		}
 		results = append(results, result)
 	}
@@ -166,7 +173,7 @@ func (h *Handler) convertSingle(w http.ResponseWriter, r *http.Request, entityTy
 		return
 	}
 
-	outBytes, err := dispatch(entityType, req.YAML, req.EntityRefMapping)
+	res, err := dispatch(entityType, req.YAML, req.EntityRefMapping, req.ContextPipelineYAML)
 	if err != nil {
 		code, status := classifyError(err)
 		writeError(w, status, code, err.Error(), nil)
@@ -174,22 +181,28 @@ func (h *Handler) convertSingle(w http.ResponseWriter, r *http.Request, entityTy
 	}
 
 	writeJSON(w, http.StatusOK, ConvertResponse{
-		YAML:     string(outBytes),
+		YAML:     string(res.YAML),
 		Checksum: Checksum([]byte(req.YAML)),
+		Report:   buildReport(res.Summary, res.UnknownFields),
 	})
 }
 
 // dispatch routes a conversion request to the appropriate converter function.
-func dispatch(entityType, yamlStr string, refMapping map[string]string) ([]byte, error) {
+// contextPipelineYAML is forwarded to template / input-set / trigger
+// converters for postprocess context derivation; pipeline conversion ignores
+// it because it derives its own context from the input.
+func dispatch(entityType, yamlStr string, refMapping map[string]string, contextPipelineYAML string) (*converter.Result, error) {
 	switch entityType {
 	case entityPipeline:
 		return converter.Pipeline(yamlStr, refMapping)
 	case entityTemplate:
-		return converter.Template(yamlStr, refMapping)
+		return converter.Template(yamlStr, refMapping, contextPipelineYAML)
 	case entityInputSet:
-		return converter.InputSet(yamlStr, refMapping)
+		return converter.InputSet(yamlStr, refMapping, contextPipelineYAML)
+	case entityTrigger:
+		return converter.Trigger(yamlStr, refMapping, contextPipelineYAML)
 	default:
-		return nil, fmt.Errorf("unknown entity_type %q (must be pipeline, template, or input-set)", entityType)
+		return nil, fmt.Errorf("unknown entity_type %q (must be pipeline, template, input-set, or trigger)", entityType)
 	}
 }
 

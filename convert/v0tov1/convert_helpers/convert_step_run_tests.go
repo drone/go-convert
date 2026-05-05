@@ -1,9 +1,11 @@
 package converthelpers
 
 import (
-	"strings"
 	"fmt"
+	"strings"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	"github.com/drone/go-convert/convert/v0tov1/messagelog"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 	"github.com/drone/go-convert/internal/flexible"
 )
@@ -153,9 +155,17 @@ func generateTestCommand(language, buildTool, args string) string {
 	default:
 		// check for expression
 		if strings.Contains(buildTool, "<+") {
-			fmt.Printf("Expression buildTool %v is not supported for conversion\n", buildTool)
+			messagelog.GetMessageLogger().LogWarning(
+				"UNSUPPORTED_EXPRESSION",
+				fmt.Sprintf("buildTool expression %q is not supported for conversion in RunTests step", buildTool),
+				messagelog.WithContext(map[string]string{"build_tool": buildTool, "language": language}),
+			)
 		} else {
-			fmt.Printf("Unknown build tool %v for language %v in RunTests step\n", buildTool, language)
+			messagelog.GetMessageLogger().LogWarning(
+				"UNKNOWN_BUILD_TOOL",
+				fmt.Sprintf("unknown build tool %q for language %q in RunTests step", buildTool, language),
+				messagelog.WithContext(map[string]string{"build_tool": buildTool, "language": language}),
+			)
 		}
 		return ""
 	}

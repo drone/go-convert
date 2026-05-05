@@ -1,7 +1,7 @@
 package pipelineconverter
 
 import (
-	"log"
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -213,8 +213,11 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 	case v0.StepTypeContainer:
 		step.Run = convert_helpers.ConvertStepContainer(src)
 	default:
-		// Unknown step type, return nil
-		log.Println("Warning!!! step type: " + src.Type + " is not yet supported!, step_id: " + src.ID)
+		GetMessageLogger().LogError(
+			"UNKNOWN_STEP_TYPE",
+			fmt.Sprintf("step type %q is not yet supported", src.Type),
+			WithStep(src.ID, src.Type),
+		)
 		step.Template = &v1.StepTemplate{
 			Uses: src.Type,
 		}

@@ -65,52 +65,49 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 	dst.Notifications = convert_helpers.ConvertNotifications(src.NotificationRules)
 	dst.Delegate = convert_helpers.ConvertDelegate(src.DelegateSelectors, nil)
 
-	// Post-process: convert Harness expressions in all string and flexible.Field values
-	PostProcessExpressions(dst, c.stepTypeMap, true)
-
 	return dst
 }
 
-func (c *PipelineConverter) convertCodebase(src *v0.Codebase) (*v1.Clone) {
-    if src == nil {
-        return &v1.Clone{
+func (c *PipelineConverter) convertCodebase(src *v0.Codebase) *v1.Clone {
+	if src == nil {
+		return &v1.Clone{
 			Enabled: false,
 		}
-    }
+	}
 
-    clone := &v1.Clone{
-        Enabled: true,
+	clone := &v1.Clone{
+		Enabled:   true,
 		Repo:      src.Name,
-        Connector: src.Conn, 
-    }
+		Connector: src.Conn,
+	}
 
-    // Handle Build field - can be either a string expression or a Build struct
-    if !src.Build.IsNil() {
-        if build, ok := src.Build.AsStruct(); ok {
-            // Build is a struct with Type and Spec
-            cloneRef := &v1.CloneRef{}
+	// Handle Build field - can be either a string expression or a Build struct
+	if !src.Build.IsNil() {
+		if build, ok := src.Build.AsStruct(); ok {
+			// Build is a struct with Type and Spec
+			cloneRef := &v1.CloneRef{}
 
-            // Extract name from Spec based on type
-            if build.Type == "branch" && build.Spec.Branch != "" {
-                cloneRef.Name = build.Spec.Branch
+			// Extract name from Spec based on type
+			if build.Type == "branch" && build.Spec.Branch != "" {
+				cloneRef.Name = build.Spec.Branch
 				cloneRef.Type = "branch"
-            } else if build.Type == "tag" && build.Spec.Tag != "" {
-                cloneRef.Name = build.Spec.Tag
+			} else if build.Type == "tag" && build.Spec.Tag != "" {
+				cloneRef.Name = build.Spec.Tag
 				cloneRef.Type = "tag"
-            } else if build.Type == "PR" && build.Spec.Number != nil {
-                cloneRef.Number = build.Spec.Number
+			} else if build.Type == "PR" && build.Spec.Number != nil {
+				cloneRef.Number = build.Spec.Number
 				cloneRef.Type = "pull-request"
-            } else if build.Type == "commitSha" && build.Spec.CommitSha != "" {
-                cloneRef.Sha = build.Spec.CommitSha
+			} else if build.Type == "commitSha" && build.Spec.CommitSha != "" {
+				cloneRef.Sha = build.Spec.CommitSha
 				cloneRef.Type = "commit"
-            }
+			}
 
-            clone.Ref = cloneRef
-        }
-    }
+			clone.Ref = cloneRef
+		}
+	}
 	clone.Depth = src.Depth
 	clone.Lfs = src.Lfs
-	
+
 	clone.Tags = src.FetchTags
 	clone.Trace = src.Debug
 	clone.CloneDir = src.CloneDirectory
@@ -134,7 +131,7 @@ func (c *PipelineConverter) convertCodebase(src *v0.Codebase) (*v1.Clone) {
 		}
 	}
 
-    return clone
+	return clone
 }
 
 // convertVariables converts a list of v0 Variables to v1 Inputs.

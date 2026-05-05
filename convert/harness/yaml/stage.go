@@ -86,7 +86,7 @@ type (
 		Platform          *Platform          `json:"platform,omitempty"            yaml:"platform,omitempty"`
 		Runtime           *Runtime           `json:"runtime,omitempty"            yaml:"runtime,omitempty"`
 		Services          []*Service         `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
-		SharedPaths       []string           `json:"sharedPaths,omitempty"         yaml:"sharedPaths,omitempty"`
+		SharedPaths       *flexible.Field[[]string]           `json:"sharedPaths,omitempty"         yaml:"sharedPaths,omitempty"`
 		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"` 
 	}
 
@@ -201,7 +201,10 @@ func (s *Stage) UnmarshalJSON(data []byte) error {
 	case StageTypeIACM:
 		s.Spec = new(StageIACM)
 	default:
-		return fmt.Errorf("unknown stage type %s", s.Type)
+		// Preserve s.Type and leave s.Spec nil. The converter records
+		// an UNKNOWN_STAGE_TYPE warning on the MessageLogger, so
+		// unknown stage types no longer abort parsing.
+		return nil
 	}
 	return json.Unmarshal(obj.Spec, s.Spec)
 }

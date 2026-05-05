@@ -85,8 +85,15 @@ The rest of the repository (existing `convert/`, `command/`, etc.) is unchanged.
 | `POST` | `/api/v1/convert/pipeline` | Convert v0 pipeline YAML → v1 |
 | `POST` | `/api/v1/convert/template` | Convert v0 template YAML → v1 |
 | `POST` | `/api/v1/convert/input-set` | Convert v0 input set YAML → v1 |
+| `POST` | `/api/v1/convert/trigger` | Convert v0 trigger YAML → v1 (inputYaml is converted in place) |
 | `POST` | `/api/v1/convert/batch` | Convert multiple entities in one call |
+| `POST` | `/api/v1/convert/expression` | Convert one or more Harness v0 expressions to v1 (see `EXPRESSION_CONVERSION_API.md`) |
+| `POST` | `/api/v1/checksum` | Compute the SHA-256 checksum of a YAML payload |
 | `GET`  | `/healthz` | Health check |
+
+The service also exposes a parallel **gRPC** surface (`pb.GoConvertService`) covering the same single-entity convert and checksum operations. The gRPC server binds to a separate port (default `9090`).
+
+Every successful single-entity (and per-batch-item) response carries an optional `report` object with structured converter messages, the list of unrecognised input fields, and the per-expression conversions performed. See §3.6 below.
 
 ---
 
@@ -103,20 +110,33 @@ Content-Type: application/json
 
 ```json
 {
-  "yaml": "<v0 pipeline YAML as a string>"
+  "yaml": "<v0 pipeline YAML as a string>",
+  "entity_ref_mapping": { "oldRef": "newRef" }
 }
 ```
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `yaml` | string | yes | Raw v0 pipeline YAML. Top-level key must be `pipeline:`. |
+| `entity_ref_mapping` | map<string,string> | no | Optional mapping from old template/entity refs to v1 refs. Applied as a string-level rewrite on the marshalled output. |
+
+> The pipeline endpoint **ignores** any `context_pipeline_yaml` field in the request — it derives its own postprocess context from the input.
 
 **Response — 200 OK**
 
 ```json
 {
   "yaml": "<v1 pipeline YAML as a string>",
-  "checksum": "sha256:<64-char hex digest of the v1 YAML bytes>"
+  "checksum": "sha256:<64-char hex digest of the v1 YAML bytes>",
+  "report": {
+    "messages": [
+      { "severity": "WARNING", "code": "UNKNOWN_STEP_TYPE", "message": "...", "context": { "type": "..." } }
+    ],
+    "unrecognized_fields": ["pipeline.foo"],
+    "expressions": [
+      { "original": "<+pipeline.variables.x>", "converted": "<+pipeline.inputs.x>", "status": "SUCCESS" }
+    ]
+  }
 }
 ```
 
@@ -124,6 +144,7 @@ Content-Type: application/json
 |-------|------|-------------|
 | `yaml` | string | Converted v1 pipeline YAML |
 | `checksum` | string | `sha256:` prefix + lowercase hex SHA-256 of `yaml` as UTF-8 bytes |
+| `report` | object \| null | Optional `ConversionReport`; omitted when nothing to report. See §3.6. |
 
 **Example request body**
 
@@ -162,6 +183,13 @@ Content-Type: application/json
   "yaml": "<v0 template YAML as a string>"
 }
 ```
+
+Optional fields on the request body:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `entity_ref_mapping` | map<string,string> | String-level rewrite applied to template references in the marshalled output. |
+| `context_pipeline_yaml` | string | **Optional** raw v0 pipeline YAML used purely as expression-postprocess context. When present the server parses + structurally converts this pipeline (suppressing its diagnostic messages), harvests the resulting step-type map, and runs the template's expression postprocess in **FQN mode** with that context. When omitted, postprocess runs without FQN context (relative paths only). Unparseable values produce a `CONTEXT_PIPELINE_PARSE_FAILED` warning in `report.messages` and fall back to no-context. See §3.10. |
 
 The v0 template YAML top-level key must be `template:` with the following shape:
 
@@ -215,6 +243,13 @@ Content-Type: application/json
   "yaml": "<v0 input set YAML as a string>"
 }
 ```
+
+Optional fields on the request body:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `entity_ref_mapping` | map<string,string> | String-level rewrite applied to template references in the marshalled output. |
+| `context_pipeline_yaml` | string | **Optional** v0 pipeline YAML used as postprocess context (same semantics as the template endpoint). Typically the input set's bound pipeline; passing it produces FQN-resolved step expressions in the output overlay. See §3.10. |
 
 The v0 input set YAML top-level key must be `inputSet:`:
 
@@ -292,8 +327,9 @@ Content-Type: application/json
 |-------|------|----------|-------------|
 | `items` | array | yes | List of items to convert. Max 100 per request. |
 | `items[].id` | string | yes | Client-provided identifier echoed in the response to correlate results. |
-| `items[].entity_type` | string | yes | `"pipeline"`, `"template"`, or `"input-set"` |
+| `items[].entity_type` | string | yes | `"pipeline"`, `"template"`, `"input-set"`, or `"trigger"` |
 | `items[].yaml` | string | yes | Raw v0 YAML string |
+| `items[].context_pipeline_yaml` | string | no | **Optional** postprocess-context pipeline YAML (template / input-set / trigger only; ignored for pipeline entities). See §3.10. |
 
 **Response — 200 OK**
 
@@ -327,10 +363,149 @@ The response is always HTTP 200. Per-item errors are reported inline. The outer 
 | `results[].yaml` | string \| null | Converted v1 YAML, `null` on error |
 | `results[].checksum` | string \| null | Checksum, `null` on error |
 | `results[].error` | string \| null | Error message, `null` on success |
+| `results[].report` | object \| null | Per-item `ConversionReport` (same shape as §3.6); `null` on error or when nothing to report |
 
 ---
 
-### 3.5 Health Check
+### 3.5 Convert Trigger
+
+Converts a Harness v0 trigger YAML document into v1 format. The trigger
+structure is preserved largely verbatim; the embedded `inputYaml` field is
+parsed as a v0 pipeline and converted in place into a v1 input-set fragment.
+
+**Request**
+
+```
+POST /api/v1/convert/trigger
+Content-Type: application/json
+```
+
+```json
+{
+  "yaml": "<v0 trigger YAML as a string>",
+  "entity_ref_mapping": { "oldTemplateRef": "newTemplateRef_v1" },
+  "context_pipeline_yaml": "<optional v0 pipeline YAML for postprocess context>"
+}
+```
+
+The v0 trigger YAML top-level key must be `trigger:`.
+
+`context_pipeline_yaml` is optional and has the same semantics as the template / input-set endpoints. It controls postprocess context for the **trigger wrapper only**; the embedded `inputYaml` is always post-processed using its own inner pipeline as context (independent of this field). See §3.10.
+
+**Response — 200 OK**
+
+Same envelope as §3.1 (`yaml`, `checksum`, optional `report`). Failures inside
+`inputYaml` (parse, conversion, marshal) do **not** fail the outer request:
+the v0 fragment is emitted unchanged and a structured `ERROR` message with one
+of the following codes is added to `report.messages`:
+
+| Code | Meaning |
+|------|---------|
+| `TRIGGER_INPUT_YAML_PARSE_FAILED` | `inputYaml` could not be parsed as a v0 pipeline |
+| `TRIGGER_INPUT_YAML_CONVERT_NIL` | inner pipeline conversion returned nil |
+| `TRIGGER_INPUT_YAML_MARSHAL_FAILED` | converted v1 input set could not be marshalled |
+
+---
+
+### 3.6 Conversion Report
+
+Every successful single-entity convert response and every successful
+batch-item carries an optional `report` object with the following shape:
+
+```json
+{
+  "messages": [
+    {
+      "severity": "INFO|WARNING|ERROR",
+      "code": "<machine-readable code, e.g. UNKNOWN_STEP_TYPE>",
+      "message": "<human-readable detail>",
+      "context": { "step_id": "...", "type": "..." }
+    }
+  ],
+  "unrecognized_fields": [
+    "pipeline.stages[0].spec.foo"
+  ],
+  "expressions": [
+    {
+      "original":  "<+pipeline.variables.x>",
+      "converted": "<+pipeline.inputs.x>",
+      "status":    "SUCCESS|NOT_CONVERTED"
+    }
+  ]
+}
+```
+
+Fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `messages` | array | Structured converter notices emitted during conversion. Severity is one of `INFO`, `WARNING`, `ERROR`. |
+| `unrecognized_fields` | array | JSON paths in the input that did not match any v0 schema field. The parser does **not** fail on unknown fields — they are reported here for observability. |
+| `expressions` | array | Per-expression conversions, deduplicated by (`original`, `converted`). `status` is `SUCCESS` when the value changed, `NOT_CONVERTED` otherwise. Context is intentionally stripped from API responses; the CLI sidecar JSON contains the full context. |
+
+The entire `report` object (and any of its sub-arrays) is omitted from the
+response when empty. Code consumers should treat all three sub-fields as
+optional.
+
+---
+
+### 3.10 Postprocess Context (`context_pipeline_yaml`)
+
+`template`, `input-set`, and `trigger` requests accept an optional
+`context_pipeline_yaml` field whose value is the **raw v0 pipeline YAML** that the
+requested entity is logically bound to. The server uses it strictly to
+improve expression conversion in the requested entity:
+
+1. Parse `context_pipeline_yaml` as a v0 pipeline.
+2. Run the structural pipeline conversion on a fresh, throw-away converter, with the global `MessageLogger` temporarily disabled (so the context pipeline's own diagnostics don't pollute the response report).
+3. Harvest the resulting `stepTypeMap` (step ID → step type + v0/v1 paths).
+4. Pass `(stepTypeMap, useFQN=true)` to `PostProcessExpressions` for the requested entity.
+
+If `context_pipeline_yaml` is empty or omitted, the entity is post-processed with
+`(nil, useFQN=false)` — identical to the previous behaviour.
+
+Failure modes (all are **non-fatal** for the outer request):
+
+| Code | Severity | When |
+|------|----------|------|
+| `CONTEXT_PIPELINE_PARSE_FAILED` | WARNING | `context_pipeline_yaml` is non-empty but not valid v0 pipeline YAML. Postprocess proceeds without FQN context. |
+
+The pipeline conversion endpoint **does not** accept `context_pipeline_yaml` — it
+builds its own context from the input. Sending it is silently ignored.
+
+### 3.11 Convert Expression
+
+Converts one or more Harness v0 expressions to v1 format with optional
+step-level context. See [`EXPRESSION_CONVERSION_API.md`](EXPRESSION_CONVERSION_API.md)
+for full request/response details and examples.
+
+```
+POST /api/v1/convert/expression
+```
+
+---
+
+### 3.12 Compute Checksum
+
+Returns the SHA-256 checksum of an arbitrary YAML payload, using the same
+algorithm and `sha256:` prefix described in §5.
+
+```
+POST /api/v1/checksum
+Content-Type: application/json
+
+{ "yaml": "<any yaml string>" }
+```
+
+Response:
+
+```json
+{ "checksum": "sha256:<64-char hex>" }
+```
+
+---
+
+### 3.13 Health Check
 
 ```
 GET /healthz

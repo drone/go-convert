@@ -18,6 +18,7 @@ import (
 	"fmt"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	"github.com/drone/go-convert/convert/v0tov1/messagelog"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 	"github.com/drone/go-convert/internal/flexible"
 )
@@ -123,7 +124,11 @@ func ConvertErrorName(errorType v0.FailureType) v1.FailureType {
 	case v0.FailureTypeAll:
 		return v1.FailureTypeAll
 	default:
-		fmt.Println("Unknown error type: " + string(errorType))
+		messagelog.GetMessageLogger().LogError(
+			"UNKNOWN_ERROR_TYPE",
+			fmt.Sprintf("unknown failure error type %q; mapped to none", string(errorType)),
+			messagelog.WithContext(map[string]string{"error_type": string(errorType)}),
+		)
 		return v1.FailureTypeNone
 	}
 }

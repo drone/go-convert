@@ -10,6 +10,7 @@ enum EntityType {
   PIPELINE = 0;
   TEMPLATE = 1;
   INPUT_SET = 2;
+  TRIGGER = 3;
 }
 
 message ConvertRequest {
@@ -17,11 +18,50 @@ message ConvertRequest {
   string yaml = 2;
   map<string, string> template_ref_mapping = 3;
   map<string, string> pipeline_ref_mapping = 4;
+  string context_pipeline_yaml = 5; // Optional v0 pipeline YAML for expression post-processing context for inputset/trigger conversion
+}
+
+// Severity classifies a converter message.
+enum Severity {
+  INFO = 0;
+  WARNING = 1;
+  ERROR = 2;
+}
+
+// ConversionStatus indicates whether an expression was converted.
+enum ConversionStatus {
+  SUCCESS = 0;
+  NOT_CONVERTED = 1;
+}
+
+// ConverterMessage is a single structured converter notice.
+message ConverterMessage {
+  Severity severity = 1;
+  string code = 2; // e.g. UNKNOWN_STEP_TYPE, UNKNOWN_STAGE_TYPE
+  string message = 3;
+  map<string, string> context = 4;
+}
+
+// ExpressionEntry pairs a v0 expression with its v1 conversion.
+message ExpressionEntry {
+  string original = 1;
+  string converted = 2;
+  ConversionStatus status = 3;
+}
+
+// ConversionReport bundles everything emitted by one conversion: structured
+// converter messages, the list of unrecognized input fields, and per-
+// expression conversion entries.
+message ConversionReport {
+  repeated ConverterMessage messages = 1;
+  repeated string unrecognized_fields = 2;
+  repeated ExpressionEntry expressions = 3;
 }
 
 message ConvertResponse {
   string yaml = 1;
   string checksum = 2;
+  ConversionReport report = 3;
 }
 
 message ChecksumRequest {
@@ -36,5 +76,6 @@ service GoConvertService {
   rpc ConvertPipeline(ConvertRequest) returns (ConvertResponse);
   rpc ConvertTemplate(ConvertRequest) returns (ConvertResponse);
   rpc ConvertInputSet(ConvertRequest) returns (ConvertResponse);
+  rpc ConvertTrigger(ConvertRequest) returns (ConvertResponse);
   rpc GetChecksum(ChecksumRequest) returns (ChecksumResponse);
 }

@@ -1,33 +1,33 @@
 package converthelpers
 
 import (
-	// "fmt"
-	"log"
+	"fmt"
 	"strconv"
 	"strings"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	"github.com/drone/go-convert/convert/v0tov1/messagelog"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 	"github.com/drone/go-convert/internal/flexible"
 )
 
 // K8s step with configuration structs with JSON tags
 type K8sRollingDeployWith struct {
-	Flags      []interface{} `json:"flags,omitempty"`
-	SkipDryRun *flexible.Field[bool]          `json:"skip_dry_run,omitempty"`
-	Pruning    *flexible.Field[bool]          `json:"pruning,omitempty"`
+	Flags      []interface{}         `json:"flags,omitempty"`
+	SkipDryRun *flexible.Field[bool] `json:"skip_dry_run,omitempty"`
+	Pruning    *flexible.Field[bool] `json:"pruning,omitempty"`
 }
 
 type K8sRollingRollbackWith struct {
-	Pruning *flexible.Field[bool]          `json:"pruning,omitempty"`
-	Flags   []interface{} `json:"flags,omitempty"`
+	Pruning *flexible.Field[bool] `json:"pruning,omitempty"`
+	Flags   []interface{}         `json:"flags,omitempty"`
 }
 
 type K8sApplyWith struct {
-	Manifests            []interface{} `json:"manifests,omitempty"`
-	SkipDryRun           *flexible.Field[bool]          `json:"skip_dry_run,omitempty"`
-	SkipSteadyStateCheck *flexible.Field[bool]          `json:"skip_steady_state_check,omitempty"`
-	Flags                []interface{} `json:"flags,omitempty"`
+	Manifests            []interface{}         `json:"manifests,omitempty"`
+	SkipDryRun           *flexible.Field[bool] `json:"skip_dry_run,omitempty"`
+	SkipSteadyStateCheck *flexible.Field[bool] `json:"skip_steady_state_check,omitempty"`
+	Flags                []interface{}         `json:"flags,omitempty"`
 }
 
 type K8sBGSwapServicesWith struct {
@@ -55,10 +55,10 @@ type K8sRolloutWith struct {
 }
 
 type K8sScaleWith struct {
-	UnitType             string `json:"unit_type,omitempty"`
-	Instances            *flexible.Field[int] `json:"instances,omitempty"`
-	Workload             string `json:"workload,omitempty"`
-	SkipSteadyStateCheck *flexible.Field[bool]   `json:"skip_steady_state_check,omitempty"`
+	UnitType             string                `json:"unit_type,omitempty"`
+	Instances            *flexible.Field[int]  `json:"instances,omitempty"`
+	Workload             string                `json:"workload,omitempty"`
+	SkipSteadyStateCheck *flexible.Field[bool] `json:"skip_steady_state_check,omitempty"`
 }
 
 type K8sDryRunWith struct {
@@ -66,11 +66,11 @@ type K8sDryRunWith struct {
 }
 
 type K8sDeleteWith struct {
-	SelectDeleteResources string               `json:"select_delete_resources,omitempty"`
-	Resources             []string       `json:"resources,omitempty"`
-	Manifests             []string        `json:"manifests,omitempty"`
-	Releasename           string       `json:"release,omitempty"`
-	Flags                 []interface{}        `json:"flags,omitempty"`
+	SelectDeleteResources string                `json:"select_delete_resources,omitempty"`
+	Resources             []string              `json:"resources,omitempty"`
+	Manifests             []string              `json:"manifests,omitempty"`
+	Releasename           string                `json:"release,omitempty"`
+	Flags                 []interface{}         `json:"flags,omitempty"`
 	DeleteNamespaces      *flexible.Field[bool] `json:"delete_namespaces,omitempty"`
 }
 
@@ -84,29 +84,29 @@ type K8sTrafficRoutingWith struct {
 }
 
 type K8sCanaryDeployWith struct {
-	Provider     string        `json:"provider,omitempty"`
-	UnitType     string        `json:"unit_type,omitempty"`
-	Instances    *flexible.Field[int]          `json:"instances,omitempty"`
-	ResourceName string        `json:"resource_name,omitempty"`
-	Hosts        []interface{} `json:"hosts,omitempty"`
-	Gateways     []interface{} `json:"gateways,omitempty"`
-	Routes       string        `json:"routes,omitempty"`
-	SkipDryRun   *flexible.Field[bool]           `json:"skip_dry_run,omitempty"`
-	TrafficShift bool          `json:"traffic_shift,omitempty"`
-	Flags        []interface{} `json:"flags,omitempty"`
+	Provider     string                `json:"provider,omitempty"`
+	UnitType     string                `json:"unit_type,omitempty"`
+	Instances    *flexible.Field[int]  `json:"instances,omitempty"`
+	ResourceName string                `json:"resource_name,omitempty"`
+	Hosts        []interface{}         `json:"hosts,omitempty"`
+	Gateways     []interface{}         `json:"gateways,omitempty"`
+	Routes       string                `json:"routes,omitempty"`
+	SkipDryRun   *flexible.Field[bool] `json:"skip_dry_run,omitempty"`
+	TrafficShift bool                  `json:"traffic_shift,omitempty"`
+	Flags        []interface{}         `json:"flags,omitempty"`
 }
 
 type K8sBlueGreenDeployWith struct {
-	Provider              string        `json:"provider,omitempty"`
-	ResourceName          string        `json:"resource_name,omitempty"`
-	Hosts                 []interface{} `json:"hosts,omitempty"`
-	Gateways              []interface{} `json:"gateways,omitempty"`
-	Routes                string        `json:"routes,omitempty"`
-	SkipDryRun            *flexible.Field[bool]           `json:"skip_dry_run,omitempty"`
-	Pruning               *flexible.Field[bool]           `json:"pruning,omitempty"`
-	SkipUnchangedManifest *flexible.Field[bool]           `json:"skip_unchanged_manifest,omitempty"`
-	TrafficShift          bool          `json:"traffic_shift,omitempty"`
-	Flags                 []interface{} `json:"flags,omitempty"`
+	Provider              string                `json:"provider,omitempty"`
+	ResourceName          string                `json:"resource_name,omitempty"`
+	Hosts                 []interface{}         `json:"hosts,omitempty"`
+	Gateways              []interface{}         `json:"gateways,omitempty"`
+	Routes                string                `json:"routes,omitempty"`
+	SkipDryRun            *flexible.Field[bool] `json:"skip_dry_run,omitempty"`
+	Pruning               *flexible.Field[bool] `json:"pruning,omitempty"`
+	SkipUnchangedManifest *flexible.Field[bool] `json:"skip_unchanged_manifest,omitempty"`
+	TrafficShift          bool                  `json:"traffic_shift,omitempty"`
+	Flags                 []interface{}         `json:"flags,omitempty"`
 }
 
 type K8sPatchWith struct {
@@ -258,7 +258,6 @@ func ConvertStepK8sCanaryDelete(src *v0.Step, isRollback bool) *v1.StepTemplate 
 		with["resources"] = "<+exportedVariables.getValue(\"stage.canaryprepareactionoutput.PLUGIN_CANARY_WORKLOADS\")>"
 		with["is_openshift"] = "<+exportedVariables.getValue(\"stage.canaryapplyactionoutput.HARNESS_IS_OPENSHIFT\")>"
 	} else {
-		with["select_delete_resources"] = "resources"
 		with["resources"] = "${{rollback.data.PLUGIN_CANARY_WORKLOADS}}"
 		with["is_openshift"] = "${{rollback.data.HARNESS_IS_OPENSHIFT}}"
 	}
@@ -427,7 +426,7 @@ func ConvertStepK8sDelete(src *v0.Step) *v1.StepTemplate {
 		case "ManifestPath":
 			sel = "manifests"
 			if sp.DeleteResources.Spec != nil {
-				for _,manifest_path := range sp.DeleteResources.Spec.ManifestPaths {
+				for _, manifest_path := range sp.DeleteResources.Spec.ManifestPaths {
 					items = append(items, "<+runtime.manifestPath>/"+manifest_path)
 				}
 			}
@@ -442,7 +441,7 @@ func ConvertStepK8sDelete(src *v0.Step) *v1.StepTemplate {
 
 	with := K8sDeleteWith{
 		SelectDeleteResources: sel,
-		DeleteNamespaces:       deleteNamespace,
+		DeleteNamespaces:      deleteNamespace,
 		Flags:                 []interface{}{},
 	}
 
@@ -553,7 +552,7 @@ func ConvertTrafficRoutingRoutes(routes []*v0.K8sTrafficRoutingRoute) string {
 				destMap := map[string]interface{}{
 					"host":   dest.Destination.Host,
 					"weight": dest.Destination.Weight,
-					"port": dest.Destination.Port,
+					"port":   dest.Destination.Port,
 				}
 				destinations = append(destinations, destMap)
 			}
@@ -753,10 +752,10 @@ func ConvertStepK8sPatch(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 
-	with := K8sPatchWith {
-		Workload: spec.Workload,
+	with := K8sPatchWith{
+		Workload:             spec.Workload,
 		SkipSteadyStateCheck: spec.SkipSteadyStateCheck,
-		MergeStrategy: strings.ToLower(spec.MergeStrategy),
+		MergeStrategy:        strings.ToLower(spec.MergeStrategy),
 	}
 	if spec.Source != nil {
 		switch spec.Source.Type {
@@ -765,7 +764,11 @@ func ConvertStepK8sPatch(src *v0.Step) *v1.StepTemplate {
 				with.Content = source.Content
 			}
 		default:
-			log.Printf("Warning!!! Conversion for Soruce type %v in K8s Patch step(id: %v) is not yet supported", spec.Source.Type, src.ID)
+			messagelog.GetMessageLogger().LogWarning(
+				"UNSUPPORTED_K8S_PATCH_SOURCE",
+				fmt.Sprintf("conversion for Source type %q in K8s Patch step is not yet supported", spec.Source.Type),
+				messagelog.WithStep(src.ID, src.Type),
+			)
 		}
 	}
 

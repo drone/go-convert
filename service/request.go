@@ -4,12 +4,26 @@ package service
 type ConvertRequest struct {
 	YAML             string            `json:"yaml"`
 	EntityRefMapping map[string]string `json:"entity_ref_mapping,omitempty"`
+
+	// ContextPipelineYAML is an optional raw v0 pipeline YAML used purely as
+	// expression-postprocess context for template / input-set / trigger
+	// conversions. When provided the server parses + structurally converts
+	// this pipeline (suppressing its diagnostic messages), harvests the
+	// resulting step-type map, and uses it with FQN=true when walking the
+	// requested entity for expression conversion. The pipeline endpoint
+	// ignores this field. If empty (or omitted), postprocess runs without
+	// FQN context — equivalent to the previous behaviour.
+	ContextPipelineYAML string `json:"context_pipeline_yaml,omitempty"`
 }
 
-// ConvertResponse is the response body for a successful single-entity conversion.
+// ConvertResponse is the response body for a successful single-entity
+// conversion. Report bundles converter messages, the unrecognised-fields
+// list (input keys that don't match the v0 schema), and per-expression
+// conversions for this entity.
 type ConvertResponse struct {
-	YAML     string `json:"yaml"`
-	Checksum string `json:"checksum"`
+	YAML     string            `json:"yaml"`
+	Checksum string            `json:"checksum"`
+	Report   *ConversionReport `json:"report,omitempty"`
 }
 
 // BatchConvertRequest is the request body for POST /api/v1/convert/batch.
@@ -20,9 +34,13 @@ type BatchConvertRequest struct {
 // BatchItem is one entity to convert inside a BatchConvertRequest.
 type BatchItem struct {
 	ID               string            `json:"id"`
-	EntityType       string            `json:"entity_type"` // "pipeline" | "template" | "input-set"
+	EntityType       string            `json:"entity_type"` // "pipeline" | "template" | "input-set" | "trigger"
 	YAML             string            `json:"yaml"`
 	EntityRefMapping map[string]string `json:"entity_ref_mapping,omitempty"`
+
+	// ContextPipelineYAML — same semantics as ConvertRequest.ContextPipelineYAML.
+	// Ignored when EntityType == "pipeline".
+	ContextPipelineYAML string `json:"context_pipeline_yaml,omitempty"`
 }
 
 // BatchConvertResponse is the response body for POST /api/v1/convert/batch.
@@ -33,12 +51,15 @@ type BatchConvertResponse struct {
 // BatchResult is the outcome for a single item in a batch conversion.
 // On success YAML and Checksum are set and Error is nil.
 // On failure YAML and Checksum are nil and Error is set.
+// Report mirrors the per-entity ConversionReport from the single-entity
+// endpoints and is nil when conversion failed.
 type BatchResult struct {
-	ID         string  `json:"id"`
-	EntityType string  `json:"entity_type"`
-	YAML       *string `json:"yaml"`
-	Checksum   *string `json:"checksum"`
-	Error      *string `json:"error"`
+	ID         string            `json:"id"`
+	EntityType string            `json:"entity_type"`
+	YAML       *string           `json:"yaml"`
+	Checksum   *string           `json:"checksum"`
+	Error      *string           `json:"error"`
+	Report     *ConversionReport `json:"report,omitempty"`
 }
 
 // ChecksumRequest is the request body for POST /api/v1/checksum.
