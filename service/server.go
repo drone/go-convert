@@ -37,8 +37,8 @@ func NewServer(port, grpcPort, maxBatchSize int, maxYAMLBytes int64, logger *slo
 	pb.RegisterGoConvertServiceServer(gs, &GRPCHandler{})
 
 	return &Server{
-		logger:   logger,
-		grpcPort: grpcPort,
+		logger:     logger,
+		grpcPort:   grpcPort,
 		grpcServer: gs,
 		httpServer: &http.Server{
 			Addr:         fmt.Sprintf(":%d", port),
@@ -84,6 +84,7 @@ func buildMux(h *Handler) *http.ServeMux {
 	mux.HandleFunc("/api/v1/convert/pipeline", methodFilter("POST", h.ConvertPipeline))
 	mux.HandleFunc("/api/v1/convert/template", methodFilter("POST", h.ConvertTemplate))
 	mux.HandleFunc("/api/v1/convert/input-set", methodFilter("POST", h.ConvertInputSet))
+	mux.HandleFunc("/api/v1/convert/trigger", methodFilter("POST", h.ConvertTrigger))
 	mux.HandleFunc("/api/v1/convert/batch", methodFilter("POST", h.ConvertBatch))
 	mux.HandleFunc("/api/v1/convert/expression", methodFilter("POST", h.ConvertExpression))
 	mux.HandleFunc("/api/v1/checksum", methodFilter("POST", h.ComputeChecksum))

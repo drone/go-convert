@@ -22,6 +22,7 @@ type (
 		Pipeline Pipeline  `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
 		Template *Template `json:"template,omitempty" yaml:"template,omitempty"`
 		InputSet *InputSet `json:"inputSet,omitempty" yaml:"inputSet,omitempty"`
+		Trigger  *Trigger  `json:"trigger,omitempty"  yaml:"trigger,omitempty"`
 	}
 
 	// Pipeline defines a pipeline.
@@ -74,42 +75,42 @@ type (
 
 	// Cache defines the cache settings.
 	Cache struct {
-		Enabled *flexible.Field[bool]     `json:"enabled,omitempty" yaml:"enabled,omitempty"`
-		Key     string   `json:"key,omitempty"     yaml:"key,omitempty"`
-		Paths   *flexible.Field[[]string] `json:"paths,omitempty"   yaml:"paths,omitempty"`
-		Policy  string   `json:"policy,omitempty"  yaml:"policy,omitempty"`
-		Override *flexible.Field[bool]    `json:"override,omitempty"  yaml:"override,omitempty"`
+		Enabled  *flexible.Field[bool]     `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+		Key      string                    `json:"key,omitempty"     yaml:"key,omitempty"`
+		Paths    *flexible.Field[[]string] `json:"paths,omitempty"   yaml:"paths,omitempty"`
+		Policy   string                    `json:"policy,omitempty"  yaml:"policy,omitempty"`
+		Override *flexible.Field[bool]     `json:"override,omitempty"  yaml:"override,omitempty"`
 	}
 
 	// Codebase defines a codebase.
 	Codebase struct {
-		Name  string `json:"repoName,omitempty"     yaml:"repoName,omitempty"`
-		Conn  string `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
-		Build flexible.Field[Build] `json:"build,omitempty"        yaml:"build,omitempty"` // branch|tag
-		Depth *flexible.Field[int64] `json:"depth,omitempty"        yaml:"depth,omitempty"`
-		SslVerify *flexible.Field[bool] `json:"sslVerify,omitempty"  yaml:"sslVerify,omitempty"`
-		PrCloneStrategy string `json:"prCloneStrategy,omitempty" yaml:"prCloneStrategy,omitempty"`
-		Resources            *Resources                  `json:"resources,omitempty"          yaml:"resources,omitempty"`
-		Lfs                  *flexible.Field[bool]        `json:"lfs,omitempty"                yaml:"lfs,omitempty"`
-		Debug                *flexible.Field[bool]        `json:"debug,omitempty"              yaml:"debug,omitempty"`
-		FetchTags            *flexible.Field[bool]        `json:"fetchTags,omitempty"          yaml:"fetchTags,omitempty"`
-		PersistCredentials   *flexible.Field[bool]        `json:"persistCredentials,omitempty" yaml:"persistCredentials,omitempty"`
-		SparseCheckout       []string                    `json:"sparseCheckout,omitempty"     yaml:"sparseCheckout,omitempty"`
-		SubmoduleStrategy    *flexible.Field[bool]  	 `json:"submoduleStrategy,omitempty"  yaml:"submoduleStrategy,omitempty"`
-		CloneDirectory       string                      `json:"cloneDirectory,omitempty"     yaml:"cloneDirectory,omitempty"`
-		PreFetchCommand      string                      `json:"preFetchCommand,omitempty"    yaml:"preFetchCommand,omitempty"`
+		Name               string                 `json:"repoName,omitempty"     yaml:"repoName,omitempty"`
+		Conn               string                 `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
+		Build              flexible.Field[Build]  `json:"build,omitempty"        yaml:"build,omitempty"` // branch|tag
+		Depth              *flexible.Field[int64] `json:"depth,omitempty"        yaml:"depth,omitempty"`
+		SslVerify          *flexible.Field[bool]  `json:"sslVerify,omitempty"  yaml:"sslVerify,omitempty"`
+		PrCloneStrategy    string                 `json:"prCloneStrategy,omitempty" yaml:"prCloneStrategy,omitempty"`
+		Resources          *Resources             `json:"resources,omitempty"          yaml:"resources,omitempty"`
+		Lfs                *flexible.Field[bool]  `json:"lfs,omitempty"                yaml:"lfs,omitempty"`
+		Debug              *flexible.Field[bool]  `json:"debug,omitempty"              yaml:"debug,omitempty"`
+		FetchTags          *flexible.Field[bool]  `json:"fetchTags,omitempty"          yaml:"fetchTags,omitempty"`
+		PersistCredentials *flexible.Field[bool]  `json:"persistCredentials,omitempty" yaml:"persistCredentials,omitempty"`
+		SparseCheckout     []string               `json:"sparseCheckout,omitempty"     yaml:"sparseCheckout,omitempty"`
+		SubmoduleStrategy  *flexible.Field[bool]  `json:"submoduleStrategy,omitempty"  yaml:"submoduleStrategy,omitempty"`
+		CloneDirectory     string                 `json:"cloneDirectory,omitempty"     yaml:"cloneDirectory,omitempty"`
+		PreFetchCommand    string                 `json:"preFetchCommand,omitempty"    yaml:"preFetchCommand,omitempty"`
 	}
 
 	Build struct {
-		Type string `json:"type,omitempty" yaml:"type,omitempty"`
+		Type string    `json:"type,omitempty" yaml:"type,omitempty"`
 		Spec BuildSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
 	}
 
 	BuildSpec struct {
-		Branch string `json:"branch,omitempty" yaml:"branch,omitempty"`
-		Tag string `json:"tag,omitempty" yaml:"tag,omitempty"`
-		Number *flexible.Field[int] `json:"number,omitempty" yaml:"number,omitempty"`
-		CommitSha string `json:"commitSha,omitempty" yaml:"commitSha,omitempty"`
+		Branch    string               `json:"branch,omitempty" yaml:"branch,omitempty"`
+		Tag       string               `json:"tag,omitempty" yaml:"tag,omitempty"`
+		Number    *flexible.Field[int] `json:"number,omitempty" yaml:"number,omitempty"`
+		CommitSha string               `json:"commitSha,omitempty" yaml:"commitSha,omitempty"`
 	}
 
 	Stages struct {
@@ -123,11 +124,11 @@ type (
 	}
 
 	Variable struct {
-		Name  string `json:"name,omitempty"  yaml:"name,omitempty"`
-		Type  string `json:"type,omitempty"  yaml:"type,omitempty"` // Secret|String|Number
-		Value interface{} `json:"value,omitempty" yaml:"value,omitempty"`
-		Required bool `json:"required,omitempty" yaml:"required,omitempty"`
-		Default interface{} `json:"default,omitempty" yaml:"default,omitempty"`
+		Name     string      `json:"name,omitempty"  yaml:"name,omitempty"`
+		Type     string      `json:"type,omitempty"  yaml:"type,omitempty"` // Secret|String|Number
+		Value    interface{} `json:"value,omitempty" yaml:"value,omitempty"`
+		Required bool        `json:"required,omitempty" yaml:"required,omitempty"`
+		Default  interface{} `json:"default,omitempty" yaml:"default,omitempty"`
 	}
 
 	Execution struct {
@@ -184,12 +185,12 @@ type (
 
 	ServiceSpec struct {
 		Env        *flexible.Field[map[string]interface{}] `json:"envVariables,omitempty"   yaml:"envVariables,omitempty"`
-		Entrypoint *flexible.Field[[]string]         `json:"entrypoint,omitempty"     yaml:"entrypoint,omitempty"`
-		Args       *flexible.Field[[]string]         `json:"args,omitempty"           yaml:"args,omitempty"`
-		Conn       string            `json:"connectorRef,omitempty"   yaml:"connectorRef,omitempty"`
-		Image      string            `json:"image,omitempty"          yaml:"image,omitempty"`
-		Resources  *Resources        `json:"resources,omitempty"      yaml:"resources,omitempty"`
-		Privileged *flexible.Field[bool]              `json:"privileged,omitempty"     yaml:"privileged,omitempty"`
+		Entrypoint *flexible.Field[[]string]               `json:"entrypoint,omitempty"     yaml:"entrypoint,omitempty"`
+		Args       *flexible.Field[[]string]               `json:"args,omitempty"           yaml:"args,omitempty"`
+		Conn       string                                  `json:"connectorRef,omitempty"   yaml:"connectorRef,omitempty"`
+		Image      string                                  `json:"image,omitempty"          yaml:"image,omitempty"`
+		Resources  *Resources                              `json:"resources,omitempty"      yaml:"resources,omitempty"`
+		Privileged *flexible.Field[bool]                   `json:"privileged,omitempty"     yaml:"privileged,omitempty"`
 	}
 
 	Resources struct {

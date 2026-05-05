@@ -2,7 +2,7 @@ package pipelineconverter
 
 import (
 	"fmt"
-	"log"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
@@ -98,7 +98,11 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 			} else if spec.Runtime != nil {
 				stage.Runtime = convert_helpers.ConvertRuntime(spec.Runtime)
 			} else {
-				log.Printf("Warning!!! No runtime or infrastructure found in IACM stage: %s\n", src.ID)
+				GetMessageLogger().LogWarning(
+					"MISSING_RUNTIME",
+					"no runtime or infrastructure found in IACM stage",
+					WithStage(src.ID, string(v0.StageTypeIACM)),
+				)
 			}
 			stage.Platform = convert_helpers.ConvertPlatform(spec.Platform)
 			stage.Workspace = spec.Workspace
@@ -123,15 +127,18 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 			stage.Timeout = spec.Timeout
 
 			// Convert shared paths to volumes
-			volumes := convert_helpers.ConvertSharedPaths(spec.SharedPaths)
 			if spec.Infrastructure != nil {
 				stage.Runtime = convert_helpers.ConvertInfrastructureToRuntime(spec.Infrastructure, c.stageCtx)
 			} else if spec.Runtime != nil {
 				stage.Runtime = convert_helpers.ConvertRuntime(spec.Runtime)
 			} else {
-				log.Printf("Warning!!! No runtime or infrastructure found in CI stage: %s\n", src.ID)
+				GetMessageLogger().LogWarning(
+					"MISSING_RUNTIME",
+					fmt.Sprintf("no runtime or infrastructure found in CI stage %s", src.ID),
+					WithStage(src.ID, string(v0.StageTypeCI)),
+				)
 			}
-			stage.Volumes = volumes
+			stage.SharedPaths = spec.SharedPaths
 			stage.Platform = convert_helpers.ConvertPlatform(spec.Platform)
 		}
 
@@ -155,7 +162,11 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 			} else if spec.EnvironmentGroup != nil {
 				stage.Environment = convert_helpers.ConvertEnvironmentGroup(spec.EnvironmentGroup, c.stageCtx)
 			} else if spec.Infrastructure != nil {
-				log.Printf("Warning!!! Deprecated infrastructure definition found in Deployment stage: %s, infrastructure and service definition will be skipped\n", src.ID)
+				GetMessageLogger().LogInfo(
+					"DEPRECATED_INFRA",
+					"deprecated infrastructure definition found in Deployment stage; infrastructure and service definition will be skipped",
+					WithStage(src.ID, string(v0.StageTypeDeployment)),
+				)
 				deprecatedInfraDefinition = true
 			}
 
@@ -175,7 +186,11 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 		if ok && spec != nil {
 			uses, err := c.constructChainUses(spec)
 			if err != nil {
-				log.Printf("Warning!!! while converting Pipeline Stage: %s, error: %v\n", src.ID, err)
+				GetMessageLogger().LogWarning(
+					"PIPELINE_CHAIN_ERROR",
+					fmt.Sprintf("failed to build pipeline stage chain: %v", err),
+					WithStage(src.ID, string(v0.StageTypePipeline)),
+				)
 			}
 			inputs := c.constructChainInputs(spec)
 			outputs := c.constructChainOutputs(spec)
@@ -195,7 +210,11 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 		if src.Template != nil {
 			break
 		}
-		log.Printf("Warning!!! stage type: %s (stage: %s) is not yet supported!\n", src.Type, src.ID)
+		GetMessageLogger().LogError(
+			"UNKNOWN_STAGE_TYPE",
+			fmt.Sprintf("stage type %q is not yet supported", src.Type),
+			WithStage(src.ID, src.Type),
+		)
 	}
 
 	// Populate stage context so future stages can resolve useFromStage references

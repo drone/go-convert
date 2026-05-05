@@ -3,21 +3,23 @@ package yaml
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/drone/go-convert/convert/v0tov1/messagelog"
 )
 
 type (
 	NotificationRule struct {
-		Identifier         string              `json:"identifier,omitempty" yaml:"identifier,omitempty"`
-		Name               string              `json:"name,omitempty" yaml:"name,omitempty"`
-		Enabled            bool                `json:"enabled,omitempty" yaml:"enabled,omitempty"`
-		PipelineEvents     []*PipelineEvent    `json:"pipelineEvents,omitempty" yaml:"pipelineEvents,omitempty"`
-		NotificationMethod *NotificationMethod `json:"notificationMethod,omitempty" yaml:"notificationMethod,omitempty"`
+		Identifier           string                `json:"identifier,omitempty" yaml:"identifier,omitempty"`
+		Name                 string                `json:"name,omitempty" yaml:"name,omitempty"`
+		Enabled              bool                  `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+		PipelineEvents       []*PipelineEvent      `json:"pipelineEvents,omitempty" yaml:"pipelineEvents,omitempty"`
+		NotificationMethod   *NotificationMethod   `json:"notificationMethod,omitempty" yaml:"notificationMethod,omitempty"`
 		NotificationTemplate *NotificationTemplate `json:"template,omitempty" yaml:"template,omitempty"`
 	}
 
 	NotificationTemplate struct {
 		VersionLabel string `json:"versionLabel,omitempty" yaml:"versionLabel,omitempty"`
-		TemplateRef string `json:"templateRef,omitempty" yaml:"templateRef,omitempty"`
+		TemplateRef  string `json:"templateRef,omitempty" yaml:"templateRef,omitempty"`
 	}
 
 	PipelineEvent struct {
@@ -132,8 +134,12 @@ func (nm *NotificationMethod) UnmarshalJSON(data []byte) error {
 		}
 		nm.Spec = spec
 	default:
-		// For unknown types, keep as raw JSON
-		fmt.Println("unknown notification method type: " + nm.Type)
+		// For unknown types, keep as raw JSON.
+		messagelog.GetMessageLogger().LogError(
+			"UNKNOWN_NOTIFICATION_METHOD",
+			fmt.Sprintf("unknown notification method type %q; preserved as raw JSON", nm.Type),
+			messagelog.WithContext(map[string]string{"type": nm.Type}),
+		)
 		var spec interface{}
 		if err := json.Unmarshal(aux.Spec, &spec); err != nil {
 			return err

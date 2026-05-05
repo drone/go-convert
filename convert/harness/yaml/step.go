@@ -845,7 +845,11 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 	case StepTypeContainer:
 		s.Spec = new(StepContainer)
 	default:
-		return fmt.Errorf("unknown step type %s", s.Type)
+		// Preserve s.Type and leave s.Spec nil. The converter emits a
+		// pass-through step and records an UNKNOWN_STEP_TYPE warning on
+		// the MessageLogger, so unknown step types no longer abort
+		// parsing.
+		return nil
 	}
 
 	return json.Unmarshal(obj.Spec, s.Spec)

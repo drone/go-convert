@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"strings"
 
-	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 	convertexpressions "github.com/drone/go-convert/convert/convertexpressions"
+	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
 
 // expressionProcessor walks v1 pipeline structs and converts Harness expressions
@@ -23,11 +23,23 @@ type expressionProcessor struct {
 	mapsBuilt     bool
 }
 
-// PostProcessExpressions walks the converted v1 pipeline and converts all Harness
-// expressions in string and flexible.Field values using ConvertExpressionWithTrie.
-// useFQN controls whether to use fully qualified names for step expressions (default true).
-func PostProcessExpressions(pipeline *v1.Pipeline, stepTypeMap map[string]*StepInfo, useFQN bool) {
-	if pipeline == nil {
+// PostProcessExpressions walks the converted v1 entity (Pipeline, Template,
+// InputSet, Trigger, etc.) and converts all Harness expressions in string and
+// flexible.Field values using ConvertExpressionWithTrie.
+//
+// stepTypeMap may be nil when no pipeline-level step context is available
+// (e.g. for Template/InputSet/Trigger wrappers). useFQN controls whether to
+// use fully qualified names for step expressions; pass false for context-free
+// conversion of non-pipeline entities.
+func PostProcessExpressions(target any, stepTypeMap map[string]*StepInfo, useFQN bool) {
+	if target == nil {
+		return
+	}
+	val := reflect.ValueOf(target)
+	if !val.IsValid() {
+		return
+	}
+	if val.Kind() == reflect.Ptr && val.IsNil() {
 		return
 	}
 
@@ -36,7 +48,11 @@ func PostProcessExpressions(pipeline *v1.Pipeline, stepTypeMap map[string]*StepI
 		useFQN:      useFQN,
 	}
 
-	p.processValue(reflect.ValueOf(pipeline))
+	// Logger context flag is set once for the duration of the walk rather
+	// than per-expression to avoid mutex thrashing on the global logger.
+	GetExpressionLogger().SetIncludeContext(true)
+
+	p.processValue(val)
 }
 
 // tryConvertString checks if s contains a Harness expression and, if so, converts it.
@@ -150,6 +166,12 @@ func (p *expressionProcessor) processStructFields(val reflect.Value) {
 			continue
 		}
 
+		// Skip Trigger.InputYaml: it holds an already-converted v1 YAML
+		// document; re-walking its raw text could mangle structure.
+		if fieldType.Name == "InputYaml" {
+			continue
+		}
+
 		switch field.Kind() {
 		case reflect.String:
 			if field.CanSet() {
@@ -260,9 +282,9 @@ func (p *expressionProcessor) processString(s string) string {
 	// FQN mode replaces v1Path at step_node with the step's v1 FQN base path.
 	ctx := p.buildConversionContext()
 
-	// Get expression logger for logging conversions
+	// Get expression logger for logging conversions. The IncludeContext flag
+	// is set once at the top of PostProcessExpressions, not per call.
 	logger := GetExpressionLogger()
-	logger.SetIncludeContext(true)
 
 	var b strings.Builder
 	prev := 0
@@ -277,7 +299,6 @@ func (p *expressionProcessor) processString(s string) string {
 
 		// Log the conversion with full context
 		logger.LogConversion(expr, converted, ctx)
-		
 
 		b.WriteString(converted)
 		prev = span[1]

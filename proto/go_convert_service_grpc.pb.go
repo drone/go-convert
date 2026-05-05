@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.1
 // - protoc             v7.34.1
-// source: proto/go_convert_service.proto
+// source: go_convert_service.proto
 
 package proto
 
@@ -22,6 +22,7 @@ const (
 	GoConvertService_ConvertPipeline_FullMethodName = "/io.harness.pms.conversion.proto.GoConvertService/ConvertPipeline"
 	GoConvertService_ConvertTemplate_FullMethodName = "/io.harness.pms.conversion.proto.GoConvertService/ConvertTemplate"
 	GoConvertService_ConvertInputSet_FullMethodName = "/io.harness.pms.conversion.proto.GoConvertService/ConvertInputSet"
+	GoConvertService_ConvertTrigger_FullMethodName  = "/io.harness.pms.conversion.proto.GoConvertService/ConvertTrigger"
 	GoConvertService_GetChecksum_FullMethodName     = "/io.harness.pms.conversion.proto.GoConvertService/GetChecksum"
 )
 
@@ -32,6 +33,7 @@ type GoConvertServiceClient interface {
 	ConvertPipeline(ctx context.Context, in *ConvertRequest, opts ...grpc.CallOption) (*ConvertResponse, error)
 	ConvertTemplate(ctx context.Context, in *ConvertRequest, opts ...grpc.CallOption) (*ConvertResponse, error)
 	ConvertInputSet(ctx context.Context, in *ConvertRequest, opts ...grpc.CallOption) (*ConvertResponse, error)
+	ConvertTrigger(ctx context.Context, in *ConvertRequest, opts ...grpc.CallOption) (*ConvertResponse, error)
 	GetChecksum(ctx context.Context, in *ChecksumRequest, opts ...grpc.CallOption) (*ChecksumResponse, error)
 }
 
@@ -73,6 +75,16 @@ func (c *goConvertServiceClient) ConvertInputSet(ctx context.Context, in *Conver
 	return out, nil
 }
 
+func (c *goConvertServiceClient) ConvertTrigger(ctx context.Context, in *ConvertRequest, opts ...grpc.CallOption) (*ConvertResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConvertResponse)
+	err := c.cc.Invoke(ctx, GoConvertService_ConvertTrigger_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *goConvertServiceClient) GetChecksum(ctx context.Context, in *ChecksumRequest, opts ...grpc.CallOption) (*ChecksumResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ChecksumResponse)
@@ -90,6 +102,7 @@ type GoConvertServiceServer interface {
 	ConvertPipeline(context.Context, *ConvertRequest) (*ConvertResponse, error)
 	ConvertTemplate(context.Context, *ConvertRequest) (*ConvertResponse, error)
 	ConvertInputSet(context.Context, *ConvertRequest) (*ConvertResponse, error)
+	ConvertTrigger(context.Context, *ConvertRequest) (*ConvertResponse, error)
 	GetChecksum(context.Context, *ChecksumRequest) (*ChecksumResponse, error)
 	mustEmbedUnimplementedGoConvertServiceServer()
 }
@@ -109,6 +122,9 @@ func (UnimplementedGoConvertServiceServer) ConvertTemplate(context.Context, *Con
 }
 func (UnimplementedGoConvertServiceServer) ConvertInputSet(context.Context, *ConvertRequest) (*ConvertResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ConvertInputSet not implemented")
+}
+func (UnimplementedGoConvertServiceServer) ConvertTrigger(context.Context, *ConvertRequest) (*ConvertResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ConvertTrigger not implemented")
 }
 func (UnimplementedGoConvertServiceServer) GetChecksum(context.Context, *ChecksumRequest) (*ChecksumResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetChecksum not implemented")
@@ -188,6 +204,24 @@ func _GoConvertService_ConvertInputSet_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GoConvertService_ConvertTrigger_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConvertRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GoConvertServiceServer).ConvertTrigger(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GoConvertService_ConvertTrigger_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GoConvertServiceServer).ConvertTrigger(ctx, req.(*ConvertRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _GoConvertService_GetChecksum_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChecksumRequest)
 	if err := dec(in); err != nil {
@@ -226,10 +260,14 @@ var GoConvertService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _GoConvertService_ConvertInputSet_Handler,
 		},
 		{
+			MethodName: "ConvertTrigger",
+			Handler:    _GoConvertService_ConvertTrigger_Handler,
+		},
+		{
 			MethodName: "GetChecksum",
 			Handler:    _GoConvertService_GetChecksum_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/go_convert_service.proto",
+	Metadata: "go_convert_service.proto",
 }

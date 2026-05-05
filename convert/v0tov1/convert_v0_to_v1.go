@@ -15,12 +15,14 @@
 package v0tov1
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -90,13 +92,45 @@ func convertSingleFile(inputPath string) {
 		exprLogger.Disable()
 	}()
 
+	// Setup unknown-fields logging (sidecar JSON next to the converted file)
+	unknownLogPath := strings.TrimSuffix(inputPath, ext) + "_unknown_fields.json"
+	unknownLogger := pipeline_converter.GetUnknownFieldsLogger()
+	unknownLogger.Enable(unknownLogPath)
+	unknownLogger.SetBatchMode(false)
+	defer func() {
+		if err := unknownLogger.Flush(); err != nil {
+			log.Printf("Warning: failed to write unknown-fields log: %v", err)
+		}
+		unknownLogger.Clear()
+		unknownLogger.Disable()
+	}()
+
+	// Setup structured message logging; scoped to this file.
+	msgLogger := pipeline_converter.GetMessageLogger()
+	msgLogger.Enable("")
+	msgLogger.SetBatchMode(false)
+	msgLogger.SetCurrentFile(inputPath)
+	defer func() {
+		msgLogger.Clear()
+		msgLogger.Disable()
+	}()
+	summaryPath := strings.TrimSuffix(inputPath, ext) + "_summary.json"
+	defer func() {
+		summary := pipeline_converter.BuildSummary(inputPath)
+		if err := writeSummaryFile(summaryPath, summary); err != nil {
+			log.Printf("Warning: failed to write summary: %v", err)
+		}
+		printSummary(os.Stdout, summary)
+	}()
+
 	// Benchmark: Read v0
 	readStart := time.Now()
-	v0Config, err := v0.ParseFile(inputPath)
+	v0Config, unknownFields, err := v0.ParseFileWithUnknownFields(inputPath)
 	readDur := time.Since(readStart)
 	if err != nil {
 		log.Fatalf("Failed to parse v0 file: %v", err)
 	}
+	unknownLogger.Record(inputPath, unknownFields)
 
 	// Benchmark: Convert to v1
 	convStart := time.Now()
@@ -105,13 +139,27 @@ func convertSingleFile(inputPath string) {
 	// Auto-detect root node type and convert accordingly
 	writeStart := time.Now()
 
-	if v0Config.InputSet != nil {
+	if v0Config.Trigger != nil {
+		// Trigger conversion
+		v1Trigger := converter.ConvertTrigger(v0Config.Trigger, nil, false)
+		convDur := time.Since(convStart)
+		if v1Trigger == nil {
+			log.Fatalf("Failed to convert trigger to v1 format")
+		}
+		pipeline_converter.PostProcessExpressions(v1Trigger, nil, false)
+		if err := v1.WriteTriggerFile(outputPath, v1Trigger); err != nil {
+			log.Fatalf("Failed to write v1 trigger YAML: %v", err)
+		}
+		writeDur := time.Since(writeStart)
+		fmt.Printf("Converted trigger %s -> %s (read=%v, convert=%v, write=%v)\n", inputPath, outputPath, readDur, convDur, writeDur)
+	} else if v0Config.InputSet != nil {
 		// InputSet conversion
 		v1InputSet := converter.ConvertInputSet(v0Config.InputSet)
 		convDur := time.Since(convStart)
 		if v1InputSet == nil {
 			log.Fatalf("Failed to convert inputset to v1 format")
 		}
+		pipeline_converter.PostProcessExpressions(v1InputSet, nil, false)
 		if err := v1.WriteInputSetFile(outputPath, v1InputSet); err != nil {
 			log.Fatalf("Failed to write v1 inputset YAML: %v", err)
 		}
@@ -124,6 +172,7 @@ func convertSingleFile(inputPath string) {
 		if v1Template == nil {
 			log.Fatalf("Failed to convert template to v1 format")
 		}
+		pipeline_converter.PostProcessExpressions(v1Template, nil, false)
 		if err := v1.WriteTemplateFile(outputPath, v1Template); err != nil {
 			log.Fatalf("Failed to write v1 template YAML: %v", err)
 		}
@@ -136,6 +185,7 @@ func convertSingleFile(inputPath string) {
 		if v1Pipeline == nil {
 			log.Fatalf("Failed to convert pipeline to v1 format")
 		}
+		pipeline_converter.PostProcessExpressions(v1Pipeline, converter.GetStepTypeMap(), true)
 		if err := v1.WritePipelineFile(outputPath, v1Pipeline); err != nil {
 			log.Fatalf("Failed to write v1 pipeline YAML: %v", err)
 		}
@@ -165,6 +215,31 @@ func convertBaseDirectory(baseDir string) {
 		exprLogger.Disable()
 	}()
 
+	unknownLogPath := filepath.Join(outputDir, "unknown_fields.json")
+	unknownLogger := pipeline_converter.GetUnknownFieldsLogger()
+	unknownLogger.Enable(unknownLogPath)
+	unknownLogger.SetBatchMode(true)
+	defer func() {
+		if err := unknownLogger.Flush(); err != nil {
+			log.Printf("Warning: failed to write unknown-fields log: %v", err)
+		}
+		unknownLogger.Clear()
+		unknownLogger.Disable()
+	}()
+
+	// Setup structured message logging for batch mode.
+	msgLogger := pipeline_converter.GetMessageLogger()
+	msgLogger.Enable("")
+	msgLogger.SetBatchMode(true)
+	var batchSummaries []*pipeline_converter.ConversionSummary
+	defer func() {
+		if err := writeAggregateSummary(filepath.Join(outputDir, "summary.json"), batchSummaries); err != nil {
+			log.Printf("Warning: failed to write aggregate summary: %v", err)
+		}
+		msgLogger.Clear()
+		msgLogger.Disable()
+	}()
+
 	// Log to stdout only (Python script captures this)
 	log.SetOutput(os.Stdout)
 
@@ -189,17 +264,19 @@ func convertBaseDirectory(baseDir string) {
 		// Emit sentinel before parsing - we'll determine the type after parsing
 		log.Printf("CONVERTING %s", inputPath)
 
-		// Set current file for expression logging
+		// Scope per-pipeline loggers to this file.
 		exprLogger.SetCurrentFile(inputPath)
+		msgLogger.SetCurrentFile(inputPath)
 
 		// Benchmark: Read v0
 		readStart := time.Now()
-		v0Config, err := v0.ParseFile(inputPath)
+		v0Config, unknownFields, err := v0.ParseFileWithUnknownFields(inputPath)
 		readDur := time.Since(readStart)
 		if err != nil {
 			log.Printf("ERROR_PARSING %s: failed to parse v0 file: %v", inputPath, err)
 			continue
 		}
+		unknownLogger.Record(inputPath, unknownFields)
 
 		// Benchmark: Convert to v1
 		convStart := time.Now()
@@ -209,13 +286,28 @@ func convertBaseDirectory(baseDir string) {
 		writeStart := time.Now()
 		var convDur, writeDur time.Duration
 
-		if v0Config.InputSet != nil {
+		if v0Config.Trigger != nil {
+			v1Trigger := converter.ConvertTrigger(v0Config.Trigger, nil, false)
+			convDur = time.Since(convStart)
+			if v1Trigger == nil {
+				log.Printf("ERROR_TRIGGER %s: failed to convert trigger to v1 format", inputPath)
+				continue
+			}
+			pipeline_converter.PostProcessExpressions(v1Trigger, nil, false)
+			if err := v1.WriteTriggerFile(outputPath, v1Trigger); err != nil {
+				log.Printf("ERROR_TRIGGER %s: failed to write v1 trigger YAML: %v", inputPath, err)
+				continue
+			}
+			writeDur = time.Since(writeStart)
+			log.Printf("CONVERTED_TRIGGER %s -> %s (read=%v, convert=%v, write=%v)", inputPath, outputPath, readDur, convDur, writeDur)
+		} else if v0Config.InputSet != nil {
 			v1InputSet := converter.ConvertInputSet(v0Config.InputSet)
 			convDur = time.Since(convStart)
 			if v1InputSet == nil {
 				log.Printf("ERROR_INPUTSET %s: failed to convert inputset to v1 format", inputPath)
 				continue
 			}
+			pipeline_converter.PostProcessExpressions(v1InputSet, nil, false)
 			if err := v1.WriteInputSetFile(outputPath, v1InputSet); err != nil {
 				log.Printf("ERROR_INPUTSET %s: failed to write v1 inputset YAML: %v", inputPath, err)
 				continue
@@ -229,6 +321,7 @@ func convertBaseDirectory(baseDir string) {
 				log.Printf("ERROR_TEMPLATE %s: failed to convert template to v1 format", inputPath)
 				continue
 			}
+			pipeline_converter.PostProcessExpressions(v1Template, nil, false)
 			if err := v1.WriteTemplateFile(outputPath, v1Template); err != nil {
 				log.Printf("ERROR_TEMPLATE %s: failed to write v1 template YAML: %v", inputPath, err)
 				continue
@@ -242,6 +335,7 @@ func convertBaseDirectory(baseDir string) {
 				log.Printf("ERROR_PIPELINE %s: failed to convert pipeline to v1 format", inputPath)
 				continue
 			}
+			pipeline_converter.PostProcessExpressions(v1Pipeline, converter.GetStepTypeMap(), true)
 			if err := v1.WritePipelineFile(outputPath, v1Pipeline); err != nil {
 				log.Printf("ERROR_PIPELINE %s: failed to write v1 pipeline YAML: %v", inputPath, err)
 				continue
@@ -249,6 +343,16 @@ func convertBaseDirectory(baseDir string) {
 			writeDur = time.Since(writeStart)
 			log.Printf("CONVERTED_PIPELINE %s -> %s (read=%v, convert=%v, write=%v)", inputPath, outputPath, readDur, convDur, writeDur)
 		}
+
+		// Build per-file summary: write sidecar + accumulate for aggregate, print console line.
+		summary := pipeline_converter.BuildSummary(inputPath)
+		ext := filepath.Ext(outputPath)
+		summaryPath := strings.TrimSuffix(outputPath, ext) + "_summary.json"
+		if err := writeSummaryFile(summaryPath, summary); err != nil {
+			log.Printf("Warning: failed to write summary for %s: %v", inputPath, err)
+		}
+		batchSummaries = append(batchSummaries, summary)
+		printSummary(os.Stdout, summary)
 
 		converted++
 	}
@@ -285,6 +389,30 @@ func convertRecursiveDirectory(inputDir, outputDir string) {
 		}
 		exprLogger.Clear()
 		exprLogger.Disable()
+	}()
+
+	unknownLogPath := filepath.Join(outputDir, "unknown_fields.json")
+	unknownLogger := pipeline_converter.GetUnknownFieldsLogger()
+	unknownLogger.Enable(unknownLogPath)
+	unknownLogger.SetBatchMode(true)
+	defer func() {
+		if err := unknownLogger.Flush(); err != nil {
+			log.Printf("Warning: failed to write unknown-fields log: %v", err)
+		}
+		unknownLogger.Clear()
+		unknownLogger.Disable()
+	}()
+
+	msgLogger := pipeline_converter.GetMessageLogger()
+	msgLogger.Enable("")
+	msgLogger.SetBatchMode(true)
+	var batchSummaries []*pipeline_converter.ConversionSummary
+	defer func() {
+		if err := writeAggregateSummary(filepath.Join(outputDir, "summary.json"), batchSummaries); err != nil {
+			log.Printf("Warning: failed to write aggregate summary: %v", err)
+		}
+		msgLogger.Clear()
+		msgLogger.Disable()
 	}()
 
 	converted := 0
@@ -329,6 +457,14 @@ func convertRecursiveDirectory(inputDir, outputDir string) {
 		// Convert the file
 		if convertFile(path, outputPath) {
 			converted++
+			summary := pipeline_converter.BuildSummary(path)
+			ext := filepath.Ext(outputPath)
+			summaryPath := strings.TrimSuffix(outputPath, ext) + "_summary.json"
+			if err := writeSummaryFile(summaryPath, summary); err != nil {
+				log.Printf("Warning: failed to write summary for %s: %v", path, err)
+			}
+			batchSummaries = append(batchSummaries, summary)
+			printSummary(os.Stdout, summary)
 		} else {
 			skipped++
 		}
@@ -348,20 +484,21 @@ func convertRecursiveDirectory(inputDir, outputDir string) {
 }
 
 func convertFile(inputPath, outputPath string) bool {
-	// Set current file for expression logging
-	exprLogger := pipeline_converter.GetExpressionLogger()
-	exprLogger.SetCurrentFile(inputPath)
+	// Scope per-pipeline loggers to this file.
+	pipeline_converter.GetExpressionLogger().SetCurrentFile(inputPath)
+	pipeline_converter.GetMessageLogger().SetCurrentFile(inputPath)
 
 	// Benchmark: Read v0
 	log.Printf("Converting %s to %s", inputPath, outputPath)
 	readStart := time.Now()
-	v0Config, err := v0.ParseFile(inputPath)
+	v0Config, unknownFields, err := v0.ParseFileWithUnknownFields(inputPath)
 	readDur := time.Since(readStart)
 
 	if err != nil {
 		log.Printf("Skipping %s: failed to parse v0 file: %v", inputPath, err)
 		return false
 	}
+	pipeline_converter.GetUnknownFieldsLogger().Record(inputPath, unknownFields)
 
 	// Benchmark: Convert to v1
 	convStart := time.Now()
@@ -371,7 +508,23 @@ func convertFile(inputPath, outputPath string) bool {
 	var writeErr error
 	writeStart := time.Now()
 
-	if v0Config.InputSet != nil {
+	if v0Config.Trigger != nil {
+		// Trigger conversion
+		v1Trigger := converter.ConvertTrigger(v0Config.Trigger, nil, false)
+		convDur := time.Since(convStart)
+		if v1Trigger == nil {
+			log.Printf("Skipping %s: failed to convert trigger to v1 format", inputPath)
+			return false
+		}
+		pipeline_converter.PostProcessExpressions(v1Trigger, nil, false)
+		writeErr = v1.WriteTriggerFile(outputPath, v1Trigger)
+		writeDur := time.Since(writeStart)
+		if writeErr != nil {
+			log.Printf("Failed to write v1 trigger YAML for %s: %v", inputPath, writeErr)
+			return false
+		}
+		fmt.Printf("Converted trigger %s -> %s (read=%v, convert=%v, write=%v)\n", inputPath, outputPath, readDur, convDur, writeDur)
+	} else if v0Config.InputSet != nil {
 		// InputSet conversion
 		v1InputSet := converter.ConvertInputSet(v0Config.InputSet)
 		convDur := time.Since(convStart)
@@ -379,6 +532,7 @@ func convertFile(inputPath, outputPath string) bool {
 			log.Printf("Skipping %s: failed to convert inputset to v1 format", inputPath)
 			return false
 		}
+		pipeline_converter.PostProcessExpressions(v1InputSet, nil, false)
 		writeErr = v1.WriteInputSetFile(outputPath, v1InputSet)
 		writeDur := time.Since(writeStart)
 		if writeErr != nil {
@@ -394,6 +548,7 @@ func convertFile(inputPath, outputPath string) bool {
 			log.Printf("Skipping %s: failed to convert template to v1 format", inputPath)
 			return false
 		}
+		pipeline_converter.PostProcessExpressions(v1Template, nil, false)
 		writeErr = v1.WriteTemplateFile(outputPath, v1Template)
 		writeDur := time.Since(writeStart)
 		if writeErr != nil {
@@ -409,6 +564,7 @@ func convertFile(inputPath, outputPath string) bool {
 			log.Printf("Skipping %s: failed to convert pipeline to v1 format", inputPath)
 			return false
 		}
+		pipeline_converter.PostProcessExpressions(v1Pipeline, converter.GetStepTypeMap(), true)
 		writeErr = v1.WritePipelineFile(outputPath, v1Pipeline)
 		writeDur := time.Since(writeStart)
 		if writeErr != nil {
@@ -436,4 +592,93 @@ func setupLogFile(outputDir string) (*os.File, error) {
 
 	log.Printf("Starting conversion - logging to %s\n", logFilePath)
 	return logFile, nil
+}
+
+// writeSummaryFile writes a single ConversionSummary to path as indented JSON.
+// A nil or empty summary produces no file.
+func writeSummaryFile(path string, s *pipeline_converter.ConversionSummary) error {
+	if s == nil || isEmptySummary(s) {
+		return nil
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	enc := json.NewEncoder(f)
+	enc.SetIndent("", "  ")
+	enc.SetEscapeHTML(false)
+	return enc.Encode(s)
+}
+
+// writeAggregateSummary writes the batch-mode combined summary.json. Only
+// non-empty per-file summaries are included.
+func writeAggregateSummary(path string, summaries []*pipeline_converter.ConversionSummary) error {
+	var kept []*pipeline_converter.ConversionSummary
+	for _, s := range summaries {
+		if s != nil && !isEmptySummary(s) {
+			kept = append(kept, s)
+		}
+	}
+	if len(kept) == 0 {
+		return nil
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	enc := json.NewEncoder(f)
+	enc.SetIndent("", "  ")
+	enc.SetEscapeHTML(false)
+	return enc.Encode(kept)
+}
+
+func isEmptySummary(s *pipeline_converter.ConversionSummary) bool {
+	return len(s.Messages) == 0 && len(s.UnknownFields) == 0 && len(s.Expressions) == 0
+}
+
+// printSummary writes a one-line human-readable summary plus a bullet list
+// of unknown step/stage types encountered, if any.
+func printSummary(w io.Writer, s *pipeline_converter.ConversionSummary) {
+	if s == nil {
+		return
+	}
+	unknownSteps := collectCodeContext(s.Messages, "UNKNOWN_STEP_TYPE", "type")
+	unknownStages := collectCodeContext(s.Messages, "UNKNOWN_STAGE_TYPE", "type")
+
+	fmt.Fprintf(w, "Summary: %d info, %d warnings, %d errors; %d unknown fields\n",
+		s.Counts.Info, s.Counts.Warning, s.Counts.Error, len(s.UnknownFields))
+	if len(unknownSteps) > 0 {
+		fmt.Fprintf(w, "  Unknown step types: %s\n", strings.Join(unknownSteps, ", "))
+	}
+	if len(unknownStages) > 0 {
+		fmt.Fprintf(w, "  Unknown stage types: %s\n", strings.Join(unknownStages, ", "))
+	}
+}
+
+// collectCodeContext pulls sorted, deduplicated values of context[key] for
+// messages whose Code matches code.
+func collectCodeContext(msgs []pipeline_converter.Message, code, key string) []string {
+	seen := make(map[string]struct{})
+	for _, m := range msgs {
+		if m.Code != code {
+			continue
+		}
+		if v, ok := m.Context[key]; ok && v != "" {
+			seen[v] = struct{}{}
+		}
+	}
+	out := make([]string, 0, len(seen))
+	for v := range seen {
+		out = append(out, v)
+	}
+	sort.Strings(out)
+	return out
 }

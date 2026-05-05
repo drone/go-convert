@@ -222,6 +222,21 @@ func (l *ExpressionLogger) Flush() error {
 	return nil
 }
 
+// GetFileLog returns a copy of the expression log for filePath, or nil when
+// nothing has been recorded. Used by BuildSummary to embed expressions in
+// the per-pipeline ConversionSummary.
+func (l *ExpressionLogger) GetFileLog(filePath string) *FileExpressionLog {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	fl, ok := l.fileLogs[filePath]
+	if !ok || len(fl.Expressions) == 0 {
+		return nil
+	}
+	entries := make([]ExpressionLogEntry, len(fl.Expressions))
+	copy(entries, fl.Expressions)
+	return &FileExpressionLog{FilePath: fl.FilePath, Expressions: entries}
+}
+
 // Clear clears all accumulated logs
 func (l *ExpressionLogger) Clear() {
 	l.mu.Lock()

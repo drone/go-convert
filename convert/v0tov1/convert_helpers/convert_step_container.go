@@ -1,10 +1,10 @@
 package converthelpers
 
 import (
-	"log"
 	"strings"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	"github.com/drone/go-convert/convert/v0tov1/messagelog"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
 
@@ -21,7 +21,11 @@ func ConvertStepContainer(src *v0.Step) *v1.StepRun {
 
 	// TODO: Infrastructure conversion is not yet supported for Container step
 	if sp.Infrastructure != nil {
-		log.Printf("Warning: Infrastructure conversion is not yet supported for Container step '%s'. Infrastructure configuration will be skipped.", src.ID)
+		messagelog.GetMessageLogger().LogWarning(
+			"UNSUPPORTED_CONTAINER_INFRASTRUCTURE",
+			"infrastructure conversion is not yet supported for Container step; infrastructure configuration will be skipped",
+			messagelog.WithStep(src.ID, src.Type),
+		)
 	}
 
 	script := sp.Command

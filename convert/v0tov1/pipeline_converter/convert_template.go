@@ -44,5 +44,6 @@ func (c *PipelineConverter) ConvertTemplate(src *v0.Template) *v1.Template {
 			dst.Pipeline = c.ConvertPipeline(spec)
 		}
 	}
+
 	return dst
 }

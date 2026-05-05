@@ -42,6 +42,7 @@ type Stage struct {
 	Rollback    []*Step                  `json:"rollback,omitempty" yaml:"rollback,omitempty"`
 	RunsOn      string                 `json:"runs-on,omitempty" yaml:"runs-on,omitempty"`
 	Runtime     *Runtime               `json:"runtime,omitempty" yaml:"runtime,omitempty"`
+	SharedPaths *flexible.Field[[]string]               `json:"shared-paths,omitempty" yaml:"shared-paths,omitempty"`
 	Service     *ServiceRef            `json:"service,omitempty" yaml:"service,omitempty"`
 	Services    map[string]*Container  `json:"services,omitempty" yaml:"services,omitempty"`
 	Status      *Status                `json:"status,omitempty" yaml:"status,omitempty"`

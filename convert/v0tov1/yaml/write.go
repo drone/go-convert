@@ -127,3 +127,43 @@ func WriteTemplateFile(path string, t *Template) error {
 	}
 	return os.WriteFile(path, b, 0o644)
 }
+
+// MarshalTrigger marshals the given Trigger into YAML with a top-level
+// 'trigger:' key, producing output in the form:
+//
+//	trigger:
+//	  name: ...
+//	  identifier: ...
+//	  source: ...
+//	  inputYaml: ...
+//
+// This matches the expected Harness v1 YAML shape.
+func MarshalTrigger(t *Trigger) ([]byte, error) {
+	wrapper := &TriggerConfig{
+		Trigger: t,
+	}
+
+	// First marshal to JSON
+	jsonBytes, err := json.Marshal(wrapper)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert JSON to interface{} for YAML marshaling
+	var jsonData interface{}
+	if err := json.Unmarshal(jsonBytes, &jsonData); err != nil {
+		return nil, err
+	}
+
+	// Marshal to YAML
+	return yaml.Marshal(jsonData)
+}
+
+// WriteTriggerFile writes the Trigger to the given file path.
+func WriteTriggerFile(path string, t *Trigger) error {
+	b, err := MarshalTrigger(t)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(path, b, 0o644)
+}

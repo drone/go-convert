@@ -82,8 +82,54 @@ Environment variables:
 
 ### Endpoints
 
-- `GET /healthz` - Health check
-- `POST /api/v1/convert/batch` - Batch conversion
+- `GET  /healthz` — Health check
+- `POST /api/v1/convert/pipeline` — Convert v0 pipeline YAML → v1
+- `POST /api/v1/convert/template` — Convert v0 template YAML → v1
+- `POST /api/v1/convert/input-set` — Convert v0 input set YAML → v1
+- `POST /api/v1/convert/trigger` — Convert v0 trigger YAML → v1 (inputYaml is converted in place)
+- `POST /api/v1/convert/batch` — Convert multiple entities in one call
+- `POST /api/v1/convert/expression` — Convert one or more Harness v0 expressions (see `EXPRESSION_CONVERSION_API.md`)
+- `POST /api/v1/checksum` — Compute SHA-256 of a YAML payload
+
+A matching gRPC surface (`pb.GoConvertService`) is exposed on a separate port (default `9090`).
+
+Full endpoint, request, response, and error reference: see `TECH_SPEC.md` §3.
+
+### Single-Entity Request Format
+
+```json
+{
+  "yaml": "<v0 YAML string>",
+  "entity_ref_mapping": { "oldTemplateRef": "newTemplateRef_v1" },
+  "context_pipeline_yaml": "<optional v0 pipeline YAML for postprocess context>"
+}
+```
+
+**Fields:**
+
+- `yaml` (required) — v0 YAML payload to convert.
+- `entity_ref_mapping` (optional) — string-level rewrite from old template/entity refs to v1 refs.
+- `context_pipeline_yaml` (optional, **template / input-set / trigger only**) — raw v0 pipeline YAML used purely as expression-postprocess context. The server parses + structurally converts this pipeline (suppressing its diagnostic messages), harvests the resulting step-type map, and runs the entity's postprocess in **FQN mode** with that context. Empty/omitted → postprocess runs without FQN context. The pipeline endpoint ignores this field. See `TECH_SPEC.md` §3.10.
+
+### Single-Entity Response Format
+
+```json
+{
+  "yaml": "<v1 YAML string>",
+  "checksum": "sha256:abc123...",
+  "report": {
+    "messages": [
+      { "severity": "WARNING", "code": "UNKNOWN_STEP_TYPE", "message": "...", "context": { "type": "..." } }
+    ],
+    "unrecognized_fields": ["pipeline.foo"],
+    "expressions": [
+      { "original": "<+pipeline.variables.x>", "converted": "<+pipeline.inputs.x>", "status": "SUCCESS" }
+    ]
+  }
+}
+```
+
+The `report` object (and its sub-arrays) are omitted when empty. See `TECH_SPEC.md` §3.6 for the full schema and the trigger-specific error codes.
 
 ### Batch Request Format
 
@@ -103,12 +149,13 @@ Environment variables:
 ```
 
 **Fields:**
-- `id` (required) - Your unique identifier, echoed in response
-- `entity_type` (required) - `"pipeline"`, `"template"`, or `"input-set"`
-- `yaml` (required) - Raw v0 YAML content
-- `entity_ref_mapping` (optional) - Map old template refs to new v1 refs
+- `id` (required) — Your unique identifier, echoed in response
+- `entity_type` (required) — `"pipeline"`, `"template"`, `"input-set"`, or `"trigger"`
+- `yaml` (required) — Raw v0 YAML content
+- `entity_ref_mapping` (optional) — Map old template refs to new v1 refs
+- `context_pipeline_yaml` (optional) — v0 pipeline YAML used as postprocess context for non-pipeline entities (template / input-set / trigger). Same semantics as the single-entity endpoint.
 
-### Response Format
+### Batch Response Format
 
 ```json
 {
@@ -118,11 +165,14 @@ Environment variables:
       "entity_type": "pipeline",
       "yaml": "<v1 YAML string>",
       "checksum": "sha256:abc123...",
-      "error": null
+      "error": null,
+      "report": { "messages": [], "unrecognized_fields": [], "expressions": [] }
     }
   ]
 }
 ```
+
+Per-item failures (parse/conversion errors) populate `error` and leave `yaml`/`checksum`/`report` as `null`. The outer call is always HTTP 200 unless the request itself is malformed.
 
 ## Testing
 
@@ -287,14 +337,18 @@ curl http://localhost:8090/healthz
 See `TECH_SPEC.md` for detailed architecture documentation.
 
 **Key Components:**
-- `cmd/server/main.go` - Service entrypoint
-- `service/server.go` - HTTP server and middleware
-- `service/handler.go` - Request handlers
-- `service/converter/` - Conversion logic
-  - `pipeline.go` - Pipeline converter
-  - `template.go` - Template converter (Pipeline/Stage/Step)
-  - `inputset.go` - Input set converter
-  - `template_refs.go` - Template reference replacement
+- `cmd/server/main.go` — Service entrypoint
+- `service/server.go` — HTTP server, gRPC server, and middleware
+- `service/handler.go` — HTTP request handlers
+- `service/grpc_handler.go` — gRPC handlers (mirrors HTTP)
+- `service/report.go` — `ConversionReport` DTO and proto bridge
+- `service/converter/` — Conversion logic
+  - `pipeline.go` — Pipeline converter
+  - `template.go` — Template converter (Pipeline/Stage/Step/StepGroup)
+  - `inputset.go` — Input set converter
+  - `trigger.go` — Trigger converter (inputYaml converted in place)
+  - `expression.go` — Expression converter
+  - `template_refs.go` — Template reference replacement
 
 ## Contributing
 
