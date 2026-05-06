@@ -25,7 +25,6 @@ func TestConvertStepBackground(t *testing.T) {
 			expected: &v1.StepRun{
 				Container: &v1.Container{
 					Image: "redis:latest",
-					Ports: []string{},
 				},
 			},
 		},
@@ -44,10 +43,10 @@ func TestConvertStepBackground(t *testing.T) {
 						"POSTGRES_USER": "admin",
 						"POSTGRES_DB":   "testdb",
 					}},
-					PortBindings: map[string]string{
+					PortBindings: &flexible.Field[map[string]string]{Value: map[string]string{
 						"5432": "5432",
 						"8080": "80",
-					},
+					}},
 					Reports: &v0.Report{
 						Type: "JUnit",
 						Spec: &v0.ReportJunit{
@@ -65,7 +64,10 @@ func TestConvertStepBackground(t *testing.T) {
 					Pull:       "always",
 					Entrypoint: &flexible.Field[[]string]{Value: []string{"/bin/sh", "-c"}},
 					User:       &flexible.Field[int]{Value: 1000},
-					Ports:      []string{"5432:5432", "8080:80"},
+					PortBindings:      &flexible.Field[map[string]string]{Value: map[string]string{
+						"5432": "5432",
+						"8080": "80",
+					}},
 				},
 				Script: v1.Stringorslice{"pg_isready"},
 				Shell:  "bash",
@@ -74,7 +76,7 @@ func TestConvertStepBackground(t *testing.T) {
 					"POSTGRES_DB":   "testdb",
 				}},
 				Report: &v1.Reports{
-					Type: "junit",
+					Type:  "junit",
 					Paths: &flexible.Field[[]string]{Value: []string{"report1.xml", "report2.xml"}},
 				},
 			},
@@ -89,7 +91,6 @@ func TestConvertStepBackground(t *testing.T) {
 			expected: &v1.StepRun{
 				Container: &v1.Container{
 					Image: "nginx:latest",
-					Ports: []string{},
 				},
 			},
 		},
@@ -104,7 +105,6 @@ func TestConvertStepBackground(t *testing.T) {
 			expected: &v1.StepRun{
 				Container: &v1.Container{
 					Image: "alpine",
-					Ports: []string{},
 				},
 				Shell: "zsh",
 			},
@@ -121,7 +121,6 @@ func TestConvertStepBackground(t *testing.T) {
 				Container: &v1.Container{
 					Image: "myimage",
 					Pull:  "never",
-					Ports: []string{},
 				},
 			},
 		},
@@ -137,7 +136,6 @@ func TestConvertStepBackground(t *testing.T) {
 				Container: &v1.Container{
 					Image: "myimage",
 					Pull:  "if-not-present",
-					Ports: []string{},
 				},
 			},
 		},

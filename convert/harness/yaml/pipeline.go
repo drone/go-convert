@@ -191,6 +191,7 @@ type (
 		Image      string                                  `json:"image,omitempty"          yaml:"image,omitempty"`
 		Resources  *Resources                              `json:"resources,omitempty"      yaml:"resources,omitempty"`
 		Privileged *flexible.Field[bool]                   `json:"privileged,omitempty"     yaml:"privileged,omitempty"`
+		PortBindings *flexible.Field[map[string]string]    `json:"PortBindings,omitempty" yaml:"PortBindings,omitempty"`
 	}
 
 	Resources struct {

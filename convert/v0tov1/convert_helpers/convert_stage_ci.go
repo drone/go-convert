@@ -304,6 +304,7 @@ func ConvertServiceDependencyToBackgroundStep(src *v0.Service) *v1.Step {
 			Entrypoint: src.Spec.Entrypoint,
 			Args:       src.Spec.Args,
 			Privileged: src.Spec.Privileged,
+			PortBindings: src.Spec.PortBindings,
 		}
 	}
 

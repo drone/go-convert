@@ -499,7 +499,7 @@ type (
 		Env             *flexible.Field[map[string]interface{}] `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
 		Image           string                                  `json:"image,omitempty"           yaml:"image,omitempty"`
 		ImagePullPolicy string                                  `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
-		PortBindings    map[string]string                       `json:"portBindings,omitempty"    yaml:"portBindings,omitempty"`
+		PortBindings    *flexible.Field[map[string]string]      `json:"portBindings,omitempty"    yaml:"portBindings,omitempty"`
 		Privileged      *flexible.Field[bool]                   `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
 		Resources       *Resources                              `json:"resources,omitempty"       yaml:"resources,omitempty"`
 		RunAsUser       *flexible.Field[int]                    `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"       v1path:"-"`
