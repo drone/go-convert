@@ -241,6 +241,10 @@ func TestConvertServiceDependencyToBackgroundStep(t *testing.T) {
 					Entrypoint: &flexible.Field[[]string]{Value: []string{"redis-server"}},
 					Args:       &flexible.Field[[]string]{Value: []string{"--maxmemory", "256mb"}},
 					Privileged: &flexible.Field[bool]{Value: false},
+					PortBindings: &flexible.Field[map[string]string]{Value: map[string]string{
+						"5432": "5432",
+						"8080": "80",
+					}},
 				},
 			},
 			expected: &v1.Step{
@@ -253,10 +257,15 @@ func TestConvertServiceDependencyToBackgroundStep(t *testing.T) {
 						Entrypoint: &flexible.Field[[]string]{Value: []string{"redis-server"}},
 						Args:       &flexible.Field[[]string]{Value: []string{"--maxmemory", "256mb"}},
 						Privileged: &flexible.Field[bool]{Value: false},
+						PortBindings: &flexible.Field[map[string]string]{Value: map[string]string{
+							"5432": "5432",
+							"8080": "80",
+						}},
 					},
 					Env: &flexible.Field[map[string]interface{}]{Value: map[string]interface{}{
 						"REDIS_PORT": "6379",
 					}},
+					
 				},
 			},
 		},

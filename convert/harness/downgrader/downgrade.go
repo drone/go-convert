@@ -22,6 +22,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+
 	"github.com/drone/go-convert/convert/jenkinsjson/json"
 	"github.com/drone/go-convert/internal/flexible"
 	"github.com/drone/go-convert/internal/rand"
@@ -746,6 +747,10 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 	if spec_.User != "" {
 		runAsUser.SetString(spec_.User)
 	}
+	var portBindings *flexible.Field[map[string]string]
+	if len(spec_.Ports) > 0 {
+		portBindings = &flexible.Field[map[string]string]{Value: convertPorts(spec_.Ports)}
+	}
 	return &v0.Step{
 		ID:   id,
 		Name: convertName(src.Name),
@@ -759,7 +764,7 @@ func (d *Downgrader) convertStepBackground(src *v1.Step) *v0.Step {
 			ImagePullPolicy: convertImagePull(spec_.Pull),
 			Privileged:      privileged,
 			RunAsUser:       runAsUser,
-			PortBindings:    convertPorts(spec_.Ports),
+			PortBindings:    portBindings,
 		},
 		When: convertStepWhen(src.When, id),
 	}

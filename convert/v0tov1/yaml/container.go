@@ -36,6 +36,7 @@ type Container struct {
 	Network     string            `json:"network,omitempty" yaml:"network,omitempty"`
 	NetworkMode string            `json:"network-mode,omitempty" yaml:"network-mode,omitempty"`
 	Ports       []string          `json:"ports,omitempty" yaml:"ports,omitempty"`
+	PortBindings *flexible.Field[map[string]string] `json:"port-bindings,omitempty" yaml:"port-bindings,omitempty"`
 	Privileged  *flexible.Field[bool]              `json:"privileged,omitempty" yaml:"privileged,omitempty"`
 	Pull        string            `json:"pull,omitempty" yaml:"pull,omitempty"`
 	ShmSize     StringorInt       `json:"shm-size,omitempty" yaml:"shm-size,omitempty"`
@@ -62,6 +63,7 @@ func (v *Container) UnmarshalJSON(data []byte) error {
 		Network     string            `json:"network,omitempty" yaml:"network,omitempty"`
 		NetworkMode string            `json:"network-mode,omitempty" yaml:"network-mode,omitempty"`
 		Ports       []string          `json:"ports,omitempty" yaml:"ports,omitempty"`
+		PortBindings *flexible.Field[map[string]string] `json:"port-bindings,omitempty" yaml:"port-bindings,omitempty"`
 		Privileged  *flexible.Field[bool]              `json:"privileged,omitempty" yaml:"privileged,omitempty"`
 		Pull        string            `json:"pull,omitempty" yaml:"pull,omitempty"`
 		ShmSize     StringorInt       `json:"shm-size,omitempty" yaml:"shm-size,omitempty"`
