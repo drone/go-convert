@@ -111,14 +111,16 @@ Content-Type: application/json
 ```json
 {
   "yaml": "<v0 pipeline YAML as a string>",
-  "entity_ref_mapping": { "oldRef": "newRef" }
+  "template_ref_mapping": { "oldTemplateRef": "newTemplateRef" },
+  "pipeline_ref_mapping": { "oldPipelineId": "newPipelineId" }
 }
 ```
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `yaml` | string | yes | Raw v0 pipeline YAML. Top-level key must be `pipeline:`. |
-| `entity_ref_mapping` | map<string,string> | no | Optional mapping from old template/entity refs to v1 refs. Applied as a string-level rewrite on the marshalled output. |
+| `template_ref_mapping` | map<string,string> | no | Rewrites template references in the marshalled output. Applied to the ref portion of `template.uses` (`"ref@version"`) and to legacy `templateRef` / `template_ref` keys. |
+| `pipeline_ref_mapping` | map<string,string> | no | Rewrites pipeline identifiers in the marshalled output. Applied to `pipeline.id` and to the pipeline segment of a chain stage's `uses` value (`"org/project/pipeline"`). |
 
 > The pipeline endpoint **ignores** any `context_pipeline_yaml` field in the request — it derives its own postprocess context from the input.
 
@@ -188,7 +190,8 @@ Optional fields on the request body:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `entity_ref_mapping` | map<string,string> | String-level rewrite applied to template references in the marshalled output. |
+| `template_ref_mapping` | map<string,string> | Rewrites template references in the marshalled output. Applied to the ref portion of `template.uses` (`"ref@version"`) and to legacy `templateRef` / `template_ref` keys. |
+| `pipeline_ref_mapping` | map<string,string> | Rewrites pipeline identifiers in the marshalled output (e.g. `pipeline.id` inside a Pipeline-type template, or the pipeline segment of a `chain.uses` value). |
 | `context_pipeline_yaml` | string | **Optional** raw v0 pipeline YAML used purely as expression-postprocess context. When present the server parses + structurally converts this pipeline (suppressing its diagnostic messages), harvests the resulting step-type map, and runs the template's expression postprocess in **FQN mode** with that context. When omitted, postprocess runs without FQN context (relative paths only). Unparseable values produce a `CONTEXT_PIPELINE_PARSE_FAILED` warning in `report.messages` and fall back to no-context. See §3.10. |
 
 The v0 template YAML top-level key must be `template:` with the following shape:
@@ -248,7 +251,8 @@ Optional fields on the request body:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `entity_ref_mapping` | map<string,string> | String-level rewrite applied to template references in the marshalled output. |
+| `template_ref_mapping` | map<string,string> | Rewrites template references in the marshalled output (same semantics as the template endpoint). |
+| `pipeline_ref_mapping` | map<string,string> | Rewrites pipeline identifiers in the marshalled output (e.g. `pipeline.id` inside the overlay, or the pipeline segment of a `chain.uses` value). |
 | `context_pipeline_yaml` | string | **Optional** v0 pipeline YAML used as postprocess context (same semantics as the template endpoint). Typically the input set's bound pipeline; passing it produces FQN-resolved step expressions in the output overlay. See §3.10. |
 
 The v0 input set YAML top-level key must be `inputSet:`:
@@ -383,10 +387,13 @@ Content-Type: application/json
 ```json
 {
   "yaml": "<v0 trigger YAML as a string>",
-  "entity_ref_mapping": { "oldTemplateRef": "newTemplateRef_v1" },
+  "template_ref_mapping": { "oldTemplateRef": "newTemplateRef_v1" },
+  "pipeline_ref_mapping": { "oldPipelineId": "newPipelineId_v1" },
   "context_pipeline_yaml": "<optional v0 pipeline YAML for postprocess context>"
 }
 ```
+
+`pipeline_ref_mapping` is applied to the trigger's `pipelineIdentifier` **and** recursively to any `pipeline.id` / `chain.uses` values inside the embedded `inputYaml`.
 
 The v0 trigger YAML top-level key must be `trigger:`.
 

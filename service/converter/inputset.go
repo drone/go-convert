@@ -9,14 +9,16 @@ import (
 
 // InputSet converts a Harness v0 input set YAML string into v1 YAML bytes.
 // The input must have a top-level "inputSet:" key.
-// If refMapping is provided, template references in the output will be replaced.
+// templateRefMapping rewrites template references in the output;
+// pipelineRefMapping rewrites pipeline identifiers (pipeline.id, chain.uses
+// pipeline segment). Either or both may be nil/empty.
 // contextPipelineYAML is an optional v0 pipeline YAML used purely as
 // expression-postprocess context (see buildContextFromPipelineYAML). Pass ""
 // to run postprocess without FQN context.
 //
 // Conversion strategy:
 //   - The v0 inputSet.pipeline is converted to v1 inputs.overlay using the pipeline converter
-func InputSet(yamlStr string, refMapping map[string]string, contextPipelineYAML string) (*Result, error) {
+func InputSet(yamlStr string, templateRefMapping, pipelineRefMapping map[string]string, contextPipelineYAML string) (*Result, error) {
 	if err := validateTopLevelKey(yamlStr, "inputSet"); err != nil {
 		return nil, err
 	}
@@ -54,7 +56,7 @@ func InputSet(yamlStr string, refMapping map[string]string, contextPipelineYAML 
 		return nil, fmt.Errorf("failed to marshal v1 input set: %w", err)
 	}
 
-	yamlBytes, err = ReplaceTemplateRefs(yamlBytes, refMapping)
+	yamlBytes, err = ApplyRefMappings(yamlBytes, templateRefMapping, pipelineRefMapping)
 	if err != nil {
 		return nil, err
 	}

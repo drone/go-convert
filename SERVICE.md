@@ -100,7 +100,8 @@ Full endpoint, request, response, and error reference: see `TECH_SPEC.md` §3.
 ```json
 {
   "yaml": "<v0 YAML string>",
-  "entity_ref_mapping": { "oldTemplateRef": "newTemplateRef_v1" },
+  "template_ref_mapping": { "oldTemplateRef": "newTemplateRef_v1" },
+  "pipeline_ref_mapping": { "oldPipelineId": "newPipelineId_v1" },
   "context_pipeline_yaml": "<optional v0 pipeline YAML for postprocess context>"
 }
 ```
@@ -108,8 +109,11 @@ Full endpoint, request, response, and error reference: see `TECH_SPEC.md` §3.
 **Fields:**
 
 - `yaml` (required) — v0 YAML payload to convert.
-- `entity_ref_mapping` (optional) — string-level rewrite from old template/entity refs to v1 refs.
+- `template_ref_mapping` (optional) — rewrites template references in the converted output. Applied to the ref portion of `template.uses` (`"ref@version"`), and to legacy `templateRef` / `template_ref` keys.
+- `pipeline_ref_mapping` (optional) — rewrites pipeline identifiers in the converted output. Applied to `pipeline.id`, the pipeline segment of `chain.uses` (`"org/project/pipeline"`), and a trigger's `pipelineIdentifier`. For triggers, the mapping is also applied recursively to the embedded `inputYaml`.
 - `context_pipeline_yaml` (optional, **template / input-set / trigger only**) — raw v0 pipeline YAML used purely as expression-postprocess context. The server parses + structurally converts this pipeline (suppressing its diagnostic messages), harvests the resulting step-type map, and runs the entity's postprocess in **FQN mode** with that context. Empty/omitted → postprocess runs without FQN context. The pipeline endpoint ignores this field. See `TECH_SPEC.md` §3.10.
+
+> The two mappings are **independent** — they target disjoint fields and are never merged. Pass only the one(s) you need.
 
 ### Single-Entity Response Format
 
@@ -140,8 +144,11 @@ The `report` object (and its sub-arrays) are omitted when empty. See `TECH_SPEC.
       "id": "unique-id-1",
       "entity_type": "pipeline",
       "yaml": "<v0 YAML string>",
-      "entity_ref_mapping": {
+      "template_ref_mapping": {
         "oldTemplateRef": "newTemplateRef_v1"
+      },
+      "pipeline_ref_mapping": {
+        "oldPipelineId": "newPipelineId_v1"
       }
     }
   ]
@@ -152,7 +159,8 @@ The `report` object (and its sub-arrays) are omitted when empty. See `TECH_SPEC.
 - `id` (required) — Your unique identifier, echoed in response
 - `entity_type` (required) — `"pipeline"`, `"template"`, `"input-set"`, or `"trigger"`
 - `yaml` (required) — Raw v0 YAML content
-- `entity_ref_mapping` (optional) — Map old template refs to new v1 refs
+- `template_ref_mapping` (optional) — same semantics as the single-entity endpoint.
+- `pipeline_ref_mapping` (optional) — same semantics as the single-entity endpoint.
 - `context_pipeline_yaml` (optional) — v0 pipeline YAML used as postprocess context for non-pipeline entities (template / input-set / trigger). Same semantics as the single-entity endpoint.
 
 ### Batch Response Format
