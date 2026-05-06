@@ -29,16 +29,6 @@ func TestApplyRefMappings_TemplateUses_RefOnly(t *testing.T) {
 	}
 }
 
-func TestApplyRefMappings_LegacyTemplateRefKey(t *testing.T) {
-	in := []byte("pipeline:\n  stages:\n    - stage:\n        template:\n          templateRef: oldT\n          versionLabel: v1\n")
-	out, err := ApplyRefMappings(in, map[string]string{"oldT": "newT"}, nil)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if !strings.Contains(string(out), "templateRef: newT") {
-		t.Fatalf("expected templateRef rewritten; got:\n%s", string(out))
-	}
-}
 
 func TestApplyRefMappings_ChainUses_PipelineSegment(t *testing.T) {
 	in := []byte("pipeline:\n  stages:\n    - chain:\n        uses: org1/proj1/oldPipe\n")

@@ -11,9 +11,7 @@ import (
 // rewrite maps to ref-bearing scalar values:
 //
 //   - templateRefs is applied to template references (the "ref" half of
-//     "ref@version" in `template.uses` / `approval.uses`, plus the legacy
-//     `templateRef` / `template_ref` keys that may appear in partially-
-//     translated inputs).
+//     "ref@version" in `template.uses` / `approval.uses`).
 //   - pipelineRefs is applied to pipeline identifiers (`pipeline.id`, the
 //     pipeline segment of `chain.uses` "org/project/pipeline", and
 //     `pipelineIdentifier` on triggers).
@@ -67,11 +65,6 @@ func applyRefsWalk(node *yaml.Node, parentKey, grandparentKey string, templateRe
 
 				case key == "uses" && parentKey == "chain":
 					valueNode.Value = remapChainUses(valueNode.Value, pipelineRefs)
-
-				case key == "templateRef" || key == "template_ref":
-					if n, ok := templateRefs[valueNode.Value]; ok {
-						valueNode.Value = n
-					}
 
 				case key == "id" && (parentKey == "pipeline" || (parentKey == "overlay" && grandparentKey == "inputs")):
 					if n, ok := pipelineRefs[valueNode.Value]; ok {
