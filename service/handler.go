@@ -77,7 +77,7 @@ func (h *Handler) ConvertBatch(w http.ResponseWriter, r *http.Request) {
 	results := make([]BatchResult, 0, len(req.Items))
 	for _, item := range req.Items {
 		result := BatchResult{ID: item.ID, EntityType: item.EntityType}
-		res, err := dispatch(item.EntityType, item.YAML, item.EntityRefMapping, item.ContextPipelineYAML)
+		res, err := dispatch(item.EntityType, item.YAML, item.TemplateRefMapping, item.PipelineRefMapping, item.ContextPipelineYAML)
 		if err != nil {
 			e := err.Error()
 			result.Error = &e
@@ -173,7 +173,7 @@ func (h *Handler) convertSingle(w http.ResponseWriter, r *http.Request, entityTy
 		return
 	}
 
-	res, err := dispatch(entityType, req.YAML, req.EntityRefMapping, req.ContextPipelineYAML)
+	res, err := dispatch(entityType, req.YAML, req.TemplateRefMapping, req.PipelineRefMapping, req.ContextPipelineYAML)
 	if err != nil {
 		code, status := classifyError(err)
 		writeError(w, status, code, err.Error(), nil)
@@ -188,19 +188,24 @@ func (h *Handler) convertSingle(w http.ResponseWriter, r *http.Request, entityTy
 }
 
 // dispatch routes a conversion request to the appropriate converter function.
+// templateRefMapping and pipelineRefMapping are applied to all entity types:
+// the template map rewrites template refs (template.uses, templateRef), the
+// pipeline map rewrites pipeline identifiers (pipeline.id, chain.uses
+// pipeline segment, trigger pipelineIdentifier — including refs inside a
+// trigger's embedded inputYaml).
 // contextPipelineYAML is forwarded to template / input-set / trigger
 // converters for postprocess context derivation; pipeline conversion ignores
 // it because it derives its own context from the input.
-func dispatch(entityType, yamlStr string, refMapping map[string]string, contextPipelineYAML string) (*converter.Result, error) {
+func dispatch(entityType, yamlStr string, templateRefMapping, pipelineRefMapping map[string]string, contextPipelineYAML string) (*converter.Result, error) {
 	switch entityType {
 	case entityPipeline:
-		return converter.Pipeline(yamlStr, refMapping)
+		return converter.Pipeline(yamlStr, templateRefMapping, pipelineRefMapping)
 	case entityTemplate:
-		return converter.Template(yamlStr, refMapping, contextPipelineYAML)
+		return converter.Template(yamlStr, templateRefMapping, pipelineRefMapping, contextPipelineYAML)
 	case entityInputSet:
-		return converter.InputSet(yamlStr, refMapping, contextPipelineYAML)
+		return converter.InputSet(yamlStr, templateRefMapping, pipelineRefMapping, contextPipelineYAML)
 	case entityTrigger:
-		return converter.Trigger(yamlStr, refMapping, contextPipelineYAML)
+		return converter.Trigger(yamlStr, templateRefMapping, pipelineRefMapping, contextPipelineYAML)
 	default:
 		return nil, fmt.Errorf("unknown entity_type %q (must be pipeline, template, input-set, or trigger)", entityType)
 	}

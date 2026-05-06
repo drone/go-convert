@@ -2,8 +2,19 @@ package service
 
 // ConvertRequest is the request body shared by all single-entity conversion endpoints.
 type ConvertRequest struct {
-	YAML             string            `json:"yaml"`
-	EntityRefMapping map[string]string `json:"entity_ref_mapping,omitempty"`
+	YAML string `json:"yaml"`
+
+	// TemplateRefMapping rewrites template references in the converted
+	// output. Applied to `template.uses` (the ref portion of
+	// "ref@version"), and to legacy `templateRef` / `template_ref` keys.
+	TemplateRefMapping map[string]string `json:"template_ref_mapping,omitempty"`
+
+	// PipelineRefMapping rewrites pipeline identifiers in the converted
+	// output. Applied to `pipeline.id`, to the pipeline segment of a
+	// `chain.uses` value ("org/project/pipeline"), and to a trigger's
+	// `pipelineIdentifier`. For triggers, the map is also applied
+	// recursively to the embedded `inputYaml`.
+	PipelineRefMapping map[string]string `json:"pipeline_ref_mapping,omitempty"`
 
 	// ContextPipelineYAML is an optional raw v0 pipeline YAML used purely as
 	// expression-postprocess context for template / input-set / trigger
@@ -33,10 +44,15 @@ type BatchConvertRequest struct {
 
 // BatchItem is one entity to convert inside a BatchConvertRequest.
 type BatchItem struct {
-	ID               string            `json:"id"`
-	EntityType       string            `json:"entity_type"` // "pipeline" | "template" | "input-set" | "trigger"
-	YAML             string            `json:"yaml"`
-	EntityRefMapping map[string]string `json:"entity_ref_mapping,omitempty"`
+	ID         string `json:"id"`
+	EntityType string `json:"entity_type"` // "pipeline" | "template" | "input-set" | "trigger"
+	YAML       string `json:"yaml"`
+
+	// TemplateRefMapping — same semantics as ConvertRequest.TemplateRefMapping.
+	TemplateRefMapping map[string]string `json:"template_ref_mapping,omitempty"`
+
+	// PipelineRefMapping — same semantics as ConvertRequest.PipelineRefMapping.
+	PipelineRefMapping map[string]string `json:"pipeline_ref_mapping,omitempty"`
 
 	// ContextPipelineYAML — same semantics as ConvertRequest.ContextPipelineYAML.
 	// Ignored when EntityType == "pipeline".

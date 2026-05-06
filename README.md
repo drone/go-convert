@@ -104,8 +104,11 @@ curl -X POST http://localhost:8090/api/v1/convert/batch \
         "id": "pipeline-1",
         "entity_type": "pipeline",
         "yaml": "<v0 pipeline YAML>",
-        "entity_ref_mapping": {
+        "template_ref_mapping": {
           "oldTemplateRef": "newTemplateRef_v1"
+        },
+        "pipeline_ref_mapping": {
+          "oldPipelineId": "newPipelineId_v1"
         }
       },
       {
@@ -121,7 +124,7 @@ curl -X POST http://localhost:8090/api/v1/convert/batch \
 
 ✅ **Batch Processing**: Convert up to 100 items per request  
 ✅ **Multi-Entity Support**: Pipelines, templates (Pipeline/Stage/Step), and input sets  
-✅ **Template Reference Mapping**: Update nested template references during conversion  
+✅ **Template & Pipeline Reference Mapping**: Rewrite template refs and pipeline identifiers independently during conversion  
 ✅ **Integrity Verification**: SHA-256 checksums for all conversions  
 ✅ **Production Ready**: Structured logging, graceful shutdown, health checks  
 ✅ **Container Ready**: Docker and Kubernetes support  
@@ -515,7 +518,7 @@ curl -X POST http://localhost:8090/api/v1/convert/batch \
       "id": "template-1",
       "entity_type": "template",
       "yaml": "template:\n  type: Stage\n  spec: {...}",
-      "entity_ref_mapping": {
+      "template_ref_mapping": {
         "oldRef": "newRef_v1"
       }
     }]

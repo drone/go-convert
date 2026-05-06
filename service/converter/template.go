@@ -11,11 +11,13 @@ import (
 // Template converts a Harness v0 template YAML string into v1 YAML bytes.
 // Supported template types are Pipeline, Stage, Step, and StepGroup.
 // The input must have a top-level "template:" key.
-// If refMapping is provided, template references in the output will be replaced.
+// templateRefMapping rewrites template references in the output;
+// pipelineRefMapping rewrites pipeline identifiers (pipeline.id, chain.uses
+// pipeline segment). Either or both may be nil/empty.
 // contextPipelineYAML is an optional v0 pipeline YAML used purely as
 // expression-postprocess context (see buildContextFromPipelineYAML). Pass ""
 // to run postprocess without FQN context.
-func Template(yamlStr string, refMapping map[string]string, contextPipelineYAML string) (*Result, error) {
+func Template(yamlStr string, templateRefMapping, pipelineRefMapping map[string]string, contextPipelineYAML string) (*Result, error) {
 	if err := validateTopLevelKey(yamlStr, "template"); err != nil {
 		return nil, err
 	}
@@ -57,7 +59,7 @@ func Template(yamlStr string, refMapping map[string]string, contextPipelineYAML 
 		return nil, fmt.Errorf("failed to marshal v1 template: %w", err)
 	}
 
-	yamlBytes, err = ReplaceTemplateRefs(yamlBytes, refMapping)
+	yamlBytes, err = ApplyRefMappings(yamlBytes, templateRefMapping, pipelineRefMapping)
 	if err != nil {
 		return nil, err
 	}

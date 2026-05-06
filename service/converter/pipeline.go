@@ -146,8 +146,11 @@ func dedupeExpressions(exprs []pipelineconverter.ExpressionLogEntry) []pipelinec
 
 // Pipeline converts a Harness v0 pipeline YAML string into v1 YAML bytes.
 // The input must have a top-level "pipeline:" key.
-// If refMapping is provided, template references in the output will be replaced.
-func Pipeline(yamlStr string, refMapping map[string]string) (*Result, error) {
+// templateRefMapping rewrites template references (template.uses /
+// templateRef) in the output; pipelineRefMapping rewrites pipeline
+// identifiers (pipeline.id, chain.uses pipeline segment). Either or both
+// may be nil/empty.
+func Pipeline(yamlStr string, templateRefMapping, pipelineRefMapping map[string]string) (*Result, error) {
 	if err := validateTopLevelKey(yamlStr, "pipeline"); err != nil {
 		return nil, err
 	}
@@ -177,7 +180,7 @@ func Pipeline(yamlStr string, refMapping map[string]string) (*Result, error) {
 		return nil, fmt.Errorf("failed to marshal v1 pipeline: %w", err)
 	}
 
-	out, err = ReplaceTemplateRefs(out, refMapping)
+	out, err = ApplyRefMappings(out, templateRefMapping, pipelineRefMapping)
 	if err != nil {
 		return nil, err
 	}

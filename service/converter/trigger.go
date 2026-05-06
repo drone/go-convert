@@ -10,7 +10,10 @@ import (
 
 // Trigger converts a Harness v0 trigger YAML string into v1 YAML bytes.
 // The input must have a top-level "trigger:" key.
-// If refMapping is provided, template references in the output will be replaced.
+// templateRefMapping rewrites template references in the output;
+// pipelineRefMapping rewrites pipeline identifiers (including the
+// trigger's pipelineIdentifier and any chain.uses inside the embedded
+// inputYaml). Either or both may be nil/empty.
 // contextPipelineYAML is an optional v0 pipeline YAML used purely as
 // expression-postprocess context (see buildContextFromPipelineYAML) for the
 // trigger wrapper. Pass "" to run postprocess without FQN context. The
@@ -20,7 +23,7 @@ import (
 // Conversion strategy:
 //   - The trigger structure remains mostly unchanged
 //   - Only the inputYaml content is converted to v1 format (similar to input set conversion)
-func Trigger(yamlStr string, refMapping map[string]string, contextPipelineYAML string) (*Result, error) {
+func Trigger(yamlStr string, templateRefMapping, pipelineRefMapping map[string]string, contextPipelineYAML string) (*Result, error) {
 	if err := validateTopLevelKey(yamlStr, "trigger"); err != nil {
 		return nil, err
 	}
@@ -56,7 +59,7 @@ func Trigger(yamlStr string, refMapping map[string]string, contextPipelineYAML s
 		return nil, fmt.Errorf("failed to marshal v1 trigger: %w", err)
 	}
 
-	yamlBytes, err = ReplaceTemplateRefs(yamlBytes, refMapping)
+	yamlBytes, err = ApplyRefMappings(yamlBytes, templateRefMapping, pipelineRefMapping)
 	if err != nil {
 		return nil, err
 	}

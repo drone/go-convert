@@ -44,9 +44,13 @@ func (h *GRPCHandler) convert(entityType string, req *pb.ConvertRequest) (*pb.Co
 		return nil, status.Error(codes.InvalidArgument, "'yaml' field is required and must not be empty")
 	}
 
-	refMapping := mergeRefMappings(req.GetTemplateRefMapping(), req.GetPipelineRefMapping())
-
-	res, err := dispatch(entityType, req.GetYaml(), refMapping, req.GetContextPipelineYaml())
+	res, err := dispatch(
+		entityType,
+		req.GetYaml(),
+		req.GetTemplateRefMapping(),
+		req.GetPipelineRefMapping(),
+		req.GetContextPipelineYaml(),
+	)
 	if err != nil {
 		return nil, classifyGRPCError(err)
 	}
@@ -106,16 +110,6 @@ func statusFromString(s string) pb.ConversionStatus {
 		return pb.ConversionStatus_NOT_CONVERTED
 	}
 	return pb.ConversionStatus_SUCCESS
-}
-
-func mergeRefMappings(maps ...map[string]string) map[string]string {
-	result := make(map[string]string)
-	for _, m := range maps {
-		for k, v := range m {
-			result[k] = v
-		}
-	}
-	return result
 }
 
 func classifyGRPCError(err error) error {
