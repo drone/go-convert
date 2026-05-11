@@ -34,7 +34,7 @@ func ConvertStepSaveCacheS3(src *v0.Step) *v1.StepTemplate {
 	}
 
 	if spec.Key != "" {
-		with["cachekey"] = spec.Key
+		with["cache_key"] = spec.Key
 	}
 
 	if spec.SourcePaths != nil {
@@ -46,15 +46,14 @@ func ConvertStepSaveCacheS3(src *v0.Step) *v1.StepTemplate {
 	}
 
 	if spec.ArchiveFormat != "" {
-		// Convert to lowercase as per v1 spec
-		with["archiveformat"] = strings.ToLower(spec.ArchiveFormat)
+		with["archive_format"] = strings.ToLower(spec.ArchiveFormat)
 	}
 
 	if spec.Override != nil {
 		with["override"] = spec.Override
 	}
 	if spec.PathStyle != nil {
-		with["pathstyle"] = spec.PathStyle
+		with["path_style"] = spec.PathStyle
 	}
 
 	return &v1.StepTemplate{
