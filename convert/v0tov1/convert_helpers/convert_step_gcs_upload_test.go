@@ -25,8 +25,9 @@ func TestConvertStepGCSUpload(t *testing.T) {
 			},
 			expected: map[string]interface{}{
 				"connector": "gcp-connector",
+				"bucket":    "my-bucket",
 				"source":    "dist/",
-				"target":    "my-bucket/path/in/bucket",
+				"target":    "path/in/bucket",
 			},
 		},
 		{
@@ -40,8 +41,8 @@ func TestConvertStepGCSUpload(t *testing.T) {
 			},
 			expected: map[string]interface{}{
 				"connector": "gcp-connector",
+				"bucket":    "my-bucket",
 				"source":    "artifacts/",
-				"target":    "my-bucket",
 			},
 		},
 		{

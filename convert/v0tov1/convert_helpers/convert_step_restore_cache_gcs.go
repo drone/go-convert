@@ -30,12 +30,11 @@ func ConvertStepRestoreCacheGCS(src *v0.Step) *v1.StepTemplate {
 	}
 
 	if spec.Key != "" {
-		with["cachekey"] = spec.Key
+		with["cache_key"] = spec.Key
 	}
 
 	if spec.ArchiveFormat != "" {
-		// Convert to lowercase as per v1 spec
-		with["archiveformat"] = strings.ToLower(spec.ArchiveFormat)
+		with["archive_format"] = strings.ToLower(spec.ArchiveFormat)
 	}
 
 	// v1 renamed failIfKeyNotFound → fail_if_key_not_found

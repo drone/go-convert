@@ -34,7 +34,7 @@ func ConvertStepRestoreCacheS3(src *v0.Step) *v1.StepTemplate {
 	}
 
 	if spec.Key != "" {
-		with["cachekey"] = spec.Key
+		with["cache_key"] = spec.Key
 	}
 
 	if spec.Endpoint != "" {
@@ -42,11 +42,10 @@ func ConvertStepRestoreCacheS3(src *v0.Step) *v1.StepTemplate {
 	}
 
 	if spec.ArchiveFormat != "" {
-		// Convert to lowercase as per v1 spec
-		with["archiveformat"] = strings.ToLower(spec.ArchiveFormat)
+		with["archive_format"] = strings.ToLower(spec.ArchiveFormat)
 	}
 	if spec.PathStyle != nil {
-		with["pathstyle"] = spec.PathStyle
+		with["path_style"] = spec.PathStyle
 	}
 	// v1 renamed failIfKeyNotFound → fail_if_key_not_found
 	if spec.FailIfKeyNotFound != nil {

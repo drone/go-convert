@@ -1,8 +1,6 @@
 package converthelpers
 
 import (
-	"fmt"
-
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
@@ -25,16 +23,15 @@ func ConvertStepGCSUpload(src *v0.Step) *v1.StepTemplate {
 		with["connector"] = spec.ConnectorRef
 	}
 
+	if spec.Bucket != "" {
+		with["bucket"] = spec.Bucket
+	}
+
 	if spec.SourcePath != "" {
 		with["source"] = spec.SourcePath
 	}
 
-	// Combine bucket and target into single target field: <bucket>/<target>
-	if spec.Bucket != "" && spec.Target != "" {
-		with["target"] = fmt.Sprintf("%s/%s", spec.Bucket, spec.Target)
-	} else if spec.Bucket != "" {
-		with["target"] = spec.Bucket
-	} else if spec.Target != "" {
+	if spec.Target != "" {
 		with["target"] = spec.Target
 	}
 

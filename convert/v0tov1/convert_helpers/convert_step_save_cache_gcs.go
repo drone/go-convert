@@ -30,16 +30,15 @@ func ConvertStepSaveCacheGCS(src *v0.Step) *v1.StepTemplate {
 	}
 
 	if spec.Key != "" {
-		with["cachekey"] = spec.Key
+		with["cache_key"] = spec.Key
 	}
 
 	if spec.SourcePaths != nil {
-		with["mount"] = spec.SourcePaths
+		with["source_path"] = spec.SourcePaths
 	}
 
 	if spec.ArchiveFormat != "" {
-		// Convert to lowercase as per v1 spec
-		with["archiveformat"] = strings.ToLower(spec.ArchiveFormat)
+		with["archive_format"] = strings.ToLower(spec.ArchiveFormat)
 	}
 
 	if spec.Override != nil {
