@@ -56,8 +56,12 @@ func ConvertStepCustomApproval(src *v0.Step) *v1.StepApproval {
 
     approve := convertCriteria(spec.ApprovalCriteria)
     reject := convertCriteria(spec.RejectionCriteria)
-    dst.With["approve"] = approve
-    dst.With["reject"] = reject
+    if approve != nil {
+        dst.With["approve"] = approve
+    }
+    if reject != nil {
+        dst.With["reject"] = reject
+    }
 
 	return dst
 }
@@ -82,8 +86,12 @@ func ConvertStepJiraApproval(src *v0.Step) *v1.StepApproval {
     }
     approve := convertCriteria(spec.ApprovalCriteria)
     reject := convertCriteria(spec.RejectionCriteria)
-    dst.With["approve"] = approve
-    dst.With["reject"] = reject
+    if approve != nil {
+        dst.With["approve"] = approve
+    }
+    if reject != nil {
+        dst.With["reject"] = reject
+    }
 
     download := map[string]interface{}{
         "url": "https://storage.googleapis.com/unified-plugins/jira-approval/v0.0.1/",
@@ -125,8 +133,12 @@ func ConvertStepServiceNowApproval(src *v0.Step) *v1.StepApproval {
     }
     approve := convertCriteria(spec.ApprovalCriteria)
     reject := convertCriteria(spec.RejectionCriteria)
-    dst.With["approve"] = approve
-    dst.With["reject"] = reject
+    if approve != nil {
+        dst.With["approve"] = approve
+    }
+    if reject != nil {
+        dst.With["reject"] = reject
+    }
     if spec.ChangeWindow != nil {
         changeWindow := map[string]interface{}{
             "start": spec.ChangeWindow.StartField,
