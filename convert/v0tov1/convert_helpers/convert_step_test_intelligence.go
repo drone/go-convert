@@ -19,15 +19,8 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 
 	// Container
 	var container *v1.Container
-	if sp.Image != "" || sp.ConnRef != "" || sp.Privileged != nil || (sp.Resources != nil && sp.Resources.Limits != nil )|| sp.RunAsUser != nil {
-		pull := ""
-		if strings.EqualFold(sp.ImagePullPolicy, "Always") {
-			pull = "always"
-		} else if strings.EqualFold(sp.ImagePullPolicy, "Never") {
-			pull = "never"
-		} else if strings.EqualFold(sp.ImagePullPolicy, "IfNotPresent") {
-			pull = "if-not-present"
-		}
+	if sp.Image != "" || sp.ConnRef != "" || sp.Privileged != nil || (sp.Resources != nil && sp.Resources.Limits != nil) || sp.RunAsUser != nil {
+		pull := ConvertImagePullPolicy(sp.ImagePullPolicy)
 		cpu := ""
 		memory := ""
 		if sp.Resources != nil && sp.Resources.Limits != nil {
@@ -41,7 +34,7 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 			Pull:       pull,
 			Cpu:        cpu,
 			Memory:     memory,
-			User: sp.RunAsUser,
+			User:       sp.RunAsUser,
 		}
 	}
 
@@ -61,12 +54,6 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 	// outputs
 	outputs := ConvertOutputVariables(sp.Outputs)
 
-	//glob to match
-	var match v1.Stringorslice
-	for _, glob := range sp.Globs {
-		match = append(match, glob)
-	}
-
 	//intelligence
 	var intelligence *v1.TestIntelligence
 	if sp.IntelligenceMode != nil {
@@ -74,17 +61,16 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 			Disabled: flexible.NegateBool(sp.IntelligenceMode),
 		}
 	}
-	
 
 	dst := &v1.StepTest{
-		Env: sp.Env,
-		Script: v1.Stringorslice{sp.Command},
-		Shell: shell,
+		Env:          sp.Env,
+		Script:       v1.Stringorslice{sp.Command},
+		Shell:        shell,
 		Intelligence: intelligence,
-		Container: container,
-		Report: report,
-		Outputs: outputs,
-		Match: match,
+		Container:    container,
+		Report:       report,
+		Outputs:      outputs,
+		Match:        sp.Globs,
 	}
 	return dst
 }

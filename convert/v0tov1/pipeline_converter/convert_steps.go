@@ -14,7 +14,7 @@ import (
 // convertSteps converts a list of v0.Steps to list of v1.Step.
 func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool, basePath string) []*v1.Step {
 	if len(src) == 0 {
-		return nil
+		return make([]*v1.Step, 0)
 	}
 	dst := make([]*v1.Step, 0, len(src))
 	for _, s := range src {
@@ -218,9 +218,7 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 			fmt.Sprintf("step type %q is not yet supported", src.Type),
 			WithStep(src.ID, src.Type),
 		)
-		step.Template = &v1.StepTemplate{
-			Uses: src.Type,
-		}
+		return nil
 	}
 
 	// Convert common step settings

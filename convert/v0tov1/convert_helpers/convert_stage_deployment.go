@@ -155,20 +155,25 @@ func ConvertEnvironment(src *v0.Environment, ctx *StageConversionContext) *v1.En
 		return nil
 	}
 
-	// Single environment deploying to all infrastructures
-	if src.EnvironmentRef != "" {
-		deployTo := resolveDeployTo(src.DeployToAll, &src.InfrastructureDefinitions)
-		return &v1.EnvironmentRef{
-			Name:     src.EnvironmentRef,
-			Id:       src.EnvironmentRef,
-			DeployTo: deployTo,
-		}
+	if src.EnvironmentRef == "" {
+		return nil
 	}
 
-	return nil
+	// Resolve deploy-to from both singular and plural infra definitions
+	deployTo := resolveEnvironmentDeployTo(src)
+
+	item := &v1.EnvironmentItem{
+		Id:       src.EnvironmentRef,
+		DeployTo: deployTo,
+	}
+
+	return &v1.EnvironmentRef{
+		Items:    []*v1.EnvironmentItem{item},
+		MultiEnv: false,
+	}
 }
 
-// ConvertEnvironments converts v0 Environments to v1 EnvironmentRef
+// ConvertEnvironments converts v0 Environments to v1 EnvironmentRef (multi-env format).
 func ConvertEnvironments(src *v0.Environments, ctx *StageConversionContext) *v1.EnvironmentRef {
 	if src == nil {
 		return nil
@@ -186,34 +191,77 @@ func ConvertEnvironments(src *v0.Environments, ctx *StageConversionContext) *v1.
 		return nil
 	}
 
-	if len(src.Values) == 0 {
-		return nil
-	}
-
 	// by default set to true
 	var sequential *flexible.Field[bool] = &flexible.Field[bool]{Value: true}
 	if src.Metadata != nil && src.Metadata.Parallel != nil {
 		sequential = flexible.NegateBool(src.Metadata.Parallel)
 	}
 
-	items := make([]*v1.EnvironmentItem, 0, len(src.Values))
-	for _, env := range src.Values {
-		if env.EnvironmentRef != "" {
-			deployTo := resolveDeployTo(env.DeployToAll, &env.InfrastructureDefinitions)
-			items = append(items, &v1.EnvironmentItem{
-				Name:     env.EnvironmentRef,
-				Id:       env.EnvironmentRef,
-				DeployTo: deployTo,
-			})
+	// Check if Values is nil or empty
+	hasValues := false
+	var values []*v0.Environment
+	if src.Values != nil {
+		if v, ok := src.Values.AsStruct(); ok && len(v) > 0 {
+			hasValues = true
+			values = v
 		}
 	}
 
+	// Check if Filters exist
+	hasFilters := false
+	var v0Filters []*v0.EnvironmentFilter
+	if src.Filters != nil {
+		if f, ok := src.Filters.AsStruct(); ok && len(f) > 0 {
+			hasFilters = true
+			v0Filters = f
+		}
+	}
+
+	// Case: top-level filters without values (filter-based multi-environment)
+	if !hasValues && hasFilters {
+		v1Filters := ConvertEnvironmentFilters(v0Filters)
+		if len(v1Filters) > 0 {
+			return &v1.EnvironmentRef{
+				Sequential: sequential,
+				Filters:    v1Filters,
+			}
+		}
+		return nil
+	}
+
+	if !hasValues {
+		return nil
+	}
+
+	items := make([]*v1.EnvironmentItem, 0, len(values))
+	for _, env := range values {
+		if env == nil || env.EnvironmentRef == "" {
+			continue
+		}
+		item := &v1.EnvironmentItem{
+			Id: env.EnvironmentRef,
+		}
+		// Per-environment filters (infra-level filters on each env)
+		if env.Filters != nil {
+			if ef, ok := env.Filters.AsStruct(); ok && len(ef) > 0 {
+				v1Filters := ConvertEnvironmentFilters(ef)
+				if len(v1Filters) > 0 {
+					item.Filters = v1Filters
+				}
+			}
+		}
+		if len(item.Filters) == 0 {
+			item.DeployTo = resolveEnvironmentDeployTo(env)
+		}
+		items = append(items, item)
+	}
+
 	if len(items) > 0 {
-		result := &v1.EnvironmentRef{
+		return &v1.EnvironmentRef{
 			Items:      items,
 			Sequential: sequential,
+			MultiEnv:   true,
 		}
-		return result
 	}
 
 	return nil
@@ -238,25 +286,78 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 		return nil
 	}
 
-	// Shorthand reference to environment group
-	if src.EnvGroupRef != "" && src.Environments == nil {
-		// Simple group reference format: environment: { group: "my-group" }
-		return &v1.EnvironmentRef{
-			Group: src.EnvGroupRef,
+	// Compute sequential from metadata (v0 parallel: true → v1 sequential: false)
+	var seqField *flexible.Field[bool]
+	if src.Metadata != nil && src.Metadata.Parallel != nil {
+		seqField = flexible.NegateBool(src.Metadata.Parallel)
+	}
+
+	// Case: environments is an expression (e.g., <+input>)
+	if src.Environments != nil {
+		if expr, ok := src.Environments.AsString(); ok && expr != "" {
+			// Expression for environments - pass through
+			groupConfig := map[string]interface{}{
+				"id": src.EnvGroupRef,
+			}
+			return &v1.EnvironmentRef{
+				Sequential: seqField,
+				Group:      groupConfig,
+			}
 		}
 	}
 
-	// Handle explicit group with environments
-	if src.Environments != nil {
-		items, sequential := parseEnvironmentGroupEnvironments(src.Environments, src.Metadata)
-		if len(items) > 0 {
+	// Case: filters is an expression (e.g., <+input>)
+	if src.Filters != nil {
+		if expr, ok := src.Filters.AsString(); ok && expr != "" {
 			groupConfig := map[string]interface{}{
-				"name":       src.EnvGroupRef,
-				"sequential": sequential,
-				"items":      items,
+				"id": src.EnvGroupRef,
 			}
 			return &v1.EnvironmentRef{
-				Group: groupConfig,
+				Sequential: seqField,
+				Group:      groupConfig,
+				
+			}
+		}
+	}
+
+	// Case: group ref with top-level filters (no environments)
+	if src.EnvGroupRef != "" && (src.Environments == nil || src.Environments.IsNil()) {
+		// Check for filters
+		if src.Filters != nil {
+			if filters, ok := src.Filters.AsStruct(); ok && len(filters) > 0 {
+				v1Filters := ConvertEnvironmentFilters(filters)
+				groupConfig := map[string]interface{}{
+					"id":      src.EnvGroupRef,
+					"filters": v1Filters,
+				}
+				return &v1.EnvironmentRef{
+					Sequential: seqField,
+					Group:      groupConfig,
+				}
+			}
+		}
+
+		// Simple group reference format
+		return &v1.EnvironmentRef{
+			Sequential: seqField,
+			Group:      map[string]interface{}{"id": src.EnvGroupRef},
+		}
+	}
+
+	// Handle explicit group with environments array
+	if src.Environments != nil {
+		envItems, ok := src.Environments.AsStruct()
+		if ok && len(envItems) > 0 {
+			items := convertEnvironmentGroupEnvItems(envItems)
+			if len(items) > 0 {
+				groupConfig := map[string]interface{}{
+					"id":    src.EnvGroupRef,
+					"items": items,
+				}
+				return &v1.EnvironmentRef{
+					Sequential: seqField,
+					Group:      groupConfig,
+				}
 			}
 		}
 	}
@@ -264,93 +365,21 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 	return nil
 }
 
-// parseEnvironmentGroupEnvironments parses the environments field which can be:
-// 1. []interface{} - direct array of environment objects
-// 2. map[string]interface{} with "metadata" and "values" keys
-func parseEnvironmentGroupEnvironments(environments interface{}, groupMetadata *v0.EnvironmentMetadata) ([]*v1.EnvironmentItem, bool) {
-	// Default sequential to true (parallel: false)
-	sequential := true
-
-	// Check group-level metadata first
-	if groupMetadata != nil && groupMetadata.Parallel != nil {
-		if val, ok := groupMetadata.Parallel.AsStruct(); ok {
-			sequential = !val
-		}
-	}
-
-	var envList []interface{}
-
-	switch envs := environments.(type) {
-	case []interface{}:
-		// Direct array of environments
-		envList = envs
-
-	case map[string]interface{}:
-		// Object with metadata and values
-		if metadata, ok := envs["metadata"].(map[string]interface{}); ok {
-			if parallel, ok := metadata["parallel"].(bool); ok {
-				sequential = !parallel
-			}
-		}
-		if values, ok := envs["values"].([]interface{}); ok {
-			envList = values
+// convertEnvironmentGroupEnvItems converts v0 Environment array to v1 EnvironmentItem array
+func convertEnvironmentGroupEnvItems(envItems []*v0.Environment) []*v1.EnvironmentItem {
+	items := make([]*v1.EnvironmentItem, 0, len(envItems))
+	for _, env := range envItems {
+		if env == nil || env.EnvironmentRef == "" {
+			continue
 		}
 
-	default:
-		return nil, sequential
+		deployTo := resolveEnvironmentDeployTo(env)
+		items = append(items, &v1.EnvironmentItem{
+			Id:       env.EnvironmentRef,
+			DeployTo: deployTo,
+		})
 	}
-
-	items := make([]*v1.EnvironmentItem, 0, len(envList))
-	for _, env := range envList {
-		if envMap, ok := env.(map[string]interface{}); ok {
-			envRef, _ := envMap["environmentRef"].(string)
-			if envRef == "" {
-				continue
-			}
-
-			deployTo := extractDeployTo(envMap)
-			items = append(items, &v1.EnvironmentItem{
-				Name:     envRef,
-				Id:       envRef,
-				DeployTo: deployTo,
-			})
-		}
-	}
-
-	return items, sequential
-}
-
-// extractDeployTo extracts the deploy-to value from an environment map
-func extractDeployTo(envMap map[string]interface{}) interface{} {
-	// Check deployToAll first
-	if deployToAll, ok := envMap["deployToAll"].(bool); ok && deployToAll {
-		return "all"
-	}
-
-	// Check infrastructureDefinitions
-	if infraDefs, ok := envMap["infrastructureDefinitions"].([]interface{}); ok {
-		if len(infraDefs) == 1 {
-			if infraMap, ok := infraDefs[0].(map[string]interface{}); ok {
-				if id, ok := infraMap["identifier"].(string); ok {
-					return id
-				}
-			}
-		} else if len(infraDefs) > 1 {
-			infraList := make([]string, 0, len(infraDefs))
-			for _, infra := range infraDefs {
-				if infraMap, ok := infra.(map[string]interface{}); ok {
-					if id, ok := infraMap["identifier"].(string); ok {
-						infraList = append(infraList, id)
-					}
-				}
-			}
-			if len(infraList) > 0 {
-				return infraList
-			}
-		}
-	}
-
-	return "all"
+	return items
 }
 
 // ConvertDeploymentInfrastructure converts v0 DeploymentInfrastructure to v1 EnvironmentRef
@@ -375,6 +404,35 @@ func ConvertDeploymentInfrastructure(src *v0.DeploymentInfrastructure) *v1.Envir
 	return &v1.EnvironmentRef{
 		Items: []*v1.EnvironmentItem{envItem},
 	}
+}
+
+// resolveEnvironmentDeployTo resolves the deploy-to value for a v0 Environment.
+// Checks both singular infrastructureDefinition and plural infrastructureDefinitions.
+func resolveEnvironmentDeployTo(env *v0.Environment) interface{} {
+	infraDefs := collectInfraDefinitions(env)
+	return resolveDeployTo(env.DeployToAll, infraDefs)
+}
+
+// collectInfraDefinitions merges singular and plural infrastructure definitions into one list.
+func collectInfraDefinitions(env *v0.Environment) *flexible.Field[[]*v0.InfrastructureDefinition] {
+	// Prefer plural if present
+	if env.InfrastructureDefinitions != nil && !env.InfrastructureDefinitions.IsNil() {
+		return env.InfrastructureDefinitions
+	}
+	// Fall back to singular
+	if env.InfrastructureDefinition != nil && !env.InfrastructureDefinition.IsNil() {
+		if env.InfrastructureDefinition.IsExpression() {
+			if expr, ok := env.InfrastructureDefinition.AsString(); ok {
+				f := &flexible.Field[[]*v0.InfrastructureDefinition]{}
+				f.SetExpression(expr)
+				return f
+			}
+		}
+		if single, ok := env.InfrastructureDefinition.AsStruct(); ok {
+			return &flexible.Field[[]*v0.InfrastructureDefinition]{Value: []*v0.InfrastructureDefinition{&single}}
+		}
+	}
+	return nil
 }
 
 // resolveDeployTo determines the deploy-to value based on DeployToAll and infrastructure definitions.

@@ -22,7 +22,7 @@ type StepTest struct {
 	Container    *Container        `json:"container,omitempty"`
 	Env          *flexible.Field[map[string]string] `json:"env,omitempty"`
 	Intelligence *TestIntelligence `json:"intelligence,omitempty"`
-	Match        Stringorslice     `json:"match,omitempty"`
+	Match        *flexible.Field[[]string]     `json:"match,omitempty"`
 	Outputs      []*Output         `json:"output,omitempty"`
 	Report       *Reports       `json:"report,omitempty"`
 	Script       Stringorslice     `json:"script,omitempty"`

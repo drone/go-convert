@@ -64,7 +64,7 @@ func TestConvertStepBackground(t *testing.T) {
 					Pull:       "always",
 					Entrypoint: &flexible.Field[[]string]{Value: []string{"/bin/sh", "-c"}},
 					User:       &flexible.Field[int]{Value: 1000},
-					PortBindings:      &flexible.Field[map[string]string]{Value: map[string]string{
+					PortBindings: &flexible.Field[map[string]string]{Value: map[string]string{
 						"5432": "5432",
 						"8080": "80",
 					}},
@@ -135,7 +135,7 @@ func TestConvertStepBackground(t *testing.T) {
 			expected: &v1.StepRun{
 				Container: &v1.Container{
 					Image: "myimage",
-					Pull:  "if-not-present",
+					Pull:  "if-not-exists",
 				},
 			},
 		},

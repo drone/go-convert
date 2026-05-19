@@ -17,14 +17,15 @@
 package yaml
 
 type Input struct {
-	Default     interface{} `json:"default,omitempty" yaml:"default,omitempty"`
-	Description string      `json:"description,omitempty" yaml:"description,omitempty"`
-	Enum        interface{} `json:"enum,omitempty" yaml:"enum,omitempty"`
-	Items       interface{} `json:"items,omitempty" yaml:"items,omitempty"`
-	Mask        bool        `json:"mask,omitempty" yaml:"mask,omitempty"`
-	Options     interface{} `json:"options,omitempty" yaml:"options,omitempty"`
-	Pattern     string      `json:"pattern,omitempty" yaml:"pattern,omitempty"`
-	Required    bool        `json:"required,omitempty" yaml:"required,omitempty"`
-	Type        string      `json:"type,omitempty" yaml:"type,omitempty"`
-	Value       interface{} `json:"value,omitempty" yaml:"value,omitempty"`
+	Default        interface{} `json:"default,omitempty" yaml:"default,omitempty"`
+	Desc           string      `json:"desc,omitempty" yaml:"desc,omitempty"`
+	Enum           interface{} `json:"enum,omitempty" yaml:"enum,omitempty"`
+	ExecutionInput bool        `json:"execution_input,omitempty" yaml:"execution_input,omitempty"`
+	Items          interface{} `json:"items,omitempty" yaml:"items,omitempty"`
+	Mask           bool        `json:"mask,omitempty" yaml:"mask,omitempty"`
+	Options        interface{} `json:"options,omitempty" yaml:"options,omitempty"`
+	Pattern        string      `json:"pattern,omitempty" yaml:"pattern,omitempty"`
+	Required       bool        `json:"required,omitempty" yaml:"required,omitempty"`
+	Type           string      `json:"type,omitempty" yaml:"type,omitempty"`
+	Value          interface{} `json:"value,omitempty" yaml:"value,omitempty"`
 }

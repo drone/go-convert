@@ -32,7 +32,7 @@ type RuntimeKubernetes struct {
 	PriorityClass          string                              `json:"priority-class,omitempty"         yaml:"priority-class,omitempty"`
 	Tolerations            *flexible.Field[[]*Toleration]      `json:"tolerations,omitempty"            yaml:"tolerations,omitempty"`
 	Host                   *flexible.Field[[]string]           `json:"host,omitempty"                   yaml:"host,omitempty"`
-	Node                   *flexible.Field[map[string]string]  `json:"node,omitempty"                   yaml:"node,omitempty"`
+	Node                   *flexible.Field[map[string]string]  `json:"node-selector,omitempty"          yaml:"node-selector,omitempty"`
 	Timeout                string                              `json:"timeout,omitempty"                yaml:"timeout,omitempty"`
 	ServiceAccount         string                              `json:"service-account,omitempty"        yaml:"service-account,omitempty"`
 	Labels                 *flexible.Field[map[string]string]  `json:"labels,omitempty"                 yaml:"labels,omitempty"`

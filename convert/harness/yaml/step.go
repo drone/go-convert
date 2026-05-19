@@ -317,7 +317,7 @@ type (
 		Outputs          []*Output                          `json:"outputVariables,omitempty"  yaml:"outputVariables,omitempty"`
 		ImagePullPolicy  string                             `json:"imagePullPolicy,omitempty"  yaml:"imagePullPolicy,omitempty"`
 		IntelligenceMode *flexible.Field[bool]              `json:"intelligenceMode,omitempty" yaml:"intelligenceMode,omitempty"`
-		Globs            []string                           `json:"globs,omitempty"            yaml:"globs,omitempty"`
+		Globs            *flexible.Field[[]string]          `json:"globs,omitempty"            yaml:"globs,omitempty"`
 		RunAsUser        *flexible.Field[int]               `json:"runAsUser,omitempty"        yaml:"runAsUser,omitempty"`
 		Resources        *Resources                         `json:"resources,omitempty"        yaml:"resources,omitempty"`
 	}

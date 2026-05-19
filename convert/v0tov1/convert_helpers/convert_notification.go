@@ -78,7 +78,7 @@ func convertNotificationMethodType(methodType string) string {
 	case "Slack":
 		return "slack"
 	case "PagerDuty":
-		return "pagerduty"
+		return "pager-duty"
 	case "MsTeams":
 		return "ms-teams"
 	case "Email":
@@ -98,17 +98,17 @@ func convertNotificationMethodSpec(method *v0.NotificationMethod) map[string]int
 
 	with := make(map[string]interface{})
 
-    // Use reflection to extract CommonNotificationSpec fields
-    specValue := reflect.ValueOf(method.Spec)
-    if specValue.Kind() == reflect.Struct {
-        // Try to get ExecuteOnDelegate field
-        if executeOnDelegateField := specValue.FieldByName("ExecuteOnDelegate"); executeOnDelegateField.IsValid() {
-            if executeOnDelegateField.Kind() == reflect.Bool {
-                if executeOnDelegate := executeOnDelegateField.Bool(); executeOnDelegate {
-                    with["execute-on-delegate"] = executeOnDelegate
-                }
-            }
-        }
+	// Use reflection to extract CommonNotificationSpec fields
+	specValue := reflect.ValueOf(method.Spec)
+	if specValue.Kind() == reflect.Struct {
+		// Try to get ExecuteOnDelegate field
+		if executeOnDelegateField := specValue.FieldByName("ExecuteOnDelegate"); executeOnDelegateField.IsValid() {
+			if executeOnDelegateField.Kind() == reflect.Bool {
+				if executeOnDelegate := executeOnDelegateField.Bool(); executeOnDelegate {
+					with["execute-on-delegate"] = executeOnDelegate
+				}
+			}
+		}
 
 		// Try to get DelegateSelectors field
 		if delegateSelectorsField := specValue.FieldByName("DelegateSelectors"); delegateSelectorsField.IsValid() {
@@ -183,14 +183,14 @@ func convertPipelineEvents(events []*v0.PipelineEvent) []*v1.NotificationOn {
 			return []*v1.NotificationOn{
 				{Pipeline: "all"},
 				{Stage: "all"},
-				{Step: "all"},
+				{Step: "failed"},
 			}
 		}
 	}
 
 	// Group events by type (only if AllEvents is not present)
 	pipelineEvents := []string{}
-	stageEvents := make(map[string]interface{})
+	stageEvents := []interface{}{}
 	stepEvents := []string{}
 
 	for _, event := range events {
@@ -208,11 +208,11 @@ func convertPipelineEvents(events []*v0.PipelineEvent) []*v1.NotificationOn {
 		case "PipelineFailed":
 			pipelineEvents = append(pipelineEvents, "failed")
 		case "StageStart":
-			addStageEvent(stageEvents, "start", event.ForStages)
+			addStageEvent(&stageEvents, "start", event.ForStages)
 		case "StageSuccess":
-			addStageEvent(stageEvents, "success", event.ForStages)
+			addStageEvent(&stageEvents, "success", event.ForStages)
 		case "StageFailed":
-			addStageEvent(stageEvents, "failed", event.ForStages)
+			addStageEvent(&stageEvents, "failed", event.ForStages)
 		case "StepFailed":
 			stepEvents = append(stepEvents, "failed")
 		}
@@ -254,8 +254,9 @@ func convertPipelineEvents(events []*v0.PipelineEvent) []*v1.NotificationOn {
 	return onEvents
 }
 
-// addStageEvent adds a stage event to the stage events map
-func addStageEvent(stageEvents map[string]interface{}, eventType string, forStages []string) {
+// addStageEvent adds a stage event to the stage events array.
+// Each item is either a plain string (for AllStages) or a single-key object (for specific stages).
+func addStageEvent(stageEvents *[]interface{}, eventType string, forStages []string) {
 	if len(forStages) == 0 {
 		return
 	}
@@ -263,15 +264,15 @@ func addStageEvent(stageEvents map[string]interface{}, eventType string, forStag
 	// Check if forStages contains "AllStages"
 	for _, stage := range forStages {
 		if stage == "AllStages" {
-			stageEvents[eventType] = "all"
+			*stageEvents = append(*stageEvents, eventType)
 			return
 		}
 	}
 
-	// If not AllStages, use the specific stage list
+	// Specific stages: create single-key object
 	if len(forStages) == 1 {
-		stageEvents[eventType] = forStages[0]
+		*stageEvents = append(*stageEvents, map[string]interface{}{eventType: forStages[0]})
 	} else {
-		stageEvents[eventType] = forStages
+		*stageEvents = append(*stageEvents, map[string]interface{}{eventType: forStages})
 	}
 }

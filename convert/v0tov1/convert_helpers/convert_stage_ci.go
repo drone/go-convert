@@ -114,7 +114,7 @@ func ConvertInfrastructureToRuntime(infra *v0.Infrastructure, ctx *StageConversi
 					PriorityClass:         k8sSpec.PriorityClassName,
 					HarnessImageConnector: k8sSpec.HarnessImageConnectorRef,
 					PodSpecOverlay:        k8sSpec.PodSpecOverlay,
-					ImagePullPolicy:       convertImagePullPolicy(k8sSpec.ImagePullPolicy),
+					ImagePullPolicy:       ConvertImagePullPolicy(k8sSpec.ImagePullPolicy),
 					User:                  k8sSpec.RunAsUser,
 					SecurityContext:       convertSecurityContext(k8sSpec.ContainerSecurityContext),
 					Volumes:               ConvertInfrastructureToVolumes(infra),
@@ -123,7 +123,7 @@ func ConvertInfrastructureToRuntime(infra *v0.Infrastructure, ctx *StageConversi
 			return runtime
 		}
 	}
-
+	
 	// Handle VM type
 	if strings.EqualFold(infra.Type, "VM") {
 		if vmSpec, ok := infra.Spec.(*v0.InfrastructureVMSpec); ok && vmSpec != nil {
@@ -135,7 +135,7 @@ func ConvertInfrastructureToRuntime(infra *v0.Infrastructure, ctx *StageConversi
 				return &v1.Runtime{
 					VM: &v1.RuntimeInstance{
 						Pool:                  pool,
-						Os:                    vmSpec.Spec.OS,
+						Os:                    strings.ToLower(vmSpec.Spec.OS),
 						HarnessImageConnector: vmSpec.Spec.HarnessImageConnectorRef,
 						Timeout:               vmSpec.Spec.Timeout,
 					},
@@ -147,15 +147,15 @@ func ConvertInfrastructureToRuntime(infra *v0.Infrastructure, ctx *StageConversi
 	return nil
 }
 
-// Helper function to convert image pull policy
-func convertImagePullPolicy(policy string) string {
+// ConvertImagePullPolicy converts v0 image pull policy to v1 format
+func ConvertImagePullPolicy(policy string) string {
 	switch policy {
 	case "Always":
 		return "always"
 	case "Never":
 		return "never"
 	case "IfNotPresent":
-		return "if-not-present"
+		return "if-not-exists"
 	default:
 		return policy
 	}
@@ -297,13 +297,13 @@ func ConvertServiceDependencyToBackgroundStep(src *v0.Service) *v1.Step {
 		}
 
 		container = &v1.Container{
-			Image:      src.Spec.Image,
-			Connector:  src.Spec.Conn,
-			Cpu:        cpu,
-			Memory:     memory,
-			Entrypoint: src.Spec.Entrypoint,
-			Args:       src.Spec.Args,
-			Privileged: src.Spec.Privileged,
+			Image:        src.Spec.Image,
+			Connector:    src.Spec.Conn,
+			Cpu:          cpu,
+			Memory:       memory,
+			Entrypoint:   src.Spec.Entrypoint,
+			Args:         src.Spec.Args,
+			Privileged:   src.Spec.Privileged,
 			PortBindings: src.Spec.PortBindings,
 		}
 	}

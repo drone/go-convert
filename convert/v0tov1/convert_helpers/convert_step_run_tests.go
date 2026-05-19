@@ -26,7 +26,7 @@ func ConvertStepRunTests(src *v0.Step) *v1.StepTest {
 	// Container mapping
 	var container *v1.Container
 	if sp.Image != "" || sp.ConnectorRef != "" || sp.Privileged != nil || (sp.Resources != nil && sp.Resources.Limits != nil) || sp.RunAsUser != nil {
-		pull := convertImagePullPolicy(sp.ImagePullPolicy)
+		pull := ConvertImagePullPolicy(sp.ImagePullPolicy)
 		cpu := ""
 		memory := ""
 		if sp.Resources != nil && sp.Resources.Limits != nil {
@@ -65,15 +65,13 @@ func ConvertStepRunTests(src *v0.Step) *v1.StepTest {
 	}
 
 	// Match globs (testGlobs -> match)
-	var match v1.Stringorslice
+	var match *flexible.Field[[]string]
 	if sp.TestGlobs != "" {
 		globs := strings.Split(sp.TestGlobs, ",")
-		for _, g := range globs {
-			trimmed := strings.TrimSpace(g)
-			if trimmed != "" {
-				match = append(match, trimmed)
-			}
+		for i, glob := range globs {
+			globs[i] = strings.TrimSpace(glob)
 		}
+		match = &flexible.Field[[]string]{Value: globs}
 	}
 
 	// Outputs

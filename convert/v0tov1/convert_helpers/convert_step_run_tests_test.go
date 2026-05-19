@@ -65,7 +65,7 @@ func TestConvertStepRunTests(t *testing.T) {
 				Env: &flexible.Field[map[string]string]{Value: map[string]string{
 					"MAVEN_OPTS": "-Xmx512m",
 				}},
-				Match:  v1.Stringorslice{"**/*Test.java", "**/*Tests.java", "**/*IT.java"},
+				Match:  &flexible.Field[[]string]{Value: []string{"**/*Test.java", "**/*Tests.java", "**/*IT.java"}},
 				Outputs: []*v1.Output{
 					{Name: "TEST_RESULT", Alias: "TEST_RESULT"},
 				},

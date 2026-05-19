@@ -44,14 +44,15 @@ pipeline:
   - group:
       stages:
       - environment:
-          items:
-          - name: prod
+          id: prod
+        steps: []
       - environment:
           sequential: true
           items:
           - name: test
           - name: prod
             deploy-to: all
+        steps: []
 
   #
   # test service variations
@@ -59,12 +60,15 @@ pipeline:
   - group:
       stages:
       - service: petstore
+        steps: []
       - service:
           items:
           - petstore-frontend
           - petstore-backend
+        steps: []
       - service:
           sequential: true
           items:
           - petstore-frontend
           - petstore-backend
+        steps: []

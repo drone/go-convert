@@ -42,10 +42,14 @@ func ConvertStepHarnessApproval(src *v0.Step) *v1.StepApproval {
 	}
 
 	// Map includePipelineExecutionHistory to execution-details
-	dst.With["execution-details"] = spec.IncludePipelineExecutionHistory
+	if spec.IncludePipelineExecutionHistory != nil {
+		dst.With["execution-details"] = *spec.IncludePipelineExecutionHistory
+	}
 
 	// Map isAutoRejectEnabled to auto-reject
-	dst.With["auto-reject"] = spec.IsAutoRejectEnabled
+	if spec.IsAutoRejectEnabled != nil {
+		dst.With["auto-reject"] = *spec.IsAutoRejectEnabled
+	}
 
 	// Map approvers fields
 	if spec.Approvers != nil {
@@ -55,7 +59,9 @@ func ConvertStepHarnessApproval(src *v0.Step) *v1.StepApproval {
 		}
 
 		// Map disallowPipelineExecutor to block-executor
-		dst.With["block-executor"] = spec.Approvers.DisallowPipelineExecutor
+		if spec.Approvers.DisallowPipelineExecutor != nil {
+			dst.With["block-executor"] = *spec.Approvers.DisallowPipelineExecutor
+		}
 
 		// Map userGroups to user-groups
 		if spec.Approvers.UserGroups != nil {

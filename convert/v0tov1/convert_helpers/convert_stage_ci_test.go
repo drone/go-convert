@@ -162,7 +162,7 @@ func TestConvertInfrastructureToRuntime(t *testing.T) {
 			expected: &v1.Runtime{
 				VM: &v1.RuntimeInstance{
 					Pool:                  "my-pool",
-					Os:                    "Linux",
+					Os:                    "linux",
 					HarnessImageConnector: "vm-connector",
 					Timeout:               "30m",
 				},
@@ -183,7 +183,7 @@ func TestConvertInfrastructureToRuntime(t *testing.T) {
 			expected: &v1.Runtime{
 				VM: &v1.RuntimeInstance{
 					Pool: "pool-id-fallback",
-					Os:   "Windows",
+					Os:   "windows",
 				},
 			},
 		},
