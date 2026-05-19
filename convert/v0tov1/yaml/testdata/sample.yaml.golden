@@ -49,8 +49,8 @@ pipeline:
       - environment:
           sequential: true
           items:
-          - name: test
-          - name: prod
+          - id: test
+          - id: prod
             deploy-to: all
         steps: []
 

@@ -35,7 +35,7 @@ const (
 	ActionTypeRetryStepGroup     ActionType = "retry-step-group"
 	ActionTypeStageRollback      ActionType = "stage-rollback"
 	ActionTypeSuccess            ActionType = "success"
-	ActionTypeProceedWithDefaultValues ActionType = "proceed-with-default-values"
+	ActionTypeProceedWithDefaultValues ActionType = "proceed-with-default"
 )
 
 // UnmarshalJSON unmashals a quoted json string to the enum value.

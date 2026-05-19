@@ -17,7 +17,6 @@ package yaml
 // EnvironmentItem represents a single environment entry.
 type EnvironmentItem struct {
 	Id       string      `json:"id,omitempty" yaml:"id,omitempty"`
-	Name     string      `json:"name,omitempty" yaml:"name,omitempty"`
 	DeployTo interface{} `json:"deploy-to,omitempty" yaml:"deploy-to,omitempty"`
 	Filters  []*Filter   `json:"filters,omitempty" yaml:"filters,omitempty"`
 }

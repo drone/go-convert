@@ -391,7 +391,6 @@ func ConvertDeploymentInfrastructure(src *v0.DeploymentInfrastructure) *v1.Envir
 
 	// Create environment item with the environmentRef from infrastructure
 	envItem := &v1.EnvironmentItem{
-		Name:     src.EnvironmentRef,
 		Id:       src.EnvironmentRef,
 		DeployTo: "all", // Default to all infrastructures
 	}
