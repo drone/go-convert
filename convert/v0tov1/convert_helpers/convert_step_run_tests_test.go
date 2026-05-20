@@ -67,7 +67,7 @@ func TestConvertStepRunTests(t *testing.T) {
 				}},
 				Match:  &flexible.Field[[]string]{Value: []string{"**/*Test.java", "**/*Tests.java", "**/*IT.java"}},
 				Outputs: []*v1.Output{
-					{Name: "TEST_RESULT", Alias: "TEST_RESULT"},
+					{Name: "TEST_RESULT"},
 				},
 				Report: &v1.Reports{
 					Type:  "junit",
