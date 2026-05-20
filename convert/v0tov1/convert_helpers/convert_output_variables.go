@@ -11,20 +11,19 @@ func ConvertOutputVariables(src []*v0.Output) []*v1.Output {
 		if outputVar == nil {
 			continue
 		}
-		alias := outputVar.Name
-		name := outputVar.Value
-		if name == "" {
-			name = outputVar.Name
-		}
+
+		name := outputVar.Name   // Harness key (required)
+		alias := outputVar.Value // Shell variable to capture (optional)
+
 		mask := false
 		if outputVar.Type == "Secret" {
 			mask = true
 		}
 
 		output := &v1.Output{
-			Alias:  alias,
-			Mask:   mask,
-			Name: name,
+			Name:  name,
+			Alias: alias,
+			Mask:  mask,
 		}
 		outputs = append(outputs, output)
 	}
