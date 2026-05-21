@@ -1,8 +1,10 @@
 package yaml
 
 import (
+	"bytes"
 	"encoding/json"
 	"os"
+	"regexp"
 
 	"gopkg.in/yaml.v3"
 )
@@ -30,9 +32,8 @@ func MarshalPipeline(p *Pipeline) ([]byte, error) {
 		return nil, err
 	}
 
-	// Convert JSON to interface{} for YAML marshaling
-	var jsonData interface{}
-	if err := json.Unmarshal(jsonBytes, &jsonData); err != nil {
+	jsonData, err := jsonToInterface(jsonBytes)
+	if err != nil {
 		return nil, err
 	}
 
@@ -67,9 +68,8 @@ func MarshalInputSet(i *InputSet) ([]byte, error) {
 		return nil, err
 	}
 
-	// Convert JSON to interface{} for YAML marshaling
-	var jsonData interface{}
-	if err := json.Unmarshal(jsonBytes, &jsonData); err != nil {
+	jsonData, err := jsonToInterface(jsonBytes)
+	if err != nil {
 		return nil, err
 	}
 
@@ -109,9 +109,8 @@ func MarshalTemplate(t *Template) ([]byte, error) {
 		return nil, err
 	}
 
-	// Convert JSON to interface{} for YAML marshaling
-	var jsonData interface{}
-	if err := json.Unmarshal(jsonBytes, &jsonData); err != nil {
+	jsonData, err := jsonToInterface(jsonBytes)
+	if err != nil {
 		return nil, err
 	}
 
@@ -149,14 +148,85 @@ func MarshalTrigger(t *Trigger) ([]byte, error) {
 		return nil, err
 	}
 
-	// Convert JSON to interface{} for YAML marshaling
-	var jsonData interface{}
-	if err := json.Unmarshal(jsonBytes, &jsonData); err != nil {
+	jsonData, err := jsonToInterface(jsonBytes)
+	if err != nil {
 		return nil, err
 	}
 
 	// Marshal to YAML
 	return yaml.Marshal(jsonData)
+}
+
+// jsonToInterface decodes JSON bytes into an interface{} tree, using
+// json.Decoder with UseNumber() to preserve number representations.
+// The resulting tree is then walked to convert json.Number values
+// to int64 (for integers) or float64 (for floats), so that YAML
+// marshaling outputs integers as e.g. 2147483647 instead of 2.147483647e+09.
+func jsonToInterface(data []byte) (interface{}, error) {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.UseNumber()
+	var v interface{}
+	if err := dec.Decode(&v); err != nil {
+		return nil, err
+	}
+	return convertJSONNumbers(v), nil
+}
+
+// convertJSONNumbers recursively walks an interface{} tree and converts
+// json.Number values to int64 (if the number is a valid integer) or
+// float64 (otherwise). This prevents large integers from being
+// represented in scientific notation when marshaled to YAML.
+// It also detects Go strings that look like YAML numbers (e.g. "345e2256")
+// and wraps them so that the YAML emitter produces a quoted scalar.
+func convertJSONNumbers(v interface{}) interface{} {
+	switch val := v.(type) {
+	case map[string]interface{}:
+		for k, child := range val {
+			val[k] = convertJSONNumbers(child)
+		}
+		return val
+	case []interface{}:
+		for i, child := range val {
+			val[i] = convertJSONNumbers(child)
+		}
+		return val
+	case json.Number:
+		if i, err := val.Int64(); err == nil {
+			return i
+		}
+		if f, err := val.Float64(); err == nil {
+			return f
+		}
+		return val.String()
+	case string:
+		if yamlNumberLike.MatchString(val) {
+			return quotedString(val)
+		}
+		return val
+	default:
+		return v
+	}
+}
+
+// yamlNumberLike matches strings that YAML parsers may resolve as floats
+// in scientific notation (e.g. "345e2256", "1.5e10", ".5E-3").
+// These must be quoted in YAML output to preserve their string type.
+var yamlNumberLike = regexp.MustCompile(
+	`^[-+]?([0-9]+(\.[0-9]*)?|\.[0-9]+)[eE][-+]?[0-9]+$`,
+)
+
+// quotedString is a string wrapper whose MarshalYAML method forces the
+// YAML emitter to use double-quoted style, preventing the value from
+// being misinterpreted as a number.
+type quotedString string
+
+func (q quotedString) MarshalYAML() (interface{}, error) {
+	return &yaml.Node{
+		Kind:  yaml.ScalarNode,
+		Value: string(q),
+		Style: yaml.DoubleQuotedStyle,
+		Tag:   "!!str",
+	}, nil
 }
 
 // WriteTriggerFile writes the Trigger to the given file path.

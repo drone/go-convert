@@ -77,13 +77,14 @@ func convertMatrix(src *flexible.Field[map[string]interface{}]) (*flexible.Field
                 // Handle case where exclude is already []map[string]string
                 exclude = excludeList
             }
-        case "maxConcurrency":
+        case "maxConcurrency", "parallelism":
             maxParallel = &flexible.Field[int64]{}
             if vNumber, ok := v.(float64); ok {
                 maxParallel.Set(int64(vNumber))
             } else if vString, ok := v.(string); ok {
                 maxParallel.SetString(vString)
             }
+        
         case "nodeName":
             axis["node-name"] = v
         default:

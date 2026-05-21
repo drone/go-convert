@@ -82,6 +82,20 @@ func (f *Field[T]) IsExpression() bool {
 	return strings.Contains(str, "<+")
 }
 
+// IsEmpty returns true if the underlying value is nil or an empty.
+func (f *Field[T]) IsEmpty() bool {
+	if f == nil || f.Value == nil {
+		return true
+	}
+
+	switch v := any(f.Value).(type) {
+	case string:
+		return v == ""
+	default:
+		return false
+	}
+}
+
 // AsStruct returns the value as struct T, or zero value and false if it's a string
 func (f *Field[T]) AsStruct() (T, bool) {
 	var zero T

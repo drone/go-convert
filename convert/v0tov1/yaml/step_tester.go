@@ -16,7 +16,11 @@
 
 package yaml
 
-import "github.com/drone/go-convert/internal/flexible"
+import (
+	"encoding/json"
+
+	"github.com/drone/go-convert/internal/flexible"
+)
 
 type StepTest struct {
 	Container    *Container        `json:"container,omitempty"`
@@ -28,4 +32,14 @@ type StepTest struct {
 	Script       Stringorslice     `json:"script,omitempty"`
 	Shell        string            `json:"shell,omitempty"`
 	Splitting    *TestSplitting    `json:"splitting,omitempty"`
+}
+
+// MarshalJSON implements json.Marshaler. See StepRun.MarshalJSON.
+func (v StepTest) MarshalJSON() ([]byte, error) {
+	type alias StepTest
+	a := alias(v)
+	if a.Env != nil && a.Env.IsEmpty() {
+		a.Env = nil
+	}
+	return json.Marshal(a)
 }
