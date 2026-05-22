@@ -25,77 +25,97 @@ func TestConvertOutputVariables(t *testing.T) {
 			expected: []*v1.Output{},
 		},
 		{
-			name: "single output with value",
+			name: "output with different shell variable name",
 			input: []*v0.Output{
-				{Name: "MY_VAR", Value: "output_value"},
+				{Name: "approvalStatus", Value: "STATUS"},
 			},
 			expected: []*v1.Output{
-				{Alias: "MY_VAR", Name: "output_value", Mask: false},
+				{Name: "approvalStatus", Alias: "STATUS", Mask: false},
 			},
 		},
 		{
-			name: "single output name fallback when value is empty",
+			name: "output with same name and value (alias set)",
+			input: []*v0.Output{
+				{Name: "STATUS", Value: "STATUS"},
+			},
+			expected: []*v1.Output{
+				{Name: "STATUS", Alias: "STATUS", Mask: false},
+			},
+		},
+		{
+			name: "output with empty value (uses name for both)",
 			input: []*v0.Output{
 				{Name: "MY_VAR", Value: ""},
 			},
 			expected: []*v1.Output{
-				{Alias: "MY_VAR", Name: "MY_VAR", Mask: false},
+				{Name: "MY_VAR", Alias: "", Mask: false},
 			},
 		},
 		{
-			name: "multiple outputs",
+			name: "multiple outputs with different mappings",
 			input: []*v0.Output{
-				{Name: "VAR_A", Value: "val_a"},
-				{Name: "VAR_B", Value: "val_b"},
-				{Name: "VAR_C", Value: "val_c"},
+				{Name: "buildNumber", Value: "BUILD_NUM"},
+				{Name: "commitHash", Value: "GIT_COMMIT"},
+				{Name: "version", Value: "APP_VERSION"},
 			},
 			expected: []*v1.Output{
-				{Alias: "VAR_A", Name: "val_a", Mask: false},
-				{Alias: "VAR_B", Name: "val_b", Mask: false},
-				{Alias: "VAR_C", Name: "val_c", Mask: false},
+				{Name: "buildNumber", Alias: "BUILD_NUM", Mask: false},
+				{Name: "commitHash", Alias: "GIT_COMMIT", Mask: false},
+				{Name: "version", Alias: "APP_VERSION", Mask: false},
 			},
 		},
 		{
-			name: "output with Type Secret sets mask true",
+			name: "secret output variable",
 			input: []*v0.Output{
-				{Name: "SECRET_VAR", Value: "secret_val", Type: "Secret"},
+				{Name: "apiToken", Value: "API_TOKEN", Type: "Secret"},
 			},
 			expected: []*v1.Output{
-				{Alias: "SECRET_VAR", Name: "secret_val", Mask: true},
+				{Name: "apiToken", Alias: "API_TOKEN", Mask: true},
 			},
 		},
 		{
-			name: "output with non-Secret type sets mask false",
+			name: "output with non-Secret type",
 			input: []*v0.Output{
-				{Name: "NORMAL_VAR", Value: "normal_val", Type: "String"},
+				{Name: "result", Value: "RESULT", Type: "String"},
 			},
 			expected: []*v1.Output{
-				{Alias: "NORMAL_VAR", Name: "normal_val", Mask: false},
+				{Name: "result", Alias: "RESULT", Mask: false},
 			},
 		},
 		{
 			name: "nil entries in slice are skipped",
 			input: []*v0.Output{
-				{Name: "VAR_A", Value: "val_a"},
+				{Name: "first", Value: "FIRST"},
 				nil,
-				{Name: "VAR_C", Value: "val_c"},
+				{Name: "third", Value: "THIRD"},
 			},
 			expected: []*v1.Output{
-				{Alias: "VAR_A", Name: "val_a", Mask: false},
-				{Alias: "VAR_C", Name: "val_c", Mask: false},
+				{Name: "first", Alias: "FIRST", Mask: false},
+				{Name: "third", Alias: "THIRD", Mask: false},
 			},
 		},
 		{
 			name: "mixed secret and non-secret outputs",
 			input: []*v0.Output{
-				{Name: "PUBLIC", Value: "pub_val", Type: "String"},
-				{Name: "PRIVATE", Value: "priv_val", Type: "Secret"},
-				{Name: "FALLBACK", Value: ""},
+				{Name: "publicKey", Value: "PUBLIC_KEY", Type: "String"},
+				{Name: "privateKey", Value: "PRIVATE_KEY", Type: "Secret"},
+				{Name: "status", Value: ""},
 			},
 			expected: []*v1.Output{
-				{Alias: "PUBLIC", Name: "pub_val", Mask: false},
-				{Alias: "PRIVATE", Name: "priv_val", Mask: true},
-				{Alias: "FALLBACK", Name: "FALLBACK", Mask: false},
+				{Name: "publicKey", Alias: "PUBLIC_KEY", Mask: false},
+				{Name: "privateKey", Alias: "PRIVATE_KEY", Mask: true},
+				{Name: "status", Alias: "", Mask: false},
+			},
+		},
+		{
+			name: "realistic example from documentation",
+			input: []*v0.Output{
+				{Name: "approvalStatus", Value: "STATUS", Type: "String"},
+				{Name: "deploymentId", Value: "DEPLOY_ID", Type: "String"},
+			},
+			expected: []*v1.Output{
+				{Name: "approvalStatus", Alias: "STATUS", Mask: false},
+				{Name: "deploymentId", Alias: "DEPLOY_ID", Mask: false},
 			},
 		},
 	}

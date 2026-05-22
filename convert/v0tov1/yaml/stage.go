@@ -16,45 +16,78 @@
 
 package yaml
 
-import "github.com/drone/go-convert/internal/flexible"
+import (
+	"encoding/json"
+
+	"github.com/drone/go-convert/internal/flexible"
+)
 
 type Stage struct {
-	Approval    *StageApproval         `json:"approval,omitempty" yaml:"approval,omitempty"`
-	BuildIntelligence *BuildIntelligence `json:"build-intelligence,omitempty" yaml:"build-intelligence,omitempty"`
-	Cache       *Cache                 `json:"cache,omitempty" yaml:"cache,omitempty"`
-	Clone       *Clone                 `json:"clone,omitempty" yaml:"clone,omitempty"`
-	Chain       *Chain                 `json:"chain,omitempty" yaml:"chain,omitempty"`
-	Concurrency *Concurrency           `json:"concurrency,omitempty" yaml:"concurrency,omitempty"`
-	Delegate    *flexible.Field[*Delegate]                 `json:"delegate,omitempty" yaml:"delegate,omitempty"`
-	Env         map[string]interface{}      `json:"env,omitempty" yaml:"env,omitempty"`
-	Environment *EnvironmentRef        `json:"environment,omitempty" yaml:"environment,omitempty"`
-	Group       *StageGroup            `json:"group,omitempty" yaml:"group,omitempty"`
-	Id          string                 `json:"id,omitempty" yaml:"id,omitempty"`
-	If          string                 `json:"if,omitempty" yaml:"if,omitempty"`
-	Inputs      map[string]*Input      `json:"inputs,omitempty" yaml:"inputs,omitempty"`
-	Name        string                 `json:"name,omitempty" yaml:"name,omitempty"`
-	Needs       Stringorslice          `json:"needs,omitempty" yaml:"needs,omitempty"`
-	OnFailure   *flexible.Field[[]*FailureStrategy]       `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
-	Outputs     map[string]interface{} `json:"outputs,omitempty" yaml:"outputs,omitempty"`
-	Parallel    *StageGroup            `json:"parallel,omitempty" yaml:"parallel,omitempty"`
-	Permissions *Permissions           `json:"permissions,omitempty" yaml:"permissions,omitempty"`
-	Platform    *Platform              `json:"platform,omitempty" yaml:"platform,omitempty"`
-	Rollback    []*Step                  `json:"rollback,omitempty" yaml:"rollback,omitempty"`
-	RunsOn      string                 `json:"runs-on,omitempty" yaml:"runs-on,omitempty"`
-	Runtime     *Runtime               `json:"runtime,omitempty" yaml:"runtime,omitempty"`
-	SharedPaths *flexible.Field[[]string]               `json:"shared-paths,omitempty" yaml:"shared-paths,omitempty"`
-	Service     *ServiceRef            `json:"service,omitempty" yaml:"service,omitempty"`
-	Services    map[string]*Container  `json:"services,omitempty" yaml:"services,omitempty"`
-	Status      *Status                `json:"status,omitempty" yaml:"status,omitempty"`
-	Steps       []*Step                `json:"steps,omitempty" yaml:"steps"`
-	Strategy    *Strategy              `json:"strategy,omitempty" yaml:"strategy,omitempty"`
-	Template    *StageTemplate         `json:"template,omitempty" yaml:"template,omitempty"`
-	Timeout     string                 `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	Volumes     []*Volume              `json:"volumes,omitempty" yaml:"volumes,omitempty"`
+	Approval          *StageApproval                      `json:"approval,omitempty" yaml:"approval,omitempty"`
+	BuildIntelligence *BuildIntelligence                  `json:"build-intelligence,omitempty" yaml:"build-intelligence,omitempty"`
+	Cache             *Cache                              `json:"cache,omitempty" yaml:"cache,omitempty"`
+	Clone             *Clone                              `json:"clone,omitempty" yaml:"clone,omitempty"`
+	Chain             *Chain                              `json:"chain,omitempty" yaml:"chain,omitempty"`
+	Concurrency       *Concurrency                        `json:"concurrency,omitempty" yaml:"concurrency,omitempty"`
+	Delegate          *flexible.Field[*Delegate]          `json:"delegate,omitempty" yaml:"delegate,omitempty"`
+	Env               map[string]interface{}              `json:"env,omitempty" yaml:"env,omitempty"`
+	Environment       *EnvironmentRef                     `json:"environment,omitempty" yaml:"environment,omitempty"`
+	Group             *StageGroup                         `json:"group,omitempty" yaml:"group,omitempty"`
+	Id                string                              `json:"id,omitempty" yaml:"id,omitempty"`
+	If                string                              `json:"if,omitempty" yaml:"if,omitempty"`
+	Inputs            map[string]*Input                   `json:"inputs,omitempty" yaml:"inputs,omitempty"`
+	Name              string                              `json:"name,omitempty" yaml:"name,omitempty"`
+	Needs             Stringorslice                       `json:"needs,omitempty" yaml:"needs,omitempty"`
+	OnFailure         *flexible.Field[[]*FailureStrategy] `json:"on-failure,omitempty" yaml:"on-failure,omitempty"`
+	Outputs           map[string]interface{}              `json:"outputs,omitempty" yaml:"outputs,omitempty"`
+	Parallel          *StageGroup                         `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+	Permissions       *Permissions                        `json:"permissions,omitempty" yaml:"permissions,omitempty"`
+	Platform          *Platform                           `json:"platform,omitempty" yaml:"platform,omitempty"`
+	Rollback          []*Step                             `json:"rollback,omitempty" yaml:"rollback,omitempty"`
+	RunsOn            string                              `json:"runs-on,omitempty" yaml:"runs-on,omitempty"`
+	Runtime           *Runtime                            `json:"runtime,omitempty" yaml:"runtime,omitempty"`
+	SharedPaths       *flexible.Field[[]string]           `json:"shared-paths,omitempty" yaml:"shared-paths,omitempty"`
+	Service           *ServiceRef                         `json:"service,omitempty" yaml:"service,omitempty"`
+	Services          map[string]*Container               `json:"services,omitempty" yaml:"services,omitempty"`
+	Status            *Status                             `json:"status,omitempty" yaml:"status,omitempty"`
+	Steps             []*Step                             `json:"steps" yaml:"steps"`
+	Strategy          *Strategy                           `json:"strategy,omitempty" yaml:"strategy,omitempty"`
+	Template          *StageTemplate                      `json:"template,omitempty" yaml:"template,omitempty"`
+	Timeout           string                              `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	Volumes           []*Volume                           `json:"volumes,omitempty" yaml:"volumes,omitempty"`
 	// Workspace   *Workspace             `json:"workspace,omitempty" yaml:"workspace,omitempty"`
 	Workspace string `json:"workspace,omitempty" yaml:"workspace,omitempty"`
 	// Context temporarily stores information from the
 	// matrix and template expansion. Context is not part of
 	// the yaml schema.
 	Context *Context `json:"context,omitempty" yaml:"context,omitempty"`
+}
+
+// MarshalJSON customizes Stage serialization:
+//   - Container stages (parallel, group, chain) omit steps entirely.
+//   - Regular stages always emit steps as [] instead of null.
+func (s Stage) MarshalJSON() ([]byte, error) {
+	type StageAlias Stage
+
+	// Container stages must NOT have a steps field (schema mutual exclusivity).
+	if s.Parallel != nil || s.Group != nil || s.Chain != nil {
+		s.Steps = nil
+		data, err := json.Marshal(StageAlias(s))
+		if err != nil {
+			return nil, err
+		}
+		// Remove the "steps":null key produced by the non-omitempty tag.
+		var m map[string]json.RawMessage
+		if err := json.Unmarshal(data, &m); err != nil {
+			return nil, err
+		}
+		delete(m, "steps")
+		return json.Marshal(m)
+	}
+
+	// Regular stages: ensure empty array instead of null.
+	if s.Steps == nil {
+		s.Steps = make([]*Step, 0)
+	}
+	return json.Marshal(StageAlias(s))
 }

@@ -13,7 +13,7 @@ func TestStageConversionContext_SetAndGet(t *testing.T) {
 	ctx := convert_helpers.NewStageConversionContext()
 
 	svc := &v1.ServiceRef{Items: []string{"my-service"}}
-	env := &v1.EnvironmentRef{Name: "my-env", Id: "my-env"}
+	env := &v1.EnvironmentRef{Items: []*v1.EnvironmentItem{{Id: "my-env"}}}
 	rt := &v1.Runtime{Kubernetes: &v1.RuntimeKubernetes{Namespace: "default"}}
 
 	ctx.Set("Stage1", &convert_helpers.StageConvertedData{
@@ -105,8 +105,8 @@ func TestUseFromStage_DeploymentServiceAndEnvironment(t *testing.T) {
 	if first.Environment == nil {
 		t.Fatal("first stage: environment should not be nil")
 	}
-	if first.Environment.Name != "prod-env" {
-		t.Errorf("first stage: expected environment 'prod-env', got %s", first.Environment.Name)
+	if len(first.Environment.Items) != 1 || first.Environment.Items[0].Id != "prod-env" {
+		t.Errorf("first stage: expected environment 'prod-env', got %v", first.Environment.Items)
 	}
 
 	// Verify second stage copied service and environment from first
@@ -120,8 +120,8 @@ func TestUseFromStage_DeploymentServiceAndEnvironment(t *testing.T) {
 	if second.Environment == nil {
 		t.Fatal("second stage: environment should not be nil (useFromStage)")
 	}
-	if second.Environment.Name != "prod-env" {
-		t.Errorf("second stage: expected environment 'prod-env' from useFromStage, got %s", second.Environment.Name)
+	if len(second.Environment.Items) != 1 || second.Environment.Items[0].Id != "prod-env" {
+		t.Errorf("second stage: expected environment 'prod-env' from useFromStage, got %v", second.Environment.Items)
 	}
 }
 
@@ -281,7 +281,7 @@ func TestUseFromStage_ServiceOnlyFromPreviousStage(t *testing.T) {
 		t.Errorf("expected service 'svc-alpha' from useFromStage, got %v", second.Service)
 	}
 	// Environment is its own
-	if second.Environment == nil || second.Environment.Name != "env-gamma" {
+	if second.Environment == nil || len(second.Environment.Items) != 1 || second.Environment.Items[0].Id != "env-gamma" {
 		t.Errorf("expected environment 'env-gamma' (own), got %v", second.Environment)
 	}
 }

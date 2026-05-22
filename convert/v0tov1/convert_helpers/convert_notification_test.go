@@ -146,7 +146,7 @@ func TestConvertNotifications(t *testing.T) {
 					ID:       "pd_alert",
 					Name:     "PagerDuty Alert",
 					Disabled: true,
-					Uses:     "pagerduty",
+					Uses:     "pager-duty",
 					With: map[string]interface{}{
 						"key": "pd-key-123",
 					},
@@ -257,7 +257,7 @@ func TestConvertNotifications(t *testing.T) {
 					On: []*v1.NotificationOn{
 						{Pipeline: "all"},
 						{Stage: "all"},
-						{Step: "all"},
+						{Step: "failed"},
 					},
 				},
 			},
@@ -292,9 +292,9 @@ func TestConvertNotifications(t *testing.T) {
 					},
 					On: []*v1.NotificationOn{
 						{
-							Stage: map[string]interface{}{
-								"success": []string{"build", "test"},
-								"failed":  "deploy",
+							Stage: []interface{}{
+								map[string]interface{}{"success": []string{"build", "test"}},
+								map[string]interface{}{"failed": "deploy"},
 							},
 						},
 					},
@@ -330,8 +330,8 @@ func TestConvertNotifications(t *testing.T) {
 					},
 					On: []*v1.NotificationOn{
 						{
-							Stage: map[string]interface{}{
-								"failed": "all",
+							Stage: []interface{}{
+								"failed",
 							},
 						},
 					},
@@ -590,7 +590,7 @@ func TestConvertNotificationMethodType(t *testing.T) {
 	}{
 		{"Webhook", "Webhook", "webhook"},
 		{"Slack", "Slack", "slack"},
-		{"PagerDuty", "PagerDuty", "pagerduty"},
+		{"PagerDuty", "PagerDuty", "pager-duty"},
 		{"MsTeams", "MsTeams", "ms-teams"},
 		{"Email", "Email", "email"},
 		{"Datadog", "Datadog", "datadog"},

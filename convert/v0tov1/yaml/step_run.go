@@ -70,3 +70,16 @@ func (v *StepRun) UnmarshalJSON(data []byte) error {
 		return err
 	}
 }
+
+// MarshalJSON implements json.Marshaler. It omits the Env field when the
+// flexible.Field pointer is non-nil but holds no value (the case where v0
+// source had `envVariables: ""`). With Env nilled, the parent's
+// `json:"env,omitempty"` tag drops the field cleanly.
+func (v StepRun) MarshalJSON() ([]byte, error) {
+	type alias StepRun
+	a := alias(v)
+	if a.Env != nil && a.Env.IsEmpty() {
+		a.Env = nil
+	}
+	return json.Marshal(a)
+}

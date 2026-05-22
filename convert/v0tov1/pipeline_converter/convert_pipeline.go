@@ -1,6 +1,7 @@
 package pipelineconverter
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -114,10 +115,11 @@ func (c *PipelineConverter) convertCodebase(src *v0.Codebase) *v1.Clone {
 
 	clone.Submodules = src.SubmoduleStrategy
 
-	if src.PrCloneStrategy == "MergeCommit" {
-		clone.Strategy = "merge_commit"
-	} else if src.PrCloneStrategy == "SourceBranch" {
-		clone.Strategy = "deep_clone"
+	switch src.PrCloneStrategy {
+	case "MergeCommit":
+		clone.Strategy = "merge"
+	case "SourceBranch":
+		clone.Strategy = "source-branch"
 	}
 
 	clone.Insecure = src.SslVerify
@@ -142,30 +144,48 @@ func (c *PipelineConverter) convertVariables(src []*v0.Variable) map[string]*v1.
 
 	dst := make(map[string]*v1.Input)
 
-	// Convert variables to inputs
 	for _, variable := range src {
 		if variable == nil || variable.Name == "" {
 			continue
 		}
 
+		v1Type := convertVariableType(variable.Type)
+
 		input := &v1.Input{
-			Type:     convertVariableType(variable.Type),
+			Type:     v1Type,
 			Required: variable.Required,
 		}
-		if variable.Default != "" {
-			input.Default = variable.Default
-		}
 
-		if variable.Value != "" {
-			parsedValue, enumValues := parseVariableAllowedValues(variable.Value, variable.Type)
-			input.Value = parsedValue
-			// Only set Enum if we have actual values
-			if enumValues != nil {
-				input.Enum = enumValues
+		if !isEmptyValue(variable.Value) {
+			valueStr, ok := variable.Value.(string)
+			if ok {
+				parsed := parseInputExpression(valueStr)
+
+				if parsed.value != "" {
+					input.Value = formatValueForV1Type(parsed.value, v1Type)
+				}
+				if parsed.defaultVal != "" {
+					input.Default = formatValueForV1Type(parsed.defaultVal, v1Type)
+				}
+				if len(parsed.enum) > 0 {
+					input.Enum = formatEnumForV1Type(parsed.enum, v1Type)
+				}
+				if parsed.regex != "" {
+					input.Pattern = parsed.regex
+				}
+				if parsed.executionInput {
+					input.ExecutionInput = true
+				}
+			} else {
+				input.Value = formatValueForV1Type(variable.Value, v1Type)
 			}
 		}
 
-		// Set mask to true for secret types
+		// YAML-level default is a fallback when inline .default() wasn't found
+		if !isEmptyValue(variable.Default) && isEmptyValue(input.Default) {
+			input.Default = formatValueForV1Type(variable.Default, v1Type)
+		}
+
 		if variable.Type == "Secret" {
 			input.Mask = true
 		}
@@ -176,72 +196,52 @@ func (c *PipelineConverter) convertVariables(src []*v0.Variable) map[string]*v1.
 	return dst
 }
 
-func parseVariableAllowedValues(value interface{}, var_type string) (interface{}, interface{}) {
-	// Convert value to string for parsing
-	valueStr, ok := value.(string)
-	if !ok {
-		// If it's already a number, return as-is
-		if var_type == "Number" {
-			if floatVal, ok := value.(float64); ok {
-				return floatVal, nil
-			}
-		}
-		return value, nil
-	}
-
-	// Check for special functions: allowedValues(), selectOneFrom(), selectManyFrom()
-	funcPattern := regexp.MustCompile(`^(.+?)\.(allowedValues|selectOneFrom|selectManyFrom)\((.+)\)$`)
-	matches := funcPattern.FindStringSubmatch(valueStr)
-
-	if len(matches) != 4 {
-		// No function found, return value as-is
-		if var_type == "Number" {
-			if floatVal, err := strconv.ParseFloat(valueStr, 64); err == nil {
-				return floatVal, nil
-			}
-		}
-		return valueStr, nil
-	}
-
-	// Extract the value before the function
-	extractedValue := matches[1]
-	// Extract the parameters string
-	paramsStr := matches[3]
-
-	// Parse the comma-separated parameters, handling nested parentheses
-	params := parseCommaSeparatedParams(paramsStr)
-
-	// Convert extracted value to appropriate type
-	var finalValue interface{} = extractedValue
-	if var_type == "Number" {
-		if floatVal, err := strconv.ParseFloat(extractedValue, 64); err == nil {
-			finalValue = floatVal
-		}
-	}
-
-	// Convert params to appropriate type based on var_type
-	if var_type == "Number" {
-		// Convert params to array of floats
-		floatParams := make([]float64, 0, len(params))
-		for _, param := range params {
-			if floatVal, err := strconv.ParseFloat(param, 64); err == nil {
-				floatParams = append(floatParams, floatVal)
-			}
-		}
-		if len(floatParams) > 0 {
-			return finalValue, floatParams
-		}
-		return finalValue, nil
-	}
-
-	// Return string array for non-number types
-	if len(params) > 0 {
-		return finalValue, params
-	}
-	return finalValue, nil
+type parsedExpression struct {
+	value          string
+	defaultVal     string
+	enum           []string
+	regex          string
+	executionInput bool
 }
 
-// parseCommaSeparatedParams parses comma-separated parameters, handling nested parentheses
+var lastFuncPattern = regexp.MustCompile(`^(.*)\.(default|allowedValues|selectOneFrom|selectManyFrom|regex)\((.+)\)$`)
+
+func parseInputExpression(valueStr string) *parsedExpression {
+	result := &parsedExpression{}
+
+	for {
+		// Try .executionInput() (no args)
+		if strings.HasSuffix(valueStr, ".executionInput()") {
+			result.executionInput = true
+			valueStr = strings.TrimSuffix(valueStr, ".executionInput()")
+			continue
+		}
+
+		matches := lastFuncPattern.FindStringSubmatch(valueStr)
+		if matches == nil {
+			break
+		}
+
+		prefix := matches[1]
+		funcName := matches[2]
+		args := matches[3]
+
+		switch funcName {
+		case "default":
+			result.defaultVal = args
+		case "allowedValues", "selectOneFrom", "selectManyFrom":
+			result.enum = parseCommaSeparatedParams(args)
+		case "regex":
+			result.regex = args
+		}
+
+		valueStr = prefix
+	}
+
+	result.value = valueStr
+	return result
+}
+
 func parseCommaSeparatedParams(paramsStr string) []string {
 	var params []string
 	var current strings.Builder
@@ -250,19 +250,16 @@ func parseCommaSeparatedParams(paramsStr string) []string {
 		char := paramsStr[i]
 
 		if char == ',' {
-			// Comma is always a separator
 			param := strings.TrimSpace(current.String())
 			if param != "" {
 				params = append(params, param)
 			}
 			current.Reset()
 		} else {
-			// Add any other character (including parentheses) to current parameter
 			current.WriteByte(char)
 		}
 	}
 
-	// Add the last parameter
 	param := strings.TrimSpace(current.String())
 	if param != "" {
 		params = append(params, param)
@@ -271,7 +268,76 @@ func parseCommaSeparatedParams(paramsStr string) []string {
 	return params
 }
 
-// convertVariableType converts v0 variable type to v1 input type.
+func isEmptyValue(v interface{}) bool {
+	if v == nil {
+		return true
+	}
+	if s, ok := v.(string); ok && s == "" {
+		return true
+	}
+	return false
+}
+
+// formatValueForV1Type coerces a value to match the declared v1 type.
+// For string/secret types, ensures the result is always a string.
+// For number type, attempts numeric conversion.
+func formatValueForV1Type(value interface{}, v1Type string) interface{} {
+	if value == nil {
+		return nil
+	}
+	switch v1Type {
+	case "string", "secret":
+		switch v := value.(type) {
+		case string:
+			return v
+		case bool:
+			return fmt.Sprintf("%v", v)
+		case int:
+			return strconv.Itoa(v)
+		case int64:
+			return strconv.FormatInt(v, 10)
+		case float64:
+			if v == float64(int64(v)) {
+				return strconv.FormatInt(int64(v), 10)
+			}
+			return strconv.FormatFloat(v, 'f', -1, 64)
+		default:
+			return fmt.Sprintf("%v", v)
+		}
+	case "number":
+		switch v := value.(type) {
+		case string:
+			if f, err := strconv.ParseFloat(v, 64); err == nil {
+				return f
+			}
+			return v
+		default:
+			return v
+		}
+	default:
+		return value
+	}
+}
+
+// formatEnumForV1Type coerces enum values to match the declared v1 type.
+func formatEnumForV1Type(params []string, v1Type string) interface{} {
+	switch v1Type {
+	case "number":
+		floatParams := make([]float64, 0, len(params))
+		for _, p := range params {
+			if f, err := strconv.ParseFloat(p, 64); err == nil {
+				floatParams = append(floatParams, f)
+			}
+		}
+		if len(floatParams) > 0 {
+			return floatParams
+		}
+		return params
+	default:
+		return params
+	}
+}
+
 func convertVariableType(v0Type string) string {
 	switch v0Type {
 	case "Secret":
@@ -283,7 +349,7 @@ func convertVariableType(v0Type string) string {
 	case "Number":
 		return "number"
 	default:
-		return "string" // Default to string type
+		return "string"
 	}
 }
 

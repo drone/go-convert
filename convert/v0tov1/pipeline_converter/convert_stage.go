@@ -41,8 +41,9 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 	}
 
 	stage := &v1.Stage{
-		Id:   src.ID,
-		Name: src.Name,
+		Id:    src.ID,
+		Name:  src.Name,
+		Steps: make([]*v1.Step, 0),
 	}
 
 	// Check for Template - if template exists, set it and continue converting rest

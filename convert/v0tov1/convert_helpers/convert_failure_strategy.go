@@ -57,8 +57,16 @@ func ConvertFailureStrategy(src *v0.FailureStrategy) *v1.FailureStrategy {
 		return nil
 	}
 
+	var errors interface{}
+	converted := ConvertErrorNames(src.OnFailure.Errors)
+	if len(converted) == 0 {
+		errors = []string{} // default to empty array
+	} else {
+		errors = converted
+	}
+
 	return &v1.FailureStrategy{
-		Errors: ConvertErrorNames(src.OnFailure.Errors),
+		Errors: errors,
 		Action: ConvertFailureAction(src.OnFailure.Action),
 	}
 }

@@ -18,7 +18,7 @@ func main() {
 	grpcPort     := intEnv("PORT", 8090)
 	httpPort     := intEnv("HTTP_PORT", 8092)
 	maxBatchSize := intEnv("MAX_BATCH_SIZE", 100)
-	maxYAMLBytes := int64(intEnv("MAX_YAML_BYTES", 1*1024*1024)) // 1 MB default
+	maxYAMLBytes := int64(intEnv("MAX_YAML_BYTES", 5*1024*1024)) // 5 MB default
 
 	logLevel := slog.LevelInfo
 	if os.Getenv("LOG_LEVEL") == "debug" {
