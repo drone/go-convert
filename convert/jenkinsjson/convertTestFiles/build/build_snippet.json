@@ -1,0 +1,27 @@
+{
+  "spanId": "0e03d379a3f0dd1d",
+  "traceId": "ae67d4dc2d8f8f3980ca2e3538d8c20c",
+  "parent": "jobA",
+  "all-info": "span(name: build: JobB, spanId: 0e03d379a3f0dd1d, parentSpanId: 24ee6e7ddc3da7bd, traceId: ae67d4dc2d8f8f3980ca2e3538d8c20c, attr: ci.pipeline.name:JobB;ci.pipeline.run.user:SYSTEM;harness-attribute:{\n  \"job\" : \"JobB\",\n  \"wait\" : true\n};harness-attribute-extra-pip: io.jenkins.plugins.harnessmigration.MigrateHarnessUrlChildAction@5fbd5d4d:io.jenkins.plugins.harnessmigration.MigrateHarnessUrlChildAction@5fbd5d4d;harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@7d3178af:org.jenkinsci.plugins.workflow.actions.TimingAction@7d3178af;harness-others:;jenkins.pipeline.step.id:23;jenkins.pipeline.step.name:Build a job;jenkins.pipeline.step.plugin.name:pipeline-build-step;jenkins.pipeline.step.plugin.version:540.vb_e8849e1a_b_d8;jenkins.pipeline.step.type:build;)",
+  "name": "jobA #11",
+  "attributesMap": {
+    "harness-attribute-extra-pip: io.jenkins.plugins.harnessmigration.MigrateHarnessUrlChildAction@5fbd5d4d": "io.jenkins.plugins.harnessmigration.MigrateHarnessUrlChildAction@5fbd5d4d",
+    "harness-others": "",
+    "jenkins.pipeline.step.name": "Build a job",
+    "ci.pipeline.run.user": "SYSTEM",
+    "jenkins.pipeline.step.id": "23",
+    "harness-attribute-extra-pip: org.jenkinsci.plugins.workflow.actions.TimingAction@7d3178af": "org.jenkinsci.plugins.workflow.actions.TimingAction@7d3178af",
+    "jenkins.pipeline.step.type": "build",
+    "ci.pipeline.name": "JobB",
+    "harness-attribute": "{\n  \"job\" : \"JobB\",\n  \"wait\" : true\n}",
+    "jenkins.pipeline.step.plugin.name": "pipeline-build-step",
+    "jenkins.pipeline.step.plugin.version": "540.vb_e8849e1a_b_d8"
+  },
+  "type": "Run Phase Span",
+  "parentSpanId": "24ee6e7ddc3da7bd",
+  "parameterMap": {
+    "wait": true,
+    "job": "JobB"
+  },
+  "spanName": "build: JobB"
+}
