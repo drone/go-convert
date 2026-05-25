@@ -12,7 +12,7 @@ type (
 	DeploymentService struct {
 		ServiceRef   string        `json:"serviceRef,omitempty"    yaml:"serviceRef,omitempty"`
 		UseFromStage *UseFromStage `json:"useFromStage,omitempty" yaml:"useFromStage,omitempty"`
-		// ServiceInputs *flexible.Field[ServiceInputs] `json:"serviceInputs,omitempty" yaml:"serviceInputs,omitempty"`
+		ServiceInputs interface{} `json:"serviceInputs,omitempty" yaml:"serviceInputs,omitempty"`
 	}
 
 	DeploymentServiceConfig struct {

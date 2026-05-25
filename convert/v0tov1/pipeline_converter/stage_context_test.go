@@ -12,7 +12,7 @@ import (
 func TestStageConversionContext_SetAndGet(t *testing.T) {
 	ctx := convert_helpers.NewStageConversionContext()
 
-	svc := &v1.ServiceRef{Items: []string{"my-service"}}
+	svc := &v1.ServiceRef{Items: []*v1.ServiceItem{{Id: "my-service"}}}
 	env := &v1.EnvironmentRef{Items: []*v1.EnvironmentItem{{Id: "my-env"}}}
 	rt := &v1.Runtime{Kubernetes: &v1.RuntimeKubernetes{Namespace: "default"}}
 
@@ -99,7 +99,7 @@ func TestUseFromStage_DeploymentServiceAndEnvironment(t *testing.T) {
 	if first.Service == nil {
 		t.Fatal("first stage: service should not be nil")
 	}
-	if len(first.Service.Items) != 1 || first.Service.Items[0] != "dashboard-svc" {
+	if len(first.Service.Items) != 1 || first.Service.Items[0].Id != "dashboard-svc" {
 		t.Errorf("first stage: expected service 'dashboard-svc', got %v", first.Service.Items)
 	}
 	if first.Environment == nil {
@@ -114,7 +114,7 @@ func TestUseFromStage_DeploymentServiceAndEnvironment(t *testing.T) {
 	if second.Service == nil {
 		t.Fatal("second stage: service should not be nil (useFromStage)")
 	}
-	if len(second.Service.Items) != 1 || second.Service.Items[0] != "dashboard-svc" {
+	if len(second.Service.Items) != 1 || second.Service.Items[0].Id != "dashboard-svc" {
 		t.Errorf("second stage: expected service 'dashboard-svc' from useFromStage, got %v", second.Service.Items)
 	}
 	if second.Environment == nil {
@@ -277,7 +277,7 @@ func TestUseFromStage_ServiceOnlyFromPreviousStage(t *testing.T) {
 
 	second := v1Stages[1]
 	// Service from useFromStage
-	if second.Service == nil || second.Service.Items[0] != "svc-alpha" {
+	if second.Service == nil || second.Service.Items[0].Id != "svc-alpha" {
 		t.Errorf("expected service 'svc-alpha' from useFromStage, got %v", second.Service)
 	}
 	// Environment is its own

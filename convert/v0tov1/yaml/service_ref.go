@@ -18,45 +18,108 @@ package yaml
 
 import (
 	"encoding/json"
+
 	"github.com/drone/go-convert/internal/flexible"
 )
 
-type ServiceRef struct {
-	Items       []string `json:"items,omitempty"`
-	Sequential    *flexible.Field[bool]     `json:"sequential,omitempty"`
-	MultiService bool     `json:"-"` // Don't serialize this field
+type ServiceItem struct {
+	Id   string                 `json:"id,omitempty"`
+	With map[string]interface{} `json:"with,omitempty"`
 }
 
-// UnmarshalJSON implement the json.Unmarshaler interface.
-func (v *ServiceRef) UnmarshalJSON(data []byte) error {
-	var out1 Stringorslice
-	var out2 = struct {
-		Items       []string `json:"items,omitempty"`
-		Sequential    *flexible.Field[bool]     `json:"sequential,omitempty"`
-		MultiService bool     `json:"-"`
-	}{}
-
-	if err := json.Unmarshal(data, &out1); err == nil {
-		v.Items = out1
+// UnmarshalJSON implements json.Unmarshaler for ServiceItem.
+// Handles: string "service1" or object {id: "service1", with: {...}}
+func (s *ServiceItem) UnmarshalJSON(data []byte) error {
+	// Try as simple string first
+	var str string
+	if err := json.Unmarshal(data, &str); err == nil {
+		s.Id = str
+		s.With = nil
 		return nil
 	}
 
-	if err := json.Unmarshal(data, &out2); err == nil {
-		*v = out2
-		return nil
-	} else {
+	// Try as full object
+	type Alias ServiceItem
+	var alias Alias
+	if err := json.Unmarshal(data, &alias); err != nil {
 		return err
 	}
+	*s = ServiceItem(alias)
+	return nil
 }
 
-// MarshalJSON implements the json.Marshaler interface.
+// MarshalJSON implements json.Marshaler for ServiceItem.
+// Outputs: string "service1" if no With, or object {id: "service1", with: {...}} if With exists
+func (s ServiceItem) MarshalJSON() ([]byte, error) {
+	// If no With, marshal as simple string
+	if len(s.With) == 0 {
+		return json.Marshal(s.Id)
+	}
+	// Otherwise marshal as full object
+	type Alias ServiceItem
+	return json.Marshal((Alias)(s))
+}
+
+type ServiceRef struct {
+	Items        []*ServiceItem        `json:"items,omitempty"`
+	Sequential   *flexible.Field[bool] `json:"sequential,omitempty"`
+	MultiService bool                  `json:"-"` // Don't serialize this field
+}
+
+// UnmarshalJSON implements json.Unmarshaler for ServiceRef.
+// Handles:
+// - Single string: "service1"
+// - Array of strings: ["service1", "service2"]
+// - Object with items: {items: [...], sequential: true}
+func (v *ServiceRef) UnmarshalJSON(data []byte) error {
+	// Try as single string
+	var str string
+	if err := json.Unmarshal(data, &str); err == nil {
+		v.Items = []*ServiceItem{{Id: str}}
+		v.MultiService = false
+		return nil
+	}
+
+	// Try as array of strings/items
+	var arr []json.RawMessage
+	if err := json.Unmarshal(data, &arr); err == nil {
+		v.Items = make([]*ServiceItem, 0, len(arr))
+		for _, raw := range arr {
+			var item ServiceItem
+			if err := json.Unmarshal(raw, &item); err != nil {
+				return err
+			}
+			v.Items = append(v.Items, &item)
+		}
+		v.MultiService = len(v.Items) > 1
+		return nil
+	}
+
+	// Try as full object with items field
+	var out = struct {
+		Items      []*ServiceItem        `json:"items,omitempty"`
+		Sequential *flexible.Field[bool] `json:"sequential,omitempty"`
+	}{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return err
+	}
+	v.Items = out.Items
+	v.Sequential = out.Sequential
+	v.MultiService = len(v.Items) > 1
+	return nil
+}
+
+// MarshalJSON implements json.Marshaler for ServiceRef.
+// Outputs:
+// - Single string if one item without With and not MultiService: "service1"
+// - Object with items if MultiService: {items: [...]} or {items: [...], sequential: true}
 func (v *ServiceRef) MarshalJSON() ([]byte, error) {
-	// If there's exactly one item, and not forced to be array, marshal as a simple string
-	if len(v.Items) == 1 && !v.MultiService {
+	// Single item without With and not forced to be multi-service
+	if len(v.Items) == 1 && !v.MultiService && v.Sequential == nil {
 		return json.Marshal(v.Items[0])
 	}
-	
-	// Otherwise, marshal as the full struct
+
+	// Multi-service - always use items format
 	type Alias ServiceRef
 	return json.Marshal((*Alias)(v))
 }
