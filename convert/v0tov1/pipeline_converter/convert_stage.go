@@ -163,7 +163,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 			} else if spec.EnvironmentGroup != nil {
 				stage.Environment = convert_helpers.ConvertEnvironmentGroup(spec.EnvironmentGroup, c.stageCtx)
 			} else if spec.Infrastructure != nil {
-				GetMessageLogger().LogInfo(
+				GetMessageLogger().LogWarning(
 					"DEPRECATED_INFRA",
 					"deprecated infrastructure definition found in Deployment stage; infrastructure and service definition will be skipped",
 					WithStage(src.ID, string(v0.StageTypeDeployment)),
@@ -177,7 +177,11 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 			} else if spec.Services != nil {
 				stage.Service = convert_helpers.ConvertDeploymentServices(spec.Services, c.stageCtx)
 			} else if spec.ServiceConfig != nil && !deprecatedInfraDefinition {
-				stage.Service = convert_helpers.ConvertDeploymentServiceConfig(spec.ServiceConfig)
+				GetMessageLogger().LogWarning(
+					"DEPRECATED_SERVICE_CONFIG",
+					"deprecated service config found in Deployment stage; service config will be skipped",
+					WithStage(src.ID, string(v0.StageTypeDeployment)),
+				)
 			}
 			stage.Timeout = spec.Timeout
 		}

@@ -16,6 +16,7 @@ package converthelpers
 
 import (
 	"fmt"
+	"strings"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	"github.com/drone/go-convert/convert/v0tov1/messagelog"
@@ -44,8 +45,18 @@ func ConvertDeploymentService(src *v0.DeploymentService, ctx *StageConversionCon
 
 	// For single service, return simple string reference
 	if src.ServiceRef != "" {
+		var serviceWith map[string]interface{}
+		if hasValidServiceInputs(src.ServiceInputs) {
+			serviceWith = map[string]interface{}{
+				"overlay": src.ServiceInputs,
+			}
+		}
+		serviceItem := &v1.ServiceItem{
+			Id:   src.ServiceRef,
+			With: serviceWith,
+		}
 		return &v1.ServiceRef{
-			Items:        []string{src.ServiceRef},
+			Items:        []*v1.ServiceItem{serviceItem},
 			MultiService: false,
 		}
 	}
@@ -97,10 +108,20 @@ func ConvertDeploymentServices(src *v0.DeploymentServices, ctx *StageConversionC
 		return nil
 	}
 
-	serviceRefs := make([]string, 0, len(values))
+	serviceItems := make([]*v1.ServiceItem, 0, len(values))
+
 	for _, service := range values {
 		if service != nil && service.ServiceRef != "" {
-			serviceRefs = append(serviceRefs, service.ServiceRef)
+			var serviceWith map[string]interface{}
+			if hasValidServiceInputs(service.ServiceInputs) {
+				serviceWith = map[string]interface{}{
+					"overlay": service.ServiceInputs,
+				}
+			}
+			serviceItems = append(serviceItems, &v1.ServiceItem{
+				Id:   service.ServiceRef,
+				With: serviceWith,
+			})
 		}
 	}
 	// by default set to true
@@ -108,9 +129,9 @@ func ConvertDeploymentServices(src *v0.DeploymentServices, ctx *StageConversionC
 	if src.Metadata != nil && src.Metadata.Parallel != nil {
 		sequential = flexible.NegateBool(src.Metadata.Parallel)
 	}
-	if len(serviceRefs) > 0 {
+	if len(serviceItems) > 0 {
 		return &v1.ServiceRef{
-			Items:        serviceRefs,
+			Items:        serviceItems,
 			MultiService: true,
 			Sequential:   sequential,
 		}
@@ -119,22 +140,43 @@ func ConvertDeploymentServices(src *v0.DeploymentServices, ctx *StageConversionC
 	return nil
 }
 
-func ConvertDeploymentServiceConfig(src *v0.DeploymentServiceConfig) *v1.ServiceRef {
-	if src == nil {
-		return nil
-	}
-	if src.ServiceRef != "" {
-		return &v1.ServiceRef{
-			Items: []string{src.ServiceRef},
-		}
+// func ConvertDeploymentServiceConfig(src *v0.DeploymentServiceConfig) *v1.ServiceRef {
+// 	if src == nil {
+// 		return nil
+// 	}
+// 	if src.ServiceRef != "" {
+// 		return &v1.ServiceRef{
+// 			Items: []string{src.ServiceRef},
+// 		}
+// 	}
+
+// 	if src.ServiceItem != nil {
+// 		return &v1.ServiceRef{
+// 			Items: []string{src.ServiceItem.Identifier},
+// 		}
+// 	}
+// 	return nil
+// }
+
+// hasValidServiceInputs checks if serviceInputs should be included in v1 output.
+// Returns false for nil, empty string, or expression values (strings containing <+).
+func hasValidServiceInputs(serviceInputs interface{}) bool {
+	if serviceInputs == nil {
+		return false
 	}
 
-	if src.ServiceItem != nil {
-		return &v1.ServiceRef{
-			Items: []string{src.ServiceItem.Identifier},
+	// Check if it's a string (expression or empty)
+	if str, ok := serviceInputs.(string); ok {
+		// Empty string or expression - skip
+		if str == "" || strings.Contains(str, "<+") {
+			return false
 		}
+		// Non-empty, non-expression string - this shouldn't happen but skip anyway
+		return false
 	}
-	return nil
+
+	// It's a struct/map - include it
+	return true
 }
 
 // ConvertEnvironment converts v0 Environment to v1 EnvironmentRef
@@ -315,7 +357,6 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 			return &v1.EnvironmentRef{
 				Sequential: seqField,
 				Group:      groupConfig,
-				
 			}
 		}
 	}
@@ -434,11 +475,33 @@ func collectInfraDefinitions(env *v0.Environment) *flexible.Field[[]*v0.Infrastr
 	return nil
 }
 
+// hasValidInfraInputs checks if infrastructure inputs should be included in v1 output.
+// Returns false for nil, empty string, or expression values (strings containing <+).
+func hasValidInfraInputs(inputs interface{}) bool {
+	if inputs == nil {
+		return false
+	}
+
+	// Check if it's a string (expression or empty)
+	if str, ok := inputs.(string); ok {
+		// Empty string or expression - skip
+		if str == "" || strings.Contains(str, "<+") {
+			return false
+		}
+		// Non-empty, non-expression string - this shouldn't happen but skip anyway
+		return false
+	}
+
+	// It's a struct/map - include it
+	return true
+}
+
 // resolveDeployTo determines the deploy-to value based on DeployToAll and infrastructure definitions.
 // - If DeployToAll is a boolean true → "all"
 // - If DeployToAll is <+input> → returns the infra value only (single string or list)
 // - If DeployToAll is any other expression → builds ternary: <+ <+expr> ? "all" : "infraValue" >
 // - If DeployToAll is nil/false → returns the infra value
+// - If infrastructure has inputs, returns DeployToItem with overlay
 func resolveDeployTo(deployToAll *flexible.Field[bool], infraDefs *flexible.Field[[]*v0.InfrastructureDefinition]) interface{} {
 	// Compute infra value from infrastructure definitions
 	var infraValue interface{}
@@ -447,13 +510,48 @@ func resolveDeployTo(deployToAll *flexible.Field[bool], infraDefs *flexible.Fiel
 			infraValue = infra
 		} else if infra, ok := infraDefs.AsStruct(); ok {
 			if len(infra) == 1 {
-				infraValue = infra[0].Identifier
-			} else if len(infra) > 1 {
-				infraList := make([]string, 0, len(infra))
-				for _, i := range infra {
-					infraList = append(infraList, i.Identifier)
+				// Single infrastructure - check for inputs
+				if hasValidInfraInputs(infra[0].Inputs) {
+					infraValue = &v1.DeployToItem{
+						Id: infra[0].Identifier,
+						With: map[string]interface{}{
+							"overlay": infra[0].Inputs,
+						},
+					}
+				} else {
+					infraValue = infra[0].Identifier
 				}
-				infraValue = infraList
+			} else if len(infra) > 1 {
+				// Multiple infrastructures - check each for inputs
+				hasAnyInputs := false
+				for _, i := range infra {
+					if hasValidInfraInputs(i.Inputs) {
+						hasAnyInputs = true
+						break
+					}
+				}
+
+				if hasAnyInputs {
+					// At least one has inputs - use DeployToItem array
+					infraItems := make([]*v1.DeployToItem, 0, len(infra))
+					for _, i := range infra {
+						item := &v1.DeployToItem{Id: i.Identifier}
+						if hasValidInfraInputs(i.Inputs) {
+							item.With = map[string]interface{}{
+								"overlay": i.Inputs,
+							}
+						}
+						infraItems = append(infraItems, item)
+					}
+					infraValue = infraItems
+				} else {
+					// No inputs - use simple string array
+					infraList := make([]string, 0, len(infra))
+					for _, i := range infra {
+						infraList = append(infraList, i.Identifier)
+					}
+					infraValue = infraList
+				}
 			}
 		}
 	}
