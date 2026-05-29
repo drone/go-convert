@@ -12,6 +12,26 @@ POST /api/v1/convert/expression
 
 ## Request Format
 
+There are two ways to provide context for expression conversion:
+
+### Option 1: Pipeline YAML (recommended)
+
+Pass the raw v0 pipeline YAML and the server automatically derives the step-type map,
+v1 path map, and enables FQN mode — the same way pipeline, template, input-set, and
+trigger conversions build context internally.
+
+```json
+{
+  "expression": "<+pipeline.stages.build.spec.execution.steps.step1.output>",
+  "context_pipeline_yaml": "pipeline:\n  name: my-pipeline\n  stages:\n    - stage:\n        identifier: build\n        type: CI\n        spec:\n          execution:\n            steps:\n              - step:\n                  identifier: step1\n                  type: Run\n                  spec:\n                    command: echo hello\n"
+}
+```
+
+### Option 2: Manual context fields
+
+Explicitly supply the step-type map and other context fields. This is useful when
+you don't have the full pipeline YAML or need fine-grained control.
+
 ```json
 {
   "expression": "<+pipeline.stages.build.spec.execution.steps.step1.output>",
@@ -32,13 +52,17 @@ POST /api/v1/convert/expression
 }
 ```
 
+> **Note:** When `context_pipeline_yaml` is provided, the `context` field is ignored.
+
 ### Request Fields
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `expression` | string | One of `expression` or `expressions` required | A single v0 expression to convert |
-| `expressions` | string[] | One of `expression` or `expressions` required | Multiple v0 expressions to convert |
-| `context` | object | Optional | Context for context-aware conversion |
+| `expression` | string | One of `expression`, `expressions`, or `remote_file` required | A single v0 expression to convert |
+| `expressions` | string[] | One of `expression`, `expressions`, or `remote_file` required | Multiple v0 expressions to convert |
+| `remote_file` | string | One of `expression`, `expressions`, or `remote_file` required | Raw contents of a remote file (manifest, values.yaml, config, etc.) with embedded `<+...>` expressions. All expressions are converted in place. |
+| `context_pipeline_yaml` | string | Optional | Raw v0 pipeline YAML; server derives context automatically (recommended) |
+| `context` | object | Optional | Manual context for conversion (ignored when `context_pipeline_yaml` is provided) |
 
 ### Context Fields
 
@@ -71,6 +95,15 @@ POST /api/v1/convert/expression
     "<+stage.spec.execution.steps.step2.output>": "<+stage.steps.step2.output>"
   },
   "checksum": "sha256:def456..."
+}
+```
+
+### Remote File Response
+
+```json
+{
+  "remote_file": "apiVersion: apps/v1\nmetadata:\n  name: <+pipeline.inputs.appName>\n  namespace: <+pipeline.stages.deploy.steps.deploy1.namespace>\n",
+  "checksum": "sha256:ghi789..."
 }
 ```
 
@@ -172,6 +205,66 @@ Response:
 }
 ```
 
+### Remote File Conversion
+
+Convert all expressions embedded in a remote file (manifest, values.yaml, config, etc.):
+
+```bash
+curl -X POST http://localhost:8092/api/v1/convert/expression \
+  -H "Content-Type: application/json" \
+  -d '{
+    "remote_file": "apiVersion: apps/v1\nmetadata:\n  name: <+pipeline.variables.appName>\n  image: <+pipeline.stages.build.spec.execution.steps.build1.output>\n"
+  }'
+```
+
+Response:
+```json
+{
+  "remote_file": "apiVersion: apps/v1\nmetadata:\n  name: <+pipeline.variables.appName>\n  image: <+pipeline.stages.build.steps.build1.output>\n",
+  "checksum": "sha256:abc123"
+}
+```
+
+### Remote File with Pipeline YAML Context
+
+For step-type-aware and FQN conversion inside a remote file, pass the pipeline YAML:
+
+```bash
+PIPELINE_YAML=$(cat my_v0_pipeline.yaml)
+
+curl -X POST http://localhost:8092/api/v1/convert/expression \
+  -H "Content-Type: application/json" \
+  -d "$(jq -n \
+    --arg file "$(cat manifest.yaml)" \
+    --arg yaml "$PIPELINE_YAML" \
+    '{remote_file: $file, pipeline_yaml: $yaml}')"
+```
+
+### Pipeline YAML Context Example
+
+Instead of manually constructing the context, pass the full v0 pipeline YAML and
+let the server derive the context automatically:
+
+```bash
+# Read the pipeline YAML from a file
+PIPELINE_YAML=$(cat my_v0_pipeline.yaml)
+
+curl -X POST http://localhost:8092/api/v1/convert/expression \
+  -H "Content-Type: application/json" \
+  -d "$(jq -n \
+    --arg expr '<+pipeline.stages.build.spec.execution.steps.step1.output>' \
+    --arg yaml "$PIPELINE_YAML" \
+    '{expression: $expr, context_pipeline_yaml: $yaml}')"
+```
+
+Response:
+```json
+{
+  "expression": "<+pipeline.stages.build.steps.step1.output>",
+  "checksum": "sha256:abc123"
+}
+```
+
 ### Cross-Step Reference Example
 
 When converting expressions that reference other steps (using `steps.STEPID`):
@@ -196,6 +289,80 @@ curl -X POST http://localhost:8092/api/v1/convert/expression \
       "use_fqn": true
     }
   }'
+```
+
+## gRPC API
+
+The expression conversion is also available via gRPC.
+
+**Default gRPC port:** `8090`
+
+### Service Definition
+
+```protobuf
+service GoConvertService {
+  rpc ConvertExpression(ExpressionConvertRequest) returns (ExpressionConvertResponse);
+}
+
+message ExpressionConvertRequest {
+  string expression = 1;
+  repeated string expressions = 2;
+  string context_pipeline_yaml = 3;
+  ExpressionContext context = 4;
+  string remote_file = 5;
+}
+
+message ExpressionContext {
+  string current_step_id = 1;
+  string current_step_type = 2;
+  string current_step_v1_path = 3;
+  map<string, string> step_type_map = 4;
+  map<string, string> step_v1_path_map = 5;
+  bool use_fqn = 6;
+}
+
+message ExpressionConvertResponse {
+  string expression = 1;
+  map<string, string> expressions = 2;
+  string checksum = 3;
+  string remote_file = 4;
+}
+```
+
+### gRPC Example (grpcurl)
+
+```bash
+grpcurl -plaintext -d '{
+  "expression": "<+pipeline.variables.myVar>"
+}' localhost:8090 io.harness.pms.conversion.proto.GoConvertService/ConvertExpression
+```
+
+## Client Script Usage
+
+The `convert_client.py` script supports expression conversion via `--expression`, `--expressions`, and `--remote-file`:
+
+```bash
+# Single expression (HTTP)
+python convert_client.py --expression '<+pipeline.variables.foo>'
+
+# Multiple expressions (HTTP)
+python convert_client.py --expressions '<+pipeline.variables.foo>' '<+stage.spec.execution.steps.s1.output>'
+
+# Remote file — convert all expressions in a manifest/config file
+python convert_client.py --remote-file manifest.yaml
+
+# Remote file with pipeline YAML context for FQN resolution
+python convert_client.py --remote-file manifest.yaml --context-pipeline my_v0_pipeline.yaml
+
+# With pipeline YAML context for FQN resolution
+python convert_client.py --expression '<+pipeline.stages.build.spec.execution.steps.step1.output>' \
+    --context-pipeline my_v0_pipeline.yaml
+
+# Via gRPC
+python convert_client.py --grpc --expression '<+pipeline.variables.foo>'
+
+# Via gRPC with remote file
+python convert_client.py --grpc --remote-file manifest.yaml --context-pipeline my_v0_pipeline.yaml
 ```
 
 ## Common Expression Conversions
@@ -237,14 +404,35 @@ func main() {
     )
     fmt.Println(result) // <+pipeline.stages.build.steps.step1.output>
 
-    // Context-aware conversion (relative)
+    // Automatic context from pipeline YAML (recommended)
+    pipelineYAML := `pipeline:
+  name: my-pipeline
+  stages:
+    - stage:
+        identifier: build
+        type: CI
+        spec:
+          execution:
+            steps:
+              - step:
+                  identifier: step1
+                  type: Run
+                  spec:
+                    command: echo hello`
+    result = converter.ConvertExpressionWithPipeline(
+        "<+pipeline.stages.build.spec.execution.steps.step1.output>",
+        pipelineYAML,
+    )
+    fmt.Println(result) // <+pipeline.stages.build.steps.step1.output>
+
+    // Context-aware conversion (relative, manual context)
     ctx := &converter.ExpressionContext{
         CurrentStepType: "Run",
     }
     result = converter.ConvertExpression("<+step.spec.command>", ctx)
     fmt.Println(result) // <+step.spec.script>
 
-    // Context-aware conversion (FQN mode)
+    // Context-aware conversion (FQN mode, manual context)
     ctx = &converter.ExpressionContext{
         CurrentStepType:   "Run",
         CurrentStepV1Path: "pipeline.stages.build.steps.runStep1",
@@ -253,12 +441,12 @@ func main() {
     result = converter.ConvertExpression("<+step.spec.command>", ctx)
     fmt.Println(result) // <+pipeline.stages.build.steps.runStep1.spec.script>
 
-    // Batch conversion
+    // Batch conversion with pipeline YAML context
     expressions := []string{
         "<+pipeline.variables.myVar>",
         "<+stage.spec.execution.steps.step1.output>",
     }
-    results := converter.ConvertExpressions(expressions, nil)
+    results := converter.ConvertExpressionsWithPipeline(expressions, pipelineYAML)
     for orig, converted := range results {
         fmt.Printf("%s -> %s\n", orig, converted)
     }
@@ -287,15 +475,19 @@ func main() {
 
 ## Notes
 
-1. **Context is optional**: Basic path conversions work without context (e.g., `spec.execution.steps` → `steps`). Context is only needed for step-type-specific field conversions.
+1. **`pipeline_yaml` is the recommended approach**: Pass the raw v0 pipeline YAML and the server automatically derives all context (step types, v1 paths, FQN mode). This is the same mechanism used by pipeline, template, input-set, and trigger conversions.
 
-2. **Step type resolution**: For step-specific field conversions (like `spec.command` → `spec.script` for Run steps), provide:
+2. **Context is optional**: Basic path conversions work without context (e.g., `spec.execution.steps` → `steps`). Context is only needed for step-type-specific field conversions.
+
+3. **`pipeline_yaml` supersedes `context`**: When both are provided, `pipeline_yaml` takes precedence and `context` is ignored.
+
+4. **Step type resolution**: For step-specific field conversions (like `spec.command` → `spec.script` for Run steps), provide:
    - `current_step_type` — for expressions starting with `step.`
    - `step_type_map` — for expressions referencing other steps via `steps.STEPID`
 
-3. **FQN mode**: When `use_fqn: true`:
+5. **FQN mode**: When `use_fqn: true`:
    - Relative expressions (`step.spec.X`) become fully qualified (`pipeline.stages.STAGE.steps.STEP.spec.X`)
    - Requires `current_step_v1_path` for the current step
    - Requires `step_v1_path_map` for cross-step references
 
-4. **Non-expression strings**: Input without `<+` markers is returned unchanged.
+6. **Non-expression strings**: Input without `<+` markers is returned unchanged.

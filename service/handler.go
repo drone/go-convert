@@ -112,6 +112,9 @@ func (h *Handler) ComputeChecksum(w http.ResponseWriter, r *http.Request) {
 
 // ConvertExpression handles POST /api/v1/convert/expression.
 // Converts Harness v0 expressions to v1 format with optional context.
+// When context_pipeline_yaml is provided, context is derived automatically
+// from the pipeline (same as template/input-set/trigger conversions).
+// Otherwise the caller-supplied Context fields are used.
 func (h *Handler) ConvertExpression(w http.ResponseWriter, r *http.Request) {
 	var req ExpressionConvertRequest
 	if err := h.decodeJSON(w, r, &req); err != nil {
@@ -119,16 +122,19 @@ func (h *Handler) ConvertExpression(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate that at least one of expression or expressions is provided
-	if req.Expression == "" && len(req.Expressions) == 0 {
+	// Validate that at least one input field is provided
+	if req.Expression == "" && len(req.Expressions) == 0 && req.RemoteFile == "" {
 		writeError(w, http.StatusBadRequest, "MISSING_FIELD",
-			"either 'expression' or 'expressions' field is required", nil)
+			"one of 'expression', 'expressions', or 'remote_file' field is required", nil)
 		return
 	}
 
-	// Build the expression context
+	// Build the expression context — from context_pipeline_yaml if provided,
+	// otherwise from manual Context fields.
 	var ctx *converter.ExpressionContext
-	if req.Context != nil {
+	if strings.TrimSpace(req.PipelineYAML) != "" {
+		ctx = converter.BuildContextFromPipeline(req.PipelineYAML)
+	} else if req.Context != nil {
 		ctx = &converter.ExpressionContext{
 			CurrentStepID:     req.Context.CurrentStepID,
 			CurrentStepType:   req.Context.CurrentStepType,
@@ -139,25 +145,32 @@ func (h *Handler) ConvertExpression(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Handle remote file — scan for all <+...> expressions and convert them
+	if req.RemoteFile != "" {
+		converted := converter.ConvertExpression(req.RemoteFile, ctx)
+		writeJSON(w, http.StatusOK, ExpressionConvertResponse{
+			RemoteFile: converted,
+			Checksum:   Checksum([]byte(converted)),
+		})
+		return
+	}
+
 	// Handle single expression
 	if req.Expression != "" {
 		converted := converter.ConvertExpression(req.Expression, ctx)
-		checksum := Checksum([]byte(converted))
 		writeJSON(w, http.StatusOK, ExpressionConvertResponse{
 			Expression: converted,
-			Checksum:   checksum,
+			Checksum:   Checksum([]byte(converted)),
 		})
 		return
 	}
 
 	// Handle multiple expressions
 	converted := converter.ConvertExpressions(req.Expressions, ctx)
-	// Compute checksum of the JSON representation of the map
 	mapBytes, _ := json.Marshal(converted)
-	checksum := Checksum(mapBytes)
 	writeJSON(w, http.StatusOK, ExpressionConvertResponse{
 		Expressions: converted,
-		Checksum:    checksum,
+		Checksum:    Checksum(mapBytes),
 	})
 }
 

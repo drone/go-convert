@@ -103,7 +103,22 @@ type ExpressionConvertRequest struct {
 	// Expressions is a list of expressions to convert (use this OR Expression, not both)
 	Expressions []string `json:"expressions,omitempty"`
 
-	// Context provides optional metadata for context-aware conversion
+	// RemoteFile is the raw contents of a remote file (manifest, values.yaml,
+	// config, etc.) that may contain embedded Harness v0 expressions. The
+	// server scans the string for <+...> patterns and converts each one,
+	// returning the file with all expressions replaced.
+	RemoteFile string `json:"remote_file,omitempty"`
+
+	// PipelineYAML is an optional raw v0 pipeline YAML string. When provided,
+	// the server parses and structurally converts this pipeline to derive the
+	// step-type map and v1 path map automatically — the same way pipeline,
+	// template, input-set, and trigger conversions build context. This
+	// supersedes manual Context fields (step_type_map, step_v1_path_map,
+	// use_fqn) when present.
+	PipelineYAML string `json:"context_pipeline_yaml,omitempty"`
+
+	// Context provides optional metadata for context-aware conversion.
+	// Ignored when context_pipeline_yaml is provided (context is derived automatically).
 	Context *ExpressionContextRequest `json:"context,omitempty"`
 }
 
@@ -136,6 +151,9 @@ type ExpressionConvertResponse struct {
 
 	// Expressions is a map of original expression to converted expression (when multiple were provided)
 	Expressions map[string]string `json:"expressions,omitempty"`
+
+	// RemoteFile is the file contents with all embedded expressions converted
+	RemoteFile string `json:"remote_file,omitempty"`
 
 	// Checksum is the SHA-256 checksum of the converted expression(s)
 	Checksum string `json:"checksum"`
