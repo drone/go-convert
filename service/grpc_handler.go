@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 
 	pb "github.com/drone/go-convert/proto"
+	"github.com/drone/go-convert/service/converter"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -28,6 +30,62 @@ func (h *GRPCHandler) ConvertInputSet(_ context.Context, req *pb.ConvertRequest)
 
 func (h *GRPCHandler) ConvertTrigger(_ context.Context, req *pb.ConvertRequest) (*pb.ConvertResponse, error) {
 	return h.convert(entityTrigger, req)
+}
+
+func (h *GRPCHandler) ConvertExpression(_ context.Context, req *pb.ExpressionConvertRequest) (*pb.ExpressionConvertResponse, error) {
+	expr := req.GetExpression()
+	exprs := req.GetExpressions()
+	remoteFile := req.GetRemoteFile()
+
+	if expr == "" && len(exprs) == 0 && remoteFile == "" {
+		return nil, status.Error(codes.InvalidArgument, "one of 'expression', 'expressions', or 'remote_file' field is required")
+	}
+
+	// Build context — from context_pipeline_yaml if provided, otherwise manual.
+	var ctx *converter.ExpressionContext
+	if pipelineYAML := strings.TrimSpace(req.GetContextPipelineYaml()); pipelineYAML != "" {
+		ctx = converter.BuildContextFromPipeline(pipelineYAML)
+	} else if reqCtx := req.GetContext(); reqCtx != nil {
+		ctx = &converter.ExpressionContext{
+			CurrentStepID:     reqCtx.GetCurrentStepId(),
+			CurrentStepType:   reqCtx.GetCurrentStepType(),
+			CurrentStepV1Path: reqCtx.GetCurrentStepV1Path(),
+			StepTypeMap:       reqCtx.GetStepTypeMap(),
+			StepV1PathMap:     reqCtx.GetStepV1PathMap(),
+			UseFQN:            reqCtx.GetUseFqn(),
+		}
+	}
+
+	// Handle remote file
+	if remoteFile != "" {
+		converted := converter.ConvertExpression(remoteFile, ctx)
+		return &pb.ExpressionConvertResponse{
+			RemoteFile: converted,
+			Checksum:   Checksum([]byte(converted)),
+		}, nil
+	}
+
+	// Handle single expression
+	if expr != "" {
+		converted := converter.ConvertExpression(expr, ctx)
+		return &pb.ExpressionConvertResponse{
+			Expression: converted,
+			Checksum:   Checksum([]byte(converted)),
+		}, nil
+	}
+
+	// Handle multiple expressions
+	converted := converter.ConvertExpressions(exprs, ctx)
+	return &pb.ExpressionConvertResponse{
+		Expressions: converted,
+		Checksum:    checksumMap(converted),
+	}, nil
+}
+
+// checksumMap computes the checksum over the JSON encoding of a map.
+func checksumMap(m map[string]string) string {
+	b, _ := json.Marshal(m)
+	return Checksum(b)
 }
 
 func (h *GRPCHandler) GetChecksum(_ context.Context, req *pb.ChecksumRequest) (*pb.ChecksumResponse, error) {

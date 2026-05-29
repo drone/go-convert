@@ -72,10 +72,59 @@ message ChecksumResponse {
   string checksum = 1;
 }
 
+// ExpressionConvertRequest is the request for ConvertExpression.
+message ExpressionConvertRequest {
+  // A single expression to convert (use this OR expressions, not both).
+  string expression = 1;
+
+  // Multiple expressions to convert (use this OR expression, not both).
+  repeated string expressions = 2;
+
+  // Optional v0 pipeline YAML. When provided the server structurally
+  // converts this pipeline to derive step-type and v1-path maps
+  // automatically. Supersedes manual context fields.
+  string context_pipeline_yaml = 3;
+
+  // Optional manual context (ignored when context_pipeline_yaml is provided).
+  ExpressionContext context = 4;
+
+  // Raw contents of a remote file (manifest, values.yaml, config, etc.)
+  // containing embedded <+...> expressions. The server scans the string
+  // and converts every expression found, returning the file with all
+  // expressions replaced.
+  string remote_file = 5;
+}
+
+// ExpressionContext holds manual metadata for expression conversion.
+message ExpressionContext {
+  string current_step_id = 1;
+  string current_step_type = 2;
+  string current_step_v1_path = 3;
+  map<string, string> step_type_map = 4;
+  map<string, string> step_v1_path_map = 5;
+  bool use_fqn = 6;
+}
+
+// ExpressionConvertResponse is the response for ConvertExpression.
+message ExpressionConvertResponse {
+  // Converted single expression (set when the request used `expression`).
+  string expression = 1;
+
+  // Converted expressions map: original → converted (set when the request used `expressions`).
+  map<string, string> expressions = 2;
+
+  // SHA-256 checksum of the converted output.
+  string checksum = 3;
+
+  // The remote file contents with all embedded expressions converted.
+  string remote_file = 4;
+}
+
 service GoConvertService {
   rpc ConvertPipeline(ConvertRequest) returns (ConvertResponse);
   rpc ConvertTemplate(ConvertRequest) returns (ConvertResponse);
   rpc ConvertInputSet(ConvertRequest) returns (ConvertResponse);
   rpc ConvertTrigger(ConvertRequest) returns (ConvertResponse);
+  rpc ConvertExpression(ExpressionConvertRequest) returns (ExpressionConvertResponse);
   rpc GetChecksum(ChecksumRequest) returns (ChecksumResponse);
 }

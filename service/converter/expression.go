@@ -75,6 +75,47 @@ func ConvertExpressions(expressions []string, ctx *ExpressionContext) map[string
 	return result
 }
 
+// ConvertExpressionWithPipeline converts a single expression using context
+// automatically derived from a v0 pipeline YAML. The pipeline is parsed and
+// structurally converted to harvest the step-type map and v1 path map, the
+// same way pipeline/template/input-set/trigger conversions build context.
+func ConvertExpressionWithPipeline(expression string, pipelineYAML string) string {
+	ctx := BuildContextFromPipeline(pipelineYAML)
+	return ConvertExpression(expression, ctx)
+}
+
+// ConvertExpressionsWithPipeline converts multiple expressions using context
+// automatically derived from a v0 pipeline YAML.
+func ConvertExpressionsWithPipeline(expressions []string, pipelineYAML string) map[string]string {
+	ctx := BuildContextFromPipeline(pipelineYAML)
+	return ConvertExpressions(expressions, ctx)
+}
+
+// BuildContextFromPipeline parses a v0 pipeline YAML, runs structural
+// conversion to derive the step-type map and v1 path map, and returns an
+// ExpressionContext with UseFQN enabled. Returns a minimal context (no
+// FQN) when the YAML is empty or unparseable.
+func BuildContextFromPipeline(pipelineYAML string) *ExpressionContext {
+	stepInfoMap, useFQN := buildContextFromPipelineYAML(pipelineYAML)
+	if !useFQN || len(stepInfoMap) == 0 {
+		return &ExpressionContext{}
+	}
+
+	// Flatten the StepInfo map to the flat string maps needed by ExpressionContext.
+	stepTypeMap := make(map[string]string, len(stepInfoMap))
+	stepV1PathMap := make(map[string]string, len(stepInfoMap))
+	for id, info := range stepInfoMap {
+		stepTypeMap[id] = info.Type
+		stepV1PathMap[id] = info.V1Path
+	}
+
+	return &ExpressionContext{
+		StepTypeMap:   stepTypeMap,
+		StepV1PathMap: stepV1PathMap,
+		UseFQN:        true,
+	}
+}
+
 // buildConversionContext converts the public ExpressionContext to the internal ConversionContext
 func buildConversionContext(ctx *ExpressionContext) *convertexpressions.ConversionContext {
 	if ctx == nil {
