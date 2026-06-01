@@ -67,9 +67,13 @@ func ConvertRuntime(runtime *v0.Runtime) *v1.Runtime {
 		}
 
 	case "Docker":
-		// Docker runtime converts to shell: true in v1
+		// Docker runtime converts to shell in v1
+		shellRuntime := &v1.RuntimeShell{}
+		if dockerSpec, ok := runtime.Spec.(*v0.RuntimeDockerSpec); ok && dockerSpec.HarnessImageConnectorRef != "" {
+			shellRuntime.Connector = dockerSpec.HarnessImageConnectorRef
+		}
 		return &v1.Runtime{
-			Shell: true,
+			Shell: shellRuntime,
 		}
 	}
 

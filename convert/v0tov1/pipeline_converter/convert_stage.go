@@ -82,7 +82,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 			stage.Timeout = spec.Timeout
 			// custom stage to local
 			stage.Runtime = &v1.Runtime{
-				Shell: true,
+				Shell: &v1.RuntimeShell{},
 			}
 		}
 

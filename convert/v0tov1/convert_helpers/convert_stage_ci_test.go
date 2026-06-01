@@ -53,13 +53,27 @@ func TestConvertRuntime(t *testing.T) {
 			},
 		},
 		{
-			name: "Docker runtime converts to shell true",
+			name: "Docker runtime converts to shell without connector",
 			input: &v0.Runtime{
 				Type: "Docker",
 				Spec: &v0.RuntimeDockerSpec{},
 			},
 			expected: &v1.Runtime{
-				Shell: true,
+				Shell: &v1.RuntimeShell{},
+			},
+		},
+		{
+			name: "Docker runtime converts to shell with harnessImageConnectorRef",
+			input: &v0.Runtime{
+				Type: "Docker",
+				Spec: &v0.RuntimeDockerSpec{
+					HarnessImageConnectorRef: "gt_docker",
+				},
+			},
+			expected: &v1.Runtime{
+				Shell: &v1.RuntimeShell{
+					Connector: "gt_docker",
+				},
 			},
 		},
 		{
