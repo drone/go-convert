@@ -5,14 +5,35 @@ import (
 	"reflect"
 	"strings"
 
+	convertexpressions "github.com/drone/go-convert/convert/convertexpressions"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 	"github.com/drone/go-convert/internal/flexible"
 )
 
-// convertSteps converts a list of v0.Steps to list of v1.Step.
-func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool, basePath string) []*v1.Step {
+// appendGroupChain appends a step group ID to an existing group chain.
+// The chain uses ">" as separator: "A>B>C" means A is the outermost group.
+func appendGroupChain(chain, groupID string) string {
+	if chain == "" {
+		return groupID
+	}
+	return chain + ">" + groupID
+}
+
+// splitGroupChain converts a ">"-joined group chain into its slice form,
+// yielding nil (not a one-empty-string slice) for an empty chain.
+func splitGroupChain(groupID string) []string {
+	if groupID == "" {
+		return nil
+	}
+	return strings.Split(groupID, ">")
+}
+
+// convertSteps converts a list of v0.Steps to a list of v1.Step. stageID and
+// groupID scope step registration; groupID is the ">"-joined ancestor chain
+// (e.g. "A>B>C") that disambiguates same-named groups.
+func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool, basePath, stageID, groupID string) []*v1.Step {
 	if len(src) == 0 {
 		return make([]*v1.Step, 0)
 	}
@@ -22,14 +43,14 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool, baseP
 			continue
 		}
 		if s.Step != nil {
-			if step := c.ConvertSingleStep(s.Step, isRollBack, basePath); step != nil {
+			if step := c.ConvertSingleStep(s.Step, isRollBack, basePath, stageID, groupID); step != nil {
 				dst = append(dst, step)
 			}
 			continue
 		}
 		if s.Parallel != nil {
 			parallel_group := &v1.StepGroup{
-				Steps: c.ConvertSteps(s.Parallel, isRollBack, basePath),
+				Steps: c.ConvertSteps(s.Parallel, isRollBack, basePath, stageID, groupID),
 			}
 			parallel := &v1.Step{
 				Parallel: parallel_group,
@@ -44,14 +65,28 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool, baseP
 				Id:   s.StepGroup.ID,
 			}
 
+			// Register the step group itself into the FQN-keyed registry
+			if s.StepGroup.ID != "" {
+				v0Path := basePath + "." + s.StepGroup.ID
+				v1Path := convertV0PathToV1Path(v0Path)
+				c.stepInfoByFQN[v1Path] = &convertexpressions.StepInfoFQN{
+					Type:    "StepGroup",
+					StageID: stageID,
+					Chain:   splitGroupChain(groupID), // ancestor groups (empty for stage-level groups)
+					StepID:  s.StepGroup.ID,
+				}
+			}
+
 			// Check for Template - if template exists, convert it and skip normal conversion
 			if s.StepGroup.Template != nil {
 				group.Template = c.convertStepGroupTemplate(s.StepGroup, isRollBack, groupPath)
 			} else {
 				// Normal step group conversion
+				// Children of this group use the extended chain as their groupID
 				group.Env = s.StepGroup.Env
+				childGroupID := appendGroupChain(groupID, s.StepGroup.ID)
 				group.Group = &v1.StepGroup{
-					Steps:  c.ConvertSteps(s.StepGroup.Steps, isRollBack, groupPath),
+					Steps:  c.ConvertSteps(s.StepGroup.Steps, isRollBack, groupPath, stageID, childGroupID),
 					Inputs: c.convertVariables(s.StepGroup.Variables),
 				}
 				group.OnFailure = convert_helpers.ConvertFailureStrategies(s.StepGroup.FailureStrategies)
@@ -66,7 +101,7 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool, baseP
 	return dst
 }
 
-func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, basePath string) *v1.Step {
+func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, basePath, stageID, groupID string) *v1.Step {
 	if src == nil {
 		return nil
 	}
@@ -76,13 +111,15 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 		Name: src.Name,
 	}
 
-	// Track step ID to v0 step type and path mapping
+	// Track step ID to v0 step type and FQN mapping
 	if src.ID != "" && src.Type != "" {
 		v0Path := basePath + "." + src.ID
-		c.stepTypeMap[src.ID] = &StepInfo{
-			Type:   src.Type,
-			V0Path: v0Path,
-			V1Path: convertV0PathToV1Path(v0Path),
+		v1Path := convertV0PathToV1Path(v0Path)
+		c.stepInfoByFQN[v1Path] = &convertexpressions.StepInfoFQN{
+			Type:    src.Type,
+			StageID: stageID,
+			Chain:   splitGroupChain(groupID),
+			StepID:  src.ID,
 		}
 	}
 
@@ -304,12 +341,11 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 }
 
 // convertV0PathToV1Path converts a v0 FQN step path to a v1 FQN step path.
-// It removes "spec.execution" segments from the path.
-// Example: "pipeline.stages.build.spec.execution.steps.compile" -> "pipeline.stages.build.steps.compile"
+// It removes "spec.execution" segments and renames "rollbackSteps" to "rollback".
+// Example: "pipeline.stages.build.spec.execution.rollbackSteps.step1" -> "pipeline.stages.build.rollback.step1"
 func convertV0PathToV1Path(v0Path string) string {
-	// Remove "spec.execution" segments
 	result := strings.ReplaceAll(v0Path, ".spec.execution.", ".")
-	// Also handle if it starts with spec.execution (unlikely but safe)
 	result = strings.TrimPrefix(result, "spec.execution.")
+	result = strings.ReplaceAll(result, ".rollbackSteps.", ".rollback.")
 	return result
 }

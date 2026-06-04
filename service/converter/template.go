@@ -14,9 +14,8 @@ import (
 // templateRefMapping rewrites template references in the output;
 // pipelineRefMapping rewrites pipeline identifiers (pipeline.id, chain.uses
 // pipeline segment). Either or both may be nil/empty.
-// contextPipelineYAML is an optional v0 pipeline YAML used purely as
-// expression-postprocess context (see buildContextFromPipelineYAML). Pass ""
-// to run postprocess without FQN context.
+// contextPipelineYAML is an optional v1 pipeline YAML used as FQN expression
+// context (see buildContextFromPipelineYAML); pass "" to skip it.
 func Template(yamlStr string, templateRefMapping, pipelineRefMapping map[string]string, contextPipelineYAML string) (*Result, error) {
 	if err := validateTopLevelKey(yamlStr, "template"); err != nil {
 		return nil, err
@@ -51,8 +50,8 @@ func Template(yamlStr string, templateRefMapping, pipelineRefMapping map[string]
 	// Single-pass expression post-process. If the caller supplied a context
 	// pipeline_yaml, derive a step-type map and walk in FQN mode; otherwise
 	// fall back to nil context (no FQN).
-	stepTypeMap, useFQN := buildContextFromPipelineYAML(contextPipelineYAML)
-	pipelineconverter.PostProcessExpressions(v1Template, stepTypeMap, useFQN)
+	stepInfoByFQN, useFQN := buildContextFromPipelineYAML(contextPipelineYAML)
+	pipelineconverter.PostProcessExpressions(v1Template, stepInfoByFQN, useFQN)
 
 	yamlBytes, err := v1.MarshalTemplate(v1Template)
 	if err != nil {

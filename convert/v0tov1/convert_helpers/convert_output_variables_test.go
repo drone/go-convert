@@ -30,7 +30,7 @@ func TestConvertOutputVariables(t *testing.T) {
 				{Name: "approvalStatus", Value: "STATUS"},
 			},
 			expected: []*v1.Output{
-				{Name: "approvalStatus", Alias: "STATUS", Mask: false},
+				{Name: "STATUS", Alias: "approvalStatus", Mask: false},
 			},
 		},
 		{
@@ -48,7 +48,7 @@ func TestConvertOutputVariables(t *testing.T) {
 				{Name: "MY_VAR", Value: ""},
 			},
 			expected: []*v1.Output{
-				{Name: "MY_VAR", Alias: "", Mask: false},
+				{Name: "MY_VAR", Alias: "MY_VAR", Mask: false},
 			},
 		},
 		{
@@ -59,9 +59,9 @@ func TestConvertOutputVariables(t *testing.T) {
 				{Name: "version", Value: "APP_VERSION"},
 			},
 			expected: []*v1.Output{
-				{Name: "buildNumber", Alias: "BUILD_NUM", Mask: false},
-				{Name: "commitHash", Alias: "GIT_COMMIT", Mask: false},
-				{Name: "version", Alias: "APP_VERSION", Mask: false},
+				{Name: "BUILD_NUM", Alias: "buildNumber", Mask: false},
+				{Name: "GIT_COMMIT", Alias: "commitHash", Mask: false},
+				{Name: "APP_VERSION", Alias: "version", Mask: false},
 			},
 		},
 		{
@@ -70,7 +70,7 @@ func TestConvertOutputVariables(t *testing.T) {
 				{Name: "apiToken", Value: "API_TOKEN", Type: "Secret"},
 			},
 			expected: []*v1.Output{
-				{Name: "apiToken", Alias: "API_TOKEN", Mask: true},
+				{Name: "API_TOKEN", Alias: "apiToken", Mask: true},
 			},
 		},
 		{
@@ -79,7 +79,7 @@ func TestConvertOutputVariables(t *testing.T) {
 				{Name: "result", Value: "RESULT", Type: "String"},
 			},
 			expected: []*v1.Output{
-				{Name: "result", Alias: "RESULT", Mask: false},
+				{Name: "RESULT", Alias: "result", Mask: false},
 			},
 		},
 		{
@@ -90,8 +90,8 @@ func TestConvertOutputVariables(t *testing.T) {
 				{Name: "third", Value: "THIRD"},
 			},
 			expected: []*v1.Output{
-				{Name: "first", Alias: "FIRST", Mask: false},
-				{Name: "third", Alias: "THIRD", Mask: false},
+				{Name: "FIRST", Alias: "first", Mask: false},
+				{Name: "THIRD", Alias: "third", Mask: false},
 			},
 		},
 		{
@@ -102,9 +102,9 @@ func TestConvertOutputVariables(t *testing.T) {
 				{Name: "status", Value: ""},
 			},
 			expected: []*v1.Output{
-				{Name: "publicKey", Alias: "PUBLIC_KEY", Mask: false},
-				{Name: "privateKey", Alias: "PRIVATE_KEY", Mask: true},
-				{Name: "status", Alias: "", Mask: false},
+				{Name: "PUBLIC_KEY", Alias: "publicKey", Mask: false},
+				{Name: "PRIVATE_KEY", Alias: "privateKey", Mask: true},
+				{Name: "status", Alias: "status", Mask: false},
 			},
 		},
 		{
@@ -114,8 +114,8 @@ func TestConvertOutputVariables(t *testing.T) {
 				{Name: "deploymentId", Value: "DEPLOY_ID", Type: "String"},
 			},
 			expected: []*v1.Output{
-				{Name: "approvalStatus", Alias: "STATUS", Mask: false},
-				{Name: "deploymentId", Alias: "DEPLOY_ID", Mask: false},
+				{Name: "STATUS", Alias: "approvalStatus", Mask: false},
+				{Name: "DEPLOY_ID", Alias: "deploymentId", Mask: false},
 			},
 		},
 	}

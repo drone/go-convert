@@ -18,7 +18,7 @@ package yaml
 
 type Input struct {
 	Default        interface{} `json:"default,omitempty" yaml:"default,omitempty"`
-	Desc           string      `json:"desc,omitempty" yaml:"desc,omitempty"`
+	Description    string      `json:"description,omitempty" yaml:"description,omitempty"`
 	Enum           interface{} `json:"enum,omitempty" yaml:"enum,omitempty"`
 	ExecutionInput bool        `json:"execution_input,omitempty" yaml:"execution_input,omitempty"`
 	Items          interface{} `json:"items,omitempty" yaml:"items,omitempty"`

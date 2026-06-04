@@ -38,6 +38,12 @@ type TrieNode struct {
 	isWildcard bool   // True for dynamic IDs (STAGE_ID, STEP_ID)
 	isArray    bool   // True if this node represents an array
 
+	// noFQNOverride marks an alias entry node where FQN stage/chain expansion
+	// is disabled (the remainder converts structurally). Set via
+	// WithNoFQNOverride() on the stage node, its ancestors (pipeline./stages.),
+	// and the execution roots, which already carry stage context.
+	noFQNOverride bool
+
 	// Array parent path support for rules like: outputVariables[i].name -> (spec.output[i]).alias
 	// When set, this indicates the array node maps to a multi-segment v1 path
 	arrayParentV1Path string // e.g., "spec.output" for the array node itself
@@ -448,8 +454,21 @@ type matchContext struct {
 	lastStepID  string // Last step ID seen in path (captured from wildcard after "steps")
 	inStepsPath bool   // True if we're currently inside a "steps" path segment
 
+	// Scoped context for disambiguating duplicate step IDs
+	lastStageID      string // Stage ID captured from wildcard after "stages" node
+	lastGroupID      string // Step group ID captured when a step-group wildcard is resolved
+	inStepGroupAlias bool   // True if we entered through the "stepGroup" alias root
+
+	// parentHops counts the number of getParentStepGroup edges traversed since
+	// entering the "stepGroup" alias.
+	parentHops int
+
 	// FQN mode tracking
 	fqnAttempted bool // True if we've already attempted FQN conversion (prevents infinite recursion)
+
+	// suppressFQN disables FQN expansion for the current match; set when entry
+	// is at a noFQNOverride node so the leaf step stays structural.
+	suppressFQN bool
 }
 
 func (t *Trie) Match(path string, context *ConversionContext) (string, bool) {
@@ -471,10 +490,45 @@ func (t *Trie) Match(path string, context *ConversionContext) (string, bool) {
 				v1Path:       []string{},
 			}
 
-			// FQN MODE: For "step." alias, replace v1Path with CurrentStepV1Path
-			// This handles expressions like "step.spec.bucket" where "step" refers to the current step
-			if firstSegment == "step" && context != nil && context.UseFQN && context.CurrentStepV1Path != "" {
-				ctx.v1Path = strings.Split(context.CurrentStepV1Path, ".")
+			// Bracketed alias root (stages[X] / steps[X] without the "pipeline."
+			// prefix): matchBracketedKeyword emits a combined "keyword[X]" segment
+			// and captures the bracket content as the stage/step ID.
+			if parts[0].arrayIndex != "" && (firstSegment == "stages" || firstSegment == "steps") && aliasNode.wildcardChild != nil {
+				if firstSegment == "steps" {
+					ctx.inStepsPath = true
+					ctx.inStepGroupAlias = true
+				}
+				if result, matched := t.matchBracketedKeyword(nil, aliasNode, parts, 0, ctx, context); matched {
+					score := t.calculateMatchScore(aliasNode, parts, 1, context)
+					if score > bestScore {
+						bestScore = score
+						bestResult = result
+						bestMatched = true
+					}
+				}
+				continue
+			}
+
+			// Stage-relative execution roots (execution.* / spec.execution.*) carry
+			// no explicit stage, so they later emit the v1 "stage" self-reference
+			// keyword. FQN suppression is handled below via noFQNOverride.
+			isExecutionRoot := firstSegment == "execution"
+			isSpecExecutionRoot := firstSegment == "spec" && len(parts) > 1 && parts[1].name == "execution"
+
+			// noFQNOverride (set at build time on the stage/ancestor and execution
+			// root nodes) disables FQN expansion: these already carry stage context.
+			if aliasNode.noFQNOverride {
+				ctx.suppressFQN = true
+			}
+
+			// Seed v1Path by alias root: execution roots emit the "stage"
+			// self-reference; a "step." spec/output reference in FQN mode seeds the
+			// current step's FQN; otherwise use the alias node's v1Name.
+			if isExecutionRoot || isSpecExecutionRoot {
+				ctx.v1Path = append(ctx.v1Path, "stage")
+			} else if firstSegment == "step" && context != nil && context.UseFQN && context.CurrentFQN != "" &&
+				len(parts) > 1 && (parts[1].name == "spec" || parts[1].name == "output") {
+				ctx.v1Path = strings.Split(context.CurrentFQN, ".")
 			} else if aliasNode.v1Name != "" && aliasNode.v1Name != "-" {
 				if aliasNode.v1Name == "*" {
 					ctx.v1Path = append(ctx.v1Path, parts[0].name)
@@ -486,6 +540,12 @@ func (t *Trie) Match(path string, context *ConversionContext) (string, bool) {
 			// Set inStepsPath if we're matching "steps" alias - this enables step ID capture
 			if firstSegment == "steps" {
 				ctx.inStepsPath = true
+			}
+
+			// "stepGroup"/"steps" are group-relative: resolution scopes them to the
+			// call-site's CurrentStepGroupChain.
+			if firstSegment == "stepGroup" || firstSegment == "steps" {
+				ctx.inStepGroupAlias = true
 			}
 
 			if result, matched := t.matchRecursive(aliasNode, parts, 1, ctx, context); matched {
@@ -561,7 +621,8 @@ func (t *Trie) parsePath(path string) []pathPart {
 // hasResolvableContext returns true if the ConversionContext can resolve a step type.
 func hasResolvableContext(convContext *ConversionContext, ctx *matchContext) bool {
 	return convContext != nil && (convContext.StepType != "" || convContext.CurrentStepType != "" ||
-		(ctx.lastStepID != "" && convContext.StepTypeMap != nil))
+		len(convContext.CurrentStepTypes) > 0 ||
+		(ctx.lastStepID != "" && convContext.StepInfoByFQN != nil))
 }
 
 // tryMatchChild attempts to match remaining parts through a child node using both
@@ -572,11 +633,11 @@ func (t *Trie) tryMatchChild(child *TrieNode, parts []pathPart, nextIndex int, c
 	hasCtx := hasResolvableContext(convContext, ctx)
 
 	if hasCtx {
-		// Try context-specific rules first (lazy resolution happens in tryContextMatch)
-		if result, matched := t.tryContextMatch(child, parts, nextIndex, ctx, convContext); matched {
+		// 1) Candidate-specific rules first (resolved single type or clash-free family).
+		if result, matched := t.tryContextMatchCandidates(child, parts, nextIndex, ctx, convContext); matched {
 			return result, true
 		}
-		// Fall back to general rules
+		// 2) General (non-context) rules.
 		if result, matched := t.matchRecursive(child, parts, nextIndex, ctx, convContext); matched {
 			if !isSkipped || !t.isSkippedNodePassthrough(result, ctx, parts, nextIndex) {
 				return result, true
@@ -587,6 +648,12 @@ func (t *Trie) tryMatchChild(child *TrieNode, parts []pathPart, nextIndex int, c
 				return result + "." + skippedSegment, true
 			}
 			// Children matched with passthrough - don't accept this match
+		}
+		// 3) Deterministic all-rules best-match fallback. Internally gated to a
+		// no-op when a single precise type resolved, so the v0-context flow
+		// never reaches it; only multi-type v1 families and unmapped uses do.
+		if result, matched := t.tryContextMatchAny(child, parts, nextIndex, ctx, convContext); matched {
+			return result, true
 		}
 	} else {
 		// No context: try general rules first, then deterministic context fallback
@@ -616,6 +683,16 @@ func (t *Trie) matchRecursive(node *TrieNode, parts []pathPart, index int, ctx *
 
 	currentPart := parts[index]
 
+	// Bracketed keyword forms stages[X] / steps[X]: the bracket content acts as
+	// the next wildcard segment (stage/step ID). See matchBracketedKeyword.
+	if currentPart.arrayIndex != "" && (currentPart.name == "stages" || currentPart.name == "steps") {
+		if child, ok := node.children[currentPart.name]; ok && child.wildcardChild != nil {
+			if result, matched := t.matchBracketedKeyword(node, child, parts, index, ctx, convContext); matched {
+				return result, true
+			}
+		}
+	}
+
 	if currentPart.arrayIndex != "" {
 		ctx.arrayIndices = append(ctx.arrayIndices, currentPart.arrayIndex)
 	}
@@ -633,6 +710,13 @@ func (t *Trie) matchRecursive(node *TrieNode, parts []pathPart, index int, ctx *
 			ctx.inStepsPath = true
 		}
 
+		// Each parent_step_group_node hop moves one level up from the call-site's
+		// group; resolution trims that many trailing elements off the chain.
+		savedParentHops := ctx.parentHops
+		if child.id == "parent_step_group_node" {
+			ctx.parentHops++
+		}
+
 		isSkipped := child.v1Name == "-"
 		skippedSegment := ""
 		if isSkipped {
@@ -647,6 +731,7 @@ func (t *Trie) matchRecursive(node *TrieNode, parts []pathPart, index int, ctx *
 		}
 
 		// Backtrack
+		ctx.parentHops = savedParentHops
 		ctx.inStepsPath = wasInStepsPath
 		if v1Segment != "" {
 			ctx.v1Path = ctx.v1Path[:len(ctx.v1Path)-1]
@@ -669,28 +754,43 @@ func (t *Trie) matchRecursive(node *TrieNode, parts []pathPart, index int, ctx *
 		// Capture step ID when matching wildcard after "steps"
 		// This enables lazy step type resolution for step.spec expressions
 		savedStepID := ctx.lastStepID
+		savedStageID := ctx.lastStageID
+		savedGroupID := ctx.lastGroupID
 		savedV1Path := make([]string, len(ctx.v1Path))
 		copy(savedV1Path, ctx.v1Path)
+
+		// Capture stage ID when this wildcard is directly under "stages_node"
+		if node.id == "stages_node" {
+			ctx.lastStageID = currentPart.name
+		}
 
 		if ctx.inStepsPath {
 			ctx.lastStepID = currentPart.name
 			ctx.inStepsPath = false // Reset after capturing
 
-			// FQN MODE: When we've just captured a step ID and UseFQN is enabled,
-			// replace ctx.v1Path with the step's v1 FQN base path.
-			if convContext != nil && convContext.UseFQN {
-				stepID := currentPart.name
-				var v1BasePath string
+			// FQN substitution applies only when the step reference targets a spec
+			// or output node; other fields (status, name, ...) stay structural.
+			targetsSpecOrOutput := stepRefTargetsSpecOrOutput(parts, index)
 
-				// Look up the step's v1 FQN base path from StepV1PathMap
-				if convContext.StepV1PathMap != nil {
-					v1BasePath = convContext.StepV1PathMap[stepID]
-				}
+			// In FQN mode, merge the accumulated path with the step's v1 FQN base.
+			if convContext != nil && convContext.UseFQN && targetsSpecOrOutput && !ctx.suppressFQN {
+				stepID := currentPart.name
+				v1BasePath := resolveStepV1Path(stepID, ctx, convContext)
 
 				if v1BasePath != "" {
-					// Replace v1Path with the FQN base path segments
-					ctx.v1Path = strings.Split(v1BasePath, ".")
+					// mergeFQN preserves dynamic segments in the accumulated path.
+					rawSeg := currentPart.name
+					if currentPart.arrayIndex != "" {
+						rawSeg += currentPart.arrayIndex
+					}
+					ctx.v1Path = mergeFQN(ctx.v1Path, v1BasePath, rawSeg)
 				}
+			}
+
+			// If the captured ID is a step group, append it to the chain so nested
+			// steps resolve within it.
+			if convContext != nil && targetsSpecOrOutput {
+				promoteGroupChain(ctx, currentPart.name, convContext)
 			}
 		}
 
@@ -700,6 +800,8 @@ func (t *Trie) matchRecursive(node *TrieNode, parts []pathPart, index int, ctx *
 
 		// Backtrack
 		ctx.lastStepID = savedStepID
+		ctx.lastStageID = savedStageID
+		ctx.lastGroupID = savedGroupID
 		ctx.v1Path = savedV1Path[:len(savedV1Path)-1]
 	}
 
@@ -730,48 +832,90 @@ func (t *Trie) matchRecursive(node *TrieNode, parts []pathPart, index int, ctx *
 // If convContext.StepType is empty but we have a step ID captured in matchContext,
 // we resolve the step type from StepTypeMap before attempting context matching.
 func (t *Trie) tryContextMatch(node *TrieNode, parts []pathPart, index int, ctx *matchContext, convContext *ConversionContext) (string, bool) {
+	if result, matched := t.tryContextMatchCandidates(node, parts, index, ctx, convContext); matched {
+		return result, true
+	}
+	return t.tryContextMatchAny(node, parts, index, ctx, convContext)
+}
+
+// tryContextMatchCandidates matches against only the resolved candidate step
+// types (a single confident type, or a clash-free family like run / run-test).
+// Returns false when no candidate resolves or none has a matching sub-trie.
+func (t *Trie) tryContextMatchCandidates(node *TrieNode, parts []pathPart, index int, ctx *matchContext, convContext *ConversionContext) (string, bool) {
 	if node.contextChildren == nil {
 		return "", false
 	}
-
-	// Lazy step type resolution: resolve from captured step ID or current step
-	resolvedStepType := t.resolveStepType(ctx, convContext)
-
-	// If we have a resolved step type, try that specific context
-	if resolvedStepType != "" {
-		contextRoot, exists := node.contextChildren[resolvedStepType]
-		if !exists {
-			return "", false
-		}
-
-		result, matched := t.tryContextSubtree(contextRoot, parts, index, ctx, convContext)
-		if matched {
-			return result, true
-		}
+	cands := t.resolveStepTypeCandidates(ctx, convContext)
+	if len(cands) == 0 {
 		return "", false
 	}
+	var keys []string
+	for _, c := range cands {
+		if _, ok := node.contextChildren[c]; ok {
+			keys = append(keys, c)
+		}
+	}
+	if len(keys) == 0 {
+		return "", false
+	}
+	return t.bestContextMatchAmong(node, keys, parts, index, ctx, convContext)
+}
 
-	// No context provided - try all available contexts and pick the one
-	// with the most node matches against the v0 input path.
-	// Ties are broken alphabetically by context key for determinism.
+// tryContextMatchAny is the deterministic fallback: try every available context
+// sub-trie and keep the one with the most node matches against the path (ties
+// broken alphabetically). Used when no step type resolves or candidate matching
+// fails; emits a warning so callers can surface the best-effort guess.
+func (t *Trie) tryContextMatchAny(node *TrieNode, parts []pathPart, index int, ctx *matchContext, convContext *ConversionContext) (string, bool) {
+	if node.contextChildren == nil {
+		return "", false
+	}
+	// Gate: when a single, precise step type resolved, do NOT fall back to the
+	// all-rules best-match. This keeps the v0-context flow (which always
+	// resolves exactly one precise type) unchanged
+	if len(t.resolveStepTypeCandidates(ctx, convContext)) == 1 {
+		return "", false
+	}
 	var contextKeys []string
 	for key := range node.contextChildren {
 		contextKeys = append(contextKeys, key)
 	}
-
 	if len(contextKeys) == 0 {
 		return "", false
 	}
+	result, matched := t.bestContextMatchAmong(node, contextKeys, parts, index, ctx, convContext)
+	// Warn only when some step context was expected (FQN map or an explicit
+	// step type) but the type couldn't be pinned down — i.e. an unmapped
+	// template/approval `uses` or an unresolved candidate. Pure no-context
+	// conversions deterministically use best-match and need no warning.
+	if matched && contextExpected(convContext) {
+		convContext.addWarning("ambiguous step type for path '" + t.buildRemainingPath(parts, index) +
+			"'; resolved via best-match across all step rule sets")
+	}
+	return result, matched
+}
 
-	// Sort to ensure deterministic tie-breaking
-	sortStrings(contextKeys)
+// contextExpected reports whether the caller supplied step context (an FQN map
+// or an explicit/current step type) such that a best-match fallback is worth
+// flagging as a warning.
+func contextExpected(cc *ConversionContext) bool {
+	return cc != nil && (cc.StepInfoByFQN != nil || cc.StepType != "" ||
+		cc.CurrentStepType != "" || len(cc.CurrentStepTypes) > 0)
+}
+
+// bestContextMatchAmong tries each given context key's sub-trie and returns the
+// match with the highest node-match score; ties are broken alphabetically.
+func (t *Trie) bestContextMatchAmong(node *TrieNode, keys []string, parts []pathPart, index int, ctx *matchContext, convContext *ConversionContext) (string, bool) {
+	sortStrings(keys)
 
 	var bestResult string
 	bestScore := -1
 	bestKey := ""
 
-	for _, contextKey := range contextKeys {
+	for _, contextKey := range keys {
 		contextRoot := node.contextChildren[contextKey]
+		if contextRoot == nil {
+			continue
+		}
 		result, matched := t.tryContextSubtree(contextRoot, parts, index, ctx, convContext)
 		if matched {
 			score := t.countContextNodeMatches(contextRoot, parts, index)
@@ -786,7 +930,6 @@ func (t *Trie) tryContextMatch(node *TrieNode, parts []pathPart, index int, ctx 
 	if bestScore >= 0 {
 		return bestResult, true
 	}
-
 	return "", false
 }
 
@@ -870,6 +1013,120 @@ func sortStrings(strs []string) {
 	sort.Strings(strs)
 }
 
+// matchBracketedKeyword handles stages[X] / steps[X], where X is an index or an
+// (optionally quoted/dynamic) identifier. It advances through the keyword's
+// wildcard child in one step, emits a combined "keyword[X]" segment, and uses
+// the bracket content for ID context (lastStageID/lastStepID, group promotion,
+// FQN merging) like a normal wildcard. Numeric indices are emitted verbatim
+// without FQN lookup.
+func (t *Trie) matchBracketedKeyword(node, keywordNode *TrieNode, parts []pathPart, index int, ctx *matchContext, convContext *ConversionContext) (string, bool) {
+	currentPart := parts[index]
+	wildcardChild := keywordNode.wildcardChild
+
+	// Save state for backtracking
+	savedV1Path := make([]string, len(ctx.v1Path))
+	copy(savedV1Path, ctx.v1Path)
+	savedStepID := ctx.lastStepID
+	savedStageID := ctx.lastStageID
+	savedGroupID := ctx.lastGroupID
+	savedInStepsPath := ctx.inStepsPath
+
+	// Emit the combined keyword[X] segment. Keyword v1Name comes from the
+	// keywordNode (e.g. "stages" / "steps"); fall back to part name when blank.
+	keywordV1 := keywordNode.v1Name
+	if keywordV1 == "" || keywordV1 == "-" {
+		keywordV1 = currentPart.name
+	}
+	combinedSeg := keywordV1 + currentPart.arrayIndex
+	ctx.v1Path = append(ctx.v1Path, combinedSeg)
+
+	// Extract and classify the bracket content.
+	bracketID := extractBracketContent(currentPart.arrayIndex)
+	isIndex := isNumericIndex(bracketID)
+
+	// Mirror the wildcard-capture context updates from matchRecursive.
+	if keywordNode.id == "stages_node" && !isIndex {
+		ctx.lastStageID = bracketID
+	}
+
+	if currentPart.name == "steps" && !isIndex {
+		ctx.lastStepID = bracketID
+		ctx.inStepsPath = false
+
+		// FQN substitution applies only for spec/output references.
+		targetsSpecOrOutput := stepRefTargetsSpecOrOutput(parts, index)
+
+		// In FQN mode, merge the accumulated path with the step's v1 FQN base.
+		if convContext != nil && convContext.UseFQN && targetsSpecOrOutput && !ctx.suppressFQN {
+			v1Base := resolveStepV1Path(bracketID, ctx, convContext)
+			if v1Base != "" {
+				// Drop the just-appended combinedSeg before merging, then re-add.
+				accPath := ctx.v1Path[:len(ctx.v1Path)-1]
+				ctx.v1Path = mergeFQN(accPath, v1Base, combinedSeg)
+			}
+		}
+
+		// Promote lastGroupID when the captured ID resolves to a step group.
+		if convContext != nil && targetsSpecOrOutput {
+			promoteGroupChain(ctx, bracketID, convContext)
+		}
+	}
+
+	if result, matched := t.tryMatchChild(wildcardChild, parts, index+1, ctx, convContext, false, ""); matched {
+		return result, true
+	}
+
+	// Backtrack on failure so the caller can fall back to normal matching.
+	ctx.v1Path = savedV1Path
+	ctx.lastStepID = savedStepID
+	ctx.lastStageID = savedStageID
+	ctx.lastGroupID = savedGroupID
+	ctx.inStepsPath = savedInStepsPath
+	return "", false
+}
+
+// extractBracketContent returns the content between the outermost square
+// brackets, stripping one surrounding pair of quotes if present. Examples:
+//
+//	"[0]"                          -> "0"
+//	"['approval_dev']"             -> "approval_dev"
+//	"[\"approval_dev\"]"           -> "approval_dev"
+//	"[<+stage.var.X>]"             -> "<+stage.var.X>"
+//	"['approval_<+stage.env.name>']" -> "approval_<+stage.env.name>"
+func extractBracketContent(bracketStr string) string {
+	s := strings.TrimPrefix(bracketStr, "[")
+	s = strings.TrimSuffix(s, "]")
+	if len(s) >= 2 {
+		first, last := s[0], s[len(s)-1]
+		if (first == '\'' && last == '\'') || (first == '"' && last == '"') {
+			s = s[1 : len(s)-1]
+		}
+	}
+	return s
+}
+
+// appendGroupChain appends id to a '>'-separated step-group ancestry chain
+// (e.g. "Outer>Inner"), matching the registration key format in postprocess.go.
+func appendGroupChain(chain, id string) string {
+	if chain == "" {
+		return id
+	}
+	return chain + ">" + id
+}
+
+// isNumericIndex reports whether s is a non-empty string of ASCII digits.
+func isNumericIndex(s string) bool {
+	if s == "" {
+		return false
+	}
+	for i := 0; i < len(s); i++ {
+		if s[i] < '0' || s[i] > '9' {
+			return false
+		}
+	}
+	return true
+}
+
 // buildV1Segment builds the v1 output segment for a node
 func (t *Trie) buildV1Segment(node *TrieNode, part pathPart) string {
 	// Handle array nodes with arrayParentV1Path (from parenthesized rules)
@@ -915,42 +1172,278 @@ func (t *Trie) buildRemainingPath(parts []pathPart, startIndex int) string {
 	return strings.Join(segments, ".")
 }
 
-// resolveStepType performs lazy step type resolution for context-aware matching.
-// Resolution priority:
-//  1. If convContext.StepType is already set, use it (pre-resolved)
-//  2. If matchContext has a captured step ID, look it up in StepTypeMap
-//  3. Fall back to convContext.CurrentStepType (the step we're inside)
-//
-// This enables efficient context resolution only when needed (at step.spec nodes).
-func (t *Trie) resolveStepType(ctx *matchContext, convContext *ConversionContext) string {
+// resolveStepTypeCandidates mirrors resolveStepType but returns candidate
+// types: a single confident type, or a clash-free family (e.g. run /
+// run-test) when one v1 field maps to several v0 types. Empty when nothing
+// resolves (the caller then uses the all-rules best-match fallback).
+func (t *Trie) resolveStepTypeCandidates(ctx *matchContext, convContext *ConversionContext) []string {
 	if convContext == nil {
-		return ""
+		return nil
 	}
 
-	// Priority 1: Already resolved step type
+	// Priority 1: explicitly pre-set step type.
 	if convContext.StepType != "" {
-		return convContext.StepType
+		return []string{convContext.StepType}
 	}
 
-	// Priority 2: Look up captured step ID from path traversal
-	if ctx.lastStepID != "" && convContext.StepTypeMap != nil {
-		if stepType, ok := convContext.StepTypeMap[ctx.lastStepID]; ok {
-			return stepType
+	// Priority 2: captured step ID via the FQN resolver.
+	if ctx.lastStepID != "" && convContext.StepInfoByFQN != nil {
+		stageRef := ctx.lastStageID
+		if stageRef == "" {
+			stageRef = convContext.CurrentStageID
+		}
+		chainRef := splitChain(ctx.lastGroupID)
+		aliasKind := AliasAbsolute
+		if ctx.inStepGroupAlias {
+			aliasKind = AliasGroupRelative
+		}
+		if _, info, outcome := convContext.resolveStepFQN(stageRef, ctx.lastStepID, chainRef, aliasKind, false, ctx.parentHops); info != nil &&
+			(outcome == OutcomeExactChain || outcome == OutcomeSubsequenceWithGap || outcome == OutcomeFlatUniqueFallback) {
+			if len(info.Types) > 0 {
+				return info.Types
+			}
+			if info.Type != "" {
+				return []string{info.Type}
+			}
 		}
 	}
 
-	// Priority 3: Fall back to current step type (step we're inside)
-	return convContext.CurrentStepType
+	// Priority 3: the step we're physically inside.
+	if len(convContext.CurrentStepTypes) > 0 {
+		return convContext.CurrentStepTypes
+	}
+	if convContext.CurrentStepType != "" {
+		return []string{convContext.CurrentStepType}
+	}
+	return nil
 }
 
-// isStepInternalField checks if a field name indicates step-internal content
-// that should trigger FQN building when UseFQN is enabled.
-func isStepInternalField(fieldName string) bool {
-	switch fieldName {
-	case "spec", "output", "identifier", "name", "type", "timeout", "failureStrategies",
-		"strategy", "when", "delegateSelectors", "description", "status":
-		return true
-	default:
-		return false
+// mergeFQN overlays the trie-accumulated path (accPath) onto the resolved FQN
+// base (fqnBase), preserving accPath's dynamic <+...> segments in their ID
+// positions. ID positions are matched per keyword ("stages"/"steps") right-to-
+// left, so a dynamic step-group ID is never placed in a stage slot; the last
+// segment is then replaced with rawSeg to keep its raw captured form.
+//
+// Example: accPath ["steps","<+stepGroup.identifier>","steps","Sonar_Scan"] over
+// fqnBase "pipeline.stages.CI.steps.Python_Sonar.steps.Sonar_Scan" yields
+// "pipeline.stages.CI.steps.<+stepGroup.identifier>.steps.Sonar_Scan". When
+// accPath is empty, returns fqnBase with its last segment replaced by rawSeg.
+func mergeFQN(accPath []string, fqnBase string, rawSeg string) []string {
+	if fqnBase == "" {
+		return accPath
+	}
+	fqnParts := strings.Split(fqnBase, ".")
+
+	if len(accPath) == 0 {
+		// No accumulated path; use FQN directly, replacing last with rawSeg
+		if rawSeg != "" && len(fqnParts) > 0 {
+			fqnParts[len(fqnParts)-1] = rawSeg
+		}
+		return fqnParts
+	}
+
+	// Start with fqnParts as the base result
+	merged := make([]string, len(fqnParts))
+	copy(merged, fqnParts)
+
+	// Partition ID positions by preceding keyword. Stage IDs and step IDs must
+	// be matched independently so a step-group dynamic segment never lands in
+	// a stage slot (and vice versa).
+	fqnStageIDs := extractIDPositionsByKind(fqnParts, "stages")
+	fqnStepIDs := extractStepIDPositions(fqnParts)
+	accStageIDs := extractIDPositionsByKind(accPath, "stages")
+	accStepIDs := extractStepIDPositions(accPath)
+
+	substituteDynamicByKind(merged, fqnStageIDs, accPath, accStageIDs)
+	substituteDynamicByKind(merged, fqnStepIDs, accPath, accStepIDs)
+
+	// Always apply rawSeg to the last segment (preserves the raw captured form)
+	if rawSeg != "" && len(merged) > 0 {
+		merged[len(merged)-1] = rawSeg
+	}
+
+	// Restore bracketed forms so a dynamic bracketed reference (e.g.
+	// stages[<+stage.identifier>]) isn't rewritten to the FQN's static ID.
+	merged = collapseBracketedKeywords(merged, accPath)
+
+	return merged
+}
+
+// collapseBracketedKeywords rewrites "kind"+"ID" pairs in merged back into
+// combined "kind[X]" segments where accPath used the bracketed form, matched
+// left-to-right per kind (stages or steps).
+func collapseBracketedKeywords(merged, accPath []string) []string {
+	var stageBrackets, stepBrackets []string
+	for _, seg := range accPath {
+		if !strings.HasSuffix(seg, "]") {
+			continue
+		}
+		if strings.HasPrefix(seg, "stages[") {
+			stageBrackets = append(stageBrackets, seg)
+		} else if strings.HasPrefix(seg, "steps[") {
+			stepBrackets = append(stepBrackets, seg)
+		}
+	}
+	if len(stageBrackets) == 0 && len(stepBrackets) == 0 {
+		return merged
+	}
+	result := make([]string, 0, len(merged))
+	si, ti := 0, 0
+	for i := 0; i < len(merged); i++ {
+		if i+1 < len(merged) && merged[i] == "stages" && si < len(stageBrackets) {
+			result = append(result, stageBrackets[si])
+			si++
+			i++ // skip following ID slot
+			continue
+		}
+		if i+1 < len(merged) && merged[i] == "steps" && ti < len(stepBrackets) {
+			result = append(result, stepBrackets[ti])
+			ti++
+			i++ // skip following ID slot
+			continue
+		}
+		result = append(result, merged[i])
+	}
+	return result
+}
+
+// substituteDynamicByKind matches accIDs to fqnIDs right-to-left (so the most
+// recent / closest entries align first) and writes any dynamic accPath segment
+// into the corresponding merged slot.
+func substituteDynamicByKind(merged []string, fqnIDs []int, accPath []string, accIDs []int) {
+	for i := 0; i < len(accIDs) && i < len(fqnIDs); i++ {
+		accIdx := accIDs[len(accIDs)-1-i]
+		fqnIdx := fqnIDs[len(fqnIDs)-1-i]
+		accSeg := accPath[accIdx]
+		if strings.Contains(accSeg, "<+") {
+			merged[fqnIdx] = accSeg
+		}
+	}
+}
+
+// extractIDPositions returns the indices of segments that are identifiers
+// (stage IDs, step IDs, group IDs) — i.e., segments immediately after
+// "stages" or "steps".
+func extractIDPositions(parts []string) []int {
+	var positions []int
+	for i := range parts {
+		if i > 0 && (parts[i-1] == "stages" || parts[i-1] == "steps") {
+			positions = append(positions, i)
+		}
+	}
+	return positions
+}
+
+// extractIDPositionsByKind returns the indices of segments whose immediately
+// preceding segment equals kind (e.g. "stages" or "steps").
+func extractIDPositionsByKind(parts []string, kind string) []int {
+	var positions []int
+	for i := range parts {
+		if i > 0 && parts[i-1] == kind {
+			positions = append(positions, i)
+		}
+	}
+	return positions
+}
+
+// extractStepIDPositions returns the indices of step ID segments, treating
+// "steps", "rollbackSteps", and "rollback" as the same step-container keyword
+// so they align during mergeFQN (v0, trie output, and registry FQNs differ).
+func extractStepIDPositions(parts []string) []int {
+	var positions []int
+	for i := range parts {
+		if i == 0 {
+			continue
+		}
+		prev := parts[i-1]
+		if prev == "steps" || prev == "rollbackSteps" || prev == "rollback" {
+			positions = append(positions, i)
+		}
+	}
+	return positions
+}
+
+// staticPrefix extracts the static (non-expression) prefix of a path segment.
+// e.g., "Linux_Connectivity_<+expr>" → "Linux_Connectivity_"
+//
+//	"Test_Helm_Chart<+stepGroup.id>" → "Test_Helm_Chart"
+//	"plainID" → "plainID"
+func staticPrefix(seg string) string {
+	idx := strings.Index(seg, "<+")
+	if idx < 0 {
+		return seg
+	}
+	return seg[:idx]
+}
+
+// resolveStepV1Path resolves the v1 FQN base path for stepID via ResolveStepFQN.
+// Unknown/ambiguous references return "" so the caller leaves the segment as-is.
+func resolveStepV1Path(stepID string, ctx *matchContext, convContext *ConversionContext) string {
+	if convContext == nil || convContext.StepInfoByFQN == nil {
+		return ""
+	}
+
+	stageRef := ctx.lastStageID
+	if stageRef == "" {
+		stageRef = convContext.CurrentStageID
+	}
+	chainRef := splitChain(ctx.lastGroupID)
+	aliasKind := AliasAbsolute
+	if ctx.inStepGroupAlias {
+		aliasKind = AliasGroupRelative
+	}
+	fqn, info, outcome := convContext.resolveStepFQN(stageRef, stepID, chainRef, aliasKind, true, ctx.parentHops)
+	switch outcome {
+	case OutcomeExactChain, OutcomeSubsequenceWithGap, OutcomeFlatUniqueFallback:
+		if fqn != "" && info != nil {
+			return fqn
+		}
+	}
+	return ""
+}
+
+// splitChain converts the legacy ">"-joined chain string into a slice. Empty
+// input yields an empty slice (not nil-of-one-empty-string).
+func splitChain(chain string) []string {
+	if chain == "" {
+		return nil
+	}
+	return strings.Split(chain, ">")
+}
+
+// stepRefTargetsSpecOrOutput reports whether the step reference at stepIndex
+// ultimately targets a "spec" or "output" node (walking past nested steps.<id>
+// pairs). Only such targets get FQN substitution; other fields stay structural.
+func stepRefTargetsSpecOrOutput(parts []pathPart, stepIndex int) bool {
+	pos := stepIndex + 1
+	for pos+1 < len(parts) && parts[pos].name == "steps" {
+		pos += 2
+	}
+	if pos < len(parts) {
+		f := parts[pos].name
+		return f == "spec" || f == "output"
+	}
+	return false
+}
+
+// promoteGroupChain appends capturedID to ctx.lastGroupID if it resolves to a
+// step group (resolver called with skipStepGroups=false).
+func promoteGroupChain(ctx *matchContext, capturedID string, convContext *ConversionContext) {
+	if convContext == nil || convContext.StepInfoByFQN == nil {
+		return
+	}
+	stageRef := ctx.lastStageID
+	if stageRef == "" {
+		stageRef = convContext.CurrentStageID
+	}
+	chainRef := splitChain(ctx.lastGroupID)
+	aliasKind := AliasAbsolute
+	if ctx.inStepGroupAlias {
+		aliasKind = AliasGroupRelative
+	}
+	_, info, outcome := convContext.resolveStepFQN(stageRef, capturedID, chainRef, aliasKind, false, ctx.parentHops)
+	if info != nil && info.Type == "StepGroup" &&
+		(outcome == OutcomeExactChain || outcome == OutcomeSubsequenceWithGap || outcome == OutcomeFlatUniqueFallback) {
+		ctx.lastGroupID = appendGroupChain(ctx.lastGroupID, info.StepID)
 	}
 }

@@ -5,56 +5,41 @@ import (
 	"strings"
 	"sync"
 
+	convertexpressions "github.com/drone/go-convert/convert/convertexpressions"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	pipelineconverter "github.com/drone/go-convert/convert/v0tov1/pipeline_converter"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
 
-// buildContextFromPipelineYAML parses contextPipelineYAML as a v0 pipeline,
-// runs structural conversion (without expression post-processing) on a fresh
-// PipelineConverter, and returns the harvested step-type map. The boolean
-// useFQN reports whether the caller should pass useFQN=true to
-// PostProcessExpressions (true iff a usable map was built).
-//
-// Diagnostic messages emitted by the structural conversion of the context
-// pipeline are intentionally suppressed via the global MessageLogger so that
-// the caller's ConversionReport reflects only the requested entity. A
-// CONTEXT_PIPELINE_PARSE_FAILED warning is added when the YAML is non-empty
-// but unparseable; in that case the function returns (nil, false) so the
-// caller falls back to postprocess without FQN context.
-func buildContextFromPipelineYAML(contextPipelineYAML string) (map[string]*pipelineconverter.StepInfo, bool) {
+// buildContextFromPipelineYAML parses contextPipelineYAML as a v1 pipeline and
+// walks it into the FQN-keyed step-info map for ResolveStepFQN. The bool
+// reports whether a usable map was built (i.e. whether to enable FQN mode).
+// On non-empty but unparseable YAML it logs CONTEXT_PIPELINE_PARSE_FAILED and
+// returns (nil, false).
+func buildContextFromPipelineYAML(contextPipelineYAML string) (map[string]*convertexpressions.StepInfoFQN, bool) {
 	if strings.TrimSpace(contextPipelineYAML) == "" {
 		return nil, false
 	}
-	cfg, _, err := v0.ParseStringWithUnknownFields(contextPipelineYAML)
-	if err != nil || cfg == nil {
+	schema, err := v1.ParseString(contextPipelineYAML)
+	if err != nil || schema == nil || schema.Pipeline == nil {
 		errMsg := ""
 		if err != nil {
 			errMsg = err.Error()
 		}
 		pipelineconverter.GetMessageLogger().LogWarning(
 			"CONTEXT_PIPELINE_PARSE_FAILED",
-			"failed to parse 'pipeline_yaml' context; postprocess will run without FQN context",
+			"failed to parse 'pipeline_yaml' context as v1 pipeline; postprocess will run without FQN context",
 			pipelineconverter.WithContext(map[string]string{"error": errMsg}),
 		)
 		return nil, false
 	}
 
-	// Suppress messages emitted while structurally converting the context
-	// pipeline — they describe a pipeline the caller did not ask to convert
-	// and would otherwise pollute the ConversionReport.
-	msg := pipelineconverter.GetMessageLogger()
-	msg.Disable()
-	defer msg.Enable("")
-
-	ctxC := pipelineconverter.NewPipelineConverter()
-	_ = ctxC.ConvertPipeline(&cfg.Pipeline)
-	stepTypeMap := ctxC.GetStepTypeMap()
-	if len(stepTypeMap) == 0 {
+	stepInfoByFQN := buildStepInfoByFQNFromV1(schema.Pipeline)
+	if len(stepInfoByFQN) == 0 {
 		// No steps means nothing useful for FQN resolution; skip FQN mode.
 		return nil, false
 	}
-	return stepTypeMap, true
+	return stepInfoByFQN, true
 }
 
 // Result is the outcome of a successful conversion. YAML carries the
@@ -173,7 +158,7 @@ func Pipeline(yamlStr string, templateRefMapping, pipelineRefMapping map[string]
 	}
 
 	// Single-pass expression post-process with full pipeline context.
-	pipelineconverter.PostProcessExpressions(v1Pipeline, c.GetStepTypeMap(), true)
+	pipelineconverter.PostProcessExpressions(v1Pipeline, c.GetStepInfoByFQN(), true)
 
 	out, err := v1.MarshalPipeline(v1Pipeline)
 	if err != nil {

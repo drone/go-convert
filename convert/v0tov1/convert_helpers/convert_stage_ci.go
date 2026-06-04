@@ -309,6 +309,8 @@ func ConvertServiceDependencyToBackgroundStep(src *v0.Service) *v1.Step {
 			Args:         src.Spec.Args,
 			Privileged:   src.Spec.Privileged,
 			PortBindings: src.Spec.PortBindings,
+			User:         src.Spec.RunAsUser,
+			Pull:         ConvertImagePullPolicy(src.Spec.ImagePullPolicy),
 		}
 	}
 

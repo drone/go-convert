@@ -33,7 +33,7 @@ func TestConvertStepRunTests(t *testing.T) {
 					ImagePullPolicy:      "Always",
 					Privileged:           &flexible.Field[bool]{Value: false},
 					RunAsUser:            &flexible.Field[int]{Value: 1000},
-					TestGlobs: "**/*Test.java, **/*Tests.java, **/*IT.java",
+					TestGlobs:            "**/*Test.java, **/*Tests.java, **/*IT.java",
 					Shell:                "Bash",
 					EnvVariables: &flexible.Field[map[string]string]{Value: map[string]string{
 						"MAVEN_OPTS": "-Xmx512m",
@@ -65,9 +65,9 @@ func TestConvertStepRunTests(t *testing.T) {
 				Env: &flexible.Field[map[string]string]{Value: map[string]string{
 					"MAVEN_OPTS": "-Xmx512m",
 				}},
-				Match:  &flexible.Field[[]string]{Value: []string{"**/*Test.java", "**/*Tests.java", "**/*IT.java"}},
+				Match: &flexible.Field[[]string]{Value: []string{"**/*Test.java", "**/*Tests.java", "**/*IT.java"}},
 				Outputs: []*v1.Output{
-					{Name: "TEST_RESULT"},
+					{Name: "TEST_RESULT", Alias: "TEST_RESULT"},
 				},
 				Report: &v1.Reports{
 					Type:  "junit",
@@ -113,7 +113,7 @@ func TestConvertStepRunTests(t *testing.T) {
 				},
 			},
 			expected: &v1.StepTest{
-				Script: v1.Stringorslice{"dotnet restore\ndotnet test --configuration Release --no-build"},
+				Script:  v1.Stringorslice{"dotnet restore\ndotnet test --configuration Release --no-build"},
 				Outputs: []*v1.Output{},
 			},
 		},
@@ -131,7 +131,7 @@ func TestConvertStepRunTests(t *testing.T) {
 				},
 			},
 			expected: &v1.StepTest{
-				Script: v1.Stringorslice{"bundle install\nrspec --format documentation --color"},
+				Script:  v1.Stringorslice{"bundle install\nrspec --format documentation --color"},
 				Outputs: []*v1.Output{},
 			},
 		},
@@ -149,7 +149,7 @@ func TestConvertStepRunTests(t *testing.T) {
 				},
 			},
 			expected: &v1.StepTest{
-				Script: v1.Stringorslice{"export SBT_OPTS='-Xmx2G'\nsbt test -v"},
+				Script:  v1.Stringorslice{"export SBT_OPTS='-Xmx2G'\nsbt test -v"},
 				Outputs: []*v1.Output{},
 			},
 		},
@@ -167,7 +167,7 @@ func TestConvertStepRunTests(t *testing.T) {
 				},
 			},
 			expected: &v1.StepTest{
-				Script: v1.Stringorslice{"chmod +x gradlew\n./gradlew test --info --stacktrace"},
+				Script:  v1.Stringorslice{"chmod +x gradlew\n./gradlew test --info --stacktrace"},
 				Outputs: []*v1.Output{},
 			},
 		},
@@ -184,7 +184,7 @@ func TestConvertStepRunTests(t *testing.T) {
 				},
 			},
 			expected: &v1.StepTest{
-				Script: v1.Stringorslice{"bazel test //src/test/... --test_output=all"},
+				Script:  v1.Stringorslice{"bazel test //src/test/... --test_output=all"},
 				Outputs: []*v1.Output{},
 			},
 		},
@@ -201,7 +201,7 @@ func TestConvertStepRunTests(t *testing.T) {
 				},
 			},
 			expected: &v1.StepTest{
-				Script: v1.Stringorslice{"python -m unittest discover -s tests -p 'test_*.py'"},
+				Script:  v1.Stringorslice{"python -m unittest discover -s tests -p 'test_*.py'"},
 				Outputs: []*v1.Output{},
 			},
 		},
@@ -212,14 +212,14 @@ func TestConvertStepRunTests(t *testing.T) {
 				Name: "NUnit Tests",
 				Type: v0.StepTypeRunTests,
 				Spec: &v0.StepRunTests{
-					Language:  "Csharp",
-					BuildTool: "Nunitconsole",
-					Args:      "--workers=4 --timeout=30000",
+					Language:             "Csharp",
+					BuildTool:            "Nunitconsole",
+					Args:                 "--workers=4 --timeout=30000",
 					RunOnlySelectedTests: &flexible.Field[bool]{Value: false},
 				},
 			},
 			expected: &v1.StepTest{
-				Script: v1.Stringorslice{"nunit3-console --workers=4 --timeout=30000"},
+				Script:  v1.Stringorslice{"nunit3-console --workers=4 --timeout=30000"},
 				Outputs: []*v1.Output{},
 				Intelligence: &v1.TestIntelligence{
 					Disabled: &flexible.Field[bool]{Value: true},

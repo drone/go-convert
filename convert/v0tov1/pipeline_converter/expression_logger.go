@@ -9,15 +9,15 @@ import (
 	"github.com/drone/go-convert/convert/convertexpressions"
 )
 
-// ConversionContextLog is a JSON-serializable version of ConversionContext
+// ConversionContextLog is the per-expression, JSON-serializable subset of
+// ConversionContext. Pipeline-wide fields (UseFQN) live on FileExpressionLog
+// to avoid repeating them on every entry; only per-expression context is here.
 type ConversionContextLog struct {
-	StepID            string            `json:"step_id,omitempty"`
-	StepType          string            `json:"step_type,omitempty"`
-	CurrentStepType   string            `json:"current_step_type,omitempty"`
-	CurrentStepV1Path string            `json:"current_step_v1_path,omitempty"`
-	UseFQN            bool              `json:"use_fqn"`
-	StepTypeMap       map[string]string `json:"step_type_map,omitempty"`
-	StepV1PathMap     map[string]string `json:"step_v1_path_map,omitempty"`
+	StepID          string `json:"step_id,omitempty"`
+	StepType        string `json:"step_type,omitempty"`
+	CurrentStepType string `json:"current_step_type,omitempty"`
+	CurrentFQN      string `json:"current_fqn,omitempty"`
+	CurrentStageID  string `json:"current_stage_id,omitempty"`
 }
 
 // ExpressionLogEntry represents a single expression conversion log entry
@@ -27,10 +27,16 @@ type ExpressionLogEntry struct {
 	Context   *ConversionContextLog `json:"context,omitempty"`
 }
 
-// FileExpressionLog represents all expression conversions for a single file
+// FileExpressionLog represents all expression conversions for a single file.
+// UseFQN is pipeline-wide and recorded once per file (on the first expression
+// logged) rather than duplicated on every entry.
 type FileExpressionLog struct {
-	FilePath    string               `json:"file_path"`
-	Expressions []ExpressionLogEntry `json:"expressions"`
+	FilePath string `json:"file_path"`
+	UseFQN   bool   `json:"use_fqn,omitempty"`
+	// StepInfoByFQN is the pipeline-wide FQN-keyed step-info map used for this
+	// file's resolution, captured once (like UseFQN).
+	StepInfoByFQN map[string]*convertexpressions.StepInfoFQN `json:"step_info_by_fqn,omitempty"`
+	Expressions   []ExpressionLogEntry                       `json:"expressions"`
 }
 
 // conversionKey is used for deduplication of original-converted pairs per file
@@ -155,18 +161,26 @@ func (l *ExpressionLogger) LogConversion(original, converted string, ctx *conver
 	// Include context if enabled and context is provided
 	if l.includeContext && ctx != nil {
 		entry.Context = &ConversionContextLog{
-			StepID:            ctx.StepID,
-			StepType:          ctx.StepType,
-			CurrentStepType:   ctx.CurrentStepType,
-			CurrentStepV1Path: ctx.CurrentStepV1Path,
-			UseFQN:            ctx.UseFQN,
-			StepTypeMap:       ctx.StepTypeMap,
-			StepV1PathMap:     ctx.StepV1PathMap,
+			StepID:          ctx.CurrentStepID,
+			StepType:        ctx.StepType,
+			CurrentStepType: ctx.CurrentStepType,
+			CurrentFQN:      ctx.CurrentFQN,
+			CurrentStageID:  ctx.CurrentStageID,
 		}
 	}
 
 	if l.currentFile != "" {
 		if fileLog, exists := l.fileLogs[l.currentFile]; exists {
+			// Capture UseFQN and the FQN-keyed map once per file, on the first
+			// logged expression that carries context.
+			if l.includeContext && ctx != nil {
+				if !fileLog.UseFQN && ctx.UseFQN {
+					fileLog.UseFQN = ctx.UseFQN
+				}
+				if fileLog.StepInfoByFQN == nil && len(ctx.StepInfoByFQN) > 0 {
+					fileLog.StepInfoByFQN = ctx.StepInfoByFQN
+				}
+			}
 			fileLog.Expressions = append(fileLog.Expressions, entry)
 		}
 	}
@@ -251,4 +265,37 @@ func (l *ExpressionLogger) GetLogFilePath() string {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	return l.logFilePath
+}
+
+// FlushForFiles writes expression logs for the given input file paths to
+// destPath. This is used by --account_dir mode to produce per-project
+// v1/expressions.json files alongside the account-level aggregate.
+func (l *ExpressionLogger) FlushForFiles(inputPaths []string, destPath string) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	var subset []FileExpressionLog
+	for _, p := range inputPaths {
+		if fl, ok := l.fileLogs[p]; ok && len(fl.Expressions) > 0 {
+			subset = append(subset, *fl)
+		}
+	}
+	if len(subset) == 0 {
+		return nil
+	}
+
+	dir := filepath.Dir(destPath)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	file, err := os.Create(destPath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
+	encoder.SetEscapeHTML(false)
+	return encoder.Encode(subset)
 }

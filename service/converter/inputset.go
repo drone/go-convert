@@ -2,6 +2,7 @@ package converter
 
 import (
 	"fmt"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	pipelineconverter "github.com/drone/go-convert/convert/v0tov1/pipeline_converter"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
@@ -12,9 +13,8 @@ import (
 // templateRefMapping rewrites template references in the output;
 // pipelineRefMapping rewrites pipeline identifiers (pipeline.id, chain.uses
 // pipeline segment). Either or both may be nil/empty.
-// contextPipelineYAML is an optional v0 pipeline YAML used purely as
-// expression-postprocess context (see buildContextFromPipelineYAML). Pass ""
-// to run postprocess without FQN context.
+// contextPipelineYAML is an optional v1 pipeline YAML used as FQN expression
+// context (see buildContextFromPipelineYAML); pass "" to skip it.
 //
 // Conversion strategy:
 //   - The v0 inputSet.pipeline is converted to v1 inputs.overlay using the pipeline converter
@@ -48,8 +48,8 @@ func InputSet(yamlStr string, templateRefMapping, pipelineRefMapping map[string]
 	// Single-pass expression post-process. If the caller supplied a context
 	// pipeline_yaml, derive a step-type map and walk in FQN mode; otherwise
 	// fall back to nil context (no FQN).
-	stepTypeMap, useFQN := buildContextFromPipelineYAML(contextPipelineYAML)
-	pipelineconverter.PostProcessExpressions(v1InputSet, stepTypeMap, useFQN)
+	stepInfoByFQN, useFQN := buildContextFromPipelineYAML(contextPipelineYAML)
+	pipelineconverter.PostProcessExpressions(v1InputSet, stepInfoByFQN, useFQN)
 
 	yamlBytes, err := v1.MarshalInputSet(v1InputSet)
 	if err != nil {

@@ -17,6 +17,7 @@ package pipelineconverter
 import (
 	"strings"
 
+	convertexpressions "github.com/drone/go-convert/convert/convertexpressions"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
@@ -24,7 +25,7 @@ import (
 // ConvertTrigger converts a v0 Trigger to v1 Trigger format.
 // The trigger structure remains mostly unchanged, only the inputYaml
 // content is converted from v0 to v1 format.
-func (c *PipelineConverter) ConvertTrigger(src *v0.Trigger, stepTypeMap map[string]*StepInfo, useFQN bool) *v1.Trigger {
+func (c *PipelineConverter) ConvertTrigger(src *v0.Trigger, stepInfoByFQN map[string]*convertexpressions.StepInfoFQN, useFQN bool) *v1.Trigger {
 	if src == nil {
 		return nil
 	}
@@ -51,7 +52,7 @@ func (c *PipelineConverter) ConvertTrigger(src *v0.Trigger, stepTypeMap map[stri
 	// Convert inputYaml if present
 	// The inputYaml contains a v0 pipeline YAML that needs to be converted to v1 format
 	if src.InputYaml != "" {
-		convertedInputYaml := c.convertInputYaml(src.InputYaml, stepTypeMap, useFQN)
+		convertedInputYaml := c.convertInputYaml(src.InputYaml, stepInfoByFQN, useFQN)
 		dst.InputYaml = convertedInputYaml
 	}
 
@@ -90,7 +91,7 @@ func convertTriggerSource(src *v0.TriggerSource) *v1.TriggerSource {
 // On any failure (parse, conversion, marshal) the original v0 inputYaml is
 // returned unchanged AND a structured ERROR message is logged via the
 // MessageLogger so the surface area shows up in summaries and API reports.
-func (c *PipelineConverter) convertInputYaml(inputYaml string, stepTypeMap map[string]*StepInfo, useFQN bool) string {
+func (c *PipelineConverter) convertInputYaml(inputYaml string, stepInfoByFQN map[string]*convertexpressions.StepInfoFQN, useFQN bool) string {
 	if inputYaml == "" {
 		return ""
 	}
@@ -119,7 +120,7 @@ func (c *PipelineConverter) convertInputYaml(inputYaml string, stepTypeMap map[s
 		return inputYaml
 	}
 
-	PostProcessExpressions(v1Pipeline, stepTypeMap, useFQN)
+	PostProcessExpressions(v1Pipeline, stepInfoByFQN, useFQN)
 
 	// Create the v1 InputSet structure with the converted pipeline as overlay
 	v1InputSet := &v1.InputSet{

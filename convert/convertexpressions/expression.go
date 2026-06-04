@@ -2,15 +2,32 @@ package convertexpressions
 
 import "strings"
 
-// FindHarnessExprs finds all top-level <+...> expressions in a string,
-// handling arbitrary nesting depth via balanced bracket scanning.
-// Returns a list of {start, end} index pairs.
-func FindHarnessExprs(s string) [][2]int {
-	var results [][2]int
+// delimKind identifies which delimiter style wraps a Harness expression:
+// <+ ... > (delimAngle) or ${{ ... }} (delimDollar).
+type delimKind int
+
+const (
+	delimAngle delimKind = iota
+	delimDollar
+)
+
+// exprSpan is a top-level expression's byte range [start,end) and delimiter style.
+type exprSpan struct {
+	start int
+	end   int
+	kind  delimKind
+}
+
+// findExprSpans returns all top-level Harness expressions in s in order,
+// recognizing both <+ ... > and ${{ ... }}. Same-style nesting is handled via
+// balanced bracket scanning.
+func findExprSpans(s string) []exprSpan {
+	var results []exprSpan
 	n := len(s)
-	for i := 0; i < n-1; i++ {
-		if s[i] == '<' && s[i+1] == '+' {
-			start := i
+	for i := 0; i < n; i++ {
+		switch {
+		case i+1 < n && s[i] == '<' && s[i+1] == '+':
+			// <+ ... >, balanced on <+ / >.
 			depth := 1
 			j := i + 2
 			for j < n && depth > 0 {
@@ -25,7 +42,26 @@ func FindHarnessExprs(s string) [][2]int {
 				}
 			}
 			if depth == 0 {
-				results = append(results, [2]int{start, j})
+				results = append(results, exprSpan{i, j, delimAngle})
+				i = j - 1 // skip past this expression
+			}
+		case i+2 < n && s[i] == '$' && s[i+1] == '{' && s[i+2] == '{':
+			// ${{ ... }}, balanced on ${{ / }}.
+			depth := 1
+			j := i + 3
+			for j < n && depth > 0 {
+				if j+2 < n && s[j] == '$' && s[j+1] == '{' && s[j+2] == '{' {
+					depth++
+					j += 3
+				} else if j+1 < n && s[j] == '}' && s[j+1] == '}' {
+					depth--
+					j += 2
+				} else {
+					j++
+				}
+			}
+			if depth == 0 {
+				results = append(results, exprSpan{i, j, delimDollar})
 				i = j - 1 // skip past this expression
 			}
 		}
@@ -33,20 +69,40 @@ func FindHarnessExprs(s string) [][2]int {
 	return results
 }
 
-// replaceHarnessExprs replaces all top-level <+...> expressions in s
-// using the provided converter function on the inner content (without <+ and >).
+// FindHarnessExprs returns the {start, end} byte ranges of all top-level
+// Harness expressions in s, recognizing both <+...> and ${{...}} delimiters.
+func FindHarnessExprs(s string) [][2]int {
+	spans := findExprSpans(s)
+	if len(spans) == 0 {
+		return nil
+	}
+	results := make([][2]int, len(spans))
+	for i, sp := range spans {
+		results[i] = [2]int{sp.start, sp.end}
+	}
+	return results
+}
+
+// replaceHarnessExprs converts the inner content of every top-level expression
+// in s via converter, preserving each one's original delimiter style.
 func replaceHarnessExprs(s string, converter func(inner string) string) string {
-	spans := FindHarnessExprs(s)
+	spans := findExprSpans(s)
 	if len(spans) == 0 {
 		return s
 	}
 	var b strings.Builder
 	prev := 0
 	for _, span := range spans {
-		b.WriteString(s[prev:span[0]])
-		innerContent := s[span[0]+2 : span[1]-1] // strip <+ and >
-		b.WriteString("<+" + converter(innerContent) + ">")
-		prev = span[1]
+		b.WriteString(s[prev:span.start])
+		switch span.kind {
+		case delimDollar:
+			innerContent := s[span.start+3 : span.end-2] // strip ${{ and }}
+			b.WriteString("${{" + converter(innerContent) + "}}")
+		default:
+			innerContent := s[span.start+2 : span.end-1] // strip <+ and >
+			b.WriteString("<+" + converter(innerContent) + ">")
+		}
+		prev = span.end
 	}
 	b.WriteString(s[prev:])
 	return b.String()

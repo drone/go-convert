@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v7.34.1
-// source: proto/go_convert_service.proto
+// source: go_convert_service.proto
 
 package proto
 
@@ -57,11 +57,11 @@ func (x EntityType) String() string {
 }
 
 func (EntityType) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_go_convert_service_proto_enumTypes[0].Descriptor()
+	return file_go_convert_service_proto_enumTypes[0].Descriptor()
 }
 
 func (EntityType) Type() protoreflect.EnumType {
-	return &file_proto_go_convert_service_proto_enumTypes[0]
+	return &file_go_convert_service_proto_enumTypes[0]
 }
 
 func (x EntityType) Number() protoreflect.EnumNumber {
@@ -70,7 +70,7 @@ func (x EntityType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use EntityType.Descriptor instead.
 func (EntityType) EnumDescriptor() ([]byte, []int) {
-	return file_proto_go_convert_service_proto_rawDescGZIP(), []int{0}
+	return file_go_convert_service_proto_rawDescGZIP(), []int{0}
 }
 
 // Severity classifies a converter message.
@@ -107,11 +107,11 @@ func (x Severity) String() string {
 }
 
 func (Severity) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_go_convert_service_proto_enumTypes[1].Descriptor()
+	return file_go_convert_service_proto_enumTypes[1].Descriptor()
 }
 
 func (Severity) Type() protoreflect.EnumType {
-	return &file_proto_go_convert_service_proto_enumTypes[1]
+	return &file_go_convert_service_proto_enumTypes[1]
 }
 
 func (x Severity) Number() protoreflect.EnumNumber {
@@ -120,7 +120,7 @@ func (x Severity) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Severity.Descriptor instead.
 func (Severity) EnumDescriptor() ([]byte, []int) {
-	return file_proto_go_convert_service_proto_rawDescGZIP(), []int{1}
+	return file_go_convert_service_proto_rawDescGZIP(), []int{1}
 }
 
 // ConversionStatus indicates whether an expression was converted.
@@ -154,11 +154,11 @@ func (x ConversionStatus) String() string {
 }
 
 func (ConversionStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_proto_go_convert_service_proto_enumTypes[2].Descriptor()
+	return file_go_convert_service_proto_enumTypes[2].Descriptor()
 }
 
 func (ConversionStatus) Type() protoreflect.EnumType {
-	return &file_proto_go_convert_service_proto_enumTypes[2]
+	return &file_go_convert_service_proto_enumTypes[2]
 }
 
 func (x ConversionStatus) Number() protoreflect.EnumNumber {
@@ -167,7 +167,7 @@ func (x ConversionStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ConversionStatus.Descriptor instead.
 func (ConversionStatus) EnumDescriptor() ([]byte, []int) {
-	return file_proto_go_convert_service_proto_rawDescGZIP(), []int{2}
+	return file_go_convert_service_proto_rawDescGZIP(), []int{2}
 }
 
 type ConvertRequest struct {
@@ -176,14 +176,14 @@ type ConvertRequest struct {
 	Yaml                string                 `protobuf:"bytes,2,opt,name=yaml,proto3" json:"yaml,omitempty"`
 	TemplateRefMapping  map[string]string      `protobuf:"bytes,3,rep,name=template_ref_mapping,json=templateRefMapping,proto3" json:"template_ref_mapping,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	PipelineRefMapping  map[string]string      `protobuf:"bytes,4,rep,name=pipeline_ref_mapping,json=pipelineRefMapping,proto3" json:"pipeline_ref_mapping,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	ContextPipelineYaml string                 `protobuf:"bytes,5,opt,name=context_pipeline_yaml,json=contextPipelineYaml,proto3" json:"context_pipeline_yaml,omitempty"` // Optional v0 pipeline YAML for expression post-processing context for inputset/trigger conversion
+	ContextPipelineYaml string                 `protobuf:"bytes,5,opt,name=context_pipeline_yaml,json=contextPipelineYaml,proto3" json:"context_pipeline_yaml,omitempty"` // Optional v1 pipeline YAML for expression post-processing context for template/inputset/trigger conversion
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ConvertRequest) Reset() {
 	*x = ConvertRequest{}
-	mi := &file_proto_go_convert_service_proto_msgTypes[0]
+	mi := &file_go_convert_service_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -195,7 +195,7 @@ func (x *ConvertRequest) String() string {
 func (*ConvertRequest) ProtoMessage() {}
 
 func (x *ConvertRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_go_convert_service_proto_msgTypes[0]
+	mi := &file_go_convert_service_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -208,7 +208,7 @@ func (x *ConvertRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConvertRequest.ProtoReflect.Descriptor instead.
 func (*ConvertRequest) Descriptor() ([]byte, []int) {
-	return file_proto_go_convert_service_proto_rawDescGZIP(), []int{0}
+	return file_go_convert_service_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *ConvertRequest) GetEntityType() EntityType {
@@ -259,7 +259,7 @@ type ConverterMessage struct {
 
 func (x *ConverterMessage) Reset() {
 	*x = ConverterMessage{}
-	mi := &file_proto_go_convert_service_proto_msgTypes[1]
+	mi := &file_go_convert_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -271,7 +271,7 @@ func (x *ConverterMessage) String() string {
 func (*ConverterMessage) ProtoMessage() {}
 
 func (x *ConverterMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_go_convert_service_proto_msgTypes[1]
+	mi := &file_go_convert_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -284,7 +284,7 @@ func (x *ConverterMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConverterMessage.ProtoReflect.Descriptor instead.
 func (*ConverterMessage) Descriptor() ([]byte, []int) {
-	return file_proto_go_convert_service_proto_rawDescGZIP(), []int{1}
+	return file_go_convert_service_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ConverterMessage) GetSeverity() Severity {
@@ -327,7 +327,7 @@ type ExpressionEntry struct {
 
 func (x *ExpressionEntry) Reset() {
 	*x = ExpressionEntry{}
-	mi := &file_proto_go_convert_service_proto_msgTypes[2]
+	mi := &file_go_convert_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -339,7 +339,7 @@ func (x *ExpressionEntry) String() string {
 func (*ExpressionEntry) ProtoMessage() {}
 
 func (x *ExpressionEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_go_convert_service_proto_msgTypes[2]
+	mi := &file_go_convert_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -352,7 +352,7 @@ func (x *ExpressionEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExpressionEntry.ProtoReflect.Descriptor instead.
 func (*ExpressionEntry) Descriptor() ([]byte, []int) {
-	return file_proto_go_convert_service_proto_rawDescGZIP(), []int{2}
+	return file_go_convert_service_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ExpressionEntry) GetOriginal() string {
@@ -390,7 +390,7 @@ type ConversionReport struct {
 
 func (x *ConversionReport) Reset() {
 	*x = ConversionReport{}
-	mi := &file_proto_go_convert_service_proto_msgTypes[3]
+	mi := &file_go_convert_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -402,7 +402,7 @@ func (x *ConversionReport) String() string {
 func (*ConversionReport) ProtoMessage() {}
 
 func (x *ConversionReport) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_go_convert_service_proto_msgTypes[3]
+	mi := &file_go_convert_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -415,7 +415,7 @@ func (x *ConversionReport) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConversionReport.ProtoReflect.Descriptor instead.
 func (*ConversionReport) Descriptor() ([]byte, []int) {
-	return file_proto_go_convert_service_proto_rawDescGZIP(), []int{3}
+	return file_go_convert_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ConversionReport) GetMessages() []*ConverterMessage {
@@ -450,7 +450,7 @@ type ConvertResponse struct {
 
 func (x *ConvertResponse) Reset() {
 	*x = ConvertResponse{}
-	mi := &file_proto_go_convert_service_proto_msgTypes[4]
+	mi := &file_go_convert_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -462,7 +462,7 @@ func (x *ConvertResponse) String() string {
 func (*ConvertResponse) ProtoMessage() {}
 
 func (x *ConvertResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_go_convert_service_proto_msgTypes[4]
+	mi := &file_go_convert_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -475,7 +475,7 @@ func (x *ConvertResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConvertResponse.ProtoReflect.Descriptor instead.
 func (*ConvertResponse) Descriptor() ([]byte, []int) {
-	return file_proto_go_convert_service_proto_rawDescGZIP(), []int{4}
+	return file_go_convert_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ConvertResponse) GetYaml() string {
@@ -508,7 +508,7 @@ type ChecksumRequest struct {
 
 func (x *ChecksumRequest) Reset() {
 	*x = ChecksumRequest{}
-	mi := &file_proto_go_convert_service_proto_msgTypes[5]
+	mi := &file_go_convert_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -520,7 +520,7 @@ func (x *ChecksumRequest) String() string {
 func (*ChecksumRequest) ProtoMessage() {}
 
 func (x *ChecksumRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_go_convert_service_proto_msgTypes[5]
+	mi := &file_go_convert_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -533,7 +533,7 @@ func (x *ChecksumRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChecksumRequest.ProtoReflect.Descriptor instead.
 func (*ChecksumRequest) Descriptor() ([]byte, []int) {
-	return file_proto_go_convert_service_proto_rawDescGZIP(), []int{5}
+	return file_go_convert_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ChecksumRequest) GetYaml() string {
@@ -552,7 +552,7 @@ type ChecksumResponse struct {
 
 func (x *ChecksumResponse) Reset() {
 	*x = ChecksumResponse{}
-	mi := &file_proto_go_convert_service_proto_msgTypes[6]
+	mi := &file_go_convert_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -564,7 +564,7 @@ func (x *ChecksumResponse) String() string {
 func (*ChecksumResponse) ProtoMessage() {}
 
 func (x *ChecksumResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_go_convert_service_proto_msgTypes[6]
+	mi := &file_go_convert_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -577,7 +577,7 @@ func (x *ChecksumResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChecksumResponse.ProtoReflect.Descriptor instead.
 func (*ChecksumResponse) Descriptor() ([]byte, []int) {
-	return file_proto_go_convert_service_proto_rawDescGZIP(), []int{6}
+	return file_go_convert_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ChecksumResponse) GetChecksum() string {
@@ -588,18 +588,25 @@ func (x *ChecksumResponse) GetChecksum() string {
 }
 
 // ExpressionConvertRequest is the request for ConvertExpression.
+//
+// Expression conversion is FQN-only: context is supplied as a v1 pipeline YAML
+// (context_pipeline_yaml) which the server walks into the FQN-keyed step lookup,
+// plus an optional current_fqn that anchors the call-site for step-group
+// chaining. There are no manual step maps.
 type ExpressionConvertRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// A single expression to convert (use this OR expressions, not both).
 	Expression string `protobuf:"bytes,1,opt,name=expression,proto3" json:"expression,omitempty"`
 	// Multiple expressions to convert (use this OR expression, not both).
 	Expressions []string `protobuf:"bytes,2,rep,name=expressions,proto3" json:"expressions,omitempty"`
-	// Optional v0 pipeline YAML. When provided the server structurally
-	// converts this pipeline to derive step-type and v1-path maps
-	// automatically. Supersedes manual context fields.
+	// Optional v1 pipeline YAML. When provided the server walks this pipeline
+	// into the FQN-keyed step lookup and resolves step references against it.
 	ContextPipelineYaml string `protobuf:"bytes,3,opt,name=context_pipeline_yaml,json=contextPipelineYaml,proto3" json:"context_pipeline_yaml,omitempty"`
-	// Optional manual context (ignored when context_pipeline_yaml is provided).
-	Context *ExpressionContext `protobuf:"bytes,4,opt,name=context,proto3" json:"context,omitempty"`
+	// Optional full v1 FQN of the step the expression lives in, e.g.
+	// "pipeline.stages.prod.steps.G1.steps.deploy". Used to derive the call-site
+	// stage and enclosing step-group chain so references resolve with step-group
+	// chaining. Only meaningful alongside context_pipeline_yaml.
+	CurrentFqn string `protobuf:"bytes,4,opt,name=current_fqn,json=currentFqn,proto3" json:"current_fqn,omitempty"`
 	// Raw contents of a remote file (manifest, values.yaml, config, etc.)
 	// containing embedded <+...> expressions. The server scans the string
 	// and converts every expression found, returning the file with all
@@ -611,7 +618,7 @@ type ExpressionConvertRequest struct {
 
 func (x *ExpressionConvertRequest) Reset() {
 	*x = ExpressionConvertRequest{}
-	mi := &file_proto_go_convert_service_proto_msgTypes[7]
+	mi := &file_go_convert_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -623,7 +630,7 @@ func (x *ExpressionConvertRequest) String() string {
 func (*ExpressionConvertRequest) ProtoMessage() {}
 
 func (x *ExpressionConvertRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_go_convert_service_proto_msgTypes[7]
+	mi := &file_go_convert_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -636,7 +643,7 @@ func (x *ExpressionConvertRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExpressionConvertRequest.ProtoReflect.Descriptor instead.
 func (*ExpressionConvertRequest) Descriptor() ([]byte, []int) {
-	return file_proto_go_convert_service_proto_rawDescGZIP(), []int{7}
+	return file_go_convert_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ExpressionConvertRequest) GetExpression() string {
@@ -660,11 +667,11 @@ func (x *ExpressionConvertRequest) GetContextPipelineYaml() string {
 	return ""
 }
 
-func (x *ExpressionConvertRequest) GetContext() *ExpressionContext {
+func (x *ExpressionConvertRequest) GetCurrentFqn() string {
 	if x != nil {
-		return x.Context
+		return x.CurrentFqn
 	}
-	return nil
+	return ""
 }
 
 func (x *ExpressionConvertRequest) GetRemoteFile() string {
@@ -672,91 +679,6 @@ func (x *ExpressionConvertRequest) GetRemoteFile() string {
 		return x.RemoteFile
 	}
 	return ""
-}
-
-// ExpressionContext holds manual metadata for expression conversion.
-type ExpressionContext struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	CurrentStepId     string                 `protobuf:"bytes,1,opt,name=current_step_id,json=currentStepId,proto3" json:"current_step_id,omitempty"`
-	CurrentStepType   string                 `protobuf:"bytes,2,opt,name=current_step_type,json=currentStepType,proto3" json:"current_step_type,omitempty"`
-	CurrentStepV1Path string                 `protobuf:"bytes,3,opt,name=current_step_v1_path,json=currentStepV1Path,proto3" json:"current_step_v1_path,omitempty"`
-	StepTypeMap       map[string]string      `protobuf:"bytes,4,rep,name=step_type_map,json=stepTypeMap,proto3" json:"step_type_map,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	StepV1PathMap     map[string]string      `protobuf:"bytes,5,rep,name=step_v1_path_map,json=stepV1PathMap,proto3" json:"step_v1_path_map,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	UseFqn            bool                   `protobuf:"varint,6,opt,name=use_fqn,json=useFqn,proto3" json:"use_fqn,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
-}
-
-func (x *ExpressionContext) Reset() {
-	*x = ExpressionContext{}
-	mi := &file_proto_go_convert_service_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ExpressionContext) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ExpressionContext) ProtoMessage() {}
-
-func (x *ExpressionContext) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_go_convert_service_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ExpressionContext.ProtoReflect.Descriptor instead.
-func (*ExpressionContext) Descriptor() ([]byte, []int) {
-	return file_proto_go_convert_service_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *ExpressionContext) GetCurrentStepId() string {
-	if x != nil {
-		return x.CurrentStepId
-	}
-	return ""
-}
-
-func (x *ExpressionContext) GetCurrentStepType() string {
-	if x != nil {
-		return x.CurrentStepType
-	}
-	return ""
-}
-
-func (x *ExpressionContext) GetCurrentStepV1Path() string {
-	if x != nil {
-		return x.CurrentStepV1Path
-	}
-	return ""
-}
-
-func (x *ExpressionContext) GetStepTypeMap() map[string]string {
-	if x != nil {
-		return x.StepTypeMap
-	}
-	return nil
-}
-
-func (x *ExpressionContext) GetStepV1PathMap() map[string]string {
-	if x != nil {
-		return x.StepV1PathMap
-	}
-	return nil
-}
-
-func (x *ExpressionContext) GetUseFqn() bool {
-	if x != nil {
-		return x.UseFqn
-	}
-	return false
 }
 
 // ExpressionConvertResponse is the response for ConvertExpression.
@@ -769,14 +691,17 @@ type ExpressionConvertResponse struct {
 	// SHA-256 checksum of the converted output.
 	Checksum string `protobuf:"bytes,3,opt,name=checksum,proto3" json:"checksum,omitempty"`
 	// The remote file contents with all embedded expressions converted.
-	RemoteFile    string `protobuf:"bytes,4,opt,name=remote_file,json=remoteFile,proto3" json:"remote_file,omitempty"`
+	RemoteFile string `protobuf:"bytes,4,opt,name=remote_file,json=remoteFile,proto3" json:"remote_file,omitempty"`
+	// Non-fatal diagnostics, e.g. ambiguous step types resolved via best-match
+	// fallback or unmapped template/approval uses.
+	Warnings      []string `protobuf:"bytes,5,rep,name=warnings,proto3" json:"warnings,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ExpressionConvertResponse) Reset() {
 	*x = ExpressionConvertResponse{}
-	mi := &file_proto_go_convert_service_proto_msgTypes[9]
+	mi := &file_go_convert_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -788,7 +713,7 @@ func (x *ExpressionConvertResponse) String() string {
 func (*ExpressionConvertResponse) ProtoMessage() {}
 
 func (x *ExpressionConvertResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_go_convert_service_proto_msgTypes[9]
+	mi := &file_go_convert_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -801,7 +726,7 @@ func (x *ExpressionConvertResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExpressionConvertResponse.ProtoReflect.Descriptor instead.
 func (*ExpressionConvertResponse) Descriptor() ([]byte, []int) {
-	return file_proto_go_convert_service_proto_rawDescGZIP(), []int{9}
+	return file_go_convert_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ExpressionConvertResponse) GetExpression() string {
@@ -832,11 +757,18 @@ func (x *ExpressionConvertResponse) GetRemoteFile() string {
 	return ""
 }
 
-var File_proto_go_convert_service_proto protoreflect.FileDescriptor
+func (x *ExpressionConvertResponse) GetWarnings() []string {
+	if x != nil {
+		return x.Warnings
+	}
+	return nil
+}
 
-const file_proto_go_convert_service_proto_rawDesc = "" +
+var File_go_convert_service_proto protoreflect.FileDescriptor
+
+const file_go_convert_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1eproto/go_convert_service.proto\x12\x1fio.harness.pms.conversion.proto\"\xaa\x04\n" +
+	"\x18go_convert_service.proto\x12\x1fio.harness.pms.conversion.proto\"\xaa\x04\n" +
 	"\x0eConvertRequest\x12L\n" +
 	"\ventity_type\x18\x01 \x01(\x0e2+.io.harness.pms.conversion.proto.EntityTypeR\n" +
 	"entityType\x12\x12\n" +
@@ -873,29 +805,17 @@ const file_proto_go_convert_service_proto_rawDesc = "" +
 	"\x0fChecksumRequest\x12\x12\n" +
 	"\x04yaml\x18\x01 \x01(\tR\x04yaml\".\n" +
 	"\x10ChecksumResponse\x12\x1a\n" +
-	"\bchecksum\x18\x01 \x01(\tR\bchecksum\"\xff\x01\n" +
+	"\bchecksum\x18\x01 \x01(\tR\bchecksum\"\xd2\x01\n" +
 	"\x18ExpressionConvertRequest\x12\x1e\n" +
 	"\n" +
 	"expression\x18\x01 \x01(\tR\n" +
 	"expression\x12 \n" +
 	"\vexpressions\x18\x02 \x03(\tR\vexpressions\x122\n" +
-	"\x15context_pipeline_yaml\x18\x03 \x01(\tR\x13contextPipelineYaml\x12L\n" +
-	"\acontext\x18\x04 \x01(\v22.io.harness.pms.conversion.proto.ExpressionContextR\acontext\x12\x1f\n" +
+	"\x15context_pipeline_yaml\x18\x03 \x01(\tR\x13contextPipelineYaml\x12\x1f\n" +
+	"\vcurrent_fqn\x18\x04 \x01(\tR\n" +
+	"currentFqn\x12\x1f\n" +
 	"\vremote_file\x18\x05 \x01(\tR\n" +
-	"remoteFile\"\x8c\x04\n" +
-	"\x11ExpressionContext\x12&\n" +
-	"\x0fcurrent_step_id\x18\x01 \x01(\tR\rcurrentStepId\x12*\n" +
-	"\x11current_step_type\x18\x02 \x01(\tR\x0fcurrentStepType\x12/\n" +
-	"\x14current_step_v1_path\x18\x03 \x01(\tR\x11currentStepV1Path\x12g\n" +
-	"\rstep_type_map\x18\x04 \x03(\v2C.io.harness.pms.conversion.proto.ExpressionContext.StepTypeMapEntryR\vstepTypeMap\x12n\n" +
-	"\x10step_v1_path_map\x18\x05 \x03(\v2E.io.harness.pms.conversion.proto.ExpressionContext.StepV1PathMapEntryR\rstepV1PathMap\x12\x17\n" +
-	"\ause_fqn\x18\x06 \x01(\bR\x06useFqn\x1a>\n" +
-	"\x10StepTypeMapEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a@\n" +
-	"\x12StepV1PathMapEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa7\x02\n" +
+	"remoteFile\"\xc3\x02\n" +
 	"\x19ExpressionConvertResponse\x12\x1e\n" +
 	"\n" +
 	"expression\x18\x01 \x01(\tR\n" +
@@ -903,7 +823,8 @@ const file_proto_go_convert_service_proto_rawDesc = "" +
 	"\vexpressions\x18\x02 \x03(\v2K.io.harness.pms.conversion.proto.ExpressionConvertResponse.ExpressionsEntryR\vexpressions\x12\x1a\n" +
 	"\bchecksum\x18\x03 \x01(\tR\bchecksum\x12\x1f\n" +
 	"\vremote_file\x18\x04 \x01(\tR\n" +
-	"remoteFile\x1a>\n" +
+	"remoteFile\x12\x1a\n" +
+	"\bwarnings\x18\x05 \x03(\tR\bwarnings\x1a>\n" +
 	"\x10ExpressionsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*D\n" +
@@ -930,20 +851,20 @@ const file_proto_go_convert_service_proto_rawDesc = "" +
 	"\x1fio.harness.pms.conversion.protoP\x01Z!github.com/drone/go-convert/protob\x06proto3"
 
 var (
-	file_proto_go_convert_service_proto_rawDescOnce sync.Once
-	file_proto_go_convert_service_proto_rawDescData []byte
+	file_go_convert_service_proto_rawDescOnce sync.Once
+	file_go_convert_service_proto_rawDescData []byte
 )
 
-func file_proto_go_convert_service_proto_rawDescGZIP() []byte {
-	file_proto_go_convert_service_proto_rawDescOnce.Do(func() {
-		file_proto_go_convert_service_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_go_convert_service_proto_rawDesc), len(file_proto_go_convert_service_proto_rawDesc)))
+func file_go_convert_service_proto_rawDescGZIP() []byte {
+	file_go_convert_service_proto_rawDescOnce.Do(func() {
+		file_go_convert_service_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_go_convert_service_proto_rawDesc), len(file_go_convert_service_proto_rawDesc)))
 	})
-	return file_proto_go_convert_service_proto_rawDescData
+	return file_go_convert_service_proto_rawDescData
 }
 
-var file_proto_go_convert_service_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_proto_go_convert_service_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
-var file_proto_go_convert_service_proto_goTypes = []any{
+var file_go_convert_service_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_go_convert_service_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_go_convert_service_proto_goTypes = []any{
 	(EntityType)(0),                   // 0: io.harness.pms.conversion.proto.EntityType
 	(Severity)(0),                     // 1: io.harness.pms.conversion.proto.Severity
 	(ConversionStatus)(0),             // 2: io.harness.pms.conversion.proto.ConversionStatus
@@ -955,69 +876,63 @@ var file_proto_go_convert_service_proto_goTypes = []any{
 	(*ChecksumRequest)(nil),           // 8: io.harness.pms.conversion.proto.ChecksumRequest
 	(*ChecksumResponse)(nil),          // 9: io.harness.pms.conversion.proto.ChecksumResponse
 	(*ExpressionConvertRequest)(nil),  // 10: io.harness.pms.conversion.proto.ExpressionConvertRequest
-	(*ExpressionContext)(nil),         // 11: io.harness.pms.conversion.proto.ExpressionContext
-	(*ExpressionConvertResponse)(nil), // 12: io.harness.pms.conversion.proto.ExpressionConvertResponse
-	nil,                               // 13: io.harness.pms.conversion.proto.ConvertRequest.TemplateRefMappingEntry
-	nil,                               // 14: io.harness.pms.conversion.proto.ConvertRequest.PipelineRefMappingEntry
-	nil,                               // 15: io.harness.pms.conversion.proto.ConverterMessage.ContextEntry
-	nil,                               // 16: io.harness.pms.conversion.proto.ExpressionContext.StepTypeMapEntry
-	nil,                               // 17: io.harness.pms.conversion.proto.ExpressionContext.StepV1PathMapEntry
-	nil,                               // 18: io.harness.pms.conversion.proto.ExpressionConvertResponse.ExpressionsEntry
+	(*ExpressionConvertResponse)(nil), // 11: io.harness.pms.conversion.proto.ExpressionConvertResponse
+	nil,                               // 12: io.harness.pms.conversion.proto.ConvertRequest.TemplateRefMappingEntry
+	nil,                               // 13: io.harness.pms.conversion.proto.ConvertRequest.PipelineRefMappingEntry
+	nil,                               // 14: io.harness.pms.conversion.proto.ConverterMessage.ContextEntry
+	nil,                               // 15: io.harness.pms.conversion.proto.ExpressionConvertResponse.ExpressionsEntry
 }
-var file_proto_go_convert_service_proto_depIdxs = []int32{
+var file_go_convert_service_proto_depIdxs = []int32{
 	0,  // 0: io.harness.pms.conversion.proto.ConvertRequest.entity_type:type_name -> io.harness.pms.conversion.proto.EntityType
-	13, // 1: io.harness.pms.conversion.proto.ConvertRequest.template_ref_mapping:type_name -> io.harness.pms.conversion.proto.ConvertRequest.TemplateRefMappingEntry
-	14, // 2: io.harness.pms.conversion.proto.ConvertRequest.pipeline_ref_mapping:type_name -> io.harness.pms.conversion.proto.ConvertRequest.PipelineRefMappingEntry
+	12, // 1: io.harness.pms.conversion.proto.ConvertRequest.template_ref_mapping:type_name -> io.harness.pms.conversion.proto.ConvertRequest.TemplateRefMappingEntry
+	13, // 2: io.harness.pms.conversion.proto.ConvertRequest.pipeline_ref_mapping:type_name -> io.harness.pms.conversion.proto.ConvertRequest.PipelineRefMappingEntry
 	1,  // 3: io.harness.pms.conversion.proto.ConverterMessage.severity:type_name -> io.harness.pms.conversion.proto.Severity
-	15, // 4: io.harness.pms.conversion.proto.ConverterMessage.context:type_name -> io.harness.pms.conversion.proto.ConverterMessage.ContextEntry
+	14, // 4: io.harness.pms.conversion.proto.ConverterMessage.context:type_name -> io.harness.pms.conversion.proto.ConverterMessage.ContextEntry
 	2,  // 5: io.harness.pms.conversion.proto.ExpressionEntry.status:type_name -> io.harness.pms.conversion.proto.ConversionStatus
 	4,  // 6: io.harness.pms.conversion.proto.ConversionReport.messages:type_name -> io.harness.pms.conversion.proto.ConverterMessage
 	5,  // 7: io.harness.pms.conversion.proto.ConversionReport.expressions:type_name -> io.harness.pms.conversion.proto.ExpressionEntry
 	6,  // 8: io.harness.pms.conversion.proto.ConvertResponse.report:type_name -> io.harness.pms.conversion.proto.ConversionReport
-	11, // 9: io.harness.pms.conversion.proto.ExpressionConvertRequest.context:type_name -> io.harness.pms.conversion.proto.ExpressionContext
-	16, // 10: io.harness.pms.conversion.proto.ExpressionContext.step_type_map:type_name -> io.harness.pms.conversion.proto.ExpressionContext.StepTypeMapEntry
-	17, // 11: io.harness.pms.conversion.proto.ExpressionContext.step_v1_path_map:type_name -> io.harness.pms.conversion.proto.ExpressionContext.StepV1PathMapEntry
-	18, // 12: io.harness.pms.conversion.proto.ExpressionConvertResponse.expressions:type_name -> io.harness.pms.conversion.proto.ExpressionConvertResponse.ExpressionsEntry
-	3,  // 13: io.harness.pms.conversion.proto.GoConvertService.ConvertPipeline:input_type -> io.harness.pms.conversion.proto.ConvertRequest
-	3,  // 14: io.harness.pms.conversion.proto.GoConvertService.ConvertTemplate:input_type -> io.harness.pms.conversion.proto.ConvertRequest
-	3,  // 15: io.harness.pms.conversion.proto.GoConvertService.ConvertInputSet:input_type -> io.harness.pms.conversion.proto.ConvertRequest
-	3,  // 16: io.harness.pms.conversion.proto.GoConvertService.ConvertTrigger:input_type -> io.harness.pms.conversion.proto.ConvertRequest
-	10, // 17: io.harness.pms.conversion.proto.GoConvertService.ConvertExpression:input_type -> io.harness.pms.conversion.proto.ExpressionConvertRequest
-	8,  // 18: io.harness.pms.conversion.proto.GoConvertService.GetChecksum:input_type -> io.harness.pms.conversion.proto.ChecksumRequest
-	7,  // 19: io.harness.pms.conversion.proto.GoConvertService.ConvertPipeline:output_type -> io.harness.pms.conversion.proto.ConvertResponse
-	7,  // 20: io.harness.pms.conversion.proto.GoConvertService.ConvertTemplate:output_type -> io.harness.pms.conversion.proto.ConvertResponse
-	7,  // 21: io.harness.pms.conversion.proto.GoConvertService.ConvertInputSet:output_type -> io.harness.pms.conversion.proto.ConvertResponse
-	7,  // 22: io.harness.pms.conversion.proto.GoConvertService.ConvertTrigger:output_type -> io.harness.pms.conversion.proto.ConvertResponse
-	12, // 23: io.harness.pms.conversion.proto.GoConvertService.ConvertExpression:output_type -> io.harness.pms.conversion.proto.ExpressionConvertResponse
-	9,  // 24: io.harness.pms.conversion.proto.GoConvertService.GetChecksum:output_type -> io.harness.pms.conversion.proto.ChecksumResponse
-	19, // [19:25] is the sub-list for method output_type
-	13, // [13:19] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	15, // 9: io.harness.pms.conversion.proto.ExpressionConvertResponse.expressions:type_name -> io.harness.pms.conversion.proto.ExpressionConvertResponse.ExpressionsEntry
+	3,  // 10: io.harness.pms.conversion.proto.GoConvertService.ConvertPipeline:input_type -> io.harness.pms.conversion.proto.ConvertRequest
+	3,  // 11: io.harness.pms.conversion.proto.GoConvertService.ConvertTemplate:input_type -> io.harness.pms.conversion.proto.ConvertRequest
+	3,  // 12: io.harness.pms.conversion.proto.GoConvertService.ConvertInputSet:input_type -> io.harness.pms.conversion.proto.ConvertRequest
+	3,  // 13: io.harness.pms.conversion.proto.GoConvertService.ConvertTrigger:input_type -> io.harness.pms.conversion.proto.ConvertRequest
+	10, // 14: io.harness.pms.conversion.proto.GoConvertService.ConvertExpression:input_type -> io.harness.pms.conversion.proto.ExpressionConvertRequest
+	8,  // 15: io.harness.pms.conversion.proto.GoConvertService.GetChecksum:input_type -> io.harness.pms.conversion.proto.ChecksumRequest
+	7,  // 16: io.harness.pms.conversion.proto.GoConvertService.ConvertPipeline:output_type -> io.harness.pms.conversion.proto.ConvertResponse
+	7,  // 17: io.harness.pms.conversion.proto.GoConvertService.ConvertTemplate:output_type -> io.harness.pms.conversion.proto.ConvertResponse
+	7,  // 18: io.harness.pms.conversion.proto.GoConvertService.ConvertInputSet:output_type -> io.harness.pms.conversion.proto.ConvertResponse
+	7,  // 19: io.harness.pms.conversion.proto.GoConvertService.ConvertTrigger:output_type -> io.harness.pms.conversion.proto.ConvertResponse
+	11, // 20: io.harness.pms.conversion.proto.GoConvertService.ConvertExpression:output_type -> io.harness.pms.conversion.proto.ExpressionConvertResponse
+	9,  // 21: io.harness.pms.conversion.proto.GoConvertService.GetChecksum:output_type -> io.harness.pms.conversion.proto.ChecksumResponse
+	16, // [16:22] is the sub-list for method output_type
+	10, // [10:16] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
-func init() { file_proto_go_convert_service_proto_init() }
-func file_proto_go_convert_service_proto_init() {
-	if File_proto_go_convert_service_proto != nil {
+func init() { file_go_convert_service_proto_init() }
+func file_go_convert_service_proto_init() {
+	if File_go_convert_service_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_go_convert_service_proto_rawDesc), len(file_proto_go_convert_service_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_go_convert_service_proto_rawDesc), len(file_go_convert_service_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   16,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_go_convert_service_proto_goTypes,
-		DependencyIndexes: file_proto_go_convert_service_proto_depIdxs,
-		EnumInfos:         file_proto_go_convert_service_proto_enumTypes,
-		MessageInfos:      file_proto_go_convert_service_proto_msgTypes,
+		GoTypes:           file_go_convert_service_proto_goTypes,
+		DependencyIndexes: file_go_convert_service_proto_depIdxs,
+		EnumInfos:         file_go_convert_service_proto_enumTypes,
+		MessageInfos:      file_go_convert_service_proto_msgTypes,
 	}.Build()
-	File_proto_go_convert_service_proto = out.File
-	file_proto_go_convert_service_proto_goTypes = nil
-	file_proto_go_convert_service_proto_depIdxs = nil
+	File_go_convert_service_proto = out.File
+	file_go_convert_service_proto_goTypes = nil
+	file_go_convert_service_proto_depIdxs = nil
 }

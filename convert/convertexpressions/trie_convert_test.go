@@ -269,7 +269,7 @@ func TestTrieConvert_StepLevel(t *testing.T) {
 			name:     "Relative Run step command",
 			input:    "<+execution.steps.step1.spec.command>",
 			context:  &ConversionContext{StepType: StepTypeRun},
-			expected: "<+steps.step1.spec.script>",
+			expected: "<+stage.steps.step1.spec.script>",
 		},
 		// Background step
 		{
@@ -315,7 +315,7 @@ func TestTrieConvert_StepLevel(t *testing.T) {
 			name:     "Relative RestoreCacheS3",
 			input:    "<+execution.steps.restore1.spec.bucket>",
 			context:  &ConversionContext{StepType: StepTypeRestoreCacheS3},
-			expected: "<+steps.restore1.steps.restoreCacheS3.spec.with.BUCKET>",
+			expected: "<+stage.steps.restore1.steps.restoreCacheS3.spec.with.BUCKET>",
 		},
 		{
 			name:     "StepGroup RestoreCacheS3",
@@ -481,11 +481,12 @@ func TestTrieConvert_ComplexNested(t *testing.T) {
 
 // TestTrieConvert_LazyStepTypeResolution tests that step type resolution happens
 // lazily inside the trie when it encounters step.spec expressions.
-// The trie captures step IDs during path traversal and resolves step type from StepTypeMap.
+// The trie captures step IDs during path traversal and resolves step type via
+// the FQN-keyed StepInfoByFQN lookup.
 // TestTrieConvert_FQNMode tests that when UseFQN is enabled, relative step expressions
 // are converted to fully qualified names.
-// - "step." prefix uses CurrentStepV1Path and CurrentStepType (the step we're inside)
-// - "steps.STEPID" prefix uses StepV1PathMap and StepTypeMap to look up the referenced step
+// - "step." prefix uses CurrentFQN and CurrentStepType (the step we're inside)
+// - "steps.STEPID" prefix uses StepInfoByFQN to look up the referenced step
 func TestTrieConvert_FQNMode(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -500,9 +501,9 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			name:  "step.spec.bucket with FQN - RestoreCacheGCS",
 			input: "<+step.spec.bucket>",
 			context: &ConversionContext{
-				UseFQN:            true,
-				CurrentStepV1Path: "pipeline.stages.build.steps.restoreCache",
-				CurrentStepType:   StepTypeRestoreCacheGCS,
+				UseFQN:          true,
+				CurrentFQN:      "pipeline.stages.build.steps.restoreCache",
+				CurrentStepType: StepTypeRestoreCacheGCS,
 			},
 			expected: "<+pipeline.stages.build.steps.restoreCache.steps.restoreCacheGCS.spec.with.BUCKET>",
 		},
@@ -510,9 +511,9 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			name:  "step.spec.key with FQN - RestoreCacheS3",
 			input: "<+step.spec.key>",
 			context: &ConversionContext{
-				UseFQN:            true,
-				CurrentStepV1Path: "pipeline.stages.build.steps.restoreS3",
-				CurrentStepType:   StepTypeRestoreCacheS3,
+				UseFQN:          true,
+				CurrentFQN:      "pipeline.stages.build.steps.restoreS3",
+				CurrentStepType: StepTypeRestoreCacheS3,
 			},
 			expected: "<+pipeline.stages.build.steps.restoreS3.steps.restoreCacheS3.spec.with.CACHE_KEY>",
 		},
@@ -520,30 +521,32 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			name:  "step.spec.command with FQN - Run step",
 			input: "<+step.spec.command>",
 			context: &ConversionContext{
-				UseFQN:            true,
-				CurrentStepV1Path: "pipeline.stages.build.steps.runStep",
-				CurrentStepType:   StepTypeRun,
+				UseFQN:          true,
+				CurrentFQN:      "pipeline.stages.build.steps.runStep",
+				CurrentStepType: StepTypeRun,
 			},
 			expected: "<+pipeline.stages.build.steps.runStep.spec.script>",
 		},
 		{
+			// .identifier is not a spec/output node, so FQN substitution is
+			// suppressed and the relative "step" alias is preserved.
 			name:  "step.identifier with FQN",
 			input: "<+step.identifier>",
 			context: &ConversionContext{
-				UseFQN:            true,
-				CurrentStepV1Path: "pipeline.stages.build.steps.myStep",
-				CurrentStepType:   StepTypeRun,
+				UseFQN:          true,
+				CurrentFQN:      "pipeline.stages.build.steps.myStep",
+				CurrentStepType: StepTypeRun,
 			},
-			expected: "<+pipeline.stages.build.steps.myStep.id>",
+			expected: "<+step.id>",
 		},
 		// Step inside step group with FQN
 		{
 			name:  "step.spec.bucket in step group with FQN",
 			input: "<+step.spec.bucket>",
 			context: &ConversionContext{
-				UseFQN:            true,
-				CurrentStepV1Path: "pipeline.stages.build.steps.cacheGroup.steps.restoreCache",
-				CurrentStepType:   StepTypeRestoreCacheGCS,
+				UseFQN:          true,
+				CurrentFQN:      "pipeline.stages.build.steps.cacheGroup.steps.restoreCache",
+				CurrentStepType: StepTypeRestoreCacheGCS,
 			},
 			expected: "<+pipeline.stages.build.steps.cacheGroup.steps.restoreCache.steps.restoreCacheGCS.spec.with.BUCKET>",
 		},
@@ -552,9 +555,9 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			name:  "step.spec.bucket in nested step group with FQN",
 			input: "<+step.spec.bucket>",
 			context: &ConversionContext{
-				UseFQN:            true,
-				CurrentStepV1Path: "pipeline.stages.build.steps.outerGroup.steps.innerGroup.steps.restoreCache",
-				CurrentStepType:   StepTypeRestoreCacheGCS,
+				UseFQN:          true,
+				CurrentFQN:      "pipeline.stages.build.steps.outerGroup.steps.innerGroup.steps.restoreCache",
+				CurrentStepType: StepTypeRestoreCacheGCS,
 			},
 			expected: "<+pipeline.stages.build.steps.outerGroup.steps.innerGroup.steps.restoreCache.steps.restoreCacheGCS.spec.with.BUCKET>",
 		},
@@ -563,9 +566,9 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			name:  "step.spec.url with FQN - HTTP step",
 			input: "<+step.spec.url>",
 			context: &ConversionContext{
-				UseFQN:            true,
-				CurrentStepV1Path: "pipeline.stages.build.steps.httpCall",
-				CurrentStepType:   StepTypeHTTP,
+				UseFQN:          true,
+				CurrentFQN:      "pipeline.stages.build.steps.httpCall",
+				CurrentStepType: StepTypeHTTP,
 			},
 			expected: "<+pipeline.stages.build.steps.httpCall.spec.env.PLUGIN_URL>",
 		},
@@ -574,9 +577,9 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			name:  "step.output.httpResponseCode with FQN - HTTP step",
 			input: "<+step.output.httpResponseCode>",
 			context: &ConversionContext{
-				UseFQN:            true,
-				CurrentStepV1Path: "pipeline.stages.build.steps.httpCall",
-				CurrentStepType:   StepTypeHTTP,
+				UseFQN:          true,
+				CurrentFQN:      "pipeline.stages.build.steps.httpCall",
+				CurrentStepType: StepTypeHTTP,
 			},
 			expected: "<+pipeline.stages.build.steps.httpCall.steps.httpStep.output.outputVariables.PLUGIN_HTTP_RESPONSE_CODE>",
 		},
@@ -585,9 +588,9 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			name:  "multiple step expressions with FQN",
 			input: `bucket: <+step.spec.bucket> key: <+step.spec.key>`,
 			context: &ConversionContext{
-				UseFQN:            true,
-				CurrentStepV1Path: "pipeline.stages.build.steps.restoreCache",
-				CurrentStepType:   StepTypeRestoreCacheS3,
+				UseFQN:          true,
+				CurrentFQN:      "pipeline.stages.build.steps.restoreCache",
+				CurrentStepType: StepTypeRestoreCacheS3,
 			},
 			expected: `bucket: <+pipeline.stages.build.steps.restoreCache.steps.restoreCacheS3.spec.with.BUCKET> key: <+pipeline.stages.build.steps.restoreCache.steps.restoreCacheS3.spec.with.CACHE_KEY>`,
 		},
@@ -599,9 +602,9 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			name:  "step.spec.command without FQN flag",
 			input: "<+step.spec.command>",
 			context: &ConversionContext{
-				UseFQN:            false,
-				CurrentStepV1Path: "pipeline.stages.build.steps.runStep",
-				CurrentStepType:   StepTypeRun,
+				UseFQN:          false,
+				CurrentFQN:      "pipeline.stages.build.steps.runStep",
+				CurrentStepType: StepTypeRun,
 			},
 			expected: "<+step.spec.script>", // Normal relative conversion
 		},
@@ -610,9 +613,9 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			name:  "step.spec.command with FQN but no path",
 			input: "<+step.spec.command>",
 			context: &ConversionContext{
-				UseFQN:            true,
-				CurrentStepV1Path: "",
-				CurrentStepType:   StepTypeRun,
+				UseFQN:          true,
+				CurrentFQN:      "",
+				CurrentStepType: StepTypeRun,
 			},
 			expected: "<+step.spec.script>", // Normal relative conversion
 		},
@@ -621,11 +624,12 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			name:  "already FQN path with FQN enabled",
 			input: "<+pipeline.stages.build.spec.execution.steps.step1.spec.command>",
 			context: &ConversionContext{
-				UseFQN:            true,
-				CurrentStepV1Path: "pipeline.stages.build.steps.step1",
-				CurrentStepType:   StepTypeRun,
-				StepTypeMap:       map[string]string{"step1": StepTypeRun},
-				StepV1PathMap:     map[string]string{"step1": "pipeline.stages.build.steps.step1"},
+				UseFQN:          true,
+				CurrentFQN:      "pipeline.stages.build.steps.step1",
+				CurrentStepType: StepTypeRun,
+				StepInfoByFQN: map[string]*StepInfoFQN{
+					"pipeline.stages.build.steps.step1": {Type: StepTypeRun, StageID: "build", StepID: "step1"},
+				},
 			},
 			expected: "<+pipeline.stages.build.steps.step1.spec.script>",
 		},
@@ -637,9 +641,11 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			name:  "steps.STEPID.spec.command with FQN - Run step",
 			input: "<+steps.runStep.spec.command>",
 			context: &ConversionContext{
-				UseFQN:        true,
-				StepTypeMap:   map[string]string{"runStep": StepTypeRun},
-				StepV1PathMap: map[string]string{"runStep": "pipeline.stages.build.steps.runStep"},
+				UseFQN:         true,
+				CurrentStageID: "build",
+				StepInfoByFQN: map[string]*StepInfoFQN{
+					"pipeline.stages.build.steps.runStep": {Type: StepTypeRun, StageID: "build", StepID: "runStep"},
+				},
 			},
 			expected: "<+pipeline.stages.build.steps.runStep.spec.script>",
 		},
@@ -647,9 +653,11 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			name:  "steps.STEPID.spec.bucket with FQN - RestoreCacheGCS",
 			input: "<+steps.restoreCache.spec.bucket>",
 			context: &ConversionContext{
-				UseFQN:        true,
-				StepTypeMap:   map[string]string{"restoreCache": StepTypeRestoreCacheGCS},
-				StepV1PathMap: map[string]string{"restoreCache": "pipeline.stages.build.steps.restoreCache"},
+				UseFQN:         true,
+				CurrentStageID: "build",
+				StepInfoByFQN: map[string]*StepInfoFQN{
+					"pipeline.stages.build.steps.restoreCache": {Type: StepTypeRestoreCacheGCS, StageID: "build", StepID: "restoreCache"},
+				},
 			},
 			expected: "<+pipeline.stages.build.steps.restoreCache.steps.restoreCacheGCS.spec.with.BUCKET>",
 		},
@@ -658,31 +666,37 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			name:  "execution.steps.STEPID.spec.bucket with FQN",
 			input: "<+execution.steps.restoreCache.spec.bucket>",
 			context: &ConversionContext{
-				UseFQN:        true,
-				StepTypeMap:   map[string]string{"restoreCache": StepTypeRestoreCacheGCS},
-				StepV1PathMap: map[string]string{"restoreCache": "pipeline.stages.build.steps.restoreCache"},
+				UseFQN:         true,
+				CurrentStageID: "build",
+				StepInfoByFQN: map[string]*StepInfoFQN{
+					"pipeline.stages.build.steps.restoreCache": {Type: StepTypeRestoreCacheGCS, StageID: "build", StepID: "restoreCache"},
+				},
 			},
-			expected: "<+pipeline.stages.build.steps.restoreCache.steps.restoreCacheGCS.spec.with.BUCKET>",
+			expected: "<+stage.steps.restoreCache.steps.restoreCacheGCS.spec.with.BUCKET>",
 		},
 		// spec.execution.steps.STEPID.spec.bucket
 		{
 			name:  "spec.execution.steps.STEPID.spec.bucket with FQN",
 			input: "<+spec.execution.steps.restoreCache.spec.bucket>",
 			context: &ConversionContext{
-				UseFQN:        true,
-				StepTypeMap:   map[string]string{"restoreCache": StepTypeRestoreCacheGCS},
-				StepV1PathMap: map[string]string{"restoreCache": "pipeline.stages.build.steps.restoreCache"},
+				UseFQN:         true,
+				CurrentStageID: "build",
+				StepInfoByFQN: map[string]*StepInfoFQN{
+					"pipeline.stages.build.steps.restoreCache": {Type: StepTypeRestoreCacheGCS, StageID: "build", StepID: "restoreCache"},
+				},
 			},
-			expected: "<+pipeline.stages.build.steps.restoreCache.steps.restoreCacheGCS.spec.with.BUCKET>",
+			expected: "<+stage.steps.restoreCache.steps.restoreCacheGCS.spec.with.BUCKET>",
 		},
 		// stepGroup.steps.STEPID.spec.bucket
 		{
 			name:  "stepGroup.steps.STEPID.spec.bucket with FQN",
 			input: "<+stepGroup.steps.restoreCache.spec.bucket>",
 			context: &ConversionContext{
-				UseFQN:        true,
-				StepTypeMap:   map[string]string{"restoreCache": StepTypeRestoreCacheGCS},
-				StepV1PathMap: map[string]string{"restoreCache": "pipeline.stages.build.steps.cacheGroup.steps.restoreCache"},
+				UseFQN:         true,
+				CurrentStageID: "build",
+				StepInfoByFQN: map[string]*StepInfoFQN{
+					"pipeline.stages.build.steps.cacheGroup.steps.restoreCache": {Type: StepTypeRestoreCacheGCS, StageID: "build", Chain: []string{"cacheGroup"}, StepID: "restoreCache"},
+				},
 			},
 			expected: "<+pipeline.stages.build.steps.cacheGroup.steps.restoreCache.steps.restoreCacheGCS.spec.with.BUCKET>",
 		},
@@ -691,11 +705,13 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			name:  "steps.otherStep reference from inside currentStep",
 			input: "<+steps.otherStep.output.result>",
 			context: &ConversionContext{
-				UseFQN:            true,
-				CurrentStepV1Path: "pipeline.stages.build.steps.currentStep",
-				CurrentStepType:   StepTypeRun,
-				StepTypeMap:       map[string]string{"otherStep": StepTypeRun, "currentStep": StepTypeRun},
-				StepV1PathMap:     map[string]string{"otherStep": "pipeline.stages.build.steps.otherStep", "currentStep": "pipeline.stages.build.steps.currentStep"},
+				UseFQN:          true,
+				CurrentFQN:      "pipeline.stages.build.steps.currentStep",
+				CurrentStepType: StepTypeRun,
+				StepInfoByFQN: map[string]*StepInfoFQN{
+					"pipeline.stages.build.steps.otherStep":   {Type: StepTypeRun, StageID: "build", StepID: "otherStep"},
+					"pipeline.stages.build.steps.currentStep": {Type: StepTypeRun, StageID: "build", StepID: "currentStep"},
+				},
 			},
 			expected: "<+pipeline.stages.build.steps.otherStep.output.result>",
 		},
@@ -705,8 +721,7 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 			input: "<+steps.unknownStep.spec.command>",
 			context: &ConversionContext{
 				UseFQN:        true,
-				StepTypeMap:   map[string]string{},
-				StepV1PathMap: map[string]string{},
+				StepInfoByFQN: map[string]*StepInfoFQN{},
 			},
 			expected: "<+steps.unknownStep.spec.script>", // Falls back to normal conversion
 		},
@@ -734,7 +749,9 @@ func TestTrieConvert_LazyStepTypeResolution(t *testing.T) {
 			name:  "Lazy resolution from StepTypeMap for Run step",
 			input: "<+pipeline.stages.build.spec.execution.steps.runStep1.spec.command>",
 			context: &ConversionContext{
-				StepTypeMap: map[string]string{"runStep1": StepTypeRun},
+				StepInfoByFQN: map[string]*StepInfoFQN{
+					"pipeline.stages.build.steps.runStep1": {Type: StepTypeRun, StageID: "build", StepID: "runStep1"},
+				},
 				// Note: StepType is NOT set - should be resolved lazily
 			},
 			expected: "<+pipeline.stages.build.steps.runStep1.spec.script>",
@@ -743,7 +760,9 @@ func TestTrieConvert_LazyStepTypeResolution(t *testing.T) {
 			name:  "Lazy resolution from StepTypeMap for Http step",
 			input: "<+pipeline.stages.build.spec.execution.steps.httpStep.spec.url>",
 			context: &ConversionContext{
-				StepTypeMap: map[string]string{"httpStep": StepTypeHTTP},
+				StepInfoByFQN: map[string]*StepInfoFQN{
+					"pipeline.stages.build.steps.httpStep": {Type: StepTypeHTTP, StageID: "build", StepID: "httpStep"},
+				},
 			},
 			expected: "<+pipeline.stages.build.steps.httpStep.spec.env.PLUGIN_URL>",
 		},
@@ -751,7 +770,9 @@ func TestTrieConvert_LazyStepTypeResolution(t *testing.T) {
 			name:  "Lazy resolution for nested step group",
 			input: "<+pipeline.stages.build.spec.execution.steps.myGroup.steps.innerRun.spec.command>",
 			context: &ConversionContext{
-				StepTypeMap: map[string]string{"innerRun": StepTypeRun},
+				StepInfoByFQN: map[string]*StepInfoFQN{
+					"pipeline.stages.build.steps.myGroup.steps.innerRun": {Type: StepTypeRun, StageID: "build", Chain: []string{"myGroup"}, StepID: "innerRun"},
+				},
 			},
 			expected: "<+pipeline.stages.build.steps.myGroup.steps.innerRun.spec.script>",
 		},
@@ -761,7 +782,6 @@ func TestTrieConvert_LazyStepTypeResolution(t *testing.T) {
 			input: "<+step.spec.command>",
 			context: &ConversionContext{
 				CurrentStepType: StepTypeRun,
-				StepTypeMap:     map[string]string{},
 			},
 			expected: "<+step.spec.script>",
 		},
@@ -770,10 +790,10 @@ func TestTrieConvert_LazyStepTypeResolution(t *testing.T) {
 			name:  "Multiple step types - resolves correct type for each",
 			input: "<+pipeline.stages.build.spec.execution.steps.gcsStep.spec.env.bucket>",
 			context: &ConversionContext{
-				StepTypeMap: map[string]string{
-					"runStep1": StepTypeRun,
-					"gcsStep":  StepTypeGCSUpload,
-					"httpStep": StepTypeHTTP,
+				StepInfoByFQN: map[string]*StepInfoFQN{
+					"pipeline.stages.build.steps.runStep1": {Type: StepTypeRun, StageID: "build", StepID: "runStep1"},
+					"pipeline.stages.build.steps.gcsStep":  {Type: StepTypeGCSUpload, StageID: "build", StepID: "gcsStep"},
+					"pipeline.stages.build.steps.httpStep": {Type: StepTypeHTTP, StageID: "build", StepID: "httpStep"},
 				},
 			},
 			expected: "<+pipeline.stages.build.steps.gcsStep.spec.env.bucket>",
@@ -783,7 +803,9 @@ func TestTrieConvert_LazyStepTypeResolution(t *testing.T) {
 			name:  "Unknown step ID - deterministic fallback to first matching context",
 			input: "<+pipeline.stages.build.spec.execution.steps.unknownStep.spec.command>",
 			context: &ConversionContext{
-				StepTypeMap: map[string]string{"runStep1": StepTypeRun},
+				StepInfoByFQN: map[string]*StepInfoFQN{
+					"pipeline.stages.build.steps.runStep1": {Type: StepTypeRun, StageID: "build", StepID: "runStep1"},
+				},
 			},
 			// When step ID not found, trie uses deterministic fallback (alphabetically first matching context)
 			// "Run" context has command->script rule, so it applies
@@ -794,9 +816,11 @@ func TestTrieConvert_LazyStepTypeResolution(t *testing.T) {
 			name:  "Relative steps path with lazy resolution",
 			input: "<+execution.steps.runStep1.spec.command>",
 			context: &ConversionContext{
-				StepTypeMap: map[string]string{"runStep1": StepTypeRun},
+				StepInfoByFQN: map[string]*StepInfoFQN{
+					"pipeline.stages.build.steps.runStep1": {Type: StepTypeRun, StageID: "build", StepID: "runStep1"},
+				},
 			},
-			expected: "<+steps.runStep1.spec.script>",
+			expected: "<+stage.steps.runStep1.spec.script>",
 		},
 	}
 
@@ -805,6 +829,68 @@ func TestTrieConvert_LazyStepTypeResolution(t *testing.T) {
 			got := ConvertExpressionWithTrie(tt.input, tt.context, false)
 			if got != tt.expected {
 				t.Errorf("ConvertExpressionWithTrie() lazy resolution failed\ninput:    %s\ncontext:  %+v\ngot:      %s\nexpected: %s", tt.input, tt.context, got, tt.expected)
+			}
+		})
+	}
+}
+
+// TestTrieConvert_DollarDelimiter verifies that ${{ ... }} delimited expressions
+// are detected and converted with the same path-conversion logic as <+ ... >,
+// and that the ${{ }} delimiter style is preserved on output.
+func TestTrieConvert_DollarDelimiter(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		context  *ConversionContext
+		expected string
+	}{
+		{
+			name:     "Dollar step output path collapse",
+			input:    "${{pipeline.stages.cs1.spec.execution.steps.ShellScript_1.output.outputVariables.rishi1}}",
+			expected: "${{pipeline.stages.cs1.steps.ShellScript_1.output.outputVariables.rishi1}}",
+		},
+		{
+			name:     "Dollar stage identifier",
+			input:    "${{pipeline.stages.build.identifier}}",
+			expected: "${{pipeline.stages.build.id}}",
+		},
+		{
+			name:     "Dollar codebase prefix",
+			input:    "${{pipeline.properties.ci.codebase.branch}}",
+			expected: "${{codebase.branch}}",
+		},
+		{
+			name:     "Dollar mixed with text",
+			input:    "echo ${{pipeline.stages.build.spec.execution.steps.step1.output}} done",
+			expected: "echo ${{pipeline.stages.build.steps.step1.output}} done",
+		},
+		{
+			name:     "Dollar and angle delimiters in same string",
+			input:    "${{pipeline.stages.build.spec.execution.steps.step1.output}} and <+pipeline.stages.deploy.spec.execution.steps.step2.output>",
+			expected: "${{pipeline.stages.build.steps.step1.output}} and <+pipeline.stages.deploy.steps.step2.output>",
+		},
+		{
+			name:     "Dollar plain string passthrough",
+			input:    "${{just.a.plain.path.no.conversion}}",
+			expected: "${{just.a.plain.path.no.conversion}}",
+		},
+		{
+			name:  "Dollar step self-reference in FQN mode",
+			input: "${{step.spec.command}}",
+			context: &ConversionContext{
+				UseFQN:          true,
+				CurrentFQN:      "pipeline.stages.build.steps.compile",
+				CurrentStepType: StepTypeRun,
+			},
+			expected: "${{pipeline.stages.build.steps.compile.spec.script}}",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ConvertExpressionWithTrie(tt.input, tt.context, false)
+			if got != tt.expected {
+				t.Errorf("ConvertExpressionWithTrie() dollar delimiter failed\ninput:    %s\ngot:      %s\nexpected: %s", tt.input, got, tt.expected)
 			}
 		})
 	}

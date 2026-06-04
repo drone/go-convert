@@ -41,43 +41,40 @@ func (h *GRPCHandler) ConvertExpression(_ context.Context, req *pb.ExpressionCon
 		return nil, status.Error(codes.InvalidArgument, "one of 'expression', 'expressions', or 'remote_file' field is required")
 	}
 
-	// Build context — from context_pipeline_yaml if provided, otherwise manual.
+	// FQN-only context: v1 pipeline YAML plus optional call-site FQN.
 	var ctx *converter.ExpressionContext
 	if pipelineYAML := strings.TrimSpace(req.GetContextPipelineYaml()); pipelineYAML != "" {
-		ctx = converter.BuildContextFromPipeline(pipelineYAML)
-	} else if reqCtx := req.GetContext(); reqCtx != nil {
 		ctx = &converter.ExpressionContext{
-			CurrentStepID:     reqCtx.GetCurrentStepId(),
-			CurrentStepType:   reqCtx.GetCurrentStepType(),
-			CurrentStepV1Path: reqCtx.GetCurrentStepV1Path(),
-			StepTypeMap:       reqCtx.GetStepTypeMap(),
-			StepV1PathMap:     reqCtx.GetStepV1PathMap(),
-			UseFQN:            reqCtx.GetUseFqn(),
+			ContextPipelineYAML: pipelineYAML,
+			CurrentFQN:          req.GetCurrentFqn(),
 		}
 	}
 
 	// Handle remote file
 	if remoteFile != "" {
-		converted := converter.ConvertExpression(remoteFile, ctx)
+		converted, warnings := converter.ConvertExpressionWithWarnings(remoteFile, ctx)
 		return &pb.ExpressionConvertResponse{
 			RemoteFile: converted,
+			Warnings:   warnings,
 			Checksum:   Checksum([]byte(converted)),
 		}, nil
 	}
 
 	// Handle single expression
 	if expr != "" {
-		converted := converter.ConvertExpression(expr, ctx)
+		converted, warnings := converter.ConvertExpressionWithWarnings(expr, ctx)
 		return &pb.ExpressionConvertResponse{
 			Expression: converted,
+			Warnings:   warnings,
 			Checksum:   Checksum([]byte(converted)),
 		}, nil
 	}
 
 	// Handle multiple expressions
-	converted := converter.ConvertExpressions(exprs, ctx)
+	converted, warnings := converter.ConvertExpressionsWithWarnings(exprs, ctx)
 	return &pb.ExpressionConvertResponse{
 		Expressions: converted,
+		Warnings:    warnings,
 		Checksum:    checksumMap(converted),
 	}, nil
 }

@@ -11,27 +11,28 @@ import (
 // expressionProcessor walks v1 pipeline structs and converts Harness expressions
 // using context-aware trie-based matching.
 type expressionProcessor struct {
-	stepTypeMap       map[string]*StepInfo // step ID → {Type, V0Path, V1Path}
-	currentStepID     string               // set when inside a v1.Step
-	currentStepType   string               // set when inside a v1.Step
-	currentStepV1Path string               // set when inside a v1.Step
-	useFQN            bool                 // whether to use fully qualified names for step expressions
+	currentStepID      string // set when inside a v1.Step
+	currentStepType    string // set when inside a v1.Step
+	currentStepV1Path  string // set when inside a v1.Step (the step's full v1 FQN)
+	currentStageID     string // set when inside a v1.Stage
+	currentStepGroupID string // ">"-joined ancestor group chain of the current scope
+	inRollback         bool   // true while walking a stage's rollback steps
+	useFQN             bool   // whether to use fully qualified names for step expressions
 
-	// Cached derived maps, built lazily on first processString call.
-	flatTypeMap   map[string]string // step ID → type
-	stepV1PathMap map[string]string // step ID → v1 path
-	mapsBuilt     bool
+	// stepInfoByFQN is the sole step (and step group) registry, keyed by each
+	// step's full v1 FQN. nil when no pipeline-level context is available.
+	stepInfoByFQN map[string]*convertexpressions.StepInfoFQN
 }
 
 // PostProcessExpressions walks the converted v1 entity (Pipeline, Template,
 // InputSet, Trigger, etc.) and converts all Harness expressions in string and
 // flexible.Field values using ConvertExpressionWithTrie.
 //
-// stepTypeMap may be nil when no pipeline-level step context is available
+// stepInfoByFQN may be nil when no pipeline-level step context is available
 // (e.g. for Template/InputSet/Trigger wrappers). useFQN controls whether to
 // use fully qualified names for step expressions; pass false for context-free
 // conversion of non-pipeline entities.
-func PostProcessExpressions(target any, stepTypeMap map[string]*StepInfo, useFQN bool) {
+func PostProcessExpressions(target any, stepInfoByFQN map[string]*convertexpressions.StepInfoFQN, useFQN bool) {
 	if target == nil {
 		return
 	}
@@ -44,8 +45,8 @@ func PostProcessExpressions(target any, stepTypeMap map[string]*StepInfo, useFQN
 	}
 
 	p := &expressionProcessor{
-		stepTypeMap: stepTypeMap,
-		useFQN:      useFQN,
+		stepInfoByFQN: stepInfoByFQN,
+		useFQN:        useFQN,
 	}
 
 	// Logger context flag is set once for the duration of the walk rather
@@ -58,7 +59,7 @@ func PostProcessExpressions(target any, stepTypeMap map[string]*StepInfo, useFQN
 // tryConvertString checks if s contains a Harness expression and, if so, converts it.
 // Returns the converted string and true if a conversion was made, or the original string and false otherwise.
 func (p *expressionProcessor) tryConvertString(s string) (string, bool) {
-	if !strings.Contains(s, "<+") {
+	if !strings.Contains(s, "<+") && !strings.Contains(s, "${{") {
 		return s, false
 	}
 	converted := p.processString(s)
@@ -103,15 +104,84 @@ func (p *expressionProcessor) processValue(val reflect.Value) {
 	}
 }
 
+// withStageContext saves/restores current stage context around fn.
+func (p *expressionProcessor) withStageContext(stageID string, fn func()) {
+	saved := p.currentStageID
+	p.currentStageID = stageID
+	fn()
+	p.currentStageID = saved
+}
+
+// withStepGroupContext saves/restores the current step group context around fn.
+// It accumulates a chain (e.g. "A>B>C") matching the chain-based key used
+// during step registration in ConvertSteps.
+func (p *expressionProcessor) withStepGroupContext(groupID string, fn func()) {
+	saved := p.currentStepGroupID
+	if p.currentStepGroupID != "" {
+		p.currentStepGroupID = p.currentStepGroupID + ">" + groupID
+	} else {
+		p.currentStepGroupID = groupID
+	}
+	fn()
+	p.currentStepGroupID = saved
+}
+
+// withRollbackContext marks the current scope as a stage's rollback steps so
+// step FQNs are reconstructed with a "rollback" first segment.
+func (p *expressionProcessor) withRollbackContext(fn func()) {
+	saved := p.inRollback
+	p.inRollback = true
+	fn()
+	p.inRollback = saved
+}
+
+// stepFQN reconstructs a step's full v1 FQN from its stage, ">"-joined ancestor
+// group chain, and leaf ID. Rollback steps use a "rollback" first segment
+// (matching convertV0PathToV1Path); deeper levels use "steps". "" if stage unknown.
+func stepFQN(stageID, groupChain, stepID string, rollback bool) string {
+	if stageID == "" {
+		return ""
+	}
+	root := "steps"
+	if rollback {
+		root = "rollback"
+	}
+	var b strings.Builder
+	b.WriteString("pipeline.stages.")
+	b.WriteString(stageID)
+	groups := splitGroupChain(groupChain)
+	if len(groups) > 0 {
+		b.WriteString(".")
+		b.WriteString(root)
+		b.WriteString(".")
+		b.WriteString(groups[0])
+		for _, g := range groups[1:] {
+			b.WriteString(".steps.")
+			b.WriteString(g)
+		}
+		b.WriteString(".steps.")
+		b.WriteString(stepID)
+	} else {
+		b.WriteString(".")
+		b.WriteString(root)
+		b.WriteString(".")
+		b.WriteString(stepID)
+	}
+	return b.String()
+}
+
 // withStepContext saves the current step context, sets it from the given step ID,
 // executes fn, then restores the previous context.
 func (p *expressionProcessor) withStepContext(stepID string, fn func()) {
 	savedID, savedType, savedPath := p.currentStepID, p.currentStepType, p.currentStepV1Path
 
 	p.currentStepID = stepID
-	if info, ok := p.stepTypeMap[stepID]; ok {
+	// Reconstruct the FQN and look up the step type; leave empty for untyped or
+	// template steps (matching prior behavior).
+	fqn := stepFQN(p.currentStageID, p.currentStepGroupID, stepID, p.inRollback)
+	if info, ok := p.stepInfoByFQN[fqn]; ok {
 		p.currentStepType = info.Type
-		p.currentStepV1Path = info.V1Path
+		p.currentStepV1Path = fqn
 	} else {
 		p.currentStepType = ""
 		p.currentStepV1Path = ""
@@ -135,13 +205,39 @@ func (p *expressionProcessor) processStruct(val reflect.Value) {
 		return
 	}
 
-	// Check if this is a v1.Step — set step context
-	if t == reflect.TypeOf(v1.Step{}) {
+	// Check if this is a v1.Stage — set stage context
+	if t == reflect.TypeOf(v1.Stage{}) {
 		idField := val.FieldByName("Id")
 		if idField.IsValid() && idField.Kind() == reflect.String && idField.String() != "" {
-			p.withStepContext(idField.String(), func() {
+			p.withStageContext(idField.String(), func() {
 				p.processStructFields(val)
 			})
+			return
+		}
+	}
+
+	// Check if this is a v1.Step — set step context (and group context if it has a Group)
+	if t == reflect.TypeOf(v1.Step{}) {
+		idField := val.FieldByName("Id")
+		groupField := val.FieldByName("Group")
+		hasGroup := groupField.IsValid() && groupField.Kind() == reflect.Ptr && !groupField.IsNil()
+		stepID := ""
+		if idField.IsValid() && idField.Kind() == reflect.String {
+			stepID = idField.String()
+		}
+		if stepID != "" {
+			if hasGroup {
+				// Step group: set both step context and group context
+				p.withStepContext(stepID, func() {
+					p.withStepGroupContext(stepID, func() {
+						p.processStructFields(val)
+					})
+				})
+			} else {
+				p.withStepContext(stepID, func() {
+					p.processStructFields(val)
+				})
+			}
 			return
 		}
 	}
@@ -169,6 +265,15 @@ func (p *expressionProcessor) processStructFields(val reflect.Value) {
 		// Skip Trigger.InputYaml: it holds an already-converted v1 YAML
 		// document; re-walking its raw text could mangle structure.
 		if fieldType.Name == "InputYaml" {
+			continue
+		}
+
+		// Stage.Rollback steps live under a "rollback" FQN segment; mark the
+		// scope so step FQNs are reconstructed correctly while walking them.
+		if fieldType.Name == "Rollback" {
+			p.withRollbackContext(func() {
+				p.processValue(field)
+			})
 			continue
 		}
 
@@ -277,9 +382,8 @@ func (p *expressionProcessor) processString(s string) string {
 		return s
 	}
 
-	// Build ConversionContext directly from stepTypeMap — avoids redundant derived maps.
-	// The trie will resolve step types only when needed (at step.spec nodes).
-	// FQN mode replaces v1Path at step_node with the step's v1 FQN base path.
+	// Build the ConversionContext; the trie resolves step types lazily at
+	// step.spec nodes and, in FQN mode, expands v1Path to the step's FQN base.
 	ctx := p.buildConversionContext()
 
 	// Get expression logger for logging conversions. The IncludeContext flag
@@ -307,30 +411,20 @@ func (p *expressionProcessor) processString(s string) string {
 	return b.String()
 }
 
-// ensureDerivedMaps builds flatTypeMap and stepV1PathMap once from stepTypeMap.
-func (p *expressionProcessor) ensureDerivedMaps() {
-	if p.mapsBuilt {
-		return
-	}
-	p.flatTypeMap = make(map[string]string, len(p.stepTypeMap))
-	p.stepV1PathMap = make(map[string]string, len(p.stepTypeMap))
-	for id, info := range p.stepTypeMap {
-		p.flatTypeMap[id] = info.Type
-		p.stepV1PathMap[id] = info.V1Path
-	}
-	p.mapsBuilt = true
-}
-
 // buildConversionContext creates a ConversionContext for the current step scope.
 func (p *expressionProcessor) buildConversionContext() *convertexpressions.ConversionContext {
-	p.ensureDerivedMaps()
+	var chain []string
+	if p.currentStepGroupID != "" {
+		chain = strings.Split(p.currentStepGroupID, ">")
+	}
 	return &convertexpressions.ConversionContext{
-		StepID:            p.currentStepID,
-		CurrentStepType:   p.currentStepType,
-		CurrentStepV1Path: p.currentStepV1Path,
-		StepTypeMap:       p.flatTypeMap,
-		StepV1PathMap:     p.stepV1PathMap,
-		UseFQN:            p.useFQN,
+		CurrentStepID:         p.currentStepID,
+		CurrentStepType:       p.currentStepType,
+		UseFQN:                p.useFQN,
+		CurrentStageID:        p.currentStageID,
+		StepInfoByFQN:         p.stepInfoByFQN,
+		CurrentStepGroupChain: chain,
+		CurrentFQN:            p.currentStepV1Path,
 	}
 }
 

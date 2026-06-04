@@ -1,30 +1,5 @@
 package convertexpressions
 
-// ConversionContext holds metadata for context-aware conversion
-type ConversionContext struct {
-	StepType    string            // Type of the step (e.g., "Run", "GCSUpload", "Http") - resolved lazily by trie
-	StepID      string            // ID of the current step we're inside (from postprocess)
-	StepTypeMap map[string]string // Map of step ID to step type for all steps in the pipeline
-
-	// CurrentStepType is the type of the step we're currently inside (set by postprocess)
-	// This is used as fallback when expression is "step.spec.*" (no explicit step ID)
-	CurrentStepType string
-
-	// UseFQN enables fully qualified name mode for step expressions.
-	// When true, at step_node the v1Path is replaced with the step's v1 FQN base path.
-	UseFQN bool
-
-	// CurrentStepV1Path is the v1 FQN base path to the current step we're inside.
-	// Example: "pipeline.stages.build.steps.restoreCache"
-	// Used when UseFQN is true and expression starts with "step." (the step we're inside).
-	CurrentStepV1Path string
-
-	// StepV1PathMap maps step ID to its v1 FQN base path for all steps in the pipeline.
-	// Example: {"restoreCache": "pipeline.stages.build.steps.restoreCache"}
-	// Used when UseFQN is true and expression references a specific step ID (e.g., "steps.STEPID.spec.X").
-	StepV1PathMap map[string]string
-}
-
 // Step type constants
 const (
 	// Continuous Integration

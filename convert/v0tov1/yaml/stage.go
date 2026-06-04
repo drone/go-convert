@@ -30,6 +30,7 @@ type Stage struct {
 	Chain             *Chain                              `json:"chain,omitempty" yaml:"chain,omitempty"`
 	Concurrency       *Concurrency                        `json:"concurrency,omitempty" yaml:"concurrency,omitempty"`
 	Delegate          *flexible.Field[*Delegate]          `json:"delegate,omitempty" yaml:"delegate,omitempty"`
+	Description       string                              `json:"description,omitempty" yaml:"description,omitempty"`
 	Env               map[string]interface{}              `json:"env,omitempty" yaml:"env,omitempty"`
 	Environment       *EnvironmentRef                     `json:"environment,omitempty" yaml:"environment,omitempty"`
 	Group             *StageGroup                         `json:"group,omitempty" yaml:"group,omitempty"`
@@ -52,6 +53,7 @@ type Stage struct {
 	Status            *Status                             `json:"status,omitempty" yaml:"status,omitempty"`
 	Steps             []*Step                             `json:"steps" yaml:"steps"`
 	Strategy          *Strategy                           `json:"strategy,omitempty" yaml:"strategy,omitempty"`
+	Tags              *flexible.Field[map[string]string]  `json:"tags,omitempty" yaml:"tags,omitempty"`
 	Template          *StageTemplate                      `json:"template,omitempty" yaml:"template,omitempty"`
 	Timeout           string                              `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Volumes           []*Volume                           `json:"volumes,omitempty" yaml:"volumes,omitempty"`

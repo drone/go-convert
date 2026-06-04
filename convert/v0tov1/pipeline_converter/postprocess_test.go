@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	convertexpressions "github.com/drone/go-convert/convert/convertexpressions"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 	"github.com/drone/go-convert/internal/flexible"
 )
@@ -32,10 +33,6 @@ func TestIsFlexibleField(t *testing.T) {
 
 func TestProcessString_SingleExpression(t *testing.T) {
 	p := &expressionProcessor{
-		stepTypeMap: map[string]*StepInfo{
-			"runStep1": {Type: "Run", V0Path: "pipeline.stages.build.spec.execution.steps.runStep1"},
-		},
-		flatTypeMap:     map[string]string{"runStep1": "Run"},
 		currentStepID:   "runStep1",
 		currentStepType: "Run",
 	}
@@ -49,10 +46,7 @@ func TestProcessString_SingleExpression(t *testing.T) {
 }
 
 func TestProcessString_NoExpression(t *testing.T) {
-	p := &expressionProcessor{
-		stepTypeMap: map[string]*StepInfo{},
-		flatTypeMap: map[string]string{},
-	}
+	p := &expressionProcessor{}
 
 	// Plain string should be returned as-is
 	result := p.processString("hello world")
@@ -63,10 +57,6 @@ func TestProcessString_NoExpression(t *testing.T) {
 
 func TestProcessString_MixedContent(t *testing.T) {
 	p := &expressionProcessor{
-		stepTypeMap: map[string]*StepInfo{
-			"runStep1": {Type: "Run", V0Path: "pipeline.stages.build.spec.execution.steps.runStep1"},
-		},
-		flatTypeMap:     map[string]string{"runStep1": "Run"},
 		currentStepID:   "runStep1",
 		currentStepType: "Run",
 	}
@@ -80,8 +70,8 @@ func TestProcessString_MixedContent(t *testing.T) {
 }
 
 func TestPostProcessExpressions_Pipeline(t *testing.T) {
-	stepTypeMap := map[string]*StepInfo{
-		"runStep1": {Type: "Run", V0Path: "pipeline.stages.build.spec.execution.steps.runStep1"},
+	stepTypeMap := map[string]*convertexpressions.StepInfoFQN{
+		"pipeline.stages.build.steps.runStep1": {Type: "Run", StageID: "build", StepID: "runStep1"},
 	}
 
 	pipeline := &v1.Pipeline{
@@ -113,9 +103,9 @@ func TestPostProcessExpressions_Pipeline(t *testing.T) {
 }
 
 func TestPostProcessExpressions_FlexibleFieldExpression(t *testing.T) {
-	stepTypeMap := map[string]*StepInfo{
-		"runStep1": {Type: "Run", V0Path: "pipeline.stages.build.spec.execution.steps.runStep1"},
-		"step2":    {Type: "Run", V0Path: "pipeline.stages.build.spec.execution.steps.step2"},
+	stepTypeMap := map[string]*convertexpressions.StepInfoFQN{
+		"pipeline.stages.build.steps.runStep1": {Type: "Run", StageID: "build", StepID: "runStep1"},
+		"pipeline.stages.build.steps.step2":    {Type: "Run", StageID: "build", StepID: "step2"},
 	}
 
 	envField := &flexible.Field[map[string]string]{}
@@ -149,8 +139,8 @@ func TestPostProcessExpressions_FlexibleFieldExpression(t *testing.T) {
 }
 
 func TestPostProcessExpressions_MapStringValues(t *testing.T) {
-	stepTypeMap := map[string]*StepInfo{
-		"runStep1": {Type: "Run", V0Path: "pipeline.stages.build.spec.execution.steps.runStep1"},
+	stepTypeMap := map[string]*convertexpressions.StepInfoFQN{
+		"pipeline.stages.build.steps.runStep1": {Type: "Run", StageID: "build", StepID: "runStep1"},
 	}
 
 	pipeline := &v1.Pipeline{
@@ -189,8 +179,8 @@ func TestPostProcessExpressions_NilPipeline(t *testing.T) {
 }
 
 func TestPostProcessExpressions_StageIdentifier(t *testing.T) {
-	stepTypeMap := map[string]*StepInfo{
-		"step1": {Type: "Run", V0Path: "pipeline.stages.build.spec.execution.steps.step1"},
+	stepTypeMap := map[string]*convertexpressions.StepInfoFQN{
+		"pipeline.stages.build.steps.step1": {Type: "Run", StageID: "build", StepID: "step1"},
 	}
 
 	pipeline := &v1.Pipeline{
@@ -204,6 +194,9 @@ func TestPostProcessExpressions_StageIdentifier(t *testing.T) {
 
 	PostProcessExpressions(pipeline, stepTypeMap, true)
 
+	// stage.-rooted reference: FQN override is suppressed (stage and its
+	// ancestors are flagged WithNoFQNOverride), so it converts structurally
+	// to the "stage" self-reference keyword rather than the absolute FQN.
 	expected := "<+stage.steps.step1.output>"
 	if pipeline.Stages[0].If != expected {
 		t.Errorf("stage.If: expected %q, got %q", expected, pipeline.Stages[0].If)
@@ -212,9 +205,9 @@ func TestPostProcessExpressions_StageIdentifier(t *testing.T) {
 
 func TestPostProcessExpressions_StringorsliceScript(t *testing.T) {
 	// Test that expressions in Stringorslice ([]string) are converted
-	stepTypeMap := map[string]*StepInfo{
-		"runStep1": {Type: "Run", V0Path: "pipeline.stages.build.spec.execution.steps.runStep1"},
-		"runStep2": {Type: "Run", V0Path: "pipeline.stages.build.spec.execution.steps.runStep2"},
+	stepTypeMap := map[string]*convertexpressions.StepInfoFQN{
+		"pipeline.stages.build.steps.runStep1": {Type: "Run", StageID: "build", StepID: "runStep1"},
+		"pipeline.stages.build.steps.runStep2": {Type: "Run", StageID: "build", StepID: "runStep2"},
 	}
 
 	pipeline := &v1.Pipeline{
@@ -259,9 +252,9 @@ func TestPostProcessExpressions_StringorsliceScript(t *testing.T) {
 
 func TestPostProcessExpressions_StepNeeds(t *testing.T) {
 	// Test that expressions in Step.Needs (Stringorslice) are converted
-	stepTypeMap := map[string]*StepInfo{
-		"step1": {Type: "Run", V0Path: "pipeline.stages.build.spec.execution.steps.step1"},
-		"step2": {Type: "Run", V0Path: "pipeline.stages.build.spec.execution.steps.step2"},
+	stepTypeMap := map[string]*convertexpressions.StepInfoFQN{
+		"pipeline.stages.build.steps.step1": {Type: "Run", StageID: "build", StepID: "step1"},
+		"pipeline.stages.build.steps.step2": {Type: "Run", StageID: "build", StepID: "step2"},
 	}
 
 	pipeline := &v1.Pipeline{
@@ -282,7 +275,9 @@ func TestPostProcessExpressions_StepNeeds(t *testing.T) {
 
 	PostProcessExpressions(pipeline, stepTypeMap, true)
 
-	// Needs should have spec.execution.steps → steps converted
+	// Needs should have spec.execution.steps → steps converted. The .status
+	// field is not a spec/output node, so FQN substitution is suppressed and
+	// the relative "stage" alias is preserved (structural conversion only).
 	expected := "<+stage.steps.step1.status>"
 	if pipeline.Stages[0].Steps[0].Needs[0] != expected {
 		t.Errorf("needs[0]: expected %q, got %q", expected, pipeline.Stages[0].Steps[0].Needs[0])
@@ -291,8 +286,8 @@ func TestPostProcessExpressions_StepNeeds(t *testing.T) {
 
 func TestPostProcessExpressions_InterfaceSlice(t *testing.T) {
 	// Test expressions in []interface{} slices
-	stepTypeMap := map[string]*StepInfo{
-		"step1": {Type: "Run", V0Path: "pipeline.stages.build.spec.execution.steps.step1"},
+	stepTypeMap := map[string]*convertexpressions.StepInfoFQN{
+		"pipeline.stages.build.steps.step1": {Type: "Run", StageID: "build", StepID: "step1"},
 	}
 
 	pipeline := &v1.Pipeline{
@@ -326,6 +321,7 @@ func TestPostProcessExpressions_InterfaceSlice(t *testing.T) {
 		t.Errorf("items[1]: expected 'plain-value', got %v", items[1])
 	}
 
+	// stage.-rooted reference stays structural (FQN override suppressed).
 	expected2 := "<+stage.steps.step1.output>"
 	if items[2] != expected2 {
 		t.Errorf("items[2]: expected %q, got %v", expected2, items[2])
@@ -334,9 +330,9 @@ func TestPostProcessExpressions_InterfaceSlice(t *testing.T) {
 
 func TestPostProcessExpressions_NestedMapInterface(t *testing.T) {
 	// Test deeply nested map[string]interface{} with expressions
-	stepTypeMap := map[string]*StepInfo{
-		"step1": {Type: "Run", V0Path: "pipeline.stages.build.spec.execution.steps.step1"},
-		"step2": {Type: "Run", V0Path: "pipeline.stages.build.spec.execution.steps.step2"},
+	stepTypeMap := map[string]*convertexpressions.StepInfoFQN{
+		"pipeline.stages.build.steps.step1": {Type: "Run", StageID: "build", StepID: "step1"},
+		"pipeline.stages.build.steps.step2": {Type: "Run", StageID: "build", StepID: "step2"},
 	}
 
 	pipeline := &v1.Pipeline{
@@ -362,6 +358,7 @@ func TestPostProcessExpressions_NestedMapInterface(t *testing.T) {
 
 	// Check direct value
 	if direct, ok := pipeline.Stages[0].Steps[0].With["direct"].(string); ok {
+		// stage.-rooted reference stays structural (FQN override suppressed).
 		expected := "<+stage.steps.step2.output>"
 		if direct != expected {
 			t.Errorf("with.direct: expected %q, got %q", expected, direct)
