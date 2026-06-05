@@ -6,32 +6,28 @@ import (
 	"strconv"
 	"strings"
 
+	convertexpressions "github.com/drone/go-convert/convert/convertexpressions"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
 
-type StepInfo struct {
-	Type   string // v0 step type (e.g., "Run", "Action", "K8sRollingDeploy")
-	V0Path string // full v0 path (e.g., "pipeline.stages.build.spec.execution.steps.compile")
-	V1Path string // full v1 path (e.g., "pipeline.stages.build.steps.compile")
-}
-
 type PipelineConverter struct {
-	stageCtx    *convert_helpers.StageConversionContext
-	stepTypeMap map[string]*StepInfo // maps step ID to step info (type + v0 path)
+	stageCtx      *convert_helpers.StageConversionContext
+	stepInfoByFQN map[string]*convertexpressions.StepInfoFQN // v1 FQN -> step info (sole step registry)
 }
 
 func NewPipelineConverter() *PipelineConverter {
 	return &PipelineConverter{
-		stageCtx:    convert_helpers.NewStageConversionContext(),
-		stepTypeMap: make(map[string]*StepInfo),
+		stageCtx:      convert_helpers.NewStageConversionContext(),
+		stepInfoByFQN: make(map[string]*convertexpressions.StepInfoFQN),
 	}
 }
 
-// GetStepTypeMap returns the accumulated step ID to step info mapping.
-func (c *PipelineConverter) GetStepTypeMap() map[string]*StepInfo {
-	return c.stepTypeMap
+// GetStepInfoByFQN returns the accumulated FQN-keyed step (and step group)
+// info map, keyed by each step's full v1 FQN.
+func (c *PipelineConverter) GetStepInfoByFQN() map[string]*convertexpressions.StepInfoFQN {
+	return c.stepInfoByFQN
 }
 
 // ConvertPipeline converts a v0 Pipeline to a v1 Pipeline.
@@ -65,6 +61,8 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 	dst.Clone = clone
 	dst.Notifications = convert_helpers.ConvertNotifications(src.NotificationRules)
 	dst.Delegate = convert_helpers.ConvertDelegate(src.DelegateSelectors, nil)
+	dst.Timeout = src.Timeout
+	dst.AllowStageExecutions = src.AllowStageExecutions
 
 	return dst
 }
@@ -152,8 +150,9 @@ func (c *PipelineConverter) convertVariables(src []*v0.Variable) map[string]*v1.
 		v1Type := convertVariableType(variable.Type)
 
 		input := &v1.Input{
-			Type:     v1Type,
-			Required: variable.Required,
+			Type:        v1Type,
+			Required:    variable.Required,
+			Description: variable.Description,
 		}
 
 		if !isEmptyValue(variable.Value) {

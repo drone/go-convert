@@ -14,11 +14,9 @@ import (
 // pipelineRefMapping rewrites pipeline identifiers (including the
 // trigger's pipelineIdentifier and any chain.uses inside the embedded
 // inputYaml). Either or both may be nil/empty.
-// contextPipelineYAML is an optional v0 pipeline YAML used purely as
-// expression-postprocess context (see buildContextFromPipelineYAML) for the
-// trigger wrapper. Pass "" to run postprocess without FQN context. The
-// trigger's embedded inputYaml is always post-processed in FQN mode using
-// its own inner pipeline as context (independent of this argument).
+// contextPipelineYAML is an optional v1 pipeline YAML used as FQN expression
+// context (see buildContextFromPipelineYAML) for the trigger wrapper and its
+// embedded inputYaml; pass "" to skip it.
 //
 // Conversion strategy:
 //   - The trigger structure remains mostly unchanged
@@ -40,16 +38,15 @@ func Trigger(yamlStr string, templateRefMapping, pipelineRefMapping map[string]s
 		return nil, fmt.Errorf("trigger parsing returned nil")
 	}
 
-
 	// Single-pass expression post-process on the wrapper. The embedded
 	// inputYaml string is post-processed inside ConvertTrigger before
 	// marshalling (the wrapper walk skips that field). If the caller
 	// supplied a context pipeline_yaml, derive a step-type map and walk in
 	// FQN mode; otherwise fall back to nil context (no FQN).
-	stepTypeMap, useFQN := buildContextFromPipelineYAML(contextPipelineYAML)
+	stepInfoByFQN, useFQN := buildContextFromPipelineYAML(contextPipelineYAML)
 	c := pipelineconverter.NewPipelineConverter()
-	
-	v1Trigger := c.ConvertTrigger(v0Config.Trigger, stepTypeMap, useFQN)
+
+	v1Trigger := c.ConvertTrigger(v0Config.Trigger, stepInfoByFQN, useFQN)
 	if v1Trigger == nil {
 		return nil, fmt.Errorf("trigger conversion returned nil")
 	}

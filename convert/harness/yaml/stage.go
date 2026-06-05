@@ -35,6 +35,8 @@ type (
 		Strategy          *Strategy                           `json:"strategy,omitempty"          yaml:"strategy,omitempty"`
 		FailureStrategies *flexible.Field[[]*FailureStrategy] `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
 		Template          *StageTemplate                      `json:"template,omitempty"          yaml:"template,omitempty"`
+		Tags              *flexible.Field[map[string]string]  `json:"tags,omitempty"              yaml:"tags,omitempty"`
+		Timeout           string                              `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
 	}
 
 	// StageTemplate defines a stage template reference.
@@ -58,12 +60,14 @@ type (
 		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
 		Environment *Environment `json:"environment,omitempty" yaml:"environment,omitempty"`
 		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+		Services []*Service `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
 	}
 
 	// StageApproval defines an approval stage.
 	StageApproval struct {
 		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
 		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+		Services []*Service `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
 	}
 
 	// StageIACM defines an IACM stage.

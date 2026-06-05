@@ -129,27 +129,21 @@ func (h *Handler) ConvertExpression(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Build the expression context — from context_pipeline_yaml if provided,
-	// otherwise from manual Context fields.
+	// FQN-only context: v1 pipeline YAML plus optional call-site FQN.
 	var ctx *converter.ExpressionContext
-	if strings.TrimSpace(req.PipelineYAML) != "" {
-		ctx = converter.BuildContextFromPipeline(req.PipelineYAML)
-	} else if req.Context != nil {
+	if y := strings.TrimSpace(req.ContextPipelineYAML); y != "" {
 		ctx = &converter.ExpressionContext{
-			CurrentStepID:     req.Context.CurrentStepID,
-			CurrentStepType:   req.Context.CurrentStepType,
-			CurrentStepV1Path: req.Context.CurrentStepV1Path,
-			StepTypeMap:       req.Context.StepTypeMap,
-			StepV1PathMap:     req.Context.StepV1PathMap,
-			UseFQN:            req.Context.UseFQN,
+			ContextPipelineYAML: y,
+			CurrentFQN:          req.CurrentFQN,
 		}
 	}
 
 	// Handle remote file — scan for all <+...> expressions and convert them
 	if req.RemoteFile != "" {
-		converted := converter.ConvertExpression(req.RemoteFile, ctx)
+		converted, warnings := converter.ConvertExpressionWithWarnings(req.RemoteFile, ctx)
 		writeJSON(w, http.StatusOK, ExpressionConvertResponse{
 			RemoteFile: converted,
+			Warnings:   warnings,
 			Checksum:   Checksum([]byte(converted)),
 		})
 		return
@@ -157,19 +151,21 @@ func (h *Handler) ConvertExpression(w http.ResponseWriter, r *http.Request) {
 
 	// Handle single expression
 	if req.Expression != "" {
-		converted := converter.ConvertExpression(req.Expression, ctx)
+		converted, warnings := converter.ConvertExpressionWithWarnings(req.Expression, ctx)
 		writeJSON(w, http.StatusOK, ExpressionConvertResponse{
 			Expression: converted,
+			Warnings:   warnings,
 			Checksum:   Checksum([]byte(converted)),
 		})
 		return
 	}
 
 	// Handle multiple expressions
-	converted := converter.ConvertExpressions(req.Expressions, ctx)
+	converted, warnings := converter.ConvertExpressionsWithWarnings(req.Expressions, ctx)
 	mapBytes, _ := json.Marshal(converted)
 	writeJSON(w, http.StatusOK, ExpressionConvertResponse{
 		Expressions: converted,
+		Warnings:    warnings,
 		Checksum:    Checksum(mapBytes),
 	})
 }

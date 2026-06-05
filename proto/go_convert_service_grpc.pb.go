@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             v7.34.1
-// source: proto/go_convert_service.proto
+// source: go_convert_service.proto
 
 package proto
 
@@ -307,5 +307,5 @@ var GoConvertService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/go_convert_service.proto",
+	Metadata: "go_convert_service.proto",
 }

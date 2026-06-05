@@ -284,7 +284,7 @@ var StepSpecConversionRules = map[string][]ConversionRule{
 	// GCSUpload -> uses="uploadArtifactsToGCS", id = gcsUpload
 	StepTypeGCSUpload: {
 		{"sourcePath", "steps.gcsUpload.spec.with.SOURCE"},
-		{"bucket", "steps.gcsUpload.spec.with.TARGET"},
+		{"bucket", "steps.gcsUpload.spec.with.BUCKET"},
 		{"target", "steps.gcsUpload.spec.with.TARGET"},
 	},
 

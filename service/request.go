@@ -16,14 +16,10 @@ type ConvertRequest struct {
 	// recursively to the embedded `inputYaml`.
 	PipelineRefMapping map[string]string `json:"pipeline_ref_mapping,omitempty"`
 
-	// ContextPipelineYAML is an optional raw v0 pipeline YAML used purely as
-	// expression-postprocess context for template / input-set / trigger
-	// conversions. When provided the server parses + structurally converts
-	// this pipeline (suppressing its diagnostic messages), harvests the
-	// resulting step-type map, and uses it with FQN=true when walking the
-	// requested entity for expression conversion. The pipeline endpoint
-	// ignores this field. If empty (or omitted), postprocess runs without
-	// FQN context — equivalent to the previous behaviour.
+	// ContextPipelineYAML is an optional v1 pipeline YAML used as expression
+	// context for template / input-set / trigger conversions: it builds the
+	// FQN-keyed step lookup (StepInfoByFQN) and enables FQN mode. Ignored by
+	// the pipeline endpoint; if empty, postprocess runs without FQN context.
 	ContextPipelineYAML string `json:"context_pipeline_yaml,omitempty"`
 }
 
@@ -103,45 +99,17 @@ type ExpressionConvertRequest struct {
 	// Expressions is a list of expressions to convert (use this OR Expression, not both)
 	Expressions []string `json:"expressions,omitempty"`
 
-	// RemoteFile is the raw contents of a remote file (manifest, values.yaml,
-	// config, etc.) that may contain embedded Harness v0 expressions. The
-	// server scans the string for <+...> patterns and converts each one,
-	// returning the file with all expressions replaced.
+	// RemoteFile is raw file contents (manifest, values.yaml, etc.) with
+	// embedded Harness v0 expressions. The server converts every <+...> /
+	// ${{...}} occurrence and returns the file with all expressions replaced.
 	RemoteFile string `json:"remote_file,omitempty"`
 
-	// PipelineYAML is an optional raw v0 pipeline YAML string. When provided,
-	// the server parses and structurally converts this pipeline to derive the
-	// step-type map and v1 path map automatically — the same way pipeline,
-	// template, input-set, and trigger conversions build context. This
-	// supersedes manual Context fields (step_type_map, step_v1_path_map,
-	// use_fqn) when present.
-	PipelineYAML string `json:"context_pipeline_yaml,omitempty"`
+	// ContextPipelineYAML is an optional v1 pipeline YAML. When set, it builds
+	// the FQN-keyed step lookup (StepInfoByFQN) and enables FQN mode.
+	ContextPipelineYAML string `json:"context_pipeline_yaml,omitempty"`
 
-	// Context provides optional metadata for context-aware conversion.
-	// Ignored when context_pipeline_yaml is provided (context is derived automatically).
-	Context *ExpressionContextRequest `json:"context,omitempty"`
-}
-
-// ExpressionContextRequest holds the context needed for expression conversion.
-type ExpressionContextRequest struct {
-	// CurrentStepID is the ID of the current step we're inside (optional)
-	CurrentStepID string `json:"current_step_id,omitempty"`
-
-	// CurrentStepType is the type of the step we're currently inside (e.g., "Run", "Action", "Plugin")
-	CurrentStepType string `json:"current_step_type,omitempty"`
-
-	// CurrentStepV1Path is the v1 FQN base path to the current step
-	// Example: "pipeline.stages.build.steps.restoreCache"
-	CurrentStepV1Path string `json:"current_step_v1_path,omitempty"`
-
-	// StepTypeMap maps step ID to step type for all steps in the pipeline
-	StepTypeMap map[string]string `json:"step_type_map,omitempty"`
-
-	// StepV1PathMap maps step ID to its v1 FQN base path
-	StepV1PathMap map[string]string `json:"step_v1_path_map,omitempty"`
-
-	// UseFQN enables fully qualified name mode for step expressions
-	UseFQN bool `json:"use_fqn,omitempty"`
+	// CurrentFQN is the v1 FQN of callsite of the expression.
+	CurrentFQN string `json:"current_fqn,omitempty"`
 }
 
 // ExpressionConvertResponse is the response body for POST /api/v1/convert/expression.
@@ -154,6 +122,10 @@ type ExpressionConvertResponse struct {
 
 	// RemoteFile is the file contents with all embedded expressions converted
 	RemoteFile string `json:"remote_file,omitempty"`
+
+	// Warnings holds non-fatal diagnostics, e.g. ambiguous step types resolved
+	// via best-match fallback or unmapped template/approval uses.
+	Warnings []string `json:"warnings,omitempty"`
 
 	// Checksum is the SHA-256 checksum of the converted expression(s)
 	Checksum string `json:"checksum"`

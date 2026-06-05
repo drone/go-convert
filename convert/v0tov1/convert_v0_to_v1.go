@@ -185,7 +185,7 @@ func convertSingleFile(inputPath string) {
 		if v1Pipeline == nil {
 			log.Fatalf("Failed to convert pipeline to v1 format")
 		}
-		pipeline_converter.PostProcessExpressions(v1Pipeline, converter.GetStepTypeMap(), true)
+		pipeline_converter.PostProcessExpressions(v1Pipeline, converter.GetStepInfoByFQN(), true)
 		if err := v1.WritePipelineFile(outputPath, v1Pipeline); err != nil {
 			log.Fatalf("Failed to write v1 pipeline YAML: %v", err)
 		}
@@ -335,7 +335,7 @@ func convertBaseDirectory(baseDir string) {
 				log.Printf("ERROR_PIPELINE %s: failed to convert pipeline to v1 format", inputPath)
 				continue
 			}
-			pipeline_converter.PostProcessExpressions(v1Pipeline, converter.GetStepTypeMap(), true)
+			pipeline_converter.PostProcessExpressions(v1Pipeline, converter.GetStepInfoByFQN(), true)
 			if err := v1.WritePipelineFile(outputPath, v1Pipeline); err != nil {
 				log.Printf("ERROR_PIPELINE %s: failed to write v1 pipeline YAML: %v", inputPath, err)
 				continue
@@ -564,7 +564,7 @@ func convertFile(inputPath, outputPath string) bool {
 			log.Printf("Skipping %s: failed to convert pipeline to v1 format", inputPath)
 			return false
 		}
-		pipeline_converter.PostProcessExpressions(v1Pipeline, converter.GetStepTypeMap(), true)
+		pipeline_converter.PostProcessExpressions(v1Pipeline, converter.GetStepInfoByFQN(), true)
 		writeErr = v1.WritePipelineFile(outputPath, v1Pipeline)
 		writeDur := time.Since(writeStart)
 		if writeErr != nil {

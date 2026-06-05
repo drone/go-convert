@@ -139,25 +139,25 @@ func TestTrieRules_StepLevel(t *testing.T) {
 			name:     "output variables relative",
 			path:     "spec.execution.steps.step1.output.outputVariables.var1",
 			context:  &ConversionContext{StepType: StepTypeRun},
-			expected: "steps.step1.output.outputVariables.var1",
+			expected: "stage.steps.step1.output.outputVariables.var1",
 		},
 		{
 			name:     "output variables spec name",
 			path:     "spec.execution.steps.step1.spec.outputVariables[1].name",
 			context:  &ConversionContext{StepType: StepTypeRun},
-			expected: "steps.step1.spec.output[1].alias",
+			expected: "stage.steps.step1.spec.output[1].alias",
 		},
 		{
 			name:     "output variables spec",
 			path:     "spec.execution.steps.step1.spec.outputVariables",
 			context:  &ConversionContext{StepType: StepTypeRun},
-			expected: "steps.step1.spec.output",
+			expected: "stage.steps.step1.spec.output",
 		},
 		{
 			name:     "output variables relative with function",
 			path:     "spec.execution.steps.step1.output.outputVariables.var1.some_func(\"param\")",
 			context:  &ConversionContext{StepType: StepTypeRun},
-			expected: "steps.step1.output.outputVariables.var1.some_func(\"param\")",
+			expected: "stage.steps.step1.output.outputVariables.var1.some_func(\"param\")",
 		},
 		// Failure strategies
 		{
@@ -183,7 +183,7 @@ func TestTrieRules_StepLevel(t *testing.T) {
 			name:     "save cache to gcs relative",
 			path:     "execution.steps.STEPID.spec.bucket",
 			context:  &ConversionContext{StepType: StepTypeSaveCacheGCS},
-			expected: "steps.STEPID.steps.saveCacheGCS.spec.with.BUCKET",
+			expected: "stage.steps.STEPID.steps.saveCacheGCS.spec.with.BUCKET",
 		},
 		// Step-specific rules with context - RestoreCacheS3
 		{
@@ -196,7 +196,7 @@ func TestTrieRules_StepLevel(t *testing.T) {
 			name:     "restore cache from s3 relative",
 			path:     "execution.steps.STEPID.spec.bucket",
 			context:  &ConversionContext{StepType: StepTypeRestoreCacheS3},
-			expected: "steps.STEPID.steps.restoreCacheS3.spec.with.BUCKET",
+			expected: "stage.steps.STEPID.steps.restoreCacheS3.spec.with.BUCKET",
 		},
 		{
 			name:     "restore cache from s3 inside step group",
@@ -533,7 +533,7 @@ func TestTrieRules_K8sSteps(t *testing.T) {
 			name:     "K8sRollingDeploy skipDryRun relative",
 			path:     "execution.steps.step1.spec.skipDryRun",
 			context:  &ConversionContext{StepType: StepTypeK8sRollingDeploy},
-			expected: "steps.step1.steps.k8sApplyAction.spec.env.PLUGIN_SKIP_DRY_RUN",
+			expected: "stage.steps.step1.steps.k8sApplyAction.spec.env.PLUGIN_SKIP_DRY_RUN",
 		},
 	}
 
@@ -675,7 +675,7 @@ func TestTrieRules_HelmSteps(t *testing.T) {
 			name:     "HelmBGDeploy ignoreReleaseHistFailStatus relative",
 			path:     "execution.steps.step1.spec.ignoreReleaseHistFailStatus",
 			context:  &ConversionContext{StepType: StepTypeHelmBGDeploy},
-			expected: "steps.step1.steps.helmBluegreenDeployAction.spec.env.PLUGIN_IGNORE_HISTORY_FAILURE",
+			expected: "stage.steps.step1.steps.helmBluegreenDeployAction.spec.env.PLUGIN_IGNORE_HISTORY_FAILURE",
 		},
 	}
 
@@ -821,7 +821,7 @@ func TestTrieRules_BuildAndPushSteps(t *testing.T) {
 			name:     "BuildAndPushDockerRegistry repo relative",
 			path:     "execution.steps.step1.spec.repo",
 			context:  &ConversionContext{StepType: StepTypeBuildAndPushDockerRegistry},
-			expected: "steps.step1.steps.pushWithBuildx.spec.with.REPO",
+			expected: "stage.steps.step1.steps.pushWithBuildx.spec.with.REPO",
 		},
 		// BuildAndPushECR inside stepGroup
 		{
@@ -1068,7 +1068,7 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "HTTP output responseHeaders relative",
 			path:     "execution.steps.http1.output.responseHeaders",
 			context:  &ConversionContext{StepType: StepTypeHTTP},
-			expected: "steps.http1.steps.httpStep.output.outputVariables.PLUGIN_RESPONSE_HEADERS",
+			expected: "stage.steps.http1.steps.httpStep.output.outputVariables.PLUGIN_RESPONSE_HEADERS",
 		},
 
 		// ============================================================
@@ -1434,19 +1434,19 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "K8sRollingDeploy output releaseName relative",
 			path:     "execution.steps.step1.output.releaseName",
 			context:  &ConversionContext{StepType: StepTypeK8sRollingDeploy},
-			expected: "steps.step1.steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NAME",
+			expected: "stage.steps.step1.steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NAME",
 		},
 		{
 			name:     "HelmDeploy output releaseName relative",
 			path:     "execution.steps.step1.output.releaseName",
 			context:  &ConversionContext{StepType: StepTypeHelmDeploy},
-			expected: "steps.step1.steps.helmBasicDeployAction.output.outputVariables.PLUGIN_RELEASE_NAME",
+			expected: "stage.steps.step1.steps.helmBasicDeployAction.output.outputVariables.PLUGIN_RELEASE_NAME",
 		},
 		{
 			name:     "K8sApply output pods relative",
 			path:     "execution.steps.step1.output.pods",
 			context:  &ConversionContext{StepType: StepTypeK8sApply},
-			expected: "steps.step1.steps.k8sApplySteadyStateCheckAction.output.outputVariables.PLUGIN_PODS",
+			expected: "stage.steps.step1.steps.k8sApplySteadyStateCheckAction.output.outputVariables.PLUGIN_PODS",
 		},
 
 		// ============================================================

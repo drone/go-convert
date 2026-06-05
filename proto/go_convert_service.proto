@@ -18,7 +18,7 @@ message ConvertRequest {
   string yaml = 2;
   map<string, string> template_ref_mapping = 3;
   map<string, string> pipeline_ref_mapping = 4;
-  string context_pipeline_yaml = 5; // Optional v0 pipeline YAML for expression post-processing context for inputset/trigger conversion
+  string context_pipeline_yaml = 5; // Optional v1 pipeline YAML for expression post-processing context for template/inputset/trigger conversion
 }
 
 // Severity classifies a converter message.
@@ -73,6 +73,11 @@ message ChecksumResponse {
 }
 
 // ExpressionConvertRequest is the request for ConvertExpression.
+//
+// Expression conversion is FQN-only: context is supplied as a v1 pipeline YAML
+// (context_pipeline_yaml) which the server walks into the FQN-keyed step lookup,
+// plus an optional current_fqn that anchors the call-site for step-group
+// chaining. There are no manual step maps.
 message ExpressionConvertRequest {
   // A single expression to convert (use this OR expressions, not both).
   string expression = 1;
@@ -80,29 +85,21 @@ message ExpressionConvertRequest {
   // Multiple expressions to convert (use this OR expression, not both).
   repeated string expressions = 2;
 
-  // Optional v0 pipeline YAML. When provided the server structurally
-  // converts this pipeline to derive step-type and v1-path maps
-  // automatically. Supersedes manual context fields.
+  // Optional v1 pipeline YAML. When provided the server walks this pipeline
+  // into the FQN-keyed step lookup and resolves step references against it.
   string context_pipeline_yaml = 3;
 
-  // Optional manual context (ignored when context_pipeline_yaml is provided).
-  ExpressionContext context = 4;
+  // Optional full v1 FQN of the step the expression lives in, e.g.
+  // "pipeline.stages.prod.steps.G1.steps.deploy". Used to derive the call-site
+  // stage and enclosing step-group chain so references resolve with step-group
+  // chaining. Only meaningful alongside context_pipeline_yaml.
+  string current_fqn = 4;
 
   // Raw contents of a remote file (manifest, values.yaml, config, etc.)
   // containing embedded <+...> expressions. The server scans the string
   // and converts every expression found, returning the file with all
   // expressions replaced.
   string remote_file = 5;
-}
-
-// ExpressionContext holds manual metadata for expression conversion.
-message ExpressionContext {
-  string current_step_id = 1;
-  string current_step_type = 2;
-  string current_step_v1_path = 3;
-  map<string, string> step_type_map = 4;
-  map<string, string> step_v1_path_map = 5;
-  bool use_fqn = 6;
 }
 
 // ExpressionConvertResponse is the response for ConvertExpression.
@@ -118,6 +115,10 @@ message ExpressionConvertResponse {
 
   // The remote file contents with all embedded expressions converted.
   string remote_file = 4;
+
+  // Non-fatal diagnostics, e.g. ambiguous step types resolved via best-match
+  // fallback or unmapped template/approval uses.
+  repeated string warnings = 5;
 }
 
 service GoConvertService {

@@ -35,7 +35,7 @@ func (c *PipelineConverter) convertStepGroupTemplate(src *v0.StepGroup, isRollba
 		overlayStep.Group = &v1.StepGroup{Steps: make([]*v1.Step, 0)}
 
 		if inputs.Steps != nil {
-			overlayStep.Group.Steps = c.ConvertSteps(inputs.Steps, isRollback, groupPath)
+			overlayStep.Group.Steps = c.ConvertSteps(inputs.Steps, isRollback, groupPath, "", "")
 		}
 
 		if inputs.Variables != nil {

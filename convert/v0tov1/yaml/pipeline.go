@@ -19,6 +19,7 @@ package yaml
 import "github.com/drone/go-convert/internal/flexible"
 
 type Pipeline struct {
+	AllowStageExecutions *flexible.Field[bool] `json:"allow-stage-executions,omitempty" yaml:"allow-stage-executions,omitempty"` 
 	Barriers      []string          `json:"barriers,omitempty" yaml:"barriers,omitempty"`
 	Clone         *Clone            `json:"clone,omitempty" yaml:"clone,omitempty"`
 	Concurrency   *Concurrency      `json:"concurrency,omitempty" yaml:"concurrency,omitempty"`

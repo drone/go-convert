@@ -155,6 +155,7 @@ type (
 		Reports                []*Report                          `json:"reports,omitempty"                 yaml:"reports,omitempty"`
 		Resources              *Resources                         `json:"resources,omitempty"               yaml:"resources,omitempty"`
 		RunAsUser              *flexible.Field[int]               `json:"runAsUser,omitempty"               yaml:"runAsUser,omitempty"`
+		RegistryRef      string                             `json:"registryRef,omitempty"             yaml:"registryRef,omitempty"`
 		Tags                   *flexible.Field[[]string]          `json:"tags,omitempty"                    yaml:"tags,omitempty"`
 		Target                 string                             `json:"target,omitempty"                  yaml:"target,omitempty"`
 		Caching                *flexible.Field[bool]              `json:"caching,omitempty"                 yaml:"caching,omitempty"`

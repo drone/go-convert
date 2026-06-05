@@ -41,6 +41,8 @@ type (
 		NotificationRules []*NotificationRule                `json:"notificationRules,omitempty" yaml:"notificationRules,omitempty"`
 		DelegateSelectors *flexible.Field[[]string]          `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
 		Template          *PipelineTemplate                  `json:"template,omitempty"          yaml:"template,omitempty"`
+		AllowStageExecutions *flexible.Field[bool]           `json:"allowStageExecutions,omitempty" yaml:"allowStageExecutions,omitempty"`
+		Timeout           string                             `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
 	}
 
 	PipelineTemplate struct {
@@ -124,15 +126,17 @@ type (
 	}
 
 	Variable struct {
-		Name     string      `json:"name,omitempty"  yaml:"name,omitempty"`
-		Type     string      `json:"type,omitempty"  yaml:"type,omitempty"` // Secret|String|Number
-		Value    interface{} `json:"value,omitempty" yaml:"value,omitempty"`
-		Required bool        `json:"required,omitempty" yaml:"required,omitempty"`
-		Default  interface{} `json:"default,omitempty" yaml:"default,omitempty"`
+		Description string      `json:"description,omitempty" yaml:"description,omitempty"`
+		Name        string      `json:"name,omitempty"  yaml:"name,omitempty"`
+		Type        string      `json:"type,omitempty"  yaml:"type,omitempty"` // Secret|String|Number
+		Value       interface{} `json:"value,omitempty" yaml:"value,omitempty"`
+		Required    bool        `json:"required,omitempty" yaml:"required,omitempty"`
+		Default     interface{} `json:"default,omitempty" yaml:"default,omitempty"`
 	}
 
 	Execution struct {
-		Steps []*Steps `json:"steps,omitempty" yaml:"steps,omitempty"` // Un-necessary
+		Steps         []*Steps `json:"steps,omitempty"         yaml:"steps,omitempty"`         // Un-necessary
+		RollbackSteps []*Steps `json:"rollbackSteps,omitempty" yaml:"rollbackSteps,omitempty"` // Un-necessary
 	}
 
 	Steps struct {
@@ -189,7 +193,9 @@ type (
 		Args       *flexible.Field[[]string]               `json:"args,omitempty"           yaml:"args,omitempty"`
 		Conn       string                                  `json:"connectorRef,omitempty"   yaml:"connectorRef,omitempty"`
 		Image      string                                  `json:"image,omitempty"          yaml:"image,omitempty"`
+		ImagePullPolicy string                             `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
 		Resources  *Resources                              `json:"resources,omitempty"      yaml:"resources,omitempty"`
+		RunAsUser  *flexible.Field[int]                    `json:"runAsUser,omitempty"      yaml:"runAsUser,omitempty"`
 		Privileged *flexible.Field[bool]                   `json:"privileged,omitempty"     yaml:"privileged,omitempty"`
 		PortBindings *flexible.Field[map[string]string]    `json:"portBindings,omitempty" yaml:"portBindings,omitempty"`
 	}

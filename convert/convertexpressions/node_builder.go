@@ -81,6 +81,13 @@ func (nb *NodeBuilder) WithV1Name(v1Name string) *NodeBuilder {
 	return nb
 }
 
+// WithNoFQNOverride marks this node as an FQN-suppressing entry point: an
+// expression entering here converts structurally (no FQN stage/chain expansion).
+func (nb *NodeBuilder) WithNoFQNOverride() *NodeBuilder {
+	nb.node.noFQNOverride = true
+	return nb
+}
+
 // AsWildcard marks this node as a wildcard (already set by Node("*"))
 func (nb *NodeBuilder) AsWildcard() *NodeBuilder {
 	nb.node.isWildcard = true
@@ -108,7 +115,7 @@ func (nb *NodeBuilder) LinkToNodeByID(edgeName string, targetNodeID string) *Nod
 		fmt.Printf("Warning: target node ID '%s' not found in trie\n", targetNodeID)
 		return nb
 	}
-	
+
 	if edgeName == "*" {
 		// Create wildcard edge
 		nb.node.wildcardChild = targetNode
@@ -116,6 +123,6 @@ func (nb *NodeBuilder) LinkToNodeByID(edgeName string, targetNodeID string) *Nod
 		// Create named edge
 		nb.node.children[edgeName] = targetNode
 	}
-	
+
 	return nb
 }

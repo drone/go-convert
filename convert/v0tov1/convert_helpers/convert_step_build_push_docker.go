@@ -1,7 +1,10 @@
 package converthelpers
 
 import (
+	"fmt"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	"github.com/drone/go-convert/convert/v0tov1/messagelog"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 )
 
@@ -18,12 +21,29 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 
 	with := make(map[string]interface{})
 
+	var isHarnessRegistry bool = false
 	if spec.ConnectorRef != "" {
 		with["connector"] = spec.ConnectorRef
+	} else if spec.RegistryRef != "" {
+		isHarnessRegistry = true
+	} else {
+		messagelog.GetMessageLogger().LogWarning(
+			"NO_CONNECTOR_OR_REGISTRY_REF",
+			fmt.Sprintf("Connector or registryRef not provided in BuildAndPushDockerRegistry step: %s", src.ID),
+			messagelog.WithStep(src.ID, src.Type),
+		)
 	}
 
-	if spec.Repo != "" {
+	if spec.Repo != "" && !isHarnessRegistry {
 		with["repo"] = spec.Repo
+	} else if spec.Repo != "" && isHarnessRegistry {
+		with["repo"] = fmt.Sprintf("%s/%s", spec.RegistryRef, spec.Repo)
+	} else {
+		messagelog.GetMessageLogger().LogWarning(
+			"REPO_NOT_PROVIDED",
+			fmt.Sprintf("Repo not provided in BuildAndPushDockerRegistry step: %s", src.ID),
+			messagelog.WithStep(src.ID, src.Type),
+		)
 	}
 
 	if spec.Tags != nil {
@@ -88,8 +108,15 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 		with["cache_repo"] = spec.RemoteCacheRepo
 	}
 
+    var uses string
+    if isHarnessRegistry {
+        uses = "buildAndPushToHAR"
+    } else {
+        uses = "buildAndPushToDocker"
+    }
+
 	return &v1.StepTemplate{
-		Uses: "buildAndPushToDocker",
+		Uses: uses,
 		With: with,
 	}
 }
