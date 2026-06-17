@@ -21,7 +21,8 @@ func (c *PipelineConverter) convertStepGroupTemplate(src *v0.StepGroup, isRollba
 	}
 
 	result := &v1.StepTemplate{
-		Uses: uses,
+		Uses:      uses,
+		GitBranch: template.GitBranch,
 	}
 
 	// If templateInputs exists, convert it to overlay.step.group

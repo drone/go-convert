@@ -21,7 +21,8 @@ func (c *PipelineConverter) convertStepTemplate(src *v0.Step, isRollback bool, b
 	}
 
 	result := &v1.StepTemplate{
-		Uses: uses,
+		Uses:      uses,
+		GitBranch: template.GitBranch,
 	}
 
 	// If templateInputs exists, convert it to overlay.step

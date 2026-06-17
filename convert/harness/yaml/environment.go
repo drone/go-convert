@@ -21,6 +21,7 @@ type (
 		InfrastructureDefinition  *flexible.Field[InfrastructureDefinition]    `json:"infrastructureDefinition,omitempty"  yaml:"infrastructureDefinition,omitempty"`
 		InfrastructureDefinitions *flexible.Field[[]*InfrastructureDefinition] `json:"infrastructureDefinitions,omitempty" yaml:"infrastructureDefinitions,omitempty"`
 		Filters                   *flexible.Field[[]*EnvironmentFilter]        `json:"filters,omitempty"                  yaml:"filters,omitempty"`
+		ServiceOverrideInputs     interface{}                                  `json:"serviceOverrideInputs,omitempty"    yaml:"serviceOverrideInputs,omitempty"`
 		UseFromStage              *UseFromStage                                `json:"useFromStage,omitempty"             yaml:"useFromStage,omitempty"`
 	}
 

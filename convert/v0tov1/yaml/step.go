@@ -44,6 +44,7 @@ type Step struct {
 	Strategy   *Strategy              `json:"strategy,omitempty" yaml:"strategy,omitempty"`
 	Template   *StepTemplate          `json:"template,omitempty" yaml:"template,omitempty"`
 	Timeout    string             `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	Upload     *StepUpload            `json:"upload,omitempty" yaml:"upload,omitempty"`
 	Uses       string                 `json:"uses,omitempty" yaml:"uses,omitempty"`
 	Wait       *StepWait              `json:"wait,omitempty" yaml:"wait,omitempty"`
 	With       map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
@@ -84,6 +85,7 @@ func (v *Step) UnmarshalJSON(data []byte) error {
 		Strategy   *Strategy              `json:"strategy,omitempty" yaml:"strategy,omitempty"`
 		Template   *StepTemplate          `json:"template,omitempty" yaml:"template,omitempty"`
 		Timeout    string                 `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+		Upload     *StepUpload            `json:"upload,omitempty" yaml:"upload,omitempty"`
 		Uses       string                 `json:"uses,omitempty" yaml:"uses,omitempty"`
 		Wait       *StepWait              `json:"wait,omitempty" yaml:"wait,omitempty"`
 		With       map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`

@@ -43,7 +43,8 @@ func ConvertStepRestoreCacheGCS(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "restoreCacheFromGCS",
-		With: with,
+		Uses:      "restoreCacheFromGCS",
+		With:      with,
+		Container: ConvertTemplateContainer(spec.RunAsUser, spec.Resources),
 	}
 }

@@ -25,4 +25,5 @@ type Strategy struct {
 	MaxParallel *flexible.Field[int64] `json:"max-parallel,omitempty" yaml:"max-parallel,omitempty"`
 	Repeat      *Repeat               `json:"repeat,omitempty" yaml:"repeat,omitempty"`
 	While       *While                `json:"while,omitempty" yaml:"while,omitempty"`
+	If          string                `json:"if,omitempty" yaml:"if,omitempty"`
 }

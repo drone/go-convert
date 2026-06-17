@@ -56,12 +56,14 @@ type (
 	StepTemplate struct {
 		TemplateRef    string `json:"templateRef,omitempty"    yaml:"templateRef,omitempty"`
 		VersionLabel   string `json:"versionLabel,omitempty"   yaml:"versionLabel,omitempty"`
+		GitBranch      string `json:"gitBranch,omitempty"      yaml:"gitBranch,omitempty"`
 		TemplateInputs *Step  `json:"templateInputs,omitempty" yaml:"templateInputs,omitempty"`
 	}
 
 	StepGroupTemplate struct {
 		TemplateRef    string     `json:"templateRef,omitempty"    yaml:"templateRef,omitempty"`
 		VersionLabel   string     `json:"versionLabel,omitempty"   yaml:"versionLabel,omitempty"`
+		GitBranch      string     `json:"gitBranch,omitempty"      yaml:"gitBranch,omitempty"`
 		TemplateInputs *StepGroup `json:"templateInputs,omitempty" yaml:"templateInputs,omitempty"`
 	}
 
@@ -88,6 +90,12 @@ type (
 		BarrierRef string `json:"barrierRef,omitempty" yaml:"barrierRef,omitempty"`
 	}
 
+	StepFilesUpload struct {
+		CommonStepSpec
+		InputVariables  []*Variable `json:"inputVariables,omitempty"  yaml:"inputVariables,omitempty"`
+		OutputVariables []*Variable `json:"outputVariables,omitempty" yaml:"outputVariables,omitempty"`
+	}
+
 	StepQueue struct {
 		CommonStepSpec
 		Key   string `json:"key,omitempty" yaml:"key,omitempty"`
@@ -97,6 +105,8 @@ type (
 	StepBuildAndPushECR struct {
 		CommonStepSpec
 		ConnectorRef           string                             `json:"connectorRef,omitempty"           yaml:"connectorRef,omitempty"`
+		CacheFrom              *flexible.Field[[]string]          `json:"cacheFrom,omitempty"               yaml:"cacheFrom,omitempty"`
+		CacheTo                string                             `json:"cacheTo,omitempty"                 yaml:"cacheTo,omitempty"`
 		Region                 string                             `json:"region,omitempty"                 yaml:"region,omitempty"`
 		Account                string                             `json:"account,omitempty"                yaml:"account,omitempty"`
 		ImageName              string                             `json:"imageName,omitempty"              yaml:"imageName,omitempty"`
@@ -123,6 +133,8 @@ type (
 	StepBuildAndPushGAR struct {
 		CommonStepSpec
 		ConnectorRef           string                             `json:"connectorRef,omitempty"           yaml:"connectorRef,omitempty"`
+		CacheFrom              *flexible.Field[[]string]          `json:"cacheFrom,omitempty"               yaml:"cacheFrom,omitempty"`
+		CacheTo                string                             `json:"cacheTo,omitempty"                 yaml:"cacheTo,omitempty"`
 		Host                   string                             `json:"host,omitempty"                   yaml:"host,omitempty"`
 		ProjectID              string                             `json:"projectID,omitempty"              yaml:"projectID,omitempty"`
 		ImageName              string                             `json:"imageName,omitempty"              yaml:"imageName,omitempty"`
@@ -146,6 +158,8 @@ type (
 		BuildArgs              *flexible.Field[map[string]string] `json:"buildArgs,omitempty"               yaml:"buildArgs,omitempty"`
 		ConnectorRef           string                             `json:"connectorRef,omitempty"            yaml:"connectorRef,omitempty"`
 		Context                string                             `json:"context,omitempty"                 yaml:"context,omitempty"`
+		CacheFrom              *flexible.Field[[]string]          `json:"cacheFrom,omitempty"               yaml:"cacheFrom,omitempty"`
+		CacheTo                string                             `json:"cacheTo,omitempty"                 yaml:"cacheTo,omitempty"`
 		Dockerfile             string                             `json:"dockerfile,omitempty"              yaml:"dockerfile,omitempty"`
 		Labels                 *flexible.Field[map[string]string] `json:"labels,omitempty"                  yaml:"labels,omitempty"`
 		Optimize               *flexible.Field[bool]              `json:"optimize,omitempty"                yaml:"optimize,omitempty"`
@@ -155,7 +169,7 @@ type (
 		Reports                []*Report                          `json:"reports,omitempty"                 yaml:"reports,omitempty"`
 		Resources              *Resources                         `json:"resources,omitempty"               yaml:"resources,omitempty"`
 		RunAsUser              *flexible.Field[int]               `json:"runAsUser,omitempty"               yaml:"runAsUser,omitempty"`
-		RegistryRef      string                             `json:"registryRef,omitempty"             yaml:"registryRef,omitempty"`
+		RegistryRef            string                             `json:"registryRef,omitempty"             yaml:"registryRef,omitempty"`
 		Tags                   *flexible.Field[[]string]          `json:"tags,omitempty"                    yaml:"tags,omitempty"`
 		Target                 string                             `json:"target,omitempty"                  yaml:"target,omitempty"`
 		Caching                *flexible.Field[bool]              `json:"caching,omitempty"                 yaml:"caching,omitempty"`
@@ -166,6 +180,8 @@ type (
 	StepBuildAndPushACR struct {
 		CommonStepSpec
 		ConnectorRef           string                             `json:"connectorRef,omitempty"            yaml:"connectorRef,omitempty"`
+		CacheFrom              *flexible.Field[[]string]          `json:"cacheFrom,omitempty"               yaml:"cacheFrom,omitempty"`
+		CacheTo                string                             `json:"cacheTo,omitempty"                 yaml:"cacheTo,omitempty"`
 		Repository             string                             `json:"repository,omitempty"              yaml:"repository,omitempty"`
 		SubscriptionId         string                             `json:"subscriptionId,omitempty"          yaml:"subscriptionId,omitempty"`
 		Tags                   *flexible.Field[[]string]          `json:"tags,omitempty"                    yaml:"tags,omitempty"`
@@ -292,6 +308,7 @@ type (
 		// Container fields
 		Image           string                `json:"image,omitempty"           yaml:"image,omitempty"`
 		ConnectorRef    string                `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
+		RegistryRef     string                `json:"registryRef,omitempty"     yaml:"registryRef,omitempty"`
 		ImagePullPolicy string                `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"` // Always, Never, IfNotPresent
 		Privileged      *flexible.Field[bool] `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
 		RunAsUser       *flexible.Field[int]  `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"`
@@ -309,6 +326,7 @@ type (
 	StepTestIntelligence struct {
 		CommonStepSpec
 		ConnRef          string                             `json:"connectorRef,omitempty"     yaml:"connectorRef,omitempty"`
+		RegistryRef      string                             `json:"registryRef,omitempty"      yaml:"registryRef,omitempty"`
 		Image            string                             `json:"image,omitempty"            yaml:"image,omitempty"`
 		Shell            string                             `json:"shell,omitempty"            yaml:"shell,omitempty"`
 		Command          string                             `json:"command,omitempty"          yaml:"command,omitempty"`
@@ -422,6 +440,7 @@ type (
 		CommonStepSpec
 		Env             *flexible.Field[map[string]interface{}] `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
 		ConnRef         string                                  `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
+		RegistryRef     string                                  `json:"registryRef,omitempty"     yaml:"registryRef,omitempty"`
 		Image           string                                  `json:"image,omitempty"           yaml:"image,omitempty"`
 		ImagePullPolicy string                                  `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
 		Privileged      *flexible.Field[bool]                   `json:"privileged,omitempty"      yaml:"privileged,omitempty"`
@@ -483,6 +502,7 @@ type (
 		Resources       *Resources                              `json:"resources,omitempty"       yaml:"resources,omitempty"       v1path:"-"`
 		RunAsUser       *flexible.Field[int]                    `json:"runAsUser,omitempty"       yaml:"runAsUser,omitempty"       v1path:"-"`
 		Reports         *Report                                 `json:"reports,omitempty"         yaml:"reports,omitempty"         v1path:".report"`
+		RegistryRef     string                                  `json:"registryRef,omitempty"     yaml:"registryRef,omitempty"`
 		Shell           string                                  `json:"shell,omitempty"           yaml:"shell,omitempty"           v1path:".shell"`
 		Alias           *OutputAlias                            `json:"outputAlias,omitempty"     yaml:"outputAlias,omitempty"     v1path:".alias"`
 	}
@@ -496,6 +516,7 @@ type (
 		CommonStepSpec
 		Command         string                                  `json:"command,omitempty"         yaml:"command,omitempty"`
 		ConnRef         string                                  `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
+		RegistryRef     string                                  `json:"registryRef,omitempty"     yaml:"registryRef,omitempty"`
 		Entrypoint      *flexible.Field[[]string]               `json:"entrypoint,omitempty"      yaml:"entrypoint,omitempty"`
 		Env             *flexible.Field[map[string]interface{}] `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
 		Image           string                                  `json:"image,omitempty"           yaml:"image,omitempty"`
@@ -514,6 +535,8 @@ type (
 		Infrastructure  *Infrastructure                         `json:"infrastructure,omitempty"  yaml:"infrastructure,omitempty"`
 		Image           string                                  `json:"image,omitempty"           yaml:"image,omitempty"`
 		ConnRef         string                                  `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
+		RegistryRef     string                                  `json:"registryRef,omitempty"     yaml:"registryRef,omitempty"`
+		Reports         *Report                                 `json:"reports,omitempty"         yaml:"reports,omitempty"`
 		ImagePullPolicy string                                  `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
 		Entrypoint      *flexible.Field[[]string]               `json:"entrypoint,omitempty"      yaml:"entrypoint,omitempty"`
 		Env             *flexible.Field[map[string]interface{}] `json:"envVariables,omitempty"    yaml:"envVariables,omitempty"`
@@ -658,11 +681,17 @@ type (
 		MinimumCount             *flexible.Field[int]      `json:"minimumCount,omitempty" yaml:"minimumCount,omitempty"`
 		DisallowPipelineExecutor *flexible.Field[bool]     `json:"disallowPipelineExecutor,omitempty" yaml:"disallowPipelineExecutor,omitempty"`
 		UserGroups               *flexible.Field[[]string] `json:"userGroups,omitempty" yaml:"userGroups,omitempty"`
+		ServiceAccounts          *flexible.Field[[]string] `json:"serviceAccounts,omitempty" yaml:"serviceAccounts,omitempty"`
 	}
 
 	ApproverInput struct {
-		Name         string `json:"name,omitempty" yaml:"name,omitempty"`
-		DefaultValue string `json:"defaultValue,omitempty" yaml:"defaultValue,omitempty"`
+		Name          string                    `json:"name,omitempty" yaml:"name,omitempty"`
+		DefaultValue  string                    `json:"defaultValue,omitempty" yaml:"defaultValue,omitempty"`
+		Regex         string                    `json:"regex,omitempty" yaml:"regex,omitempty"`
+		AllowedValues *flexible.Field[[]string] `json:"allowedValues,omitempty" yaml:"allowedValues,omitempty"`
+		SelectOneFrom *flexible.Field[[]string] `json:"selectOneFrom,omitempty" yaml:"selectOneFrom,omitempty"`
+		Required      *flexible.Field[bool]     `json:"required,omitempty" yaml:"required,omitempty"`
+		Description   string                    `json:"description,omitempty" yaml:"description,omitempty"`
 	}
 
 	ExecutionTarget struct {
@@ -678,6 +707,7 @@ type (
 
 	SourceSpec struct {
 		Script string `json:"script,omitempty" yaml:"script,omitempty"`
+		File   string `json:"file,omitempty" yaml:"file,omitempty"`
 	}
 
 	StepWhen struct {
@@ -689,6 +719,7 @@ type (
 		Action            string             `json:"action,omitempty"            yaml:"action,omitempty"`
 		ScheduledDeadline *ScheduledDeadline `json:"scheduledDeadline,omitempty" yaml:"scheduledDeadline,omitempty"`
 		Comments          string             `json:"comments,omitempty"          yaml:"comments,omitempty"`
+		CallbackId        string             `json:"callbackId,omitempty"        yaml:"callbackId,omitempty"`
 	}
 
 	ScheduledDeadline struct {
@@ -845,6 +876,8 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepBitrise)
 	case StepTypeContainer:
 		s.Spec = new(StepContainer)
+	case StepTypeFilesUpload:
+		s.Spec = new(StepFilesUpload)
 	default:
 		// Preserve s.Type and leave s.Spec nil. The converter emits a
 		// pass-through step and records an UNKNOWN_STEP_TYPE warning on

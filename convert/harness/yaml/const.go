@@ -91,6 +91,7 @@ const (
 	StepTypeWait               = "Wait"
 	StepTypeCustomApproval     = "CustomApproval"
 	StepTypeShellScriptProvision = "ShellScriptProvision"
+	StepTypeFilesUpload          = "FilesUpload"
 
 	// CD / Kubernetes
 	StepTypeK8sRollingDeploy           = "K8sRollingDeploy"

@@ -186,7 +186,7 @@ func TestConvertStepBuildAndPushDockerRegistry(t *testing.T) {
 					ConnectorRef: "docker-connector",
 					Repo:         "myorg/app",
 					Resources: &v0.Resources{
-						Limits: &v0.Limits{
+						Limits: &v0.ResourceSpec{
 							CPU:    &flexible.Field[*v0.MilliSize]{Value: "<+input>"},
 							Memory: &flexible.Field[*v0.BytesSize]{Value: "<+input>"},
 						},

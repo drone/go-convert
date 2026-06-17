@@ -108,15 +108,24 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 		with["cache_repo"] = spec.RemoteCacheRepo
 	}
 
-    var uses string
-    if isHarnessRegistry {
-        uses = "buildAndPushToHAR"
-    } else {
-        uses = "buildAndPushToDocker"
-    }
+	if spec.CacheFrom != nil {
+		with["cache_from"] = spec.CacheFrom
+	}
+
+	if spec.CacheTo != "" {
+		with["cache_to"] = spec.CacheTo
+	}
+
+	var uses string
+	if isHarnessRegistry {
+		uses = "buildAndPushToHAR"
+	} else {
+		uses = "buildAndPushToDocker"
+	}
 
 	return &v1.StepTemplate{
-		Uses: uses,
-		With: with,
+		Uses:      uses,
+		With:      with,
+		Container: ConvertTemplateContainer(spec.RunAsUser, spec.Resources),
 	}
 }

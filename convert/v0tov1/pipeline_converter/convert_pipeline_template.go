@@ -21,7 +21,8 @@ func (c *PipelineConverter) convertPipelineTemplate(src *v0.Pipeline) *v1.Pipeli
 	}
 
 	result := &v1.PipelineTemplate{
-		Uses: uses,
+		Uses:      uses,
+		GitBranch: template.GitBranch,
 	}
 
 	// If templateInputs exists, convert it to overlay.pipeline

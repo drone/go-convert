@@ -43,76 +43,77 @@ type (
 	StageTemplate struct {
 		TemplateRef    string `json:"templateRef,omitempty"    yaml:"templateRef,omitempty"`
 		VersionLabel   string `json:"versionLabel,omitempty"   yaml:"versionLabel,omitempty"`
+		GitBranch      string `json:"gitBranch,omitempty"      yaml:"gitBranch,omitempty"`
 		TemplateInputs *Stage `json:"templateInputs,omitempty" yaml:"templateInputs,omitempty"`
 	}
 
 	StagePipeline struct {
-		Org string `json:"org,omitempty" yaml:"org,omitempty"`
-		Pipeline string `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
-		Project string `json:"project,omitempty" yaml:"project,omitempty"`
-		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-		Inputs *Pipeline `json:"inputs,omitempty" yaml:"inputs,omitempty"`
-		Outputs []*Output `json:"outputs,omitempty" yaml:"outputs,omitempty"`
+		Org          string                    `json:"org,omitempty" yaml:"org,omitempty"`
+		Pipeline     string                    `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
+		Project      string                    `json:"project,omitempty" yaml:"project,omitempty"`
+		Timeout      string                    `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+		Inputs       *Pipeline                 `json:"inputs,omitempty" yaml:"inputs,omitempty"`
+		Outputs      []*Output                 `json:"outputs,omitempty" yaml:"outputs,omitempty"`
 		InputSetRefs *flexible.Field[[]string] `json:"inputSetReferences,omitempty" yaml:"inputSetReferences,omitempty"`
 	}
 
 	StageCustom struct {
-		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
+		Execution   *Execution   `json:"execution,omitempty" yaml:"execution,omitempty"`
 		Environment *Environment `json:"environment,omitempty" yaml:"environment,omitempty"`
-		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-		Services []*Service `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
+		Timeout     string       `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+		Services    []*Service   `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
 	}
 
 	// StageApproval defines an approval stage.
 	StageApproval struct {
 		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
-		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-		Services []*Service `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
+		Timeout   string     `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+		Services  []*Service `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
 	}
 
 	// StageIACM defines an IACM stage.
 	StageIACM struct {
-		Execution *Execution `json:"execution,omitempty" yaml:"execution,omitempty"`
-		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-		Workspace string `json:"workspace,omitempty" yaml:"workspace,omitempty"`
+		Execution      *Execution      `json:"execution,omitempty" yaml:"execution,omitempty"`
+		Timeout        string          `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+		Workspace      string          `json:"workspace,omitempty" yaml:"workspace,omitempty"`
 		Infrastructure *Infrastructure `json:"infrastructure,omitempty" yaml:"infrastructure,omitempty"`
-		Runtime *Runtime `json:"runtime,omitempty" yaml:"runtime,omitempty"`
-		Platform *Platform `json:"platform,omitempty" yaml:"platform,omitempty"`
+		Runtime        *Runtime        `json:"runtime,omitempty" yaml:"runtime,omitempty"`
+		Platform       *Platform       `json:"platform,omitempty" yaml:"platform,omitempty"`
 	}
 
 	// StageCI defines a continuous integration stage.
 	StageCI struct {
-		BuildIntelligence *BuildIntelligence `json:"buildIntelligence,omitempty"   yaml:"buildIntelligence,omitempty"`
-		Cache             *Cache             `json:"caching,omitempty"             yaml:"caching,omitempty"`
-		Clone             bool               `json:"cloneCodebase,omitempty"       yaml:"cloneCodebase,omitempty"`
-		Execution         Execution          `json:"execution,omitempty"           yaml:"execution,omitempty"`
-		Infrastructure    *Infrastructure    `json:"infrastructure,omitempty"      yaml:"infrastructure,omitempty"`
-		Platform          *Platform          `json:"platform,omitempty"            yaml:"platform,omitempty"`
-		Runtime           *Runtime           `json:"runtime,omitempty"            yaml:"runtime,omitempty"`
-		Services          []*Service         `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
-		SharedPaths       *flexible.Field[[]string]           `json:"sharedPaths,omitempty"         yaml:"sharedPaths,omitempty"`
-		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"` 
+		BuildIntelligence *BuildIntelligence        `json:"buildIntelligence,omitempty"   yaml:"buildIntelligence,omitempty"`
+		Cache             *Cache                    `json:"caching,omitempty"             yaml:"caching,omitempty"`
+		Clone             bool                      `json:"cloneCodebase,omitempty"       yaml:"cloneCodebase,omitempty"`
+		Execution         Execution                 `json:"execution,omitempty"           yaml:"execution,omitempty"`
+		Infrastructure    *Infrastructure           `json:"infrastructure,omitempty"      yaml:"infrastructure,omitempty"`
+		Platform          *Platform                 `json:"platform,omitempty"            yaml:"platform,omitempty"`
+		Runtime           *Runtime                  `json:"runtime,omitempty"            yaml:"runtime,omitempty"`
+		Services          []*Service                `json:"serviceDependencies,omitempty" yaml:"serviceDependencies,omitempty"`
+		SharedPaths       *flexible.Field[[]string] `json:"sharedPaths,omitempty"         yaml:"sharedPaths,omitempty"`
+		Timeout           string                    `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	}
 
 	// StageDeployment defines a deployment stage.
 	StageDeployment struct {
-		DeploymentType    string               `json:"deploymentType,omitempty"    yaml:"deploymentType,omitempty"`
-		Service           *DeploymentService   `json:"service,omitempty"           yaml:"service,omitempty"`
-		ServiceConfig     *DeploymentServiceConfig `json:"serviceConfig,omitempty"     yaml:"serviceConfig,omitempty"`
-		Services          *DeploymentServices  `json:"services,omitempty"          yaml:"services,omitempty"`
-		Execution         *DeploymentExecution `json:"execution,omitempty"       yaml:"execution,omitempty"`
-		EnvironmentGroup  *EnvironmentGroup    `json:"environmentGroup,omitempty"  yaml:"environmentGroup,omitempty"`
-		Environment       *Environment         `json:"environment,omitempty"       yaml:"environment,omitempty"`
-		Environments      *Environments        `json:"environments,omitempty" yaml:"environments,omitempty"`
-		Infrastructure    *DeploymentInfrastructure      `json:"infrastructure,omitempty" yaml:"infrastructure,omitempty"`
-		Tags              map[string]string    `json:"tags,omitempty"              yaml:"tags,omitempty"`
-		Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	}	
+		DeploymentType   string                    `json:"deploymentType,omitempty"    yaml:"deploymentType,omitempty"`
+		Service          *DeploymentService        `json:"service,omitempty"           yaml:"service,omitempty"`
+		ServiceConfig    *DeploymentServiceConfig  `json:"serviceConfig,omitempty"     yaml:"serviceConfig,omitempty"`
+		Services         *DeploymentServices       `json:"services,omitempty"          yaml:"services,omitempty"`
+		Execution        *DeploymentExecution      `json:"execution,omitempty"       yaml:"execution,omitempty"`
+		EnvironmentGroup *EnvironmentGroup         `json:"environmentGroup,omitempty"  yaml:"environmentGroup,omitempty"`
+		Environment      *Environment              `json:"environment,omitempty"       yaml:"environment,omitempty"`
+		Environments     *Environments             `json:"environments,omitempty" yaml:"environments,omitempty"`
+		Infrastructure   *DeploymentInfrastructure `json:"infrastructure,omitempty" yaml:"infrastructure,omitempty"`
+		Tags             map[string]string         `json:"tags,omitempty"              yaml:"tags,omitempty"`
+		Timeout          string                    `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	}
 
 	DeploymentInfrastructure struct {
-		EnvironmentRef string `json:"environmentRef,omitempty" yaml:"environmentRef,omitempty"`
-		InfrastructureDefinition InfrastructureDefinition `json:"infrastructureDefinition,omitempty" yaml:"infrastructureDefinition,omitempty"`	
-		AllowSimultaneousDeployments bool `json:"allowSimultaneousDeployments,omitempty" yaml:"allowSimultaneousDeployments,omitempty"`
+		EnvironmentRef               string                   `json:"environmentRef,omitempty" yaml:"environmentRef,omitempty"`
+		InfrastructureDefinition     InfrastructureDefinition `json:"infrastructureDefinition,omitempty" yaml:"infrastructureDefinition,omitempty"`
+		AllowSimultaneousDeployments bool                     `json:"allowSimultaneousDeployments,omitempty" yaml:"allowSimultaneousDeployments,omitempty"`
 	}
 
 	// DeploymentExecution defines the deployment execution
@@ -127,14 +128,15 @@ type (
 	}
 
 	StageWhen struct {
-		PipelineStatus string `json:"pipelineStatus,omitempty" yaml:"pipelineStatus,omitempty"`
+		PipelineStatus string                `json:"pipelineStatus,omitempty" yaml:"pipelineStatus,omitempty"`
 		Condition      *flexible.Field[bool] `json:"condition,omitempty" yaml:"condition,omitempty"`
 	}
 
 	Strategy struct {
 		Matrix      *flexible.Field[map[string]interface{}] `json:"matrix,omitempty" yaml:"matrix,omitempty"`
-		Parallelism *flexible.Field[int64]          `json:"parallelism,omitempty" yaml:"parallelism,omitempty"`
-		Repeat      *Repeat                `json:"repeat,omitempty" yaml:"repeat,omitempty"`
+		Parallelism *flexible.Field[int64]                  `json:"parallelism,omitempty" yaml:"parallelism,omitempty"`
+		Repeat      *Repeat                                 `json:"repeat,omitempty" yaml:"repeat,omitempty"`
+		When        string                                  `json:"when,omitempty" yaml:"when,omitempty"`
 	}
 
 	Exclusion map[string]string
@@ -145,14 +147,14 @@ type (
 	// }
 
 	Repeat struct {
-		Times          *flexible.Field[int64]      `json:"times,omitempty" yaml:"times,omitempty"`
+		Times          *flexible.Field[int64]    `json:"times,omitempty" yaml:"times,omitempty"`
 		Items          *flexible.Field[[]string] `json:"items,omitempty" yaml:"items,omitempty"`
-		MaxConcurrency *flexible.Field[int64]      `json:"maxConcurrency,omitempty" yaml:"maxConcurrency,omitempty"`
-		Start          *flexible.Field[int64]      `json:"start,omitempty" yaml:"start,omitempty"`
-		End            *flexible.Field[int64]      `json:"end,omitempty" yaml:"end,omitempty"`
-		Unit           string     `json:"unit,omitempty" yaml:"unit,omitempty"`
-		NodeName       string     `json:"nodeName,omitempty" yaml:"nodeName,omitempty"`
-		PartitionSize  *flexible.Field[int64]      `json:"partitionSize,omitempty" yaml:"partitionSize,omitempty"`
+		MaxConcurrency *flexible.Field[int64]    `json:"maxConcurrency,omitempty" yaml:"maxConcurrency,omitempty"`
+		Start          *flexible.Field[int64]    `json:"start,omitempty" yaml:"start,omitempty"`
+		End            *flexible.Field[int64]    `json:"end,omitempty" yaml:"end,omitempty"`
+		Unit           string                    `json:"unit,omitempty" yaml:"unit,omitempty"`
+		NodeName       string                    `json:"nodeName,omitempty" yaml:"nodeName,omitempty"`
+		PartitionSize  *flexible.Field[int64]    `json:"partitionSize,omitempty" yaml:"partitionSize,omitempty"`
 	}
 
 	UseFromStage struct {
@@ -220,7 +222,7 @@ func (s *Strategy) UnmarshalJSON(data []byte) error {
 	}
 
 	var str string
-	if err := json.Unmarshal(data, &str); err == nil{
+	if err := json.Unmarshal(data, &str); err == nil {
 		return nil
 	}
 	type T Strategy

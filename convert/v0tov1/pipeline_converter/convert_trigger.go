@@ -33,7 +33,7 @@ func (c *PipelineConverter) ConvertTrigger(src *v0.Trigger, stepInfoByFQN map[st
 	dst := &v1.Trigger{
 		Name:               src.Name,
 		ID:                 src.ID,
-		Enabled:            src.Enabled,
+		Enabled:            false, //Trigger disabled from converter
 		StagesToExecute:    src.StagesToExecute,
 		Description:        src.Description,
 		Tags:               src.Tags,

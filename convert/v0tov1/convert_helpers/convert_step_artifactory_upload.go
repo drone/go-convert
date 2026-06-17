@@ -32,7 +32,8 @@ func ConvertStepArtifactoryUpload(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "uploadArtifactsToJfrogArtifactory",
-		With: with,
+		Uses:      "uploadArtifactsToJfrogArtifactory",
+		With:      with,
+		Container: ConvertTemplateContainer(spec.RunAsUser, spec.Resources),
 	}
 }
