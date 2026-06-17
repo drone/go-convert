@@ -249,6 +249,8 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 		step.Run = convert_helpers.ConvertStepBitrise(src)
 	case v0.StepTypeContainer:
 		step.Run = convert_helpers.ConvertStepContainer(src)
+	case v0.StepTypeFilesUpload:
+		step.Upload = convert_helpers.ConvertStepFilesUpload(src)
 	default:
 		GetMessageLogger().LogError(
 			"UNKNOWN_STEP_TYPE",

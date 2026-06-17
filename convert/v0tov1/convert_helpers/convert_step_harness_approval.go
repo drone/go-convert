@@ -17,6 +17,7 @@ package converthelpers
 import (
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 // ConvertStepHarnessApproval converts a v0 HarnessApproval step to v1 approval format
@@ -43,12 +44,12 @@ func ConvertStepHarnessApproval(src *v0.Step) *v1.StepApproval {
 
 	// Map includePipelineExecutionHistory to execution-details
 	if spec.IncludePipelineExecutionHistory != nil {
-		dst.With["execution-details"] = *spec.IncludePipelineExecutionHistory
+		dst.With["execution-details"] = spec.IncludePipelineExecutionHistory
 	}
 
 	// Map isAutoRejectEnabled to auto-reject
 	if spec.IsAutoRejectEnabled != nil {
-		dst.With["auto-reject"] = *spec.IsAutoRejectEnabled
+		dst.With["auto-reject"] = spec.IsAutoRejectEnabled
 	}
 
 	// Map approvers fields
@@ -60,29 +61,25 @@ func ConvertStepHarnessApproval(src *v0.Step) *v1.StepApproval {
 
 		// Map disallowPipelineExecutor to block-executor
 		if spec.Approvers.DisallowPipelineExecutor != nil {
-			dst.With["block-executor"] = *spec.Approvers.DisallowPipelineExecutor
+			dst.With["block-executor"] = spec.Approvers.DisallowPipelineExecutor
 		}
 
 		// Map userGroups to user-groups
 		if spec.Approvers.UserGroups != nil {
 			dst.With["user-groups"] = spec.Approvers.UserGroups
 		}
+
+		// Map serviceAccounts to service-accounts
+		if spec.Approvers.ServiceAccounts != nil {
+			dst.With["service-accounts"] = spec.Approvers.ServiceAccounts
+		}
 	}
 
-	// Map approverInputs to params
-	dst.With["params"] = [][]map[string]string{} //step does not work without this default value
+	// Map approverInputs to inputs
 	if len(spec.ApproverInputs) > 0 {
-		params := make([]map[string]string, 0, len(spec.ApproverInputs))
-		for _, input := range spec.ApproverInputs {
-			if input != nil && input.Name != "" {
-				param := map[string]string{
-					input.Name: input.DefaultValue,
-				}
-				params = append(params, param)
-			}
-		}
-		if len(params) > 0 {
-			dst.With["params"] = params
+		inputs := convertApproverInputs(spec.ApproverInputs)
+		if len(inputs) > 0 {
+			dst.With["inputs"] = inputs
 		}
 	}
 
@@ -108,7 +105,47 @@ func ConvertStepHarnessApproval(src *v0.Step) *v1.StepApproval {
 				dst.With["timezone"] = spec.AutoApproval.ScheduledDeadline.TimeZone
 			}
 		}
+
+		// Map callbackId to callback
+		if spec.AutoApproval.CallbackId != "" {
+			dst.With["callback"] = spec.AutoApproval.CallbackId
+		}
 	}
 
 	return dst
+}
+
+// convertApproverInputs converts v0 approverInputs array to v1 inputs map.
+// v0: [{name, defaultValue, regex, allowedValues, selectOneFrom, required, description}]
+// v1: map[name]ApproverInputDef{required, description, default, enum, multi-select, pattern}
+func convertApproverInputs(inputs []*v0.ApproverInput) map[string]*v1.ApproverInputDef {
+	result := make(map[string]*v1.ApproverInputDef)
+	for _, input := range inputs {
+		if input == nil || input.Name == "" {
+			continue
+		}
+
+		def := &v1.ApproverInputDef{
+			Required:    input.Required,
+			Description: input.Description,
+			Default:     input.DefaultValue,
+			Pattern:     input.Regex,
+		}
+
+		// selectOneFrom → enum (single-select dropdown)
+		if input.SelectOneFrom != nil {
+			def.Enum = input.SelectOneFrom
+		}
+
+		// allowedValues → enum with multi-select
+		if input.AllowedValues != nil {
+			def.Enum = input.AllowedValues
+			ms := &flexible.Field[bool]{}
+			ms.Set(true)
+			def.MultiSelect = ms
+		}
+
+		result[input.Name] = def
+	}
+	return result
 }

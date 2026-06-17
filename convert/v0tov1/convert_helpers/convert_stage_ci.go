@@ -3,6 +3,7 @@ package converthelpers
 import (
 	"fmt"
 	"strings"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	"github.com/drone/go-convert/convert/v0tov1/messagelog"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
@@ -127,7 +128,7 @@ func ConvertInfrastructureToRuntime(infra *v0.Infrastructure, ctx *StageConversi
 			return runtime
 		}
 	}
-	
+
 	// Handle VM type
 	if strings.EqualFold(infra.Type, "VM") {
 		if vmSpec, ok := infra.Spec.(*v0.InfrastructureVMSpec); ok && vmSpec != nil {
@@ -292,19 +293,12 @@ func ConvertServiceDependencyToBackgroundStep(src *v0.Service) *v1.Step {
 
 	// Container mapping
 	var container *v1.Container
-	if src.Spec.Image != "" || src.Spec.Conn != "" {
-		cpu := ""
-		memory := ""
-		if src.Spec.Resources != nil && src.Spec.Resources.Limits != nil {
-			memory = src.Spec.Resources.Limits.GetMemoryString()
-			cpu = src.Spec.Resources.Limits.GetCPUString()
-		}
-
+	resources := ConvertContainerResources(src.Spec.Resources)
+	if src.Spec.Image != "" || src.Spec.Conn != "" || resources != nil {
 		container = &v1.Container{
 			Image:        src.Spec.Image,
 			Connector:    src.Spec.Conn,
-			Cpu:          cpu,
-			Memory:       memory,
+			Resources:    resources,
 			Entrypoint:   src.Spec.Entrypoint,
 			Args:         src.Spec.Args,
 			Privileged:   src.Spec.Privileged,

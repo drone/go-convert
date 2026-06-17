@@ -16,8 +16,19 @@
 
 package yaml
 
+import "github.com/drone/go-convert/internal/flexible"
+
 type StepApproval struct {
 	Env  map[string]string      `json:"env,omitempty" yaml:"env,omitempty"`
 	Uses string                 `json:"uses,omitempty" yaml:"uses,omitempty"`
 	With map[string]interface{} `json:"with,omitempty" yaml:"with,omitempty"`
+}
+
+type ApproverInputDef struct {
+	Required    *flexible.Field[bool]     `json:"required,omitempty"     yaml:"required,omitempty"`
+	Description string                    `json:"description,omitempty"  yaml:"description,omitempty"`
+	Default     string                    `json:"default,omitempty"      yaml:"default,omitempty"`
+	Enum        *flexible.Field[[]string] `json:"enum,omitempty"         yaml:"enum,omitempty"`
+	MultiSelect *flexible.Field[bool]     `json:"multi-select,omitempty" yaml:"multi-select,omitempty"`
+	Pattern     string                    `json:"pattern,omitempty"      yaml:"pattern,omitempty"`
 }

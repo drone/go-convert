@@ -109,6 +109,11 @@ func (l *UnknownFieldsLogger) Flush() error {
 		}
 	}
 	if len(nonEmpty) == 0 {
+		// Remove any stale sidecar from a previous run so the aggregator
+		// does not pick up outdated unknown-field entries.
+		if l.logFilePath != "" {
+			os.Remove(l.logFilePath) // best-effort; ignore error if absent
+		}
 		return nil
 	}
 

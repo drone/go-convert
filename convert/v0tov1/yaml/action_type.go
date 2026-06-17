@@ -25,16 +25,16 @@ type ActionType string
 
 // ActionType enumeration.
 const (
-	ActionTypeNone               ActionType = ""
-	ActionTypeAbort              ActionType = "abort"
-	ActionTypeFail               ActionType = "fail"
-	ActionTypeIgnore             ActionType = "ignore"
-	ActionTypeManualIntervention ActionType = "manual-intervention"
-	ActionTypePipelineRollback   ActionType = "pipeline-rollback"
-	ActionTypeRetry              ActionType = "retry"
-	ActionTypeRetryStepGroup     ActionType = "retry-step-group"
-	ActionTypeStageRollback      ActionType = "stage-rollback"
-	ActionTypeSuccess            ActionType = "success"
+	ActionTypeNone                     ActionType = ""
+	ActionTypeAbort                    ActionType = "abort"
+	ActionTypeFail                     ActionType = "fail"
+	ActionTypeIgnore                   ActionType = "ignore"
+	ActionTypeManualIntervention       ActionType = "manual-intervention"
+	ActionTypePipelineRollback         ActionType = "pipeline-rollback"
+	ActionTypeRetry                    ActionType = "retry"
+	ActionTypeRetryStepGroup           ActionType = "retry-step-group"
+	ActionTypeStageRollback            ActionType = "stage-rollback"
+	ActionTypeSuccess                  ActionType = "success"
 	ActionTypeProceedWithDefaultValues ActionType = "proceed-with-default"
 )
 
@@ -63,6 +63,8 @@ func (e *ActionType) UnmarshalJSON(b []byte) error {
 		*e = ActionTypeStageRollback
 	case "success":
 		*e = ActionTypeSuccess
+	case "proceed-with-default":
+		*e = ActionTypeProceedWithDefaultValues
 	default:
 		if IsExpression(v) {
 			*e = ActionType(v)

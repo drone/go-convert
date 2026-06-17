@@ -22,30 +22,34 @@ import (
 )
 
 type Action struct {
-	Abort              bool          `json:"abort,omitempty" yaml:"abort,omitempty"`
-	Fail               bool          `json:"fail,omitempty" yaml:"fail,omitempty"`
-	Ignore             bool          `json:"ignore,omitempty" yaml:"ignore,omitempty"`
-	ManualIntervention *ActionManual `json:"manual-intervention,omitempty" yaml:"manual-intervention,omitempty"`
-	PipelineRollback   bool          `json:"pipeline-rollback,omitempty" yaml:"pipeline-rollback,omitempty"`
-	Retry              *ActionRetry  `json:"retry,omitempty" yaml:"retry,omitempty"`
-	RetryStepGroup     bool          `json:"retry-step-group,omitempty" yaml:"retry-step-group,omitempty"`
-	StageRollback      bool          `json:"stage-rollback,omitempty" yaml:"stage-rollback,omitempty"`
-	Success            bool          `json:"success,omitempty" yaml:"success,omitempty"`
+	Abort              bool                  `json:"abort,omitempty" yaml:"abort,omitempty"`
+	Fail               bool                  `json:"fail,omitempty" yaml:"fail,omitempty"`
+	Ignore             bool                  `json:"ignore,omitempty" yaml:"ignore,omitempty"`
+	ManualIntervention *ActionManual         `json:"manual-intervention,omitempty" yaml:"manual-intervention,omitempty"`
+	PipelineRollback   bool                  `json:"pipeline-rollback,omitempty" yaml:"pipeline-rollback,omitempty"`
+	Retry              *ActionRetry          `json:"retry,omitempty" yaml:"retry,omitempty"`
+	RetryStepGroup     *ActionRetryStepGroup `json:"retry-step-group,omitempty" yaml:"retry-step-group,omitempty"`
+	StageRollback      bool                  `json:"stage-rollback,omitempty" yaml:"stage-rollback,omitempty"`
+	Success            bool                  `json:"success,omitempty" yaml:"success,omitempty"`
+	ProceedWithDefault bool                  `json:"proceed-with-default,omitempty" yaml:"proceed-with-default,omitempty"`
+	FailAll            bool                  `json:"fail-all,omitempty" yaml:"fail-all,omitempty"`
 }
 
 // UnmarshalJSON implement the json.Unmarshaler interface.
 func (v *Action) UnmarshalJSON(data []byte) error {
 	var out1 string
 	var out2 = struct {
-		Abort              bool          `json:"abort,omitempty" yaml:"abort,omitempty"`
-		Fail               bool          `json:"fail,omitempty" yaml:"fail,omitempty"`
-		Ignore             bool          `json:"ignore,omitempty" yaml:"ignore,omitempty"`
-		ManualIntervention *ActionManual `json:"manual-intervention,omitempty" yaml:"manual-intervention,omitempty"`
-		PipelineRollback   bool          `json:"pipeline-rollback,omitempty" yaml:"pipeline-rollback,omitempty"`
-		Retry              *ActionRetry  `json:"retry,omitempty" yaml:"retry,omitempty"`
-		RetryStepGroup     bool          `json:"retry-step-group,omitempty" yaml:"retry-step-group,omitempty"`
-		StageRollback      bool          `json:"stage-rollback,omitempty" yaml:"stage-rollback,omitempty"`
-		Success            bool          `json:"success,omitempty" yaml:"success,omitempty"`
+		Abort              bool                  `json:"abort,omitempty" yaml:"abort,omitempty"`
+		Fail               bool                  `json:"fail,omitempty" yaml:"fail,omitempty"`
+		Ignore             bool                  `json:"ignore,omitempty" yaml:"ignore,omitempty"`
+		ManualIntervention *ActionManual         `json:"manual-intervention,omitempty" yaml:"manual-intervention,omitempty"`
+		PipelineRollback   bool                  `json:"pipeline-rollback,omitempty" yaml:"pipeline-rollback,omitempty"`
+		Retry              *ActionRetry          `json:"retry,omitempty" yaml:"retry,omitempty"`
+		RetryStepGroup     *ActionRetryStepGroup `json:"retry-step-group,omitempty" yaml:"retry-step-group,omitempty"`
+		StageRollback      bool                  `json:"stage-rollback,omitempty" yaml:"stage-rollback,omitempty"`
+		Success            bool                  `json:"success,omitempty" yaml:"success,omitempty"`
+		ProceedWithDefault bool                  `json:"proceed-with-default,omitempty" yaml:"proceed-with-default,omitempty"`
+		FailAll            bool                  `json:"fail-all,omitempty" yaml:"fail-all,omitempty"`
 	}{}
 
 	if err := json.Unmarshal(data, &out1); err == nil {
@@ -63,7 +67,9 @@ func (v *Action) UnmarshalJSON(data []byte) error {
 		case "retry":
 			v.Retry = new(ActionRetry)
 		case "retry-step-group":
-			v.RetryStepGroup = true
+			v.RetryStepGroup = &ActionRetryStepGroup{}
+		case "proceed-with-default":
+			v.ProceedWithDefault = true
 		case "stage-rollback":
 			v.StageRollback = true
 		case "success":
@@ -84,6 +90,8 @@ func (v *Action) UnmarshalJSON(data []byte) error {
 		v.RetryStepGroup = out2.RetryStepGroup
 		v.StageRollback = out2.StageRollback
 		v.Success = out2.Success
+		v.ProceedWithDefault = out2.ProceedWithDefault
+		v.FailAll = out2.FailAll
 		return nil
 	} else {
 		return err

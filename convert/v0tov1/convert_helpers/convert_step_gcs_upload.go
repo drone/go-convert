@@ -36,7 +36,8 @@ func ConvertStepGCSUpload(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "uploadArtifactsToGCS",
-		With: with,
+		Uses:      "uploadArtifactsToGCS",
+		With:      with,
+		Container: ConvertTemplateContainer(spec.RunAsUser, spec.Resources),
 	}
 }

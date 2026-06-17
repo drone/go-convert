@@ -1,6 +1,7 @@
 package converthelpers
 
 import (
+	"fmt"
 	"strings"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
@@ -20,7 +21,12 @@ func ConvertStepShellScript(src *v0.Step) *v1.StepRun {
 
 	var script string
 	if sp.Source != nil {
-		script = sp.Source.Spec.Script
+		switch sp.Source.Type {
+		case "Inline":
+			script = sp.Source.Spec.Script
+		case "Harness":
+			script = fmt.Sprintf("<+fileStore.getAsString('%s')>", sp.Source.Spec.File)
+		}
 	}
 
 	shell := strings.ToLower(strings.TrimSpace(sp.Shell))

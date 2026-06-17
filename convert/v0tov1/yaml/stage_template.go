@@ -19,6 +19,7 @@ package yaml
 type StageTemplate struct {
 	Uses string      `json:"uses,omitempty" yaml:"uses,omitempty"`
 	With interface{} `json:"with,omitempty" yaml:"with,omitempty"`
+	GitBranch string `json:"gitBranch,omitempty" yaml:"gitBranch,omitempty"`
 }
 
 // StageTemplateWith represents the 'with' field for stage templates

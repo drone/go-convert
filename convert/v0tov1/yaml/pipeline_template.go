@@ -1,8 +1,9 @@
 package yaml
 
 type PipelineTemplate struct {
-	Uses string                `json:"uses,omitempty" yaml:"uses,omitempty"`
-	With *PipelineTemplateWith `json:"with,omitempty" yaml:"with,omitempty"`
+	Uses      string                `json:"uses,omitempty" yaml:"uses,omitempty"`
+	GitBranch string                `json:"gitBranch,omitempty" yaml:"gitBranch,omitempty"`
+	With      *PipelineTemplateWith `json:"with,omitempty" yaml:"with,omitempty"`
 }
 
 // PipelineTemplateWith represents the 'with' field for pipeline templates

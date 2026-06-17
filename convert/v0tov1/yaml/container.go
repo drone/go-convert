@@ -21,10 +21,20 @@ import (
 	"github.com/drone/go-convert/internal/flexible"
 )
 
+type ContainerResources struct {
+	Requests *ContainerResourcesSpec `json:"requests,omitempty" yaml:"requests,omitempty"`
+	Limits   *ContainerResourcesSpec `json:"limits,omitempty" yaml:"limits,omitempty"`
+}
+
+type ContainerResourcesSpec struct {
+	Cpu    string `json:"cpu,omitempty" yaml:"cpu,omitempty"`
+	Memory string `json:"memory,omitempty" yaml:"memory,omitempty"`
+}
+
 type Container struct {
 	Args        *flexible.Field[[]string]     `json:"args,omitempty" yaml:"args,omitempty"`
 	Connector   string            `json:"connector,omitempty" yaml:"connector,omitempty"`
-	Cpu         string       `json:"cpu,omitempty" yaml:"cpu,omitempty"`
+	// Cpu         string       `json:"cpu,omitempty" yaml:"cpu,omitempty"`
 	Credentials *Credentials      `json:"credentials,omitempty" yaml:"credentials,omitempty"`
 	Dns         Stringorslice     `json:"dns,omitempty" yaml:"dns,omitempty"`
 	Entrypoint  *flexible.Field[[]string]     `json:"entrypoint,omitempty" yaml:"entrypoint,omitempty"`
@@ -32,17 +42,19 @@ type Container struct {
 	ExtraHosts  Stringorslice     `json:"extra-hosts,omitempty" yaml:"extra-hosts,omitempty"`
 	Group       StringorInt       `json:"group,omitempty" yaml:"group,omitempty"`
 	Image       string            `json:"image,omitempty" yaml:"image,omitempty"`
-	Memory      string       `json:"memory,omitempty" yaml:"memory,omitempty"`
+	// Memory      string       `json:"memory,omitempty" yaml:"memory,omitempty"`
 	Network     string            `json:"network,omitempty" yaml:"network,omitempty"`
 	NetworkMode string            `json:"network-mode,omitempty" yaml:"network-mode,omitempty"`
 	Ports       []string          `json:"ports,omitempty" yaml:"ports,omitempty"`
 	PortBindings *flexible.Field[map[string]string] `json:"port-bindings,omitempty" yaml:"port-bindings,omitempty"`
 	Privileged  *flexible.Field[bool]              `json:"privileged,omitempty" yaml:"privileged,omitempty"`
 	Pull        string            `json:"pull,omitempty" yaml:"pull,omitempty"`
+	Registry    string            `json:"registry,omitempty" yaml:"registry,omitempty"`
 	ShmSize     StringorInt       `json:"shm-size,omitempty" yaml:"shm-size,omitempty"`
 	User        *flexible.Field[int]        `json:"user,omitempty" yaml:"user,omitempty"`
 	Volumes     []*Mount          `json:"volumes,omitempty" yaml:"volumes,omitempty"`
 	Workdir     string            `json:"workdir,omitempty" yaml:"workdir,omitempty"`
+	Resources   *ContainerResources `json:"resources,omitempty" yaml:"resources,omitempty"`
 }
 
 // UnmarshalJSON implement the json.Unmarshaler interface.
@@ -51,7 +63,7 @@ func (v *Container) UnmarshalJSON(data []byte) error {
 	var out2 = struct {
 		Args        *flexible.Field[[]string]     `json:"args,omitempty" yaml:"args,omitempty"`
 		Connector   string            `json:"connector,omitempty" yaml:"connector,omitempty"`
-		Cpu         string       `json:"cpu,omitempty" yaml:"cpu,omitempty"`
+		// Cpu         string       `json:"cpu,omitempty" yaml:"cpu,omitempty"`
 		Credentials *Credentials      `json:"credentials,omitempty" yaml:"credentials,omitempty"`
 		Dns         Stringorslice     `json:"dns,omitempty" yaml:"dns,omitempty"`
 		Entrypoint  *flexible.Field[[]string]     `json:"entrypoint,omitempty" yaml:"entrypoint,omitempty"`
@@ -59,17 +71,19 @@ func (v *Container) UnmarshalJSON(data []byte) error {
 		ExtraHosts  Stringorslice     `json:"extra-hosts,omitempty" yaml:"extra-hosts,omitempty"`
 		Group       StringorInt       `json:"group,omitempty" yaml:"group,omitempty"`
 		Image       string            `json:"image,omitempty" yaml:"image,omitempty"`
-		Memory      string       `json:"memory,omitempty" yaml:"memory,omitempty"`
+		// Memory      string       `json:"memory,omitempty" yaml:"memory,omitempty"`
 		Network     string            `json:"network,omitempty" yaml:"network,omitempty"`
 		NetworkMode string            `json:"network-mode,omitempty" yaml:"network-mode,omitempty"`
 		Ports       []string          `json:"ports,omitempty" yaml:"ports,omitempty"`
 		PortBindings *flexible.Field[map[string]string] `json:"port-bindings,omitempty" yaml:"port-bindings,omitempty"`
 		Privileged  *flexible.Field[bool]              `json:"privileged,omitempty" yaml:"privileged,omitempty"`
 		Pull        string            `json:"pull,omitempty" yaml:"pull,omitempty"`
+		Registry    string            `json:"registry,omitempty" yaml:"registry,omitempty"`
 		ShmSize     StringorInt       `json:"shm-size,omitempty" yaml:"shm-size,omitempty"`
 		User        *flexible.Field[int]        `json:"user,omitempty" yaml:"user,omitempty"`
 		Volumes     []*Mount          `json:"volumes,omitempty" yaml:"volumes,omitempty"`
 		Workdir     string            `json:"workdir,omitempty" yaml:"workdir,omitempty"`
+		Resources   *ContainerResources `json:"resources,omitempty" yaml:"resources,omitempty"`
 	}{}
 
 	if err := json.Unmarshal(data, &out1); err == nil {

@@ -21,14 +21,14 @@ import (
 	"github.com/drone/go-convert/internal/flexible"
 )
 
-type Resources struct {
-	Limits *Limits `json:"limits,omitempty" yaml:"limits,omitempty"`
-}
+// type Resources struct {
+// 	Limits *Limits `json:"limits,omitempty" yaml:"limits,omitempty"`
+// }
 
-type Limits struct {
-	Memory string `json:"memory,omitempty" yaml:"memory,omitempty"`
-	CPU    string `json:"cpu,omitempty"    yaml:"cpu,omitempty"`
-}
+// type Limits struct {
+// 	Memory string `json:"memory,omitempty" yaml:"memory,omitempty"`
+// 	CPU    string `json:"cpu,omitempty"    yaml:"cpu,omitempty"`
+// }
 
 type Clone struct {
 	Repo string `json:"repo,omitempty" yaml:"repo,omitempty"`
@@ -43,7 +43,11 @@ type Clone struct {
 	Tags       *flexible.Field[bool]      `json:"tags,omitempty"`
 	Trace      *flexible.Field[bool]      `json:"trace,omitempty"`
 	CloneDir   string `json:"clonedir,omitempty"`
-	Resources *Resources `json:"resources,omitempty"`
+	Resources *ContainerResources `json:"resources,omitempty"`
+	SparseCheckout     *flexible.Field[[]string] `json:"sparse-checkout,omitempty"`
+	PreFetchCommand string `json:"pre-fetch-command,omitempty"`
+	PersistCredentials *flexible.Field[bool] `json:"persist-credentials,omitempty"`
+	User *flexible.Field[int] `json:"user,omitempty"`
 }
 
 // UnmarshalJSON implement the json.Unmarshaler interface.
@@ -62,7 +66,11 @@ func (v *Clone) UnmarshalJSON(data []byte) error {
 		Tags       *flexible.Field[bool]      `json:"tags,omitempty"`
 		Trace      *flexible.Field[bool]      `json:"trace,omitempty"`
 		CloneDir   string `json:"clonedir,omitempty"`
-		Resources *Resources `json:"resources,omitempty"`
+		Resources *ContainerResources `json:"resources,omitempty"`
+		SparseCheckout     *flexible.Field[[]string] `json:"sparse-checkout,omitempty"`
+		PreFetchCommand string `json:"pre-fetch-command,omitempty"`
+		PersistCredentials *flexible.Field[bool] `json:"persist-credentials,omitempty"`
+		User *flexible.Field[int] `json:"user,omitempty"`
 	}{}
 
 	if err := json.Unmarshal(data, &out1); err == nil {

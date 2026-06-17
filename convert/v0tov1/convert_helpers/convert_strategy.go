@@ -32,6 +32,7 @@ func ConvertStrategy(src *v0.Strategy) *v1.Strategy {
             Iterations: src.Parallelism,
         }
     }
+    dst.If = src.When
     if dst.For == nil && dst.Matrix == nil && dst.Repeat == nil {
         return nil
     }

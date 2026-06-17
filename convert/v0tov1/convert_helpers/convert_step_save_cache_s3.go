@@ -57,7 +57,8 @@ func ConvertStepSaveCacheS3(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "saveCacheToS3",
-		With: with,
+		Uses:      "saveCacheToS3",
+		With:      with,
+		Container: ConvertTemplateContainer(spec.RunAsUser, spec.Resources),
 	}
 }

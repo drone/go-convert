@@ -37,11 +37,22 @@ func ConvertStepContainer(src *v0.Step) *v1.StepRun {
 
 		container = &v1.Container{
 			Image:      sp.Image,
+			Registry:   sp.RegistryRef,
 			Connector:  sp.ConnRef,
 			Privileged: sp.Privileged,
 			Pull:       pull,
 			User:       sp.RunAsUser,
 			Entrypoint: sp.Entrypoint,
+		}
+	}
+
+	// Reports mapping
+	var report *v1.Reports
+	if sp.Reports != nil {
+		report = &v1.Reports{}
+		report.Type = strings.ToLower(sp.Reports.Type)
+		if sp.Reports.Spec != nil {
+			report.Paths = sp.Reports.Spec.Paths
 		}
 	}
 

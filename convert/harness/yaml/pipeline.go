@@ -27,27 +27,29 @@ type (
 
 	// Pipeline defines a pipeline.
 	Pipeline struct {
-		ID                string                             `json:"identifier,omitempty"        yaml:"identifier,omitempty"`
-		Name              string                             `json:"name,omitempty"              yaml:"name,omitempty"`
-		Desc              string                             `json:"description,omitempty"       yaml:"description,omitempty"`
-		Account           string                             `json:"accountIdentifier,omitempty" yaml:"accountIdentifier,omitempty"`
-		Project           string                             `json:"projectIdentifier,omitempty" yaml:"projectIdentifier,omitempty"`
-		Org               string                             `json:"orgIdentifier,omitempty"     yaml:"orgIdentifier,omitempty"`
-		Props             Properties                         `json:"properties,omitempty"        yaml:"properties,omitempty"`
-		Stages            []*Stages                          `json:"stages,omitempty"            yaml:"stages"`
-		Variables         []*Variable                        `json:"variables,omitempty"         yaml:"variables,omitempty"`
-		Tags              *flexible.Field[map[string]string] `json:"tags,omitempty"              yaml:"tags,omitempty"`
-		FlowControl       *FlowControl                       `json:"flowControl,omitempty"       yaml:"flowControl,omitempty"`
-		NotificationRules []*NotificationRule                `json:"notificationRules,omitempty" yaml:"notificationRules,omitempty"`
-		DelegateSelectors *flexible.Field[[]string]          `json:"delegateSelectors,omitempty" yaml:"delegateSelectors,omitempty"`
-		Template          *PipelineTemplate                  `json:"template,omitempty"          yaml:"template,omitempty"`
-		AllowStageExecutions *flexible.Field[bool]           `json:"allowStageExecutions,omitempty" yaml:"allowStageExecutions,omitempty"`
-		Timeout           string                             `json:"timeout,omitempty"           yaml:"timeout,omitempty"`
+		ID                   string                             `json:"identifier,omitempty"           yaml:"identifier,omitempty"`
+		Name                 string                             `json:"name,omitempty"                 yaml:"name,omitempty"`
+		Desc                 string                             `json:"description,omitempty"          yaml:"description,omitempty"`
+		Account              string                             `json:"accountIdentifier,omitempty"    yaml:"accountIdentifier,omitempty"`
+		Project              string                             `json:"projectIdentifier,omitempty"    yaml:"projectIdentifier,omitempty"`
+		Org                  string                             `json:"orgIdentifier,omitempty"        yaml:"orgIdentifier,omitempty"`
+		Props                Properties                         `json:"properties,omitempty"           yaml:"properties,omitempty"`
+		Stages               []*Stages                          `json:"stages,omitempty"               yaml:"stages"`
+		Variables            []*Variable                        `json:"variables,omitempty"            yaml:"variables,omitempty"`
+		Tags                 *flexible.Field[map[string]string] `json:"tags,omitempty"                 yaml:"tags,omitempty"`
+		FlowControl          *FlowControl                       `json:"flowControl,omitempty"          yaml:"flowControl,omitempty"`
+		NotificationRules    []*NotificationRule                `json:"notificationRules,omitempty"    yaml:"notificationRules,omitempty"`
+		DelegateSelectors    *flexible.Field[[]string]          `json:"delegateSelectors,omitempty"    yaml:"delegateSelectors,omitempty"`
+		Template             *PipelineTemplate                  `json:"template,omitempty"             yaml:"template,omitempty"`
+		AllowStageExecutions *flexible.Field[bool]              `json:"allowStageExecutions,omitempty" yaml:"allowStageExecutions,omitempty"`
+		FixedInputsOnRerun   *flexible.Field[bool]              `json:"fixedInputsOnRerun,omitempty"   yaml:"fixedInputsOnRerun,omitempty"`
+		Timeout              string                             `json:"timeout,omitempty"              yaml:"timeout,omitempty"`
 	}
 
 	PipelineTemplate struct {
 		TemplateRef    string    `json:"templateRef,omitempty"    yaml:"templateRef,omitempty"`
 		VersionLabel   string    `json:"versionLabel,omitempty"   yaml:"versionLabel,omitempty"`
+		GitBranch      string    `json:"gitBranch,omitempty"      yaml:"gitBranch,omitempty"`
 		TemplateInputs *Pipeline `json:"templateInputs,omitempty" yaml:"templateInputs,omitempty"`
 	}
 
@@ -86,21 +88,22 @@ type (
 
 	// Codebase defines a codebase.
 	Codebase struct {
-		Name               string                 `json:"repoName,omitempty"     yaml:"repoName,omitempty"`
-		Conn               string                 `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
-		Build              flexible.Field[Build]  `json:"build,omitempty"        yaml:"build,omitempty"` // branch|tag
-		Depth              *flexible.Field[int64] `json:"depth,omitempty"        yaml:"depth,omitempty"`
-		SslVerify          *flexible.Field[bool]  `json:"sslVerify,omitempty"  yaml:"sslVerify,omitempty"`
-		PrCloneStrategy    string                 `json:"prCloneStrategy,omitempty" yaml:"prCloneStrategy,omitempty"`
-		Resources          *Resources             `json:"resources,omitempty"          yaml:"resources,omitempty"`
-		Lfs                *flexible.Field[bool]  `json:"lfs,omitempty"                yaml:"lfs,omitempty"`
-		Debug              *flexible.Field[bool]  `json:"debug,omitempty"              yaml:"debug,omitempty"`
-		FetchTags          *flexible.Field[bool]  `json:"fetchTags,omitempty"          yaml:"fetchTags,omitempty"`
-		PersistCredentials *flexible.Field[bool]  `json:"persistCredentials,omitempty" yaml:"persistCredentials,omitempty"`
-		SparseCheckout     []string               `json:"sparseCheckout,omitempty"     yaml:"sparseCheckout,omitempty"`
-		SubmoduleStrategy  *flexible.Field[bool]  `json:"submoduleStrategy,omitempty"  yaml:"submoduleStrategy,omitempty"`
-		CloneDirectory     string                 `json:"cloneDirectory,omitempty"     yaml:"cloneDirectory,omitempty"`
-		PreFetchCommand    string                 `json:"preFetchCommand,omitempty"    yaml:"preFetchCommand,omitempty"`
+		Name               string                    `json:"repoName,omitempty"     yaml:"repoName,omitempty"`
+		Conn               string                    `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
+		Build              flexible.Field[Build]     `json:"build,omitempty"        yaml:"build,omitempty"` // branch|tag
+		Depth              *flexible.Field[int64]    `json:"depth,omitempty"        yaml:"depth,omitempty"`
+		SslVerify          *flexible.Field[bool]     `json:"sslVerify,omitempty"  yaml:"sslVerify,omitempty"`
+		PrCloneStrategy    string                    `json:"prCloneStrategy,omitempty" yaml:"prCloneStrategy,omitempty"`
+		Resources          *Resources                `json:"resources,omitempty"          yaml:"resources,omitempty"`
+		Lfs                *flexible.Field[bool]     `json:"lfs,omitempty"                yaml:"lfs,omitempty"`
+		Debug              *flexible.Field[bool]     `json:"debug,omitempty"              yaml:"debug,omitempty"`
+		FetchTags          *flexible.Field[bool]     `json:"fetchTags,omitempty"          yaml:"fetchTags,omitempty"`
+		PersistCredentials *flexible.Field[bool]     `json:"persistCredentials,omitempty" yaml:"persistCredentials,omitempty"`
+		SparseCheckout     *flexible.Field[[]string] `json:"sparseCheckout,omitempty"     yaml:"sparseCheckout,omitempty"`
+		SubmoduleStrategy  *flexible.Field[bool]     `json:"submoduleStrategy,omitempty"  yaml:"submoduleStrategy,omitempty"`
+		CloneDirectory     string                    `json:"cloneDirectory,omitempty"     yaml:"cloneDirectory,omitempty"`
+		PreFetchCommand    string                    `json:"preFetchCommand,omitempty"    yaml:"preFetchCommand,omitempty"`
+		RunAsUser          *flexible.Field[int]      `json:"runAsUser,omitempty"          yaml:"runAsUser,omitempty"`
 	}
 
 	Build struct {
@@ -188,61 +191,61 @@ type (
 	}
 
 	ServiceSpec struct {
-		Env        *flexible.Field[map[string]interface{}] `json:"envVariables,omitempty"   yaml:"envVariables,omitempty"`
-		Entrypoint *flexible.Field[[]string]               `json:"entrypoint,omitempty"     yaml:"entrypoint,omitempty"`
-		Args       *flexible.Field[[]string]               `json:"args,omitempty"           yaml:"args,omitempty"`
-		Conn       string                                  `json:"connectorRef,omitempty"   yaml:"connectorRef,omitempty"`
-		Image      string                                  `json:"image,omitempty"          yaml:"image,omitempty"`
-		ImagePullPolicy string                             `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
-		Resources  *Resources                              `json:"resources,omitempty"      yaml:"resources,omitempty"`
-		RunAsUser  *flexible.Field[int]                    `json:"runAsUser,omitempty"      yaml:"runAsUser,omitempty"`
-		Privileged *flexible.Field[bool]                   `json:"privileged,omitempty"     yaml:"privileged,omitempty"`
-		PortBindings *flexible.Field[map[string]string]    `json:"portBindings,omitempty" yaml:"portBindings,omitempty"`
+		Env             *flexible.Field[map[string]interface{}] `json:"envVariables,omitempty"   yaml:"envVariables,omitempty"`
+		Entrypoint      *flexible.Field[[]string]               `json:"entrypoint,omitempty"     yaml:"entrypoint,omitempty"`
+		Args            *flexible.Field[[]string]               `json:"args,omitempty"           yaml:"args,omitempty"`
+		Conn            string                                  `json:"connectorRef,omitempty"   yaml:"connectorRef,omitempty"`
+		Image           string                                  `json:"image,omitempty"          yaml:"image,omitempty"`
+		ImagePullPolicy string                                  `json:"imagePullPolicy,omitempty" yaml:"imagePullPolicy,omitempty"`
+		Resources       *Resources                              `json:"resources,omitempty"      yaml:"resources,omitempty"`
+		RunAsUser       *flexible.Field[int]                    `json:"runAsUser,omitempty"      yaml:"runAsUser,omitempty"`
+		Privileged      *flexible.Field[bool]                   `json:"privileged,omitempty"     yaml:"privileged,omitempty"`
+		PortBindings    *flexible.Field[map[string]string]      `json:"portBindings,omitempty" yaml:"portBindings,omitempty"`
 	}
 
 	Resources struct {
-		Limits *Limits `json:"limits,omitempty" yaml:"limits,omitempty"`
+		Limits   *ResourceSpec `json:"limits,omitempty" yaml:"limits,omitempty"`
+		Requests *ResourceSpec `json:"requests,omitempty" yaml:"requests,omitempty"`
 	}
 
-	Limits struct {
+	ResourceSpec struct {
 		Memory *flexible.Field[*BytesSize] `json:"memory,omitempty" yaml:"memory,omitempty"`
 		CPU    *flexible.Field[*MilliSize] `json:"cpu,omitempty"    yaml:"cpu,omitempty"`
 	}
 )
 
 // GetCPUString returns the CPU value as a string, handling both expressions and parsed values
-func (l *Limits) GetCPUString() string {
-    if l == nil || l.CPU == nil {
-        return ""
-    }
-    
+func (l *ResourceSpec) GetCPUString() string {
+	if l == nil || l.CPU == nil {
+		return ""
+	}
+
 	if expr, ok := l.CPU.AsString(); ok {
 		return expr
 	}
-    
-    
-    // If it's a struct value, convert to string with "m" suffix
-    if cpu, ok := l.CPU.AsStruct(); ok {
-        return cpu.String() + "m"
-    }
-    
-    return ""
+
+	// If it's a struct value, convert to string with "m" suffix
+	if cpu, ok := l.CPU.AsStruct(); ok {
+		return cpu.String() + "m"
+	}
+
+	return ""
 }
 
 // GetMemoryString returns the memory value as a string, handling both expressions and parsed values
-func (l *Limits) GetMemoryString() string {
-    if l == nil || l.Memory == nil {
-        return ""
-    }
-    
+func (l *ResourceSpec) GetMemoryString() string {
+	if l == nil || l.Memory == nil {
+		return ""
+	}
+
 	if expr, ok := l.Memory.AsString(); ok {
 		return expr
 	}
-    
-    // If it's a struct value, convert to string
-    if memory, ok := l.Memory.AsStruct(); ok {
-        return memory.String()
-    }
-    
-    return ""
+
+	// If it's a struct value, convert to string
+	if memory, ok := l.Memory.AsStruct(); ok {
+		return memory.String()
+	}
+
+	return ""
 }

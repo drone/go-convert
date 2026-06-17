@@ -21,7 +21,8 @@ func (c *PipelineConverter) convertStageTemplate(src *v0.Stage, basePath string)
 	}
 
 	result := &v1.StageTemplate{
-		Uses: uses,
+		Uses:      uses,
+		GitBranch: template.GitBranch,
 	}
 
 	// If templateInputs exists, convert it to overlay.stage

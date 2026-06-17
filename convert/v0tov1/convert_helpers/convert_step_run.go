@@ -35,21 +35,16 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 
 	// Container mapping
 	var container *v1.Container
-	if sp.Image != "" || sp.ConnRef != "" || sp.Privileged != nil || (sp.Resources != nil && sp.Resources.Limits != nil) || sp.RunAsUser != nil {
+	resources := ConvertContainerResources(sp.Resources)
+	if sp.Image != "" || sp.ConnRef != "" || sp.Privileged != nil || resources != nil || sp.RunAsUser != nil {
 		pull := ConvertImagePullPolicy(sp.ImagePullPolicy)
-		cpu := ""
-		memory := ""
-		if sp.Resources != nil && sp.Resources.Limits != nil {
-			cpu = sp.Resources.Limits.GetCPUString()
-			memory = sp.Resources.Limits.GetMemoryString()
-		}
 		container = &v1.Container{
 			Image:      sp.Image,
+			Registry:   sp.RegistryRef,
 			Connector:  sp.ConnRef,
 			Privileged: sp.Privileged,
 			Pull:       pull,
-			Cpu:        cpu,
-			Memory:     memory,
+			Resources:  resources,
 			User:       sp.RunAsUser,
 		}
 	}

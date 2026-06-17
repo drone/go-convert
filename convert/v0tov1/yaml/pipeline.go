@@ -41,4 +41,7 @@ type Pipeline struct {
 	Timeout       string            `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Delegate      *flexible.Field[*Delegate]                 `json:"delegate,omitempty" yaml:"delegate,omitempty"`
 	Template      *PipelineTemplate `json:"template,omitempty" yaml:"template,omitempty"`
+	Tags          *flexible.Field[map[string]string] `json:"tags,omitempty" yaml:"tags,omitempty"`
+	Desc          string            `json:"description,omitempty" yaml:"description,omitempty"`
+	FixedInputsOnRerun *flexible.Field[bool] `json:"fixed-inputs-on-rerun,omitempty" yaml:"fixed-inputs-on-rerun,omitempty"`
 }

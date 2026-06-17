@@ -139,8 +139,9 @@ func ConvertStepGitClone(src *v0.Step) *v1.StepTemplate {
 	// copy_file_content: no v0 StepGitClone field; optional template input with no default
 
 	dst := &v1.StepTemplate{
-		Uses: "gitCloneStep",
-		With: with,
+		Uses:      "gitCloneStep",
+		With:      with,
+		Container: ConvertTemplateContainer(sp.RunAsUser, sp.Resources),
 	}
 
 	return dst

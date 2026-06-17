@@ -44,7 +44,8 @@ func ConvertStepS3Upload(src *v0.Step) *v1.StepTemplate {
 	}
 
 	return &v1.StepTemplate{
-		Uses: "uploadArtifactsToS3",
-		With: with,
+		Uses:      "uploadArtifactsToS3",
+		With:      with,
+		Container: ConvertTemplateContainer(spec.RunAsUser, spec.Resources),
 	}
 }

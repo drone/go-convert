@@ -99,8 +99,17 @@ func ConvertStepBuildAndPushECR(src *v0.Step) *v1.StepTemplate {
 		with["remote_cache_image"] = spec.RemoteCacheImage
 	}
 
+	if spec.CacheFrom != nil {
+		with["cache_from"] = spec.CacheFrom
+	}
+
+	if spec.CacheTo != "" {
+		with["cache_to"] = spec.CacheTo
+	}
+
 	return &v1.StepTemplate{
-		Uses: "buildAndPushToECR",
-		With: with,
+		Uses:      "buildAndPushToECR",
+		With:      with,
+		Container: ConvertTemplateContainer(spec.RunAsUser, spec.Resources),
 	}
 }
