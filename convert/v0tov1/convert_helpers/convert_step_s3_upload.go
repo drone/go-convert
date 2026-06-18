@@ -44,7 +44,7 @@ func ConvertStepS3Upload(src *v0.Step) *v1.StepTemplate {
 	}
 
 	if spec.StripPrefix != "" {
-		with["stripPrefix"] = spec.StripPrefix
+		with["stripprefix"] = spec.StripPrefix
 	}
 
 	return &v1.StepTemplate{
