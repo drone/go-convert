@@ -56,6 +56,10 @@ func ConvertStepSaveCacheS3(src *v0.Step) *v1.StepTemplate {
 		with["path_style"] = spec.PathStyle
 	}
 
+	if spec.PreserveMetadata != nil {
+		with["preserve_metadata"] = spec.PreserveMetadata
+	}
+
 	return &v1.StepTemplate{
 		Uses:      "saveCacheToS3",
 		With:      with,

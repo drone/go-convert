@@ -16,6 +16,8 @@ package yaml
 
 import (
 	"encoding/json"
+
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 type Runtime struct {
@@ -25,13 +27,15 @@ type Runtime struct {
 
 // RuntimeCloudSpec defines the Cloud runtime spec
 type RuntimeCloudSpec struct {
-	Size      string         `json:"size,omitempty"      yaml:"size,omitempty"`
-	ImageSpec *ImageSpec     `json:"imageSpec,omitempty" yaml:"imageSpec,omitempty"`
+	Size                 string                `json:"size,omitempty"                 yaml:"size,omitempty"`
+	ImageSpec            *ImageSpec            `json:"imageSpec,omitempty"            yaml:"imageSpec,omitempty"`
+	NestedVirtualization *flexible.Field[bool] `json:"nestedVirtualization,omitempty" yaml:"nestedVirtualization,omitempty"`
 }
 
 // ImageSpec defines the image specification for Cloud runtime
 type ImageSpec struct {
 	ImageName string `json:"imageName,omitempty" yaml:"imageName,omitempty"`
+	Connector string `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
 }
 
 // RuntimeDockerSpec defines the Docker runtime spec

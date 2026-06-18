@@ -25,6 +25,7 @@ import (
 type ServiceItem struct {
 	Id   string                 `json:"id,omitempty"`
 	With map[string]interface{} `json:"with,omitempty"`
+	Ref  string                 `json:"ref,omitempty"` // git branch reference
 }
 
 // UnmarshalJSON implements json.Unmarshaler for ServiceItem.
@@ -51,8 +52,8 @@ func (s *ServiceItem) UnmarshalJSON(data []byte) error {
 // MarshalJSON implements json.Marshaler for ServiceItem.
 // Outputs: string "service1" if no With, or object {id: "service1", with: {...}} if With exists
 func (s ServiceItem) MarshalJSON() ([]byte, error) {
-	// If no With, marshal as simple string
-	if len(s.With) == 0 {
+	// If no With and no Ref, marshal as simple string
+	if len(s.With) == 0 && s.Ref == "" {
 		return json.Marshal(s.Id)
 	}
 	// Otherwise marshal as full object

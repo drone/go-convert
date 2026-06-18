@@ -78,11 +78,12 @@ type (
 
 	StepArtifactoryUpload struct {
 		CommonStepSpec
-		ConnRef    string               `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
-		Target     string               `json:"target,omitempty"       yaml:"target,omitempty"`
-		SourcePath string               `json:"sourcePath,omitempty"   yaml:"sourcePath,omitempty"`
-		RunAsUser  *flexible.Field[int] `json:"runAsUser,omitempty"    yaml:"runAsUser,omitempty"`
-		Resources  *Resources           `json:"resources,omitempty"    yaml:"resources,omitempty"`
+		ConnRef      string                `json:"connectorRef,omitempty"    yaml:"connectorRef,omitempty"`
+		Target       string                `json:"target,omitempty"       yaml:"target,omitempty"`
+		SourcePath   string                `json:"sourcePath,omitempty"   yaml:"sourcePath,omitempty"`
+		RunAsUser    *flexible.Field[int]  `json:"runAsUser,omitempty"    yaml:"runAsUser,omitempty"`
+		UploadAsFlat *flexible.Field[bool] `json:"uploadAsFlat,omitempty" yaml:"uploadAsFlat,omitempty"`
+		Resources    *Resources            `json:"resources,omitempty"    yaml:"resources,omitempty"`
 	}
 
 	StepBarrier struct {
@@ -218,6 +219,7 @@ type (
 		ApprovalMessage                 string                `json:"approvalMessage,omitempty"                 yaml:"approvalMessage,omitempty"`
 		Approvers                       *Approvers            `json:"approvers,omitempty"                       yaml:"approvers,omitempty"`
 		ApproverInputs                  []*ApproverInput      `json:"approverInputs,omitempty"                  yaml:"approverInputs,omitempty"`
+		CallbackId                      string                `json:"callbackId,omitempty"                      yaml:"callbackId,omitempty"`
 		IncludePipelineExecutionHistory *flexible.Field[bool] `json:"includePipelineExecutionHistory,omitempty" yaml:"includePipelineExecutionHistory,omitempty"`
 		IsAutoRejectEnabled             *flexible.Field[bool] `json:"isAutoRejectEnabled,omitempty"             yaml:"isAutoRejectEnabled,omitempty"`
 		AutoApproval                    *AutoApproval         `json:"autoApproval,omitempty"                    yaml:"autoApproval,omitempty"`
@@ -259,6 +261,7 @@ type (
 		Key               string                `json:"key,omitempty"               yaml:"key,omitempty"`
 		ArchiveFormat     string                `json:"archiveFormat,omitempty"     yaml:"archiveFormat,omitempty"`
 		FailIfKeyNotFound *flexible.Field[bool] `json:"failIfKeyNotFound,omitempty" yaml:"failIfKeyNotFound,omitempty"`
+		PreserveMetadata  *flexible.Field[bool] `json:"preserveMetadata,omitempty"  yaml:"preserveMetadata,omitempty"`
 		RunAsUser         *flexible.Field[int]  `json:"runAsUser,omitempty"         yaml:"runAsUser,omitempty"`
 		Resources         *Resources            `json:"resources,omitempty"         yaml:"resources,omitempty"`
 	}
@@ -272,6 +275,7 @@ type (
 		Endpoint          string                `json:"endpoint,omitempty"          yaml:"endpoint,omitempty"`
 		ArchiveFormat     string                `json:"archiveFormat,omitempty"     yaml:"archiveFormat,omitempty"`
 		PathStyle         *flexible.Field[bool] `json:"pathStyle,omitempty"         yaml:"pathStyle,omitempty"`
+		PreserveMetadata  *flexible.Field[bool] `json:"preserveMetadata,omitempty"  yaml:"preserveMetadata,omitempty"`
 		FailIfKeyNotFound *flexible.Field[bool] `json:"failIfKeyNotFound,omitempty" yaml:"failIfKeyNotFound,omitempty"`
 		RunAsUser         *flexible.Field[int]  `json:"runAsUser,omitempty"         yaml:"runAsUser,omitempty"`
 		Resources         *Resources            `json:"resources,omitempty"         yaml:"resources,omitempty"`
@@ -349,6 +353,7 @@ type (
 		SourcePaths   *flexible.Field[[]string] `json:"sourcePaths,omitempty"   yaml:"sourcePaths,omitempty"`
 		ArchiveFormat string                    `json:"archiveFormat,omitempty" yaml:"archiveFormat,omitempty"`
 		Override      *flexible.Field[bool]     `json:"override,omitempty"      yaml:"override,omitempty"`
+		PreserveMetadata *flexible.Field[bool]  `json:"preserveMetadata,omitempty" yaml:"preserveMetadata,omitempty"`
 		RunAsUser     *flexible.Field[int]      `json:"runAsUser,omitempty"     yaml:"runAsUser,omitempty"`
 		Resources     *Resources                `json:"resources,omitempty"     yaml:"resources,omitempty"`
 	}
@@ -364,6 +369,7 @@ type (
 		ArchiveFormat string                    `json:"archiveFormat,omitempty" yaml:"archiveFormat,omitempty"`
 		Override      *flexible.Field[bool]     `json:"override,omitempty"      yaml:"override,omitempty"`
 		PathStyle     *flexible.Field[bool]     `json:"pathStyle,omitempty"     yaml:"pathStyle,omitempty"`
+		PreserveMetadata *flexible.Field[bool]  `json:"preserveMetadata,omitempty" yaml:"preserveMetadata,omitempty"`
 		RunAsUser     *flexible.Field[int]      `json:"runAsUser,omitempty"     yaml:"runAsUser,omitempty"`
 		Resources     *Resources                `json:"resources,omitempty"     yaml:"resources,omitempty"`
 	}
@@ -585,6 +591,7 @@ type (
 		Resources    *Resources           `json:"resources,omitempty"    yaml:"resources,omitempty"`
 		RunAsUser    *flexible.Field[int] `json:"runAsUser,omitempty"    yaml:"runAsUser,omitempty"`
 		SourcePath   string               `json:"sourcePath,omitempty"   yaml:"sourcePath,omitempty"`
+		StripPrefix  string    `json:"stripPrefix,omitempty"  yaml:"stripPrefix,omitempty"`
 		Target       string               `json:"target,omitempty"       yaml:"target,omitempty"`
 	}
 

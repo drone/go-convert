@@ -54,6 +54,7 @@ func ConvertDeploymentService(src *v0.DeploymentService, ctx *StageConversionCon
 		serviceItem := &v1.ServiceItem{
 			Id:   src.ServiceRef,
 			With: serviceWith,
+			Ref:  src.GitBranch,
 		}
 		return &v1.ServiceRef{
 			Items:        []*v1.ServiceItem{serviceItem},
@@ -121,6 +122,7 @@ func ConvertDeploymentServices(src *v0.DeploymentServices, ctx *StageConversionC
 			serviceItems = append(serviceItems, &v1.ServiceItem{
 				Id:   service.ServiceRef,
 				With: serviceWith,
+				Ref:  service.GitBranch,
 			})
 		}
 	}

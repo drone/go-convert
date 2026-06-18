@@ -45,6 +45,10 @@ func ConvertStepSaveCacheGCS(src *v0.Step) *v1.StepTemplate {
 		with["override"] = spec.Override
 	}
 
+	if spec.PreserveMetadata != nil {
+		with["preserve_metadata"] = spec.PreserveMetadata
+	}
+
 	return &v1.StepTemplate{
 		Uses:      "saveCacheToGCS",
 		With:      with,
