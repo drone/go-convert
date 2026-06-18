@@ -25,7 +25,7 @@ type Server struct {
 // NewServer builds a Server that listens on the given HTTP port and gRPC port,
 // applying middleware (recovery → requestID → logging) before the HTTP handlers.
 func NewServer(port, grpcPort, maxBatchSize int, maxYAMLBytes int64, logger *slog.Logger) *Server {
-	h := NewHandler(maxBatchSize, maxYAMLBytes)
+	h := NewHandler(maxBatchSize, maxYAMLBytes, logger)
 	mux := buildMux(h)
 	wrapped := chain(mux,
 		recoveryMiddleware(logger),
@@ -185,31 +185,46 @@ func (rw *responseWriter) Write(b []byte) (int, error) {
 func grpcLoggingInterceptor(logger *slog.Logger) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		start := time.Now()
+		ctx, meta := withMetadataSlot(ctx)
 		resp, err := handler(ctx, req)
 		st, _ := status.FromError(err)
-		logger.Info("grpc request",
+		attrs := []any{
 			"method", info.FullMethod,
 			"code", st.Code().String(),
 			"latency_ms", time.Since(start).Milliseconds(),
-		)
+		}
+		if meta.EntityType != "" {
+			attrs = append(attrs, meta.logAttrs()...)
+		}
+		logger.Info("grpc request", attrs...)
 		return resp, err
 	}
 }
 
 // loggingMiddleware logs each request with method, path, status, and latency.
+// It also installs an entity-metadata slot in the request context that the
+// conversion handlers populate (account, org, project, entity type/id); those
+// fields are emitted on the request log line when present.
 func loggingMiddleware(logger *slog.Logger) middlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
 			rw := &responseWriter{ResponseWriter: w, status: http.StatusOK}
-			next.ServeHTTP(rw, r)
-			logger.Info("request",
+
+			ctx, meta := withMetadataSlot(r.Context())
+			next.ServeHTTP(rw, r.WithContext(ctx))
+
+			attrs := []any{
 				"method", r.Method,
 				"path", r.URL.Path,
 				"status", rw.status,
 				"latency_ms", time.Since(start).Milliseconds(),
 				"request_id", r.Context().Value(requestIDCtxKey),
-			)
+			}
+			if meta.EntityType != "" {
+				attrs = append(attrs, meta.logAttrs()...)
+			}
+			logger.Info("request", attrs...)
 		})
 	}
 }

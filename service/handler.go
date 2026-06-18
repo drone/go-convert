@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -21,13 +22,19 @@ const (
 type Handler struct {
 	maxBatchSize int
 	maxYAMLBytes int64
+	logger       *slog.Logger
 }
 
-// NewHandler creates a Handler with the given limits.
-func NewHandler(maxBatchSize int, maxYAMLBytes int64) *Handler {
+// NewHandler creates a Handler with the given limits. logger may be nil, in
+// which case a no-op default logger is used.
+func NewHandler(maxBatchSize int, maxYAMLBytes int64, logger *slog.Logger) *Handler {
+	if logger == nil {
+		logger = slog.Default()
+	}
 	return &Handler{
 		maxBatchSize: maxBatchSize,
 		maxYAMLBytes: maxYAMLBytes,
+		logger:       logger,
 	}
 }
 
@@ -77,6 +84,12 @@ func (h *Handler) ConvertBatch(w http.ResponseWriter, r *http.Request) {
 	results := make([]BatchResult, 0, len(req.Items))
 	for _, item := range req.Items {
 		result := BatchResult{ID: item.ID, EntityType: item.EntityType}
+
+		// Log per-item entity metadata; the request log line covers the batch
+		// as a whole but cannot represent the individual items.
+		meta := extractEntityMetadata(item.EntityType, item.YAML)
+		h.logger.Info("batch item", append([]any{"batch_item_id", item.ID}, meta.logAttrs()...)...)
+
 		res, err := dispatch(item.EntityType, item.YAML, item.TemplateRefMapping, item.PipelineRefMapping, item.ContextPipelineYAML)
 		if err != nil {
 			e := err.Error()
@@ -181,6 +194,9 @@ func (h *Handler) convertSingle(w http.ResponseWriter, r *http.Request, entityTy
 		writeError(w, http.StatusBadRequest, "MISSING_FIELD", "'yaml' field is required and must not be empty", nil)
 		return
 	}
+
+	// Record entity metadata (account/org/project/id) for the request log line.
+	setRequestMetadata(r.Context(), entityType, req.YAML)
 
 	res, err := dispatch(entityType, req.YAML, req.TemplateRefMapping, req.PipelineRefMapping, req.ContextPipelineYAML)
 	if err != nil {

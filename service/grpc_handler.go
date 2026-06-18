@@ -16,20 +16,20 @@ type GRPCHandler struct {
 	pb.UnimplementedGoConvertServiceServer
 }
 
-func (h *GRPCHandler) ConvertPipeline(_ context.Context, req *pb.ConvertRequest) (*pb.ConvertResponse, error) {
-	return h.convert(entityPipeline, req)
+func (h *GRPCHandler) ConvertPipeline(ctx context.Context, req *pb.ConvertRequest) (*pb.ConvertResponse, error) {
+	return h.convert(ctx, entityPipeline, req)
 }
 
-func (h *GRPCHandler) ConvertTemplate(_ context.Context, req *pb.ConvertRequest) (*pb.ConvertResponse, error) {
-	return h.convert(entityTemplate, req)
+func (h *GRPCHandler) ConvertTemplate(ctx context.Context, req *pb.ConvertRequest) (*pb.ConvertResponse, error) {
+	return h.convert(ctx, entityTemplate, req)
 }
 
-func (h *GRPCHandler) ConvertInputSet(_ context.Context, req *pb.ConvertRequest) (*pb.ConvertResponse, error) {
-	return h.convert(entityInputSet, req)
+func (h *GRPCHandler) ConvertInputSet(ctx context.Context, req *pb.ConvertRequest) (*pb.ConvertResponse, error) {
+	return h.convert(ctx, entityInputSet, req)
 }
 
-func (h *GRPCHandler) ConvertTrigger(_ context.Context, req *pb.ConvertRequest) (*pb.ConvertResponse, error) {
-	return h.convert(entityTrigger, req)
+func (h *GRPCHandler) ConvertTrigger(ctx context.Context, req *pb.ConvertRequest) (*pb.ConvertResponse, error) {
+	return h.convert(ctx, entityTrigger, req)
 }
 
 func (h *GRPCHandler) ConvertExpression(_ context.Context, req *pb.ExpressionConvertRequest) (*pb.ExpressionConvertResponse, error) {
@@ -94,10 +94,13 @@ func (h *GRPCHandler) GetChecksum(_ context.Context, req *pb.ChecksumRequest) (*
 	}, nil
 }
 
-func (h *GRPCHandler) convert(entityType string, req *pb.ConvertRequest) (*pb.ConvertResponse, error) {
+func (h *GRPCHandler) convert(ctx context.Context, entityType string, req *pb.ConvertRequest) (*pb.ConvertResponse, error) {
 	if strings.TrimSpace(req.GetYaml()) == "" {
 		return nil, status.Error(codes.InvalidArgument, "'yaml' field is required and must not be empty")
 	}
+
+	// Record entity metadata (account/org/project/id) for the gRPC log line.
+	setRequestMetadata(ctx, entityType, req.GetYaml())
 
 	res, err := dispatch(
 		entityType,
