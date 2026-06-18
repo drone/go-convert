@@ -10,9 +10,10 @@ type (
 
 	// DeploymentService defines the service configuration for deployment
 	DeploymentService struct {
-		ServiceRef   string        `json:"serviceRef,omitempty"    yaml:"serviceRef,omitempty"`
-		UseFromStage *UseFromStage `json:"useFromStage,omitempty" yaml:"useFromStage,omitempty"`
-		ServiceInputs interface{} `json:"serviceInputs,omitempty" yaml:"serviceInputs,omitempty"`
+		ServiceRef    string        `json:"serviceRef,omitempty"    yaml:"serviceRef,omitempty"`
+		UseFromStage  *UseFromStage `json:"useFromStage,omitempty" yaml:"useFromStage,omitempty"`
+		ServiceInputs interface{}   `json:"serviceInputs,omitempty" yaml:"serviceInputs,omitempty"`
+		GitBranch     string        `json:"gitBranch,omitempty" yaml:"gitBranch,omitempty"`
 	}
 
 	DeploymentServiceConfig struct {

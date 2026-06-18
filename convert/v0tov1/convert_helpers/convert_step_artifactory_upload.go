@@ -31,6 +31,10 @@ func ConvertStepArtifactoryUpload(src *v0.Step) *v1.StepTemplate {
 		with["source"] = spec.SourcePath
 	}
 
+	if spec.UploadAsFlat != nil {
+		with["upload_as_flat"] = *spec.UploadAsFlat
+	}
+
 	return &v1.StepTemplate{
 		Uses:      "uploadArtifactsToJfrogArtifactory",
 		With:      with,

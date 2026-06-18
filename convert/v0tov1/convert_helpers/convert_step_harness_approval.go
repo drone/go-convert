@@ -51,6 +51,11 @@ func ConvertStepHarnessApproval(src *v0.Step) *v1.StepApproval {
 	if spec.IsAutoRejectEnabled != nil {
 		dst.With["auto-reject"] = spec.IsAutoRejectEnabled
 	}
+	
+	// Map callbackId to callback
+	if spec.CallbackId != "" {
+		dst.With["callback"] = spec.CallbackId
+	}
 
 	// Map approvers fields
 	if spec.Approvers != nil {

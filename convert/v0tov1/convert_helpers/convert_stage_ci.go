@@ -57,12 +57,15 @@ func ConvertRuntime(runtime *v0.Runtime) *v1.Runtime {
 			// Convert image
 			if cloudSpec.ImageSpec != nil && cloudSpec.ImageSpec.ImageName != "" {
 				result.Cloud.Image = v1.MachineImage(cloudSpec.ImageSpec.ImageName)
+				result.Cloud.Connector = cloudSpec.ImageSpec.Connector
 			}
 
 			// Convert size - map "flex" to "xlarge" as per your example
 			if cloudSpec.Size != "" {
 				result.Cloud.Size = v1.MachineSize(cloudSpec.Size)
 			}
+
+			result.Cloud.Virtualization = cloudSpec.NestedVirtualization
 
 			return result
 		}

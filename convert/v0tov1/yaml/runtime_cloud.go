@@ -16,8 +16,12 @@
 
 package yaml
 
+import "github.com/drone/go-convert/internal/flexible"
+
 // RuntimeClone configures the cloud runtime environment.
 type RuntimeCloud struct {
-	Image MachineImage `json:"image,omitempty"`
-	Size  MachineSize  `json:"size,omitempty"`
+	Image          MachineImage          `json:"image,omitempty"`
+	Size           MachineSize           `json:"size,omitempty"`
+	Connector      string                `json:"connector,omitempty"`
+	Virtualization *flexible.Field[bool] `json:"virtualization,omitempty"`
 }
