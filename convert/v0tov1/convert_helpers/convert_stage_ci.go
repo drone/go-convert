@@ -26,7 +26,7 @@ func ConvertCaching(cache *v0.Cache) *v1.Cache {
 	return &v1.Cache{
 		Enabled:  cache.Enabled,
 		Key:      cache.Key,
-		Path:     cache.Paths,
+		Paths:    cache.Paths,
 		Policy:   cache.Policy,
 		Override: cache.Override,
 	}

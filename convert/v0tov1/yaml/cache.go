@@ -22,7 +22,7 @@ import "github.com/drone/go-convert/internal/flexible"
 type Cache struct {
 	Enabled *flexible.Field[bool]          `json:"enabled"`
 	Key      string        `json:"key,omitempty"`
-	Path     *flexible.Field[[]string] `json:"path,omitempty"`
+	Paths    *flexible.Field[[]string] `json:"paths,omitempty"`
 	Policy   string        `json:"policy,omitempty"`
 	Override *flexible.Field[bool]    `json:"override,omitempty"`
 }
