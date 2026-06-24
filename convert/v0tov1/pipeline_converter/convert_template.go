@@ -36,7 +36,7 @@ func (c *PipelineConverter) ConvertTemplate(src *v0.Template) *v1.Template {
 				Strategy:  convert_helpers.ConvertStrategy(spec.Strategy),
 				Timeout:   spec.Timeout,
 				Delegate:  convert_helpers.ConvertDelegate(spec.DelegateSelectors, nil),
-				If:        convert_helpers.ConvertStepWhen(spec.When),
+				If:        convert_helpers.ConvertStepWhen(spec.When, spec.Skip),
 			}
 		}
 	case "Pipeline":

@@ -93,7 +93,7 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool, baseP
 				group.Strategy = convert_helpers.ConvertStrategy(s.StepGroup.Strategy)
 				group.Timeout = s.StepGroup.Timeout
 				group.Delegate = convert_helpers.ConvertDelegate(s.StepGroup.DelegateSelectors, nil)
-				group.If = convert_helpers.ConvertStepWhen(s.StepGroup.When)
+				group.If = convert_helpers.ConvertStepWhen(s.StepGroup.When, s.StepGroup.Skip)
 			}
 			dst = append(dst, group)
 		}
@@ -284,7 +284,7 @@ func convertCommonStepSettings(src *v0.Step, dst *v1.Step) {
 
 	// Convert when conditions
 	if src.When != nil {
-		dst.If = convert_helpers.ConvertStepWhen(src.When)
+		dst.If = convert_helpers.ConvertStepWhen(src.When, src.Skip)
 	}
 
 	// Convert strategies

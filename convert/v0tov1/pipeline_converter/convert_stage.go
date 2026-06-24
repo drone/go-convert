@@ -56,7 +56,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 	stage.Inputs = c.convertVariables(src.Vars)
 	stage.Delegate = convert_helpers.ConvertDelegate(src.DelegateSelectors, nil)
 	stage.Strategy = convert_helpers.ConvertStrategy(src.Strategy)
-	stage.If = convert_helpers.ConvertStageWhen(src.When)
+	stage.If = convert_helpers.ConvertStageWhen(src.When, src.Skip)
 	stage.Env = convertStageInputsToEnv(stage.Inputs)
 	stage.Timeout = src.Timeout
 	stage.Tags = src.Tags
