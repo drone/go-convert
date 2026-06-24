@@ -7,10 +7,12 @@ import (
 	flexible "github.com/drone/go-convert/internal/flexible"
 )
 
-// ConvertStepWhen converts v0 step when condition to v1 if expression
-func ConvertStepWhen(src *flexible.Field[v0.StepWhen]) string {
+// ConvertStepWhen converts v0 step when condition to v1 if expression.
+// A non-empty skipCondition is combined with the when condition (skip means
+// "skip if true", so v1 runs if "not skip") and never overwrites it.
+func ConvertStepWhen(src *flexible.Field[v0.StepWhen], skip string) string {
 	if src == nil {
-		return ""
+		return skipExpr(skip)
 	}
 
 	var parts []string
@@ -38,24 +40,26 @@ func ConvertStepWhen(src *flexible.Field[v0.StepWhen]) string {
             }
         }
 
-		// Combine with &&
-		if len(parts) == 0 {
-			return ""
-		}
+        // Combine with &&
+		whenStr := ""
 		if len(parts) == 1 {
-			return parts[0]
+			whenStr = parts[0]
+		} else if len(parts) > 1 {
+			whenStr = strings.Join(parts, " && ")
 		}
-		return strings.Join(parts, " && ")
+		return combineWhenSkip(whenStr, skip)
 	} else if when_expression, ok := src.AsString(); ok && when_expression != "<+input>" {
-		return when_expression
+		return combineWhenSkip(when_expression, skip)
 	}
-	return ""
+	return skipExpr(skip)
 }
 
-// ConvertStageWhen converts v0 stage when condition to v1 if expression
-func ConvertStageWhen(src *flexible.Field[v0.StageWhen]) string {
+// ConvertStageWhen converts v0 stage when condition to v1 if expression.
+// A non-empty skipCondition is combined with the when condition (skip means
+// "skip if true", so v1 runs if "not skip") and never overwrites it.
+func ConvertStageWhen(src *flexible.Field[v0.StageWhen], skip string) string {
 	if src == nil {
-		return ""
+		return skipExpr(skip)
 	}
 
 	var parts []string
@@ -83,18 +87,40 @@ func ConvertStageWhen(src *flexible.Field[v0.StageWhen]) string {
             }
         }
 
-		// Combine with &&
-		if len(parts) == 0 {
-			return ""
-		}
+        // Combine with &&
+		whenStr := ""
 		if len(parts) == 1 {
-			return parts[0]
+			whenStr = parts[0]
+		} else if len(parts) > 1 {
+			whenStr = strings.Join(parts, " && ")
 		}
-		return strings.Join(parts, " && ")
+		return combineWhenSkip(whenStr, skip)
 	} else if when_expression, ok := src.AsString(); ok && when_expression != "<+input>" {
-		return when_expression
+		return combineWhenSkip(when_expression, skip)
 	}
-	return ""
+	return skipExpr(skip)
+}
+
+// skipExpr converts a v0 skipCondition into a v1 "run if not skipped" expression.
+func skipExpr(skip string) string {
+	if skip == "" {
+		return ""
+	}
+	return "<+!" + skip + ">"
+}
+
+// combineWhenSkip joins a converted when expression with a skipCondition.
+// Both are preserved: when && !skip. Either may be empty.
+func combineWhenSkip(whenStr, skip string) string {
+	skipStr := skipExpr(skip)
+	switch {
+	case whenStr == "":
+		return skipStr
+	case skipStr == "":
+		return whenStr
+	default:
+		return whenStr + " && " + skipStr
+	}
 }
 
 // convertPipelineStatus converts v0 pipelineStatus to v1 expression

@@ -32,6 +32,7 @@ type (
 		Type              string                              `json:"type,omitempty"              yaml:"type,omitempty"`
 		Vars              []*Variable                         `json:"variables,omitempty"         yaml:"variables,omitempty"`
 		When              *flexible.Field[StageWhen]          `json:"when,omitempty"              yaml:"when,omitempty"`
+		Skip              string                              `json:"skipCondition,omitempty"     yaml:"skipCondition,omitempty"`
 		Strategy          *Strategy                           `json:"strategy,omitempty"          yaml:"strategy,omitempty"`
 		FailureStrategies *flexible.Field[[]*FailureStrategy] `json:"failureStrategies,omitempty" yaml:"failureStrategies,omitempty"`
 		Template          *StageTemplate                      `json:"template,omitempty"          yaml:"template,omitempty"`

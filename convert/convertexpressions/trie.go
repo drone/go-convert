@@ -549,6 +549,16 @@ func (t *Trie) Match(path string, context *ConversionContext) (string, bool) {
 			}
 
 			if result, matched := t.matchRecursive(aliasNode, parts, 1, ctx, context); matched {
+				// A bare stage-spec relative entry ("spec.<stageField>...", e.g.
+				// spec.service.identifier or spec.infrastructure.spec.connectorRef)
+				// is stage-scoped, so emit the v1 "stage" self-reference prefix,
+				// mirroring the equivalent "stage.spec.*" form. The spec.execution.*
+				// root already seeds "stage" above, so skip the prefix there. Step
+				// spec relatives (spec.command -> spec.script) resolve through
+				// step_spec_node and are unaffected.
+				if aliasNode.id == "stage_spec_node" && !isSpecExecutionRoot {
+					result = "stage." + result
+				}
 				score := t.calculateMatchScore(aliasNode, parts, 1, context)
 				if score > bestScore {
 					bestScore = score

@@ -4,6 +4,13 @@ import "github.com/drone/go-convert/internal/flexible"
 
 type (
 
+	// HelmCommandFlag is a single Helm command flag entry ({commandType, flag}).
+	// Ported from harness-core io.harness.cdng.manifest.yaml.HelmManifestCommandFlag.
+	HelmCommandFlag struct {
+		CommandType string `json:"commandType,omitempty" yaml:"commandType,omitempty"`
+		Flag        string `json:"flag,omitempty" yaml:"flag,omitempty"`
+	}
+
 	// CD: Helm Blue Green Deploy
 	StepHelmBGDeploy struct {
 		CommonStepSpec
@@ -11,12 +18,14 @@ type (
 		IgnoreReleaseHistFailStatus *flexible.Field[bool]              `json:"ignoreReleaseHistFailStatus,omitempty" yaml:"ignoreReleaseHistFailStatus,omitempty"`
 		SkipSteadyStateCheck        *flexible.Field[bool]               `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
 		UseUpgradeInstall           *flexible.Field[bool]               `json:"useUpgradeInstall,omitempty" yaml:"useUpgradeInstall,omitempty"`
-		RunChartTests               *flexible.Field[bool]               `json:"runChartTests,omitempty" yaml:"runChartTests,omitempty"` 
+		RunChartTests               *flexible.Field[bool]               `json:"runChartTests,omitempty" yaml:"runChartTests,omitempty"`
+		CommandFlags                []HelmCommandFlag `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 
-	// CD: Helm Blue Green Swap (no spec fields in provided example)
+	// CD: Helm Blue Green Swap
 	StepHelmBlueGreenSwapStep struct {
 		CommonStepSpec
+		CommandFlags         []HelmCommandFlag `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 
 	// CD: Helm Canary Deploy
@@ -27,7 +36,8 @@ type (
 		SkipSteadyStateCheck        *flexible.Field[bool]                    `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
 		UseUpgradeInstall           *flexible.Field[bool]                    `json:"useUpgradeInstall,omitempty" yaml:"useUpgradeInstall,omitempty"`
 		InstanceSelection           *HelmInstanceSelection `json:"instanceSelection,omitempty" yaml:"instanceSelection,omitempty"`
-		RunChartTests               *flexible.Field[bool]               `json:"runChartTests,omitempty" yaml:"runChartTests,omitempty"` 
+		RunChartTests               *flexible.Field[bool]               `json:"runChartTests,omitempty" yaml:"runChartTests,omitempty"`
+		CommandFlags                []HelmCommandFlag `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 
 	HelmInstanceSelection struct {
@@ -42,6 +52,7 @@ type (
 
 	StepHelmCanaryDelete struct {
 		CommonStepSpec
+		CommandFlags         []HelmCommandFlag `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 
 	// CD: Helm Delete
@@ -56,21 +67,21 @@ type (
 	// CD: Helm Deploy (Basic)
 	StepHelmDeploy struct {
 		CommonStepSpec
-		SkipDryRun                  *flexible.Field[bool]               `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
 		IgnoreReleaseHistFailStatus *flexible.Field[bool]               `json:"ignoreReleaseHistFailStatus,omitempty" yaml:"ignoreReleaseHistFailStatus,omitempty"`
 		EnvironmentVariables        map[string]string `json:"environmentVariables,omitempty" yaml:"environmentVariables,omitempty"`
 		SkipCleanup                 *flexible.Field[bool]               `json:"skipCleanup,omitempty" yaml:"skipCleanup,omitempty"`
 		SkipSteadyStateCheck        *flexible.Field[bool]               `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
 		UseUpgradeInstall           *flexible.Field[bool]               `json:"useUpgradeInstall,omitempty" yaml:"useUpgradeInstall,omitempty"`
-		RunChartTests               *flexible.Field[bool]               `json:"runChartTests,omitempty" yaml:"runChartTests,omitempty"` 
+		RunChartTests               *flexible.Field[bool]               `json:"runChartTests,omitempty" yaml:"runChartTests,omitempty"`
+		CommandFlags                []HelmCommandFlag `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 
 	// CD: Helm Rollback
 	StepHelmRollback struct {
 		CommonStepSpec
-		SkipDryRun           *flexible.Field[bool]               `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
 		EnvironmentVariables map[string]string `json:"environmentVariables,omitempty" yaml:"environmentVariables,omitempty"`
 		SkipSteadyStateCheck *flexible.Field[bool]               `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
-		RunChartTests               *flexible.Field[bool]               `json:"runChartTests,omitempty" yaml:"runChartTests,omitempty"` 
+		RunChartTests               *flexible.Field[bool]               `json:"runChartTests,omitempty" yaml:"runChartTests,omitempty"`
+		CommandFlags                []HelmCommandFlag `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 )

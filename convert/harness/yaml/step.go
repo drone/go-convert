@@ -347,31 +347,31 @@ type (
 
 	StepSaveCacheGCS struct {
 		CommonStepSpec
-		ConnectorRef  string                    `json:"connectorRef,omitempty"  yaml:"connectorRef,omitempty"`
-		Bucket        string                    `json:"bucket,omitempty"        yaml:"bucket,omitempty"`
-		Key           string                    `json:"key,omitempty"           yaml:"key,omitempty"`
-		SourcePaths   *flexible.Field[[]string] `json:"sourcePaths,omitempty"   yaml:"sourcePaths,omitempty"`
-		ArchiveFormat string                    `json:"archiveFormat,omitempty" yaml:"archiveFormat,omitempty"`
-		Override      *flexible.Field[bool]     `json:"override,omitempty"      yaml:"override,omitempty"`
-		PreserveMetadata *flexible.Field[bool]  `json:"preserveMetadata,omitempty" yaml:"preserveMetadata,omitempty"`
-		RunAsUser     *flexible.Field[int]      `json:"runAsUser,omitempty"     yaml:"runAsUser,omitempty"`
-		Resources     *Resources                `json:"resources,omitempty"     yaml:"resources,omitempty"`
+		ConnectorRef     string                    `json:"connectorRef,omitempty"  yaml:"connectorRef,omitempty"`
+		Bucket           string                    `json:"bucket,omitempty"        yaml:"bucket,omitempty"`
+		Key              string                    `json:"key,omitempty"           yaml:"key,omitempty"`
+		SourcePaths      *flexible.Field[[]string] `json:"sourcePaths,omitempty"   yaml:"sourcePaths,omitempty"`
+		ArchiveFormat    string                    `json:"archiveFormat,omitempty" yaml:"archiveFormat,omitempty"`
+		Override         *flexible.Field[bool]     `json:"override,omitempty"      yaml:"override,omitempty"`
+		PreserveMetadata *flexible.Field[bool]     `json:"preserveMetadata,omitempty" yaml:"preserveMetadata,omitempty"`
+		RunAsUser        *flexible.Field[int]      `json:"runAsUser,omitempty"     yaml:"runAsUser,omitempty"`
+		Resources        *Resources                `json:"resources,omitempty"     yaml:"resources,omitempty"`
 	}
 
 	StepSaveCacheS3 struct {
 		CommonStepSpec
-		ConnectorRef  string                    `json:"connectorRef,omitempty"  yaml:"connectorRef,omitempty"`
-		Region        string                    `json:"region,omitempty"        yaml:"region,omitempty"`
-		Bucket        string                    `json:"bucket,omitempty"        yaml:"bucket,omitempty"`
-		Key           string                    `json:"key,omitempty"           yaml:"key,omitempty"`
-		SourcePaths   *flexible.Field[[]string] `json:"sourcePaths,omitempty"   yaml:"sourcePaths,omitempty"`
-		Endpoint      string                    `json:"endpoint,omitempty"      yaml:"endpoint,omitempty"`
-		ArchiveFormat string                    `json:"archiveFormat,omitempty" yaml:"archiveFormat,omitempty"`
-		Override      *flexible.Field[bool]     `json:"override,omitempty"      yaml:"override,omitempty"`
-		PathStyle     *flexible.Field[bool]     `json:"pathStyle,omitempty"     yaml:"pathStyle,omitempty"`
-		PreserveMetadata *flexible.Field[bool]  `json:"preserveMetadata,omitempty" yaml:"preserveMetadata,omitempty"`
-		RunAsUser     *flexible.Field[int]      `json:"runAsUser,omitempty"     yaml:"runAsUser,omitempty"`
-		Resources     *Resources                `json:"resources,omitempty"     yaml:"resources,omitempty"`
+		ConnectorRef     string                    `json:"connectorRef,omitempty"  yaml:"connectorRef,omitempty"`
+		Region           string                    `json:"region,omitempty"        yaml:"region,omitempty"`
+		Bucket           string                    `json:"bucket,omitempty"        yaml:"bucket,omitempty"`
+		Key              string                    `json:"key,omitempty"           yaml:"key,omitempty"`
+		SourcePaths      *flexible.Field[[]string] `json:"sourcePaths,omitempty"   yaml:"sourcePaths,omitempty"`
+		Endpoint         string                    `json:"endpoint,omitempty"      yaml:"endpoint,omitempty"`
+		ArchiveFormat    string                    `json:"archiveFormat,omitempty" yaml:"archiveFormat,omitempty"`
+		Override         *flexible.Field[bool]     `json:"override,omitempty"      yaml:"override,omitempty"`
+		PathStyle        *flexible.Field[bool]     `json:"pathStyle,omitempty"     yaml:"pathStyle,omitempty"`
+		PreserveMetadata *flexible.Field[bool]     `json:"preserveMetadata,omitempty" yaml:"preserveMetadata,omitempty"`
+		RunAsUser        *flexible.Field[int]      `json:"runAsUser,omitempty"     yaml:"runAsUser,omitempty"`
+		Resources        *Resources                `json:"resources,omitempty"     yaml:"resources,omitempty"`
 	}
 
 	StepTrivy struct {
@@ -591,7 +591,7 @@ type (
 		Resources    *Resources           `json:"resources,omitempty"    yaml:"resources,omitempty"`
 		RunAsUser    *flexible.Field[int] `json:"runAsUser,omitempty"    yaml:"runAsUser,omitempty"`
 		SourcePath   string               `json:"sourcePath,omitempty"   yaml:"sourcePath,omitempty"`
-		StripPrefix  string    `json:"stripPrefix,omitempty"  yaml:"stripPrefix,omitempty"`
+		StripPrefix  string               `json:"stripPrefix,omitempty"  yaml:"stripPrefix,omitempty"`
 		Target       string               `json:"target,omitempty"       yaml:"target,omitempty"`
 	}
 
@@ -653,15 +653,29 @@ type (
 		TicketType   string             `json:"ticketType,omitempty" yaml:"ticketType,omitempty"`
 		Fields       []*ServiceNowField `json:"fields,omitempty" yaml:"fields,omitempty"`
 		CreateType   string             `json:"createType,omitempty" yaml:"createType,omitempty"`
+		TemplateName string             `json:"templateName,omitempty" yaml:"templateName,omitempty"`
+		UseServiceNowTemplate *flexible.Field[bool]     `json:"useServiceNowTemplate,omitempty" yaml:"useServiceNowTemplate,omitempty"`
 	}
 
 	StepServiceNowUpdate struct {
 		CommonStepSpec
-		ConnectorRef          string             `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
-		TicketType            string             `json:"ticketType,omitempty" yaml:"ticketType,omitempty"`
-		TicketNumber          string             `json:"ticketNumber,omitempty" yaml:"ticketNumber,omitempty"`
-		Fields                []*ServiceNowField `json:"fields,omitempty" yaml:"fields,omitempty"`
-		UseServiceNowTemplate bool               `json:"useServiceNowTemplate,omitempty" yaml:"useServiceNowTemplate,omitempty"`
+		ConnectorRef          string                    `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
+		TicketType            string                    `json:"ticketType,omitempty" yaml:"ticketType,omitempty"`
+		TicketNumber          string                    `json:"ticketNumber,omitempty" yaml:"ticketNumber,omitempty"`
+		Fields                []*ServiceNowField        `json:"fields,omitempty" yaml:"fields,omitempty"`
+		UseServiceNowTemplate *flexible.Field[bool]     `json:"useServiceNowTemplate,omitempty" yaml:"useServiceNowTemplate,omitempty"`
+		TemplateName          string                    `json:"templateName,omitempty" yaml:"templateName,omitempty"`
+		UpdateMultiple        *ServiceNowUpdateMultiple `json:"updateMultiple,omitempty" yaml:"updateMultiple,omitempty"`
+	}
+
+	ServiceNowUpdateMultiple struct {
+		Type string                        `json:"type,omitempty" yaml:"type,omitempty"`
+		Spec *ServiceNowUpdateMultipleSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
+	}
+
+	ServiceNowUpdateMultipleSpec struct {
+		ChangeRequestNumber string `json:"changeRequestNumber,omitempty" yaml:"changeRequestNumber,omitempty"`
+		ChangeTaskType      string `json:"changeTaskType,omitempty" yaml:"changeTaskType,omitempty"`
 	}
 
 	ServiceNowField struct {
