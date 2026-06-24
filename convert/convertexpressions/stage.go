@@ -4,12 +4,40 @@ var StageConversionRules = []ConversionRule{
 	{"identifier", "id"},
 }
 
-var DeploymentStageSpecConversionRules = []ConversionRule{
-	{"env{alias: env}.identifier", "env.id"},
-	{"env{alias: env}.envGroupName", "env.group.name"},
-	{"env{alias: env}.envGroupRef", "env.group.id"},
-	{"infra{alias: infra}.connectorRef", "infra.connector"},
-	{"service{alias: service}.identifier", "service.id"},
+var DeploymentStageSpecConversionRules = []ConversionRule{}
+
+// Deployment stage fields service/manifests/configFiles/infra/env/artifacts move
+// under stage.steps in v1. The field rule sets below are node-relative and are
+// attached to BOTH the spec-child node (v1Name "steps.<field>") and the bare
+// alias node (v1Name "<field>"), so full/spec-prefixed paths gain the "steps"
+// prefix while bare relative forms stay at root. See pipeline_trie.go.
+var EnvFieldRules = []ConversionRule{
+	{"identifier", "id"},
+	{"envGroupName", "group.name"},
+	{"envGroupRef", "group.id"},
+}
+
+var ServiceFieldRules = []ConversionRule{
+	{"identifier", "id"},
+	{"serviceInputs", "(with.overlay)"},
+}
+
+var InfraFieldRules = []ConversionRule{
+	{"connectorRef", "connector"},
+	{"infraInputs", "(with.overlay)"},
+}
+
+
+// manifests / configFiles / artifacts have no field renames; the spec-child node
+// alone injects the "steps" prefix and the bare alias passes through at root.
+
+// TemplateFieldRules rename a template reference's inputs to the v1 overlay form:
+// template.templateInputs -> template.with.overlay. Attached to a "template" child
+// at pipeline/stage/stepGroup/step level plus a standalone "template" alias, so
+// both FQN (pipeline.stages.S...steps.X.template.templateInputs) and bare
+// relative (template.templateInputs) forms convert. See pipeline_trie.go.
+var TemplateFieldRules = []ConversionRule{
+	{"templateInputs", "(with.overlay)"},
 }
 
 var CIStageSpecConversionRules = []ConversionRule{
