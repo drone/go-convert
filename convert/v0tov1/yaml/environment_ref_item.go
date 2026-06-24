@@ -58,9 +58,10 @@ func (d DeployToItem) MarshalJSON() ([]byte, error) {
 
 // EnvironmentItem represents a single environment entry.
 type EnvironmentItem struct {
-	Id       string      `json:"id,omitempty" yaml:"id,omitempty"`
-	DeployTo interface{} `json:"deploy-to,omitempty" yaml:"deploy-to,omitempty"`
-	Filters  []*Filter   `json:"filters,omitempty" yaml:"filters,omitempty"`
+	Id        string                 `json:"id,omitempty" yaml:"id,omitempty"`
+	DeployTo  interface{}            `json:"deploy-to,omitempty" yaml:"deploy-to,omitempty"`
+	Filters   []*Filter              `json:"filters,omitempty" yaml:"filters,omitempty"`
+	Overrides map[string]interface{} `json:"overrides,omitempty" yaml:"overrides,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler for EnvironmentItem.

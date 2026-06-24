@@ -5,6 +5,7 @@ import (
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -30,9 +31,9 @@ func TestConvertStepServiceNowCreate(t *testing.T) {
 				"connector":             "servicenow-connector",
 				"ticket_type":           "incident",
 				"create_ticket_options": "Fields",
-				"fields": map[string]string{
-					"short_description": "Test incident",
-					"priority":          "1",
+				"fields": []map[string]string{
+					{"key": "short_description", "value": "Test incident"},
+					{"key": "priority", "value": "1"},
 				},
 			},
 		},
@@ -84,31 +85,44 @@ func TestConvertStepServiceNowCreate(t *testing.T) {
 				"connector":             "servicenow-connector",
 				"ticket_type":           "incident",
 				"create_ticket_options": "Fields",
-				"fields": map[string]string{
-					"description": "Valid field",
-					"urgency":     "2",
+				"fields": []map[string]string{
+					{"key": "description", "value": "Valid field"},
+					{"key": "urgency", "value": "2"},
 				},
 			},
 		},
 		{
-			name: "ServiceNow create with template type",
+			name: "ServiceNow create with form template",
 			step: &v0.Step{
 				Spec: &v0.StepServiceNowCreate{
 					ConnectorRef: "servicenow-connector",
 					TicketType:   "incident",
-					CreateType:   "Template",
-					Fields: []*v0.ServiceNowField{
-						{Name: "template_name", Value: "standard_incident"},
-					},
+					CreateType:   "Form",
+					TemplateName: "my-form-template",
 				},
 			},
 			expected: map[string]interface{}{
 				"connector":             "servicenow-connector",
 				"ticket_type":           "incident",
-				"create_ticket_options": "Template",
-				"fields": map[string]string{
-					"template_name": "standard_incident",
+				"create_ticket_options": "Form Template",
+				"form_template":         "my-form-template",
+			},
+		},
+		{
+			name: "ServiceNow create with standard template",
+			step: &v0.Step{
+				Spec: &v0.StepServiceNowCreate{
+					ConnectorRef: "servicenow-connector",
+					TicketType:   "change_request",
+					CreateType:   "Standard",
+					TemplateName: "my-standard-template",
 				},
+			},
+			expected: map[string]interface{}{
+				"connector":             "servicenow-connector",
+				"ticket_type":           "change_request",
+				"create_ticket_options": "Standard Template",
+				"standard_template":     "my-standard-template",
 			},
 		},
 	}
@@ -155,9 +169,9 @@ func TestConvertStepServiceNowUpdate(t *testing.T) {
 				"ticket_type":          "incident",
 				"ticket_number":        "INC0010001",
 				"update_ticket_option": "Fields",
-				"fields": map[string]string{
-					"state":    "2",
-					"comments": "Updated by automation",
+				"fields": []map[string]string{
+					{"key": "state", "value": "2"},
+					{"key": "comments", "value": "Updated by automation"},
 				},
 			},
 		},
@@ -215,9 +229,9 @@ func TestConvertStepServiceNowUpdate(t *testing.T) {
 				"ticket_type":          "incident",
 				"ticket_number":        "INC0010002",
 				"update_ticket_option": "Fields",
-				"fields": map[string]string{
-					"work_notes":  "Investigation complete",
-					"assigned_to": "john.doe",
+				"fields": []map[string]string{
+					{"key": "work_notes", "value": "Investigation complete"},
+					{"key": "assigned_to", "value": "john.doe"},
 				},
 			},
 		},
@@ -228,7 +242,7 @@ func TestConvertStepServiceNowUpdate(t *testing.T) {
 					ConnectorRef:          "servicenow-connector",
 					TicketType:            "incident",
 					TicketNumber:          "INC0010003",
-					UseServiceNowTemplate: true,
+					UseServiceNowTemplate: &flexible.Field[bool]{Value: true},
 					Fields: []*v0.ServiceNowField{
 						{Name: "template_name", Value: "resolution_template"},
 					},
@@ -239,8 +253,57 @@ func TestConvertStepServiceNowUpdate(t *testing.T) {
 				"ticket_type":          "incident",
 				"ticket_number":        "INC0010003",
 				"update_ticket_option": "Template",
-				"fields": map[string]string{
-					"template_name": "resolution_template",
+				"fields": []map[string]string{
+					{"key": "template_name", "value": "resolution_template"},
+				},
+			},
+		},
+		{
+			name: "ServiceNow update with template name",
+			step: &v0.Step{
+				Spec: &v0.StepServiceNowUpdate{
+					ConnectorRef:          "servicenow-connector",
+					TicketType:            "change_request",
+					TicketNumber:          "CHG0001234",
+					UseServiceNowTemplate: &flexible.Field[bool]{Value: true},
+					TemplateName:          "my-update-template",
+				},
+			},
+			expected: map[string]interface{}{
+				"connector":            "servicenow-connector",
+				"ticket_type":          "change_request",
+				"ticket_number":        "CHG0001234",
+				"update_ticket_option": "Template",
+				"template":             "my-update-template",
+			},
+		},
+		{
+			name: "ServiceNow update multiple change tasks",
+			step: &v0.Step{
+				Spec: &v0.StepServiceNowUpdate{
+					ConnectorRef: "servicenow-connector",
+					TicketType:   "change_task",
+					UpdateMultiple: &v0.ServiceNowUpdateMultiple{
+						Type: "CHANGE_TASK",
+						Spec: &v0.ServiceNowUpdateMultipleSpec{
+							ChangeRequestNumber: "CHG0001234",
+							ChangeTaskType:      "implementation",
+						},
+					},
+					Fields: []*v0.ServiceNowField{
+						{Name: "state", Value: "3"},
+					},
+				},
+			},
+			expected: map[string]interface{}{
+				"connector":             "servicenow-connector",
+				"ticket_type":           "change_task",
+				"update_ticket_option":  "Fields",
+				"update_multiple":       true,
+				"change_request_number": "CHG0001234",
+				"change_task_type":      "implementation",
+				"fields": []map[string]string{
+					{"key": "state", "value": "3"},
 				},
 			},
 		},

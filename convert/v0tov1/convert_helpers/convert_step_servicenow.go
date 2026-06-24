@@ -16,18 +16,23 @@ func ConvertStepServiceNowCreate(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 
-	fields := map[string]string{}
+	var fields []map[string]string
 	for _, f := range sp.Fields {
 		if f == nil {
 			continue
 		}
-		fields[f.Name] = f.Value
+		fields = append(fields, map[string]string{"key": f.Name, "value": f.Value})
 	}
 
-	// Determine create_ticket_options based on createType
+	// Determine create_ticket_options based on createType.
+	// v0 createType (Normal|Form|Standard) maps to template options
+	// (Fields|Form Template|Standard Template).
 	createTicketOptions := "Fields"
-	if sp.CreateType != "" && sp.CreateType != "Normal" {
-		createTicketOptions = sp.CreateType
+	switch sp.CreateType {
+	case "Form":
+		createTicketOptions = "Form Template"
+	case "Standard":
+		createTicketOptions = "Standard Template"
 	}
 
 	with := map[string]interface{}{
@@ -39,8 +44,16 @@ func ConvertStepServiceNowCreate(src *v0.Step) *v1.StepTemplate {
 		with["fields"] = fields
 	}
 
-	// form_template: no v0 field
-	// standard_template: no v0 field
+	// templateName maps to form_template or standard_template based on createType
+	if sp.TemplateName != "" {
+		switch sp.CreateType {
+		case "Form":
+			with["form_template"] = sp.TemplateName
+		case "Standard":
+			with["standard_template"] = sp.TemplateName
+		}
+	}
+
 	// log_level: no v0 field; template default is "error"
 
 	return &v1.StepTemplate{
@@ -60,34 +73,52 @@ func ConvertStepServiceNowUpdate(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 
-	fields := map[string]string{}
+	var fields []map[string]string
 	for _, f := range sp.Fields {
 		if f == nil {
 			continue
 		}
-		fields[f.Name] = f.Value
+		fields = append(fields, map[string]string{"key": f.Name, "value": f.Value})
 	}
 
 	// Determine update_ticket_option based on useServiceNowTemplate
 	updateTicketOption := "Fields"
-	if sp.UseServiceNowTemplate {
-		updateTicketOption = "Template"
+	if sp.UseServiceNowTemplate != nil {
+		if val, ok := sp.UseServiceNowTemplate.AsStruct(); ok && val {
+			updateTicketOption = "Template"
+		}
 	}
 
 	with := map[string]interface{}{
 		"connector":            sp.ConnectorRef,
 		"ticket_type":          sp.TicketType,
-		"ticket_number":        sp.TicketNumber,
 		"update_ticket_option": updateTicketOption,
+	}
+	if sp.TicketNumber != "" {
+		with["ticket_number"] = sp.TicketNumber
 	}
 	if len(fields) > 0 {
 		with["fields"] = fields
 	}
 
-	// update_multiple: no v0 field; template default is false
-	// change_request_number: no v0 field
-	// change_task_type: no v0 field
-	// template: no v0 field
+	// templateName maps to template when useServiceNowTemplate is true
+	if sp.TemplateName != "" {
+		with["template"] = sp.TemplateName
+	}
+
+	// updateMultiple maps to update_multiple + change request details
+	if sp.UpdateMultiple != nil {
+		with["update_multiple"] = true
+		if spec := sp.UpdateMultiple.Spec; spec != nil {
+			if spec.ChangeRequestNumber != "" {
+				with["change_request_number"] = spec.ChangeRequestNumber
+			}
+			if spec.ChangeTaskType != "" {
+				with["change_task_type"] = spec.ChangeTaskType
+			}
+		}
+	}
+
 	// log_level: no v0 field; template default is "error"
 
 	return &v1.StepTemplate{

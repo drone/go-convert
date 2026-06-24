@@ -207,13 +207,69 @@ func ConvertEnvironment(src *v0.Environment, ctx *StageConversionContext) *v1.En
 	deployTo := resolveEnvironmentDeployTo(src)
 
 	item := &v1.EnvironmentItem{
-		Id:       src.EnvironmentRef,
-		DeployTo: deployTo,
+		Id:        src.EnvironmentRef,
+		DeployTo:  deployTo,
+		Overrides: buildEnvironmentOverrides(src.EnvironmentInputs, src.ServiceOverrideInputs),
 	}
 
 	return &v1.EnvironmentRef{
 		Items:    []*v1.EnvironmentItem{item},
 		MultiEnv: false,
+	}
+}
+
+// buildEnvironmentOverrides converts v0 environmentInputs and serviceOverrideInputs
+// into the v1 environment "overrides" block.
+//
+// environmentInputs    -> overrides.env-global
+// serviceOverrideInputs -> overrides.env-service
+//
+// When the inputs are a concrete struct, the value is wrapped as:
+//
+//	env-global:
+//	  with:
+//	    overlay:
+//	      <inputs>
+//
+// When the inputs are a runtime expression (e.g. <+input>), the key is set
+// directly to the expression string:
+//
+//	env-global: <+input>
+func buildEnvironmentOverrides(envInputs, serviceOverrideInputs interface{}) map[string]interface{} {
+	overrides := make(map[string]interface{})
+
+	if entry := buildOverrideEntry(envInputs); entry != nil {
+		overrides["env-global"] = entry
+	}
+	if entry := buildOverrideEntry(serviceOverrideInputs); entry != nil {
+		overrides["env-service"] = entry
+	}
+
+	if len(overrides) == 0 {
+		return nil
+	}
+	return overrides
+}
+
+// buildOverrideEntry builds a single override entry from v0 inputs.
+func buildOverrideEntry(inputs interface{}) interface{} {
+	if inputs == nil {
+		return nil
+	}
+
+	// Expression (e.g. <+input>) or empty string.
+	if str, ok := inputs.(string); ok {
+		if str == "" {
+			return nil
+		}
+		// Pass the expression through directly.
+		return str
+	}
+
+	return map[string]interface{}{
+		"with": map[string]interface{}{
+			"overlay": inputs,
+		},
 	}
 }
 
@@ -283,7 +339,8 @@ func ConvertEnvironments(src *v0.Environments, ctx *StageConversionContext) *v1.
 			continue
 		}
 		item := &v1.EnvironmentItem{
-			Id: env.EnvironmentRef,
+			Id:        env.EnvironmentRef,
+			Overrides: buildEnvironmentOverrides(env.EnvironmentInputs, env.ServiceOverrideInputs),
 		}
 		// Per-environment filters (infra-level filters on each env)
 		if env.Filters != nil {
@@ -418,8 +475,9 @@ func convertEnvironmentGroupEnvItems(envItems []*v0.Environment) []*v1.Environme
 
 		deployTo := resolveEnvironmentDeployTo(env)
 		items = append(items, &v1.EnvironmentItem{
-			Id:       env.EnvironmentRef,
-			DeployTo: deployTo,
+			Id:        env.EnvironmentRef,
+			DeployTo:  deployTo,
+			Overrides: buildEnvironmentOverrides(env.EnvironmentInputs, env.ServiceOverrideInputs),
 		})
 	}
 	return items
