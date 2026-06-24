@@ -1,6 +1,7 @@
 package converthelpers
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -43,7 +44,7 @@ type K8sCanaryDeleteWith struct {
 }
 
 type K8sDiffWith struct {
-	// Empty struct for steps with no specific configuration
+        	Flags []interface{} `json:"flags,omitempty"`
 }
 
 type K8sRolloutWith struct {
@@ -55,14 +56,15 @@ type K8sRolloutWith struct {
 }
 
 type K8sScaleWith struct {
-	UnitType             string                `json:"unit_type,omitempty"`
-	Instances            *flexible.Field[int]  `json:"instances,omitempty"`
+	UnitType             string                `json:"unit,omitempty"`
+	Instances            string                `json:"instances,omitempty"`
 	Workload             string                `json:"workload,omitempty"`
 	SkipSteadyStateCheck *flexible.Field[bool] `json:"skip_steady_state_check,omitempty"`
 }
 
 type K8sDryRunWith struct {
 	EncryptYamlOutput *flexible.Field[bool] `json:"encrypt_yaml_output,omitempty"`
+	Flags             []interface{}         `json:"flags,omitempty"`
 }
 
 type K8sDeleteWith struct {
@@ -75,38 +77,38 @@ type K8sDeleteWith struct {
 }
 
 type K8sTrafficRoutingWith struct {
-	Config       string        `json:"config_type,omitempty"`
-	Provider     string        `json:"provider,omitempty"`
-	Hosts        []interface{} `json:"hosts,omitempty"`
-	Gateways     []interface{} `json:"gateways,omitempty"`
-	Routes       string        `json:"routes,omitempty"`
-	ResourceName string        `json:"resource_name,omitempty"`
+	Config       string                    `json:"config_type,omitempty"`
+	Provider     string                    `json:"provider,omitempty"`
+	Hosts        *flexible.Field[[]string] `json:"hosts,omitempty"`
+	Gateways     *flexible.Field[[]string] `json:"gateways,omitempty"`
+	Routes       string                    `json:"routes,omitempty"`
+	ResourceName string                    `json:"resource_name,omitempty"`
 }
 
 type K8sCanaryDeployWith struct {
-	Provider     string                `json:"provider,omitempty"`
-	UnitType     string                `json:"unit_type,omitempty"`
-	Instances    *flexible.Field[int]  `json:"instances,omitempty"`
-	ResourceName string                `json:"resource_name,omitempty"`
-	Hosts        []interface{}         `json:"hosts,omitempty"`
-	Gateways     []interface{}         `json:"gateways,omitempty"`
-	Routes       string                `json:"routes,omitempty"`
-	SkipDryRun   *flexible.Field[bool] `json:"skip_dry_run,omitempty"`
-	TrafficShift bool                  `json:"traffic_shift,omitempty"`
-	Flags        []interface{}         `json:"flags,omitempty"`
+	Provider     string                    `json:"provider,omitempty"`
+	UnitType     string                    `json:"unit,omitempty"`
+	Instances    string                    `json:"instances,omitempty"`
+	ResourceName string                    `json:"resource_name,omitempty"`
+	Hosts        *flexible.Field[[]string] `json:"hosts,omitempty"`
+	Gateways     *flexible.Field[[]string] `json:"gateways,omitempty"`
+	Routes       string                    `json:"routes,omitempty"`
+	SkipDryRun   *flexible.Field[bool]     `json:"skip_dry_run,omitempty"`
+	TrafficShift bool                      `json:"traffic_shift,omitempty"`
+	Flags        []interface{}             `json:"flags,omitempty"`
 }
 
 type K8sBlueGreenDeployWith struct {
-	Provider              string                `json:"provider,omitempty"`
-	ResourceName          string                `json:"resource_name,omitempty"`
-	Hosts                 []interface{}         `json:"hosts,omitempty"`
-	Gateways              []interface{}         `json:"gateways,omitempty"`
-	Routes                string                `json:"routes,omitempty"`
-	SkipDryRun            *flexible.Field[bool] `json:"skip_dry_run,omitempty"`
-	Pruning               *flexible.Field[bool] `json:"pruning,omitempty"`
-	SkipUnchangedManifest *flexible.Field[bool] `json:"skip_unchanged_manifest,omitempty"`
-	TrafficShift          bool                  `json:"traffic_shift,omitempty"`
-	Flags                 []interface{}         `json:"flags,omitempty"`
+	Provider              string                    `json:"provider,omitempty"`
+	ResourceName          string                    `json:"resource_name,omitempty"`
+	Hosts                 *flexible.Field[[]string] `json:"hosts,omitempty"`
+	Gateways              *flexible.Field[[]string] `json:"gateways,omitempty"`
+	Routes                string                    `json:"routes,omitempty"`
+	SkipDryRun            *flexible.Field[bool]     `json:"skip_dry_run,omitempty"`
+	Pruning               *flexible.Field[bool]     `json:"pruning,omitempty"`
+	SkipUnchangedManifest *flexible.Field[bool]     `json:"skip_unchanged_manifest,omitempty"`
+	TrafficShift          bool                      `json:"traffic_shift,omitempty"`
+	Flags                 []interface{}             `json:"flags,omitempty"`
 }
 
 type K8sPatchWith struct {
@@ -114,7 +116,40 @@ type K8sPatchWith struct {
 	SkipSteadyStateCheck *flexible.Field[bool] `json:"skip_steady_state_check,omitempty" yaml:"skip_steady_state_check,omitempty"`
 	Content              string                `json:"content,omitempty" yaml:"content,omitempty"`
 	MergeStrategy        string                `json:"strategy,omitempty" yaml:"strategy,omitempty"` // merge | strategic | json
+	Flags                []interface{}         `json:"flags,omitempty" yaml:"flags,omitempty"`
+}
 
+// convertK8sCommandFlags maps v0 commandFlags (commandType + flag) to the
+// template's `flags` input shape (a list of {command, flag} objects). It always
+// returns a non-nil slice so the `flags` key is emitted consistently.
+func convertK8sCommandFlags(flags []*v0.K8sStepCommandFlag) []interface{} {
+	out := make([]interface{}, 0, len(flags))
+	for _, cf := range flags {
+		if cf == nil {
+			continue
+		}
+		out = append(out, map[string]string{
+			"command": cf.CommandType,
+			"flag":    cf.Flag,
+		})
+	}
+	return out
+}
+
+// instancesToString renders a v0 *flexible.Field[int] instance count/percentage
+// as a string, matching the template's string-typed `instances` input. Harness
+// expressions are passed through unchanged; integer values are formatted.
+func instancesToString(f *flexible.Field[int]) string {
+	if f == nil {
+		return ""
+	}
+	if expr, ok := f.AsString(); ok {
+		return expr
+	}
+	if v, ok := f.AsStruct(); ok {
+		return strconv.Itoa(v)
+	}
+	return ""
 }
 
 // ConvertStepK8sRollingDeploy converts a v0 K8sRollingDeploy step to v1 template spec only
@@ -128,7 +163,7 @@ func ConvertStepK8sRollingDeploy(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 	with := K8sRollingDeployWith{
-		Flags:      []interface{}{},
+		Flags:      convertK8sCommandFlags(spec.CommandFlags),
 		SkipDryRun: spec.SkipDryRun,
 		Pruning:    spec.PruningEnabled,
 	}
@@ -152,7 +187,7 @@ func ConvertStepK8sRollingRollback(src *v0.Step) *v1.StepTemplate {
 
 	with := K8sRollingRollbackWith{
 		Pruning: spec.PruningEnabled,
-		Flags:   []interface{}{},
+		Flags:   convertK8sCommandFlags(spec.CommandFlags),
 	}
 
 	return &v1.StepTemplate{
@@ -163,7 +198,6 @@ func ConvertStepK8sRollingRollback(src *v0.Step) *v1.StepTemplate {
 
 // ConvertStepK8sApply converts a v0 K8sApply step to v1 template spec only
 func ConvertStepK8sApply(src *v0.Step) *v1.StepTemplate {
-	// TODO: handle overrides and remote manifests
 	if src == nil || src.Spec == nil {
 		return nil
 	}
@@ -173,6 +207,16 @@ func ConvertStepK8sApply(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 
+	// Remote manifest sources and overrides are not supported yet; flag them so
+	// the user knows the conversion is incomplete.
+	if spec.ManifestSource != nil || spec.Overrides != nil {
+		messagelog.GetMessageLogger().LogError(
+			"UNSUPPORTED_K8S_APPLY_REMOTE_SOURCE",
+			"remote manifest sources and overrides in K8s Apply step are not supported by the converter; only inline filePaths are converted",
+			messagelog.WithStep(src.ID, src.Type),
+		)
+	}
+
 	// Map filePaths to manifests (list)
 	manifests := make([]interface{}, 0, len(spec.FilePaths))
 	for _, p := range spec.FilePaths {
@@ -180,11 +224,13 @@ func ConvertStepK8sApply(src *v0.Step) *v1.StepTemplate {
 		manifests = append(manifests, p)
 	}
 
+	// spec.SkipRendering is a feature gap: no template input exists for it, so it
+	// is intentionally left unmapped.
 	with := K8sApplyWith{
 		Manifests:            manifests,
 		SkipDryRun:           spec.SkipDryRun,
 		SkipSteadyStateCheck: spec.SkipSteadyStateCheck,
-		Flags:                []interface{}{},
+		Flags:                convertK8sCommandFlags(spec.CommandFlags),
 	}
 	return &v1.StepTemplate{
 		Uses: v1.StepTypeK8sApply,
@@ -273,14 +319,17 @@ func ConvertStepK8sDiff(src *v0.Step) *v1.StepTemplate {
 	if src == nil {
 		return nil
 	}
-	// spec is empty per example; type-assert when present
+
+	with := K8sDiffWith{Flags: []interface{}{}}
+
+	// type-assert when present so we can map command flags
 	if src.Spec != nil {
-		if _, ok := src.Spec.(*v0.StepK8sDiff); !ok {
+		spec, ok := src.Spec.(*v0.StepK8sDiff)
+		if !ok {
 			return nil
 		}
+		with.Flags = convertK8sCommandFlags(spec.CommandFlags)
 	}
-
-	with := K8sDiffWith{}
 
 	return &v1.StepTemplate{
 		Uses: v1.StepTypeK8sDiff,
@@ -326,7 +375,7 @@ func ConvertStepK8sRollout(src *v0.Step) *v1.StepTemplate {
 	with := K8sRolloutWith{
 		Command:                sp.Command,
 		SelectRolloutResources: sel,
-		Flags:                  []interface{}{},
+		Flags:                  convertK8sCommandFlags(sp.CommandFlags),
 	}
 
 	if len(resourcesList) > 0 {
@@ -353,7 +402,7 @@ func ConvertStepK8sScale(src *v0.Step) *v1.StepTemplate {
 	}
 
 	unittype := ""
-	instances := &flexible.Field[int]{}
+	var instances *flexible.Field[int]
 	if sel := sp.InstanceSelection; sel != nil {
 		switch sel.Type {
 		case "Count":
@@ -371,7 +420,7 @@ func ConvertStepK8sScale(src *v0.Step) *v1.StepTemplate {
 
 	with := K8sScaleWith{
 		UnitType:             unittype,
-		Instances:            instances,
+		Instances:            instancesToString(instances),
 		Workload:             sp.Workload,
 		SkipSteadyStateCheck: sp.SkipSteadyStateCheck,
 	}
@@ -394,6 +443,7 @@ func ConvertStepK8sDryRun(src *v0.Step) *v1.StepTemplate {
 
 	with := K8sDryRunWith{
 		EncryptYamlOutput: sp.EncryptYamlOutput,
+		Flags:             convertK8sCommandFlags(sp.CommandFlags),
 	}
 
 	return &v1.StepTemplate{
@@ -442,7 +492,7 @@ func ConvertStepK8sDelete(src *v0.Step) *v1.StepTemplate {
 	with := K8sDeleteWith{
 		SelectDeleteResources: sel,
 		DeleteNamespaces:      deleteNamespace,
-		Flags:                 []interface{}{},
+		Flags:                 convertK8sCommandFlags(sp.CommandFlags),
 	}
 
 	// Set the appropriate field based on selection type
@@ -473,43 +523,37 @@ func ConvertStepK8sTrafficRouting(src *v0.Step) *v1.StepTemplate {
 	}
 
 	// Default values
-	hosts := []interface{}{}
-	gateways := []interface{}{}
+	var hosts *flexible.Field[[]string]
+	var gateways *flexible.Field[[]string]
 	provider := ""
 	resourceName := ""
 	routes := ""
 
+	// Map the v0 config type (inherit|config) to the plugin config_type
+	// (update|new): a fresh "config" creates the resource, while "inherit"
+	// patches weights on an existing one.
+	config := mapTrafficConfigType(spec.Type)
+
 	// Extract traffic routing configuration
 	if spec.TrafficRouting != nil {
-		provider = spec.TrafficRouting.Provider
+		provider = mapTrafficProvider(spec.TrafficRouting.Provider, src)
 
 		if spec.TrafficRouting.Spec != nil {
 			routingSpec := spec.TrafficRouting.Spec
 			resourceName = routingSpec.Name
+			hosts = routingSpec.Hosts
+			gateways = routingSpec.Gateways
+			routes = trafficRoutesToString(routingSpec.Routes)
+		}
 
-			// Handle hosts - can be string, array, or <+input>
-			if routingSpec.Hosts != nil {
-				hosts = []interface{}{}
-			}
-
-			// Handle gateways - can be string, array, or <+input>
-			if routingSpec.Gateways != nil {
-				gateways = []interface{}{}
-			}
-
-			// Convert routes using the reusable function
-			if routingSpec.Routes != nil {
-				if routesList, ok := routingSpec.Routes.AsStruct(); ok && len(routesList) > 0 {
-					routes = ConvertTrafficRoutingRoutes(routesList)
-				} else if routeExpr, ok := routingSpec.Routes.AsString(); ok {
-					routes = routeExpr
-				}
-			}
+		// "inherit" config type carries routes directly under trafficRouting.
+		if routes == "" {
+			routes = trafficRoutesToString(spec.TrafficRouting.Routes)
 		}
 	}
 
 	with := K8sTrafficRoutingWith{
-		Config:       "new",
+		Config:       config,
 		Provider:     provider,
 		Hosts:        hosts,
 		Gateways:     gateways,
@@ -523,77 +567,257 @@ func ConvertStepK8sTrafficRouting(src *v0.Step) *v1.StepTemplate {
 	}
 }
 
-// ConvertTrafficRoutingRoutes converts v0 traffic routing routes to v1 JSON string format
-// This is a reusable function for converting route configurations
+// mapTrafficConfigType maps the v0 traffic routing config type (inherit|config)
+// to the plugin's config_type (update|new).
+func mapTrafficConfigType(configType string) string {
+	if strings.EqualFold(strings.TrimSpace(configType), "inherit") {
+		return "update"
+	}
+	return "new"
+}
+
+// mapTrafficProvider maps the v0 provider (istio|smi) to the value accepted by
+// the k8s-traffic-shift plugin (istio|k8s-native). SMI is not supported: it is
+// reported as an error and not emitted. Unknown values (including expressions)
+// pass through.
+//
+// Feature gaps: the SMI-only `rootService` and the Istio-only `delegateService`
+// fields on K8sTrafficRoutingSpec have no template input and are not converted.
+func mapTrafficProvider(provider string, src *v0.Step) string {
+	switch strings.ToLower(strings.TrimSpace(provider)) {
+	case "smi":
+		if src != nil {
+			messagelog.GetMessageLogger().LogError(
+				"UNSUPPORTED_K8S_TRAFFIC_ROUTING_PROVIDER",
+				"traffic routing provider \"smi\" is not supported by the k8s-traffic-shift plugin",
+				messagelog.WithStep(src.ID, src.Type),
+			)
+		}
+		return ""
+	case "istio":
+		return "istio"
+	default:
+		return provider
+	}
+}
+
+// trafficRoutesToString converts a flexible routes field (struct list or
+// expression string) into the plugin's PLUGIN_ROUTES JSON string.
+func trafficRoutesToString(routes *flexible.Field[[]*v0.K8sTrafficRoutingRoute]) string {
+	if routes == nil {
+		return ""
+	}
+	if routesList, ok := routes.AsStruct(); ok && len(routesList) > 0 {
+		return ConvertTrafficRoutingRoutes(routesList)
+	}
+	if routeExpr, ok := routes.AsString(); ok {
+		return routeExpr
+	}
+	return ""
+}
+
+// The following structs mirror the JSON contract consumed by the
+// k8s-traffic-shift plugin (PLUGIN_ROUTES -> []RouteImpl). They are the
+// serialization target of ConvertTrafficRoutingRoutes.
+type trafficRouteJSON struct {
+	Type         string                   `json:"type,omitempty"`
+	Name         string                   `json:"name,omitempty"`
+	Matches      []trafficMatchJSON       `json:"matches,omitempty"`
+	Filters      []trafficFilterJSON      `json:"filters,omitempty"`
+	Destinations []trafficDestinationJSON `json:"destinations,omitempty"`
+}
+
+type trafficDestinationJSON struct {
+	Host   string `json:"host,omitempty"`
+	Port   *int   `json:"port,omitempty"`
+	Weight *int   `json:"weight,omitempty"`
+}
+
+type trafficMatchJSON struct {
+	Path      *trafficMatchValueJSON   `json:"path,omitempty"`
+	Scheme    *trafficMatchValueJSON   `json:"scheme,omitempty"`
+	Method    *trafficMatchValueJSON   `json:"method,omitempty"`
+	Authority *trafficMatchValueJSON   `json:"authority,omitempty"`
+	Headers   []trafficMatchHeaderJSON `json:"headers,omitempty"`
+	Port      *int                     `json:"port,omitempty"`
+}
+
+type trafficMatchValueJSON struct {
+	MatchType string `json:"type,omitempty"`
+	Value     string `json:"value,omitempty"`
+}
+
+type trafficMatchHeaderJSON struct {
+	MatchType string `json:"type,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Value     string `json:"value,omitempty"`
+}
+
+type trafficFilterJSON struct {
+	URLRewrite *trafficURLRewriteJSON `json:"url-rewrite,omitempty"`
+}
+
+type trafficURLRewriteJSON struct {
+	Hostname *string `json:"hostname,omitempty"`
+	Path     *string `json:"path,omitempty"`
+}
+
+// ConvertTrafficRoutingRoutes converts v0 traffic routing routes to the JSON
+// string format consumed by the k8s-traffic-shift plugin (PLUGIN_ROUTES). It
+// emits each route's destinations, match conditions (from v0 rules) and URL
+// rewrite filter (from rewriteRule). This is a reusable function shared by the
+// standalone, canary and blue-green converters.
 func ConvertTrafficRoutingRoutes(routes []*v0.K8sTrafficRoutingRoute) string {
 	if len(routes) == 0 {
-		return "[]"
+		return ""
 	}
 
-	// Build the routes array for JSON serialization
-	var routesArray []map[string]interface{}
+	var out []trafficRouteJSON
 	for _, route := range routes {
 		if route == nil || route.Route == nil {
 			continue
 		}
-
 		routeSpec := route.Route
-		routeMap := map[string]interface{}{
-			"name": routeSpec.Name,
+
+		rj := trafficRouteJSON{
+			Type: "http",
+			Name: routeSpec.Name,
 		}
 
-		// Convert destinations
-		if len(routeSpec.Destinations) > 0 {
-			var destinations []map[string]interface{}
-			for _, dest := range routeSpec.Destinations {
-				if dest == nil || dest.Destination == nil {
+		for _, dest := range routeSpec.Destinations {
+			if dest == nil || dest.Destination == nil {
+				continue
+			}
+			rj.Destinations = append(rj.Destinations, trafficDestinationJSON{
+				Host:   dest.Destination.Host,
+				Port:   dest.Destination.Port,
+				Weight: dest.Destination.Weight,
+			})
+		}
+
+		rj.Matches = convertTrafficRoutingMatches(routeSpec.Rules, routeSpec.MatchAllRules)
+
+		if routeSpec.RewriteRule != "" {
+			path := routeSpec.RewriteRule
+			rj.Filters = append(rj.Filters, trafficFilterJSON{
+				URLRewrite: &trafficURLRewriteJSON{Path: &path},
+			})
+		}
+
+		out = append(out, rj)
+	}
+
+	if len(out) == 0 {
+		return ""
+	}
+
+	encoded, err := json.Marshal(out)
+	if err != nil {
+		return ""
+	}
+	return string(encoded)
+}
+
+// convertTrafficRoutingMatches translates v0 route rules into the plugin's
+// match conditions. When matchAllRules is true all rules are ANDed into a
+// single match; otherwise each rule becomes its own (ORed) match entry.
+func convertTrafficRoutingMatches(rules []*v0.K8sTrafficRoutingRule, matchAllRules bool) []trafficMatchJSON {
+	if len(rules) == 0 {
+		return nil
+	}
+
+	apply := func(m *trafficMatchJSON, rule *v0.K8sTrafficRoutingRule) {
+		if rule == nil || rule.Rule == nil || rule.Rule.Spec == nil {
+			return
+		}
+		spec := rule.Rule.Spec
+		matchType := normalizeMatchType(spec.MatchType)
+		switch strings.ToLower(rule.Rule.Type) {
+		case "uri":
+			m.Path = &trafficMatchValueJSON{MatchType: matchType, Value: trafficValueToString(spec.Value)}
+		case "scheme":
+			m.Scheme = &trafficMatchValueJSON{MatchType: matchType, Value: trafficValueToString(spec.Value)}
+		case "method":
+			m.Method = &trafficMatchValueJSON{MatchType: matchType, Value: trafficValueToString(spec.Value)}
+		case "authority":
+			m.Authority = &trafficMatchValueJSON{MatchType: matchType, Value: trafficValueToString(spec.Value)}
+		case "port":
+			if port, ok := trafficValueToInt(spec.Value); ok {
+				m.Port = &port
+			}
+		case "headers":
+			for _, header := range spec.Values {
+				if header == nil {
 					continue
 				}
-				destMap := map[string]interface{}{
-					"host":   dest.Destination.Host,
-					"weight": dest.Destination.Weight,
-					"port":   dest.Destination.Port,
-				}
-				destinations = append(destinations, destMap)
+				m.Headers = append(m.Headers, trafficMatchHeaderJSON{
+					MatchType: normalizeMatchType(header.MatchType),
+					Name:      header.Key,
+					Value:     header.Value,
+				})
 			}
-			routeMap["destinations"] = destinations
 		}
-
-		routesArray = append(routesArray, routeMap)
 	}
 
-	// Convert to JSON string format as expected by v1
-	// For simplicity, we'll build the JSON string manually since the format is predictable
-	if len(routesArray) == 0 {
-		return "[]"
+	if matchAllRules {
+		var match trafficMatchJSON
+		for _, rule := range rules {
+			apply(&match, rule)
+		}
+		return []trafficMatchJSON{match}
 	}
 
-	// Build JSON string manually for the expected format
-	jsonStr := "["
-	for i, route := range routesArray {
-		if i > 0 {
-			jsonStr += ","
-		}
-		jsonStr += `{"name":"` + route["name"].(string) + `"`
-		if destinations, ok := route["destinations"].([]map[string]interface{}); ok && len(destinations) > 0 {
-			jsonStr += `,"destinations":[`
-			for j, dest := range destinations {
-				if j > 0 {
-					jsonStr += ","
-				}
-				hostWeight := `{"host":"` + dest["host"].(string) + `","weight":` + strconv.Itoa(dest["weight"].(int))
-				if port, ok := dest["port"].(int); ok && port > 0 {
-					hostWeight += `,"port":` + strconv.Itoa(port)
-				}
-				jsonStr += hostWeight + `}`
-			}
-			jsonStr += `]`
-		}
-		jsonStr += `}`
+	var matches []trafficMatchJSON
+	for _, rule := range rules {
+		var match trafficMatchJSON
+		apply(&match, rule)
+		matches = append(matches, match)
 	}
-	jsonStr += "]"
+	return matches
+}
 
-	return jsonStr
+// normalizeMatchType lowercases the v0 match type to the plugin's expected
+// values (exact|prefix|regex), defaulting to "exact" to match harness-core.
+func normalizeMatchType(matchType string) string {
+	if strings.TrimSpace(matchType) == "" {
+		return "exact"
+	}
+	return strings.ToLower(matchType)
+}
+
+// trafficValueToString renders a rule value (string or numeric) as a string.
+func trafficValueToString(value interface{}) string {
+	switch v := value.(type) {
+	case nil:
+		return ""
+	case string:
+		return v
+	case int:
+		return strconv.Itoa(v)
+	case int64:
+		return strconv.FormatInt(v, 10)
+	case float64:
+		return strconv.FormatInt(int64(v), 10)
+	default:
+		return fmt.Sprintf("%v", v)
+	}
+}
+
+// trafficValueToInt extracts an int from a rule value (used for the port rule).
+func trafficValueToInt(value interface{}) (int, bool) {
+	switch v := value.(type) {
+	case int:
+		return v, true
+	case int64:
+		return int(v), true
+	case float64:
+		return int(v), true
+	case string:
+		if n, err := strconv.Atoi(strings.TrimSpace(v)); err == nil {
+			return n, true
+		}
+	}
+	return 0, false
 }
 
 // ConvertStepK8sCanaryDeploy converts a v0 K8sCanaryDeploy step to v1 template spec only
@@ -608,8 +832,8 @@ func ConvertStepK8sCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 	}
 
 	// Default values
-	hosts := []interface{}{}
-	gateways := []interface{}{}
+	var hosts *flexible.Field[[]string]
+	var gateways *flexible.Field[[]string]
 	provider := ""
 	resourceName := ""
 	routes := ""
@@ -636,34 +860,33 @@ func ConvertStepK8sCanaryDeploy(src *v0.Step) *v1.StepTemplate {
 	trafficShift := false
 	if spec.TrafficRouting != nil {
 		trafficShift = true
-		provider = spec.TrafficRouting.Provider
+		provider = mapTrafficProvider(spec.TrafficRouting.Provider, src)
 
 		if spec.TrafficRouting.Spec != nil {
 			routingSpec := spec.TrafficRouting.Spec
 			resourceName = routingSpec.Name
+			hosts = routingSpec.Hosts
+			gateways = routingSpec.Gateways
+			routes = trafficRoutesToString(routingSpec.Routes)
+		}
 
-			// Convert routes using the reusable function
-			if routingSpec.Routes != nil {
-				if routesList, ok := routingSpec.Routes.AsStruct(); ok && len(routesList) > 0 {
-					routes = ConvertTrafficRoutingRoutes(routesList)
-				} else if routeExpr, ok := routingSpec.Routes.AsString(); ok {
-					routes = routeExpr
-				}
-			}
+		// "inherit" config type carries routes directly under trafficRouting.
+		if routes == "" {
+			routes = trafficRoutesToString(spec.TrafficRouting.Routes)
 		}
 	}
 
 	with := K8sCanaryDeployWith{
 		Provider:     provider,
 		UnitType:     unitType,
-		Instances:    instances,
+		Instances:    instancesToString(instances),
 		ResourceName: resourceName,
 		Hosts:        hosts,
 		Gateways:     gateways,
 		Routes:       routes,
 		SkipDryRun:   spec.SkipDryRun,
 		TrafficShift: trafficShift,
-		Flags:        []interface{}{},
+		Flags:        convertK8sCommandFlags(spec.CommandFlags),
 	}
 
 	return &v1.StepTemplate{
@@ -684,8 +907,8 @@ func ConvertStepK8sBlueGreenDeploy(src *v0.Step) *v1.StepTemplate {
 	}
 
 	// Default values for simple blue-green deploy
-	hosts := []interface{}{}
-	gateways := []interface{}{}
+	var hosts *flexible.Field[[]string]
+	var gateways *flexible.Field[[]string]
 	provider := ""
 	resourceName := ""
 	routes := ""
@@ -694,31 +917,19 @@ func ConvertStepK8sBlueGreenDeploy(src *v0.Step) *v1.StepTemplate {
 	trafficShift := false
 	if spec.TrafficRouting != nil {
 		trafficShift = true
-		provider = spec.TrafficRouting.Provider
+		provider = mapTrafficProvider(spec.TrafficRouting.Provider, src)
 
 		if spec.TrafficRouting.Spec != nil {
 			routingSpec := spec.TrafficRouting.Spec
 			resourceName = routingSpec.Name
+			hosts = routingSpec.Hosts
+			gateways = routingSpec.Gateways
+			routes = trafficRoutesToString(routingSpec.Routes)
+		}
 
-			if routingSpec.Hosts != nil {
-				if hostList, ok := routingSpec.Hosts.([]interface{}); ok {
-					hosts = hostList
-				}
-			}
-
-			if routingSpec.Gateways != nil {
-				if gatewayList, ok := routingSpec.Gateways.([]interface{}); ok {
-					gateways = gatewayList
-				}
-			}
-
-			if routingSpec.Routes != nil {
-				if routesList, ok := routingSpec.Routes.AsStruct(); ok && len(routesList) > 0 {
-					routes = ConvertTrafficRoutingRoutes(routesList)
-				} else if routeExpr, ok := routingSpec.Routes.AsString(); ok {
-					routes = routeExpr
-				}
-			}
+		// "inherit" config type carries routes directly under trafficRouting.
+		if routes == "" {
+			routes = trafficRoutesToString(spec.TrafficRouting.Routes)
 		}
 	}
 
@@ -732,7 +943,7 @@ func ConvertStepK8sBlueGreenDeploy(src *v0.Step) *v1.StepTemplate {
 		Pruning:               spec.PruningEnabled,
 		SkipUnchangedManifest: spec.SkipUnchangedManifest,
 		TrafficShift:          trafficShift,
-		Flags:                 []interface{}{},
+		Flags:                 convertK8sCommandFlags(spec.CommandFlags),
 	}
 
 	return &v1.StepTemplate{
@@ -756,6 +967,7 @@ func ConvertStepK8sPatch(src *v0.Step) *v1.StepTemplate {
 		Workload:             spec.Workload,
 		SkipSteadyStateCheck: spec.SkipSteadyStateCheck,
 		MergeStrategy:        strings.ToLower(spec.MergeStrategy),
+		Flags:                convertK8sCommandFlags(spec.CommandFlags),
 	}
 	if spec.Source != nil {
 		switch spec.Source.Type {
@@ -764,9 +976,11 @@ func ConvertStepK8sPatch(src *v0.Step) *v1.StepTemplate {
 				with.Content = source.Content
 			}
 		default:
-			messagelog.GetMessageLogger().LogWarning(
+			// Non-inline (remote/git/Harness) patch sources are not supported; the
+			// other source types are ignored.
+			messagelog.GetMessageLogger().LogError(
 				"UNSUPPORTED_K8S_PATCH_SOURCE",
-				fmt.Sprintf("conversion for Source type %q in K8s Patch step is not yet supported", spec.Source.Type),
+				fmt.Sprintf("conversion for Source type %q in K8s Patch step is not supported", spec.Source.Type),
 				messagelog.WithStep(src.ID, src.Type),
 			)
 		}

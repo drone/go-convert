@@ -8,25 +8,37 @@ import (
 
 type (
 
+	K8sStepCommandFlag struct {
+		CommandType string `json:"commandType,omitempty" yaml:"commandType,omitempty"`
+		Flag        string `json:"flag,omitempty" yaml:"flag,omitempty"`
+	}
+
 	StepK8sRollingDeploy struct {
 		CommonStepSpec
 		SkipDryRun     *flexible.Field[bool] `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
 		PruningEnabled *flexible.Field[bool] `json:"pruningEnabled,omitempty" yaml:"pruningEnabled,omitempty"`
+		CommandFlags   []*K8sStepCommandFlag `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 
 	StepK8sRollingRollback struct {
 		CommonStepSpec
 		PruningEnabled *flexible.Field[bool] `json:"pruningEnabled,omitempty" yaml:"pruningEnabled,omitempty"`
+		CommandFlags   []*K8sStepCommandFlag `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 
 	StepK8sApply struct {
-		// TODO: Handle remote manifests and ovrrides
 		CommonStepSpec
-		SkipDryRun           *flexible.Field[bool]          `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
-		SkipSteadyStateCheck *flexible.Field[bool]          `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
-		SkipRendering        *flexible.Field[bool]          `json:"skipRendering,omitempty" yaml:"skipRendering,omitempty"`
-		// Overrides            *flexible.Field[[]interface{}] `json:"overrides,omitempty" yaml:"overrides,omitempty"`
-		FilePaths            []string     `json:"filePaths,omitempty" yaml:"filePaths,omitempty"`
+		SkipDryRun           *flexible.Field[bool] `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
+		SkipSteadyStateCheck *flexible.Field[bool] `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
+		// SkipRendering is a feature gap: present in v0 but the k8sApplyStep template
+		// has no corresponding input, so it is intentionally not mapped.
+		SkipRendering *flexible.Field[bool]  `json:"skipRendering,omitempty" yaml:"skipRendering,omitempty"`
+		FilePaths     []string               `json:"filePaths,omitempty" yaml:"filePaths,omitempty"`
+		CommandFlags  []*K8sStepCommandFlag  `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
+		// ManifestSource (remote manifests) and Overrides are captured only to detect
+		// and report them as unsupported; they are not converted yet.
+		ManifestSource interface{} `json:"manifestSource,omitempty" yaml:"manifestSource,omitempty"`
+		Overrides      interface{} `json:"overrides,omitempty" yaml:"overrides,omitempty"`
 	}
 
 	StepK8sBGSwapServices struct {
@@ -42,7 +54,8 @@ type (
 	// CD: K8s Delete
 	StepK8sDelete struct {
 		CommonStepSpec
-		DeleteResources *K8sDeleteResources `json:"deleteResources,omitempty" yaml:"deleteResources,omitempty"`
+		DeleteResources *K8sDeleteResources   `json:"deleteResources,omitempty" yaml:"deleteResources,omitempty"`
+		CommandFlags    []*K8sStepCommandFlag `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 
 	// K8sDeleteResources captures the delete selection and its spec.
@@ -69,13 +82,15 @@ type (
 	// CD: K8s Diff
 	StepK8sDiff struct {
 		CommonStepSpec
+		CommandFlags []*K8sStepCommandFlag `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 
 	// CD: K8s Rollout
 	StepK8sRollout struct {
 		CommonStepSpec
-		Command   string               `json:"command,omitempty" yaml:"command,omitempty"`
-		Resources *K8sRolloutResources `json:"resources,omitempty" yaml:"resources,omitempty"`
+		Command      string                `json:"command,omitempty" yaml:"command,omitempty"`
+		Resources    *K8sRolloutResources  `json:"resources,omitempty" yaml:"resources,omitempty"`
+		CommandFlags []*K8sStepCommandFlag `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 
 	K8sRolloutResources struct {
@@ -111,6 +126,7 @@ type (
 	StepK8sDryRun struct {
 		CommonStepSpec
 		EncryptYamlOutput *flexible.Field[bool] `json:"encryptYamlOutput,omitempty" yaml:"encryptYamlOutput,omitempty"`
+		CommandFlags      []*K8sStepCommandFlag `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 
 	// CD: K8s Traffic Routing
@@ -123,14 +139,23 @@ type (
 	K8sTrafficRoutingConfig struct {
 		Provider string                 `json:"provider,omitempty" yaml:"provider,omitempty"`
 		Spec     *K8sTrafficRoutingSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
+		// Routes is only populated for the "inherit" config type, where routes
+		// (name + destinations) are specified directly under trafficRouting
+		// rather than under a provider spec.
+		Routes *flexible.Field[[]*K8sTrafficRoutingRoute] `json:"routes,omitempty" yaml:"routes,omitempty"`
 	}
 
 	K8sTrafficRoutingSpec struct {
-		Name        string                    `json:"name,omitempty" yaml:"name,omitempty"`
+		Name string `json:"name,omitempty" yaml:"name,omitempty"`
+		// RootService (SMI-only) is a feature gap: no k8s-traffic-shift template
+		// input exists for it, so it is intentionally not converted.
 		RootService string                    `json:"rootService,omitempty" yaml:"rootService,omitempty"`
-		Hosts       interface{}               `json:"hosts,omitempty" yaml:"hosts,omitempty"`
-		Gateways    interface{}               `json:"gateways,omitempty" yaml:"gateways,omitempty"`
-		Routes      *flexible.Field[[]*K8sTrafficRoutingRoute] `json:"routes,omitempty" yaml:"routes,omitempty"`
+		Hosts       *flexible.Field[[]string] `json:"hosts,omitempty" yaml:"hosts,omitempty"`
+		Gateways    *flexible.Field[[]string] `json:"gateways,omitempty" yaml:"gateways,omitempty"`
+		// DelegateService (Istio-only) is a feature gap: no k8s-traffic-shift
+		// template input exists for it, so it is intentionally not converted.
+		DelegateService *flexible.Field[bool]                      `json:"delegateService,omitempty" yaml:"delegateService,omitempty"`
+		Routes          *flexible.Field[[]*K8sTrafficRoutingRoute] `json:"routes,omitempty" yaml:"routes,omitempty"`
 	}
 
 	K8sTrafficRoutingRoute struct {
@@ -138,9 +163,12 @@ type (
 	}
 
 	K8sTrafficRoutingRouteSpec struct {
-		Type         string                          `json:"type,omitempty" yaml:"type,omitempty"`
-		Name         string                          `json:"name,omitempty" yaml:"name,omitempty"`
-		Destinations []*K8sTrafficRoutingDestination `json:"destinations,omitempty" yaml:"destinations,omitempty"`
+		Type          string                          `json:"type,omitempty" yaml:"type,omitempty"` // only "http" is supported
+		Name          string                          `json:"name,omitempty" yaml:"name,omitempty"`
+		Destinations  []*K8sTrafficRoutingDestination `json:"destinations,omitempty" yaml:"destinations,omitempty"`
+		Rules         []*K8sTrafficRoutingRule        `json:"rules,omitempty" yaml:"rules,omitempty"`
+		RewriteRule   string                          `json:"rewriteRule,omitempty" yaml:"rewriteRule,omitempty"`
+		MatchAllRules bool                            `json:"matchAllRules,omitempty" yaml:"matchAllRules,omitempty"`
 	}
 
 	K8sTrafficRoutingDestination struct {
@@ -149,25 +177,51 @@ type (
 
 	K8sTrafficRoutingDestinationSpec struct {
 		Host   string `json:"host,omitempty" yaml:"host,omitempty"`
-		Weight int    `json:"weight,omitempty" yaml:"weight,omitempty"`
-		Port   int    `json:"port,omitempty" yaml:"port,omitempty"`
+		Weight *int   `json:"weight,omitempty" yaml:"weight,omitempty"`
+		Port   *int   `json:"port,omitempty" yaml:"port,omitempty"`
+	}
+
+	K8sTrafficRoutingRule struct {
+		Rule *K8sTrafficRoutingRuleWrapper `json:"rule,omitempty" yaml:"rule,omitempty"`
+	}
+
+	// K8sTrafficRoutingRuleWrapper mirrors the harness-core EXTERNAL_PROPERTY
+	// polymorphism: the discriminator `type` is a sibling of `spec`.
+	K8sTrafficRoutingRuleWrapper struct {
+		Type string                     `json:"type,omitempty" yaml:"type,omitempty"` // uri | scheme | method | authority | headers | port
+		Spec *K8sTrafficRoutingRuleSpec `json:"spec,omitempty" yaml:"spec,omitempty"`
+	}
+
+	K8sTrafficRoutingRuleSpec struct {
+		Name      string                       `json:"name,omitempty" yaml:"name,omitempty"`
+		Value     interface{}                  `json:"value,omitempty" yaml:"value,omitempty"`         // string (uri/scheme/method/authority) or int (port)
+		MatchType string                       `json:"matchType,omitempty" yaml:"matchType,omitempty"` // exact | prefix | regex
+		Values    []*K8sTrafficRoutingHeader   `json:"values,omitempty" yaml:"values,omitempty"`       // for headers rule
+	}
+
+	K8sTrafficRoutingHeader struct {
+		Key       string `json:"key,omitempty" yaml:"key,omitempty"`
+		Value     string `json:"value,omitempty" yaml:"value,omitempty"`
+		MatchType string `json:"matchType,omitempty" yaml:"matchType,omitempty"`
 	}
 
 	// CD: K8s Canary Deploy
 	StepK8sCanaryDeploy struct {
 		CommonStepSpec
-		SkipDryRun        *flexible.Field[bool]                     `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
-		InstanceSelection *K8sScaleInstanceSelection    `json:"instanceSelection,omitempty" yaml:"instanceSelection,omitempty"`
-		TrafficRouting    *K8sTrafficRoutingConfig `json:"trafficRouting,omitempty" yaml:"trafficRouting,omitempty"`
+		SkipDryRun        *flexible.Field[bool]      `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
+		InstanceSelection *K8sScaleInstanceSelection `json:"instanceSelection,omitempty" yaml:"instanceSelection,omitempty"`
+		TrafficRouting    *K8sTrafficRoutingConfig   `json:"trafficRouting,omitempty" yaml:"trafficRouting,omitempty"`
+		CommandFlags      []*K8sStepCommandFlag      `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 
 	// CD: K8s Blue Green Deploy
 	StepK8sBlueGreenDeploy struct {
 		CommonStepSpec
-		SkipDryRun            *flexible.Field[bool]                      `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
-		PruningEnabled        *flexible.Field[bool]                      `json:"pruningEnabled,omitempty" yaml:"pruningEnabled,omitempty"`
-		SkipUnchangedManifest *flexible.Field[bool]                      `json:"skipUnchangedManifest,omitempty" yaml:"skipUnchangedManifest,omitempty"`
+		SkipDryRun            *flexible.Field[bool]    `json:"skipDryRun,omitempty" yaml:"skipDryRun,omitempty"`
+		PruningEnabled        *flexible.Field[bool]    `json:"pruningEnabled,omitempty" yaml:"pruningEnabled,omitempty"`
+		SkipUnchangedManifest *flexible.Field[bool]    `json:"skipUnchangedManifest,omitempty" yaml:"skipUnchangedManifest,omitempty"`
 		TrafficRouting        *K8sTrafficRoutingConfig `json:"trafficRouting,omitempty" yaml:"trafficRouting,omitempty"`
+		CommandFlags          []*K8sStepCommandFlag    `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 
 	// CD: K8s Patch
@@ -175,9 +229,10 @@ type (
 		CommonStepSpec
 		Workload             string                `json:"workload,omitempty" yaml:"workload,omitempty"`
 		MergeStrategy        string                `json:"mergeStrategyType,omitempty" yaml:"mergeStrategyType,omitempty"` // Json | Strategic | Merge
-		Source               *RemoteSource          `json:"source,omitempty" yaml:"source,omitempty"`
+		Source               *RemoteSource         `json:"source,omitempty" yaml:"source,omitempty"`
 		RecordChangeCause    *flexible.Field[bool] `json:"recordChangeCause,omitempty" yaml:"recordChangeCause,omitempty"`
 		SkipSteadyStateCheck *flexible.Field[bool] `json:"skipSteadyStateCheck,omitempty" yaml:"skipSteadyStateCheck,omitempty"`
+		CommandFlags         []*K8sStepCommandFlag `json:"commandFlags,omitempty" yaml:"commandFlags,omitempty"`
 	}
 
 	RemoteSource struct {
