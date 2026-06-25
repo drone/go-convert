@@ -285,3 +285,157 @@ func TestUseFromStage_ServiceOnlyFromPreviousStage(t *testing.T) {
 		t.Errorf("expected environment 'env-gamma' (own), got %v", second.Environment)
 	}
 }
+
+// V0 K8s stages carry OS on infrastructure.spec.os. V1 sources K8s stage OS from platform.os
+// (runtime.kubernetes.os is no longer a valid V1 field). The converter must lift infra.spec.os
+// up to stage.Platform.Os so the converted pipeline runs on the correct OS.
+func TestConvertCIStage_K8sInfraOsLiftedToPlatform_Windows(t *testing.T) {
+	converter := NewPipelineConverter()
+
+	stage := &v0.Stage{
+		ID:   "Build",
+		Name: "Build",
+		Type: v0.StageTypeCI,
+		Spec: &v0.StageCI{
+			Infrastructure: &v0.Infrastructure{
+				Type: "KubernetesDirect",
+				Spec: &v0.InfrastructureKubernetesDirectSpec{
+					Namespace: "ci",
+					Conn:      "k8s-connector",
+					OS:        "Windows",
+				},
+			},
+			Execution: v0.Execution{},
+		},
+	}
+
+	v1Stages := converter.convertStages([]*v0.Stages{{Stage: stage}}, "pipeline")
+	if len(v1Stages) != 1 {
+		t.Fatalf("expected 1 stage, got %d", len(v1Stages))
+	}
+	got := v1Stages[0]
+
+	// platform.os must be set, lowercased, to match the V1 enum casing.
+	if got.Platform == nil {
+		t.Fatal("expected stage.Platform to be non-nil after lifting infra.spec.os")
+	}
+	if got.Platform.Os != "windows" {
+		t.Errorf("expected platform.os=\"windows\", got %q", got.Platform.Os)
+	}
+	// Arch must be populated even though V0 K8s infra has no Arch field — V0 K8s pipelines
+	// implicitly defaulted to amd64, AND the V1 backend's PlatformV1.toPlatform() NPEs if
+	// platform is present but arch is missing.
+	if got.Platform.Arch != "amd64" {
+		t.Errorf("expected platform.arch=\"amd64\" (V0 K8s implicit default), got %q", got.Platform.Arch)
+	}
+	// (RuntimeKubernetes no longer has an OS field — the V1 schema removed it, so we
+	// dropped it from the struct in runtime_kubernetes.go. Nothing to assert here.)
+	if got.Runtime == nil || got.Runtime.Kubernetes == nil {
+		t.Fatal("expected runtime.kubernetes to be non-nil")
+	}
+}
+
+// Explicit V0 top-level platform.os must win over the lifted infra.spec.os, since the user
+// specified it explicitly. (ConvertPlatform already lowercases on its own.)
+func TestConvertCIStage_ExplicitV0PlatformWinsOverInfraOs(t *testing.T) {
+	converter := NewPipelineConverter()
+
+	stage := &v0.Stage{
+		ID:   "Build",
+		Name: "Build",
+		Type: v0.StageTypeCI,
+		Spec: &v0.StageCI{
+			Platform: &v0.Platform{OS: "Linux", Arch: "Amd64"},
+			Infrastructure: &v0.Infrastructure{
+				Type: "KubernetesDirect",
+				Spec: &v0.InfrastructureKubernetesDirectSpec{
+					Namespace: "ci",
+					Conn:      "k8s-connector",
+					OS:        "Windows", // different from platform.os; platform.os must win
+				},
+			},
+			Execution: v0.Execution{},
+		},
+	}
+
+	v1Stages := converter.convertStages([]*v0.Stages{{Stage: stage}}, "pipeline")
+	got := v1Stages[0]
+
+	if got.Platform == nil || got.Platform.Os != "linux" {
+		t.Errorf("expected explicit platform.os=\"linux\" to win, got %+v", got.Platform)
+	}
+}
+
+// When neither V0 platform.os nor V0 infra.spec.os is set, stage.Platform must remain nil so
+// the V1 backend applies its own default (Linux). Importantly we must not synthesize a Platform
+// with empty fields.
+func TestConvertCIStage_NoOsAnywhere_PlatformStaysNil(t *testing.T) {
+	converter := NewPipelineConverter()
+
+	stage := &v0.Stage{
+		ID:   "Build",
+		Name: "Build",
+		Type: v0.StageTypeCI,
+		Spec: &v0.StageCI{
+			Infrastructure: &v0.Infrastructure{
+				Type: "KubernetesDirect",
+				Spec: &v0.InfrastructureKubernetesDirectSpec{
+					Namespace: "ci",
+					Conn:      "k8s-connector",
+					// no OS
+				},
+			},
+			Execution: v0.Execution{},
+		},
+	}
+
+	v1Stages := converter.convertStages([]*v0.Stages{{Stage: stage}}, "pipeline")
+	got := v1Stages[0]
+
+	if got.Platform != nil {
+		t.Errorf("expected stage.Platform to remain nil when no OS is set anywhere, got %+v", got.Platform)
+	}
+}
+
+// Linux is the dominant V0 K8s case in production. Same lift path as Windows: V0 carries OS
+// on infra.spec.os (capitalized) and no top-level platform; converter must emit
+// platform.{os: linux, arch: amd64}. This guards the common path against a silent regression.
+func TestConvertCIStage_K8sInfraOsLiftedToPlatform_Linux(t *testing.T) {
+	converter := NewPipelineConverter()
+
+	stage := &v0.Stage{
+		ID:   "Build",
+		Name: "Build",
+		Type: v0.StageTypeCI,
+		Spec: &v0.StageCI{
+			Infrastructure: &v0.Infrastructure{
+				Type: "KubernetesDirect",
+				Spec: &v0.InfrastructureKubernetesDirectSpec{
+					Namespace: "ci",
+					Conn:      "k8s-connector",
+					OS:        "Linux",
+				},
+			},
+			Execution: v0.Execution{},
+		},
+	}
+
+	v1Stages := converter.convertStages([]*v0.Stages{{Stage: stage}}, "pipeline")
+	if len(v1Stages) != 1 {
+		t.Fatalf("expected 1 stage, got %d", len(v1Stages))
+	}
+	got := v1Stages[0]
+
+	if got.Platform == nil {
+		t.Fatal("expected stage.Platform to be non-nil after lifting infra.spec.os")
+	}
+	if got.Platform.Os != "linux" {
+		t.Errorf("expected platform.os=\"linux\" (lowercased from V0 \"Linux\"), got %q", got.Platform.Os)
+	}
+	if got.Platform.Arch != "amd64" {
+		t.Errorf("expected platform.arch=\"amd64\" (V0 K8s implicit default), got %q", got.Platform.Arch)
+	}
+	if got.Runtime == nil || got.Runtime.Kubernetes == nil {
+		t.Fatal("expected runtime.kubernetes to be non-nil")
+	}
+}

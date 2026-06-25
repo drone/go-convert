@@ -106,6 +106,11 @@ func ConvertInfrastructureToRuntime(infra *v0.Infrastructure, ctx *StageConversi
 	// Handle KubernetesDirect type
 	if strings.EqualFold(infra.Type, "KubernetesDirect") {
 		if k8sSpec, ok := infra.Spec.(*v0.InfrastructureKubernetesDirectSpec); ok && k8sSpec != nil {
+			// Note: k8sSpec.OS (V0 infrastructure.spec.os) is intentionally NOT written into
+			// runtime.kubernetes.os. The V1 schema no longer carries that field on the kubernetes
+			// runtime; OS for K8s stages is sourced from stage-level platform.os. The caller
+			// (convert_stage.go) lifts k8sSpec.OS up to stage.Platform.Os when no top-level
+			// V0 platform was provided.
 			runtime := &v1.Runtime{
 				Kubernetes: &v1.RuntimeKubernetes{
 					Namespace:             k8sSpec.Namespace,
@@ -113,7 +118,6 @@ func ConvertInfrastructureToRuntime(infra *v0.Infrastructure, ctx *StageConversi
 					Annotations:           k8sSpec.Annotations,
 					Labels:                k8sSpec.Labels,
 					Node:                  k8sSpec.NodeSelector,
-					OS:                    k8sSpec.OS,
 					ServiceAccount:        k8sSpec.ServiceAccountName,
 					ServiceToken:          k8sSpec.AutomountServiceAccountToken,
 					Tolerations:           convertTolerations(k8sSpec.Tolerations),

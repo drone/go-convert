@@ -15,6 +15,7 @@
 package converthelpers
 
 import (
+	"encoding/json"
 	"fmt"
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
@@ -36,13 +37,23 @@ func ConvertStepAction(src *v0.Step) *v1.StepRun {
 	script := fmt.Sprintf("plugin -kind action -name %v", spec.Uses)
 	env_map := map[string]interface{}{}
 	var env *flexible.Field[map[string]interface{}]
-	for k, v := range spec.With {
-		env_map["PLUGIN_WITH_"+k] = v
+	// Encode the `with` map as a single JSON-valued PLUGIN_WITH env var.
+	// The per-key PLUGIN_WITH_<key> form is brittle: values like "=1.20.1"
+	// can lose information in YAML/string round-trips, and key names like
+	// "go-version" aren't POSIX env names. The plugin runner accepts both
+	// forms (see drone/plugin plugin/github/env.go getWith), and the JSON
+	// form is unambiguous.
+	if len(spec.With) > 0 {
+		withJSON, err := json.Marshal(spec.With)
+		if err != nil {
+			return nil
+		}
+		env_map["PLUGIN_WITH"] = string(withJSON)
 	}
 	for k, v := range spec.Envs {
 		env_map[k] = v
-	} 	
-	if len(env_map)>0 {
+	}
+	if len(env_map) > 0 {
 		env = &flexible.Field[map[string]interface{}]{Value: env_map}
 	}
 	dst := &v1.StepRun{
