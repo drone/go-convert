@@ -1,0 +1,7 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<maven2-moduleset plugin="maven-plugin@3.27">
+  <description>maven module-set job</description>
+  <jdk>Linux-jdk21</jdk>
+  <goals>clean install</goals>
+  <mavenName>Maven 3.6.3</mavenName>
+</maven2-moduleset>

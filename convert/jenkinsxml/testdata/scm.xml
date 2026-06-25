@@ -1,0 +1,16 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@5.7.0">
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://git.example.com/scm/team/order-service.git</url>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+  </scm>
+  <builders/>
+</project>
