@@ -140,7 +140,8 @@ func TestConvertInfrastructureToRuntime(t *testing.T) {
 					Connector:             "k8s-connector",
 					ServiceAccount:        "ci-sa",
 					Timeout:               "10m",
-					OS:                    "Linux",
+					// OS intentionally omitted: V1 K8s stage OS is sourced from stage.Platform.Os
+					// (set by convert_stage.go), not from runtime.kubernetes.os.
 					HarnessImageConnector: "harness-docker",
 					ImagePullPolicy:       "always",
 					PodSpecOverlay:        "overlay-spec",

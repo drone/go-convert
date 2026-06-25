@@ -2,6 +2,7 @@ package pipelineconverter
 
 import (
 	"fmt"
+	"strings"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
@@ -168,6 +169,31 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 			}
 			stage.SharedPaths = spec.SharedPaths
 			stage.Platform = convert_helpers.ConvertPlatform(spec.Platform)
+			// V1 sources K8s stage OS from platform.os (not runtime.kubernetes.os). When the V0
+			// pipeline used the older shape (OS on infrastructure.spec, no top-level platform),
+			// lift that OS up to stage.Platform.Os so the converted pipeline runs on the right OS.
+			// Explicit V0 platform.os always wins.
+			//
+			// Arch handling: V0 K8s infra has no Arch field — V0 K8s pipelines implicitly assumed
+			// amd64. We must still emit platform.arch though, because the V1 backend's
+			// PlatformV1.toPlatform() dereferences arch.getValue() unconditionally and NPEs if
+			// the platform block is present but arch is missing. So when we synthesize a Platform
+			// from V0 infra OS, we default arch to amd64. If V0 had an explicit platform with os
+			// set but no arch (uncommon, but possible), do the same fill-in.
+			if spec.Infrastructure != nil {
+				if k8sSpec, ok := spec.Infrastructure.Spec.(*v0.InfrastructureKubernetesDirectSpec); ok && k8sSpec != nil && k8sSpec.OS != "" {
+					if stage.Platform == nil {
+						stage.Platform = &v1.Platform{Os: strings.ToLower(k8sSpec.OS), Arch: "amd64"}
+					} else {
+						if stage.Platform.Os == "" {
+							stage.Platform.Os = strings.ToLower(k8sSpec.OS)
+						}
+						if stage.Platform.Arch == "" {
+							stage.Platform.Arch = "amd64"
+						}
+					}
+				}
+			}
 		}
 
 	case v0.StageTypeDeployment:
