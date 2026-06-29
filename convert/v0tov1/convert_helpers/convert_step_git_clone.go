@@ -135,13 +135,24 @@ func ConvertStepGitClone(src *v0.Step) *v1.StepTemplate {
 		}
 	}
 
+	// runAsUser maps to the gitCloneStep template's `user` input. A template invocation
+	// accepts only uses/with/gitBranch (no container), so the UID must go through `with`.
+	// The template input `user` is typed as string, so unwrap the v0 int/expression to a string.
+	if sp.RunAsUser != nil && !sp.RunAsUser.IsNil() {
+		if user, ok := sp.RunAsUser.AsString(); ok {
+			with["user"] = user
+		} else if user, ok := sp.RunAsUser.AsStruct(); ok {
+			with["user"] = fmt.Sprintf("%d", user)
+		}
+	}
+
 	// pr_merge_strategy: no v0 StepGitClone field; template default is "Source Branch"
 	// copy_file_content: no v0 StepGitClone field; optional template input with no default
 
 	dst := &v1.StepTemplate{
 		Uses:      "gitCloneStep",
 		With:      with,
-		Container: ConvertTemplateContainer(sp.RunAsUser, sp.Resources),
+		Container: ConvertTemplateContainer(nil, sp.Resources),
 	}
 
 	return dst

@@ -175,6 +175,45 @@ func TestConvertStepGitClone(t *testing.T) {
 				"file_paths_content": "file1.txt,file2.txt",
 			},
 		},
+		{
+			name: "runAsUser integer value maps to with.user as string",
+			step: &v0.Step{
+				Spec: &v0.StepGitClone{
+					ConnRef:   "github-connector",
+					RunAsUser: &flexible.Field[int]{Value: 1600},
+				},
+			},
+			expected: map[string]interface{}{
+				"connector": "github-connector",
+				"user":      "1600",
+			},
+		},
+		{
+			name: "runAsUser zero (root) is preserved",
+			step: &v0.Step{
+				Spec: &v0.StepGitClone{
+					ConnRef:   "github-connector",
+					RunAsUser: &flexible.Field[int]{Value: 0},
+				},
+			},
+			expected: map[string]interface{}{
+				"connector": "github-connector",
+				"user":      "0",
+			},
+		},
+		{
+			name: "runAsUser expression passes through",
+			step: &v0.Step{
+				Spec: &v0.StepGitClone{
+					ConnRef:   "github-connector",
+					RunAsUser: &flexible.Field[int]{Value: "<+input>"},
+				},
+			},
+			expected: map[string]interface{}{
+				"connector": "github-connector",
+				"user":      "<+input>",
+			},
+		},
 	}
 
 	for _, tt := range tests {
