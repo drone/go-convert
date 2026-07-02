@@ -26,7 +26,8 @@ type ServiceItem struct {
 	Id   string                 `json:"id,omitempty"`
 	With map[string]interface{} `json:"with,omitempty"`
 	Ref  string                 `json:"ref,omitempty"` // git branch reference
-}
+	Type string                 `json:"type,omitempty"` // Deployment Type: Kubernetes, Helm, etc.
+}	
 
 // UnmarshalJSON implements json.Unmarshaler for ServiceItem.
 // Handles: string "service1" or object {id: "service1", with: {...}}
@@ -53,7 +54,7 @@ func (s *ServiceItem) UnmarshalJSON(data []byte) error {
 // Outputs: string "service1" if no With, or object {id: "service1", with: {...}} if With exists
 func (s ServiceItem) MarshalJSON() ([]byte, error) {
 	// If no With and no Ref, marshal as simple string
-	if len(s.With) == 0 && s.Ref == "" {
+	if len(s.With) == 0 && s.Ref == ""  && s.Type == "" {
 		return json.Marshal(s.Id)
 	}
 	// Otherwise marshal as full object
@@ -62,6 +63,7 @@ func (s ServiceItem) MarshalJSON() ([]byte, error) {
 }
 
 type ServiceRef struct {
+	Type string `json:"type,omitempty"` // Deployment Type: Kubernetes, Helm, etc.
 	Items        []*ServiceItem        `json:"items,omitempty"`
 	Sequential   *flexible.Field[bool] `json:"sequential,omitempty"`
 	MultiService bool                  `json:"-"` // Don't serialize this field
@@ -117,7 +119,11 @@ func (v *ServiceRef) UnmarshalJSON(data []byte) error {
 func (v *ServiceRef) MarshalJSON() ([]byte, error) {
 	// Single item without With and not forced to be multi-service
 	if len(v.Items) == 1 && !v.MultiService && v.Sequential == nil {
-		return json.Marshal(v.Items[0])
+		item := v.Items[0]
+		if item.Type == "" {
+			item.Type = v.Type
+		}
+		return json.Marshal(item)
 	}
 
 	// Multi-service - always use items format

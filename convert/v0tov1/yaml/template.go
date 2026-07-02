@@ -16,10 +16,17 @@
 
 package yaml
 
+import "github.com/drone/go-convert/internal/flexible"
+
 // Template defines a Pipeline, Stage or Step template.
 type Template struct {
-	Inputs map[string]*Input `json:"inputs,omitempty"`
-	Stage  *Stage            `json:"stage,omitempty"`
-	Step   *Step             `json:"step,omitempty"`
-	Pipeline *Pipeline       `json:"pipeline,omitempty"`
+	Description  string                             `json:"description,omitempty"`
+	Tags         *flexible.Field[map[string]string] `json:"tags,omitempty"`
+	ID           string                             `json:"id,omitempty"`
+	Name         string                             `json:"name,omitempty"`
+	Version      string                             `json:"version,omitempty"`
+	Inputs       map[string]*Input                  `json:"inputs,omitempty"`
+	Stage        *Stage                             `json:"stage,omitempty"`
+	Step         *Step                              `json:"step,omitempty"`
+	Pipeline     *Pipeline                          `json:"pipeline,omitempty"`
 }

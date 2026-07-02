@@ -11,7 +11,13 @@ func (c *PipelineConverter) ConvertTemplate(src *v0.Template) *v1.Template {
 		return nil
 	}
 
-	dst := &v1.Template{}
+	dst := &v1.Template{
+		ID: src.ID,
+		Name: src.Name,
+		Description: src.Description,
+		Tags: src.Tags,
+		Version: src.VersionLabel,
+	}
 	// Based on the type of template, convert it
 	switch src.Type {
 	case "Stage":

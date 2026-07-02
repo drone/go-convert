@@ -15,8 +15,11 @@
 package converthelpers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 	"github.com/drone/go-convert/internal/flexible"
@@ -44,11 +47,17 @@ func ConvertStepAction(src *v0.Step) *v1.StepRun {
 	// forms (see drone/plugin plugin/github/env.go getWith), and the JSON
 	// form is unambiguous.
 	if len(spec.With) > 0 {
-		withJSON, err := json.Marshal(spec.With)
-		if err != nil {
+		// Disable HTML escaping so Harness expressions like
+		// <+pipeline.variables.checkLatest> aren't mangled into
+		// \u003c+...\u003e by the default json.Marshal behavior.
+		var buf bytes.Buffer
+		enc := json.NewEncoder(&buf)
+		enc.SetEscapeHTML(false)
+		if err := enc.Encode(spec.With); err != nil {
 			return nil
 		}
-		env_map["PLUGIN_WITH"] = string(withJSON)
+		// Encode appends a trailing newline; trim it.
+		env_map["PLUGIN_WITH"] = strings.TrimRight(buf.String(), "\n")
 	}
 	for k, v := range spec.Envs {
 		env_map[k] = v

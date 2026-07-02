@@ -2,6 +2,7 @@ package converthelpers
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
@@ -169,6 +170,40 @@ func TestConvertStepAction(t *testing.T) {
 				t.Errorf("Extra env mismatch (-want +got):\n%s", diff)
 			}
 		})
+	}
+}
+
+func TestConvertStepAction_PluginWithNotHTMLEscaped(t *testing.T) {
+	step := &v0.Step{
+		Spec: &v0.StepAction{
+			Uses: "actions/setup-go@v4",
+			With: map[string]interface{}{
+				"check-latest": "<+pipeline.variables.checkLatest>",
+				"go-version":   "1.20.1",
+			},
+		},
+	}
+
+	result := ConvertStepAction(step)
+	if result == nil || result.Env == nil {
+		t.Fatal("expected non-nil result with Env")
+	}
+
+	got, ok := result.Env.Value.(map[string]interface{})
+	if !ok {
+		t.Fatalf("Env.Value is %T, expected map[string]interface{}", result.Env.Value)
+	}
+
+	rawJSON, ok := got["PLUGIN_WITH"].(string)
+	if !ok {
+		t.Fatalf("expected PLUGIN_WITH string entry, got %v", got["PLUGIN_WITH"])
+	}
+
+	if strings.Contains(rawJSON, `\u003c`) || strings.Contains(rawJSON, `\u003e`) {
+		t.Errorf("PLUGIN_WITH should not HTML-escape expressions, got: %s", rawJSON)
+	}
+	if !strings.Contains(rawJSON, "<+pipeline.variables.checkLatest>") {
+		t.Errorf("PLUGIN_WITH should contain the raw expression, got: %s", rawJSON)
 	}
 }
 
