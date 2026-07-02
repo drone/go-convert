@@ -3,6 +3,8 @@ package yaml
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 type (
@@ -14,6 +16,8 @@ type (
 		Project      string      `json:"projectIdentifier,omitempty" yaml:"projectIdentifier,omitempty"`
 		Org          string      `json:"orgIdentifier,omitempty"     yaml:"orgIdentifier,omitempty"`
 		Spec         interface{} `json:"spec,omitempty"              yaml:"spec,omitempty"`
+		Description  string      `json:"description,omitempty"       yaml:"description,omitempty"`
+		Tags         *flexible.Field[map[string]string] `json:"tags,omitempty"                 yaml:"tags,omitempty"`
 	}
 )
 

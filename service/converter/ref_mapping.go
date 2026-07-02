@@ -70,6 +70,11 @@ func applyRefsWalk(node *yaml.Node, parentKey, grandparentKey string, templateRe
 					if n, ok := pipelineRefs[valueNode.Value]; ok {
 						valueNode.Value = n
 					}
+				
+				case key == "id" && parentKey == "template":
+					if n, ok := templateRefs[valueNode.Value]; ok {
+						valueNode.Value = n
+					}
 
 				case key == "pipelineIdentifier":
 					if n, ok := pipelineRefs[valueNode.Value]; ok {

@@ -236,6 +236,12 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 					WithStage(src.ID, string(v0.StageTypeDeployment)),
 				)
 			}
+
+			// Map v0 deploymentType onto the v1 service ref type.
+			if stage.Service != nil && spec.DeploymentType != "" {
+				stage.Service.Type = spec.DeploymentType
+			}
+
 		}
 
 	case v0.StageTypePipeline:
