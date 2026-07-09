@@ -31,8 +31,11 @@ func TestApplyRefMappings_TemplateUses_RefOnly(t *testing.T) {
 
 
 func TestApplyRefMappings_ChainUses_PipelineSegment(t *testing.T) {
+	// The map is keyed by the bare pipeline segment; the value is a
+	// fully-qualified ref that replaces the whole chain uses verbatim
+	// (org/project prefix included).
 	in := []byte("pipeline:\n  stages:\n    - chain:\n        uses: org1/proj1/oldPipe\n")
-	out, err := ApplyRefMappings(in, nil, map[string]string{"oldPipe": "newPipe"})
+	out, err := ApplyRefMappings(in, nil, map[string]string{"oldPipe": "org1/proj1/newPipe"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -41,14 +44,16 @@ func TestApplyRefMappings_ChainUses_PipelineSegment(t *testing.T) {
 	}
 }
 
-func TestApplyRefMappings_ChainUses_FullValueMatch(t *testing.T) {
+func TestApplyRefMappings_ChainUses_FullValueKey_NotMatched(t *testing.T) {
+	// Only the pipeline segment (3rd path element) is looked up; a
+	// fully-qualified key must NOT match, so the value is left unchanged.
 	in := []byte("pipeline:\n  stages:\n    - chain:\n        uses: org1/proj1/oldPipe\n")
 	out, err := ApplyRefMappings(in, nil, map[string]string{"org1/proj1/oldPipe": "org2/proj2/newPipe"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if !strings.Contains(string(out), "uses: org2/proj2/newPipe") {
-		t.Fatalf("expected full chain uses rewritten; got:\n%s", string(out))
+	if !strings.Contains(string(out), "uses: org1/proj1/oldPipe") {
+		t.Fatalf("expected chain uses unchanged for full-value key; got:\n%s", string(out))
 	}
 }
 
@@ -86,20 +91,20 @@ func TestApplyRefMappings_TriggerPipelineIdentifier(t *testing.T) {
 }
 
 func TestApplyRefMappings_TriggerInputYamlRecurses(t *testing.T) {
-	inner := "pipeline:\n  id: oldPipe\n  stages:\n    - chain:\n        uses: org/proj/oldPipe\n"
-	in := []byte("trigger:\n  pipelineIdentifier: oldPipe\n  inputYaml: |\n    " + strings.ReplaceAll(inner, "\n", "\n    ") + "\n")
-	out, err := ApplyRefMappings(in, nil, map[string]string{"oldPipe": "newPipe"})
+	inner := "pipeline:\n  id: oldPipe1\n  stages:\n    - chain:\n        uses: org/proj/oldPipe2\n"
+	in := []byte("trigger:\n  pipelineIdentifier: oldPipe1\n  inputYaml: |\n    " + strings.ReplaceAll(inner, "\n", "\n    ") + "\n")
+	out, err := ApplyRefMappings(in, nil, map[string]string{"oldPipe1": "newPipe1", "oldPipe2": "org/proj/newPipe2"})
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	s := string(out)
-	if !strings.Contains(s, "pipelineIdentifier: newPipe") {
+	if !strings.Contains(s, "pipelineIdentifier: newPipe1") {
 		t.Fatalf("expected pipelineIdentifier rewritten; got:\n%s", s)
 	}
-	if !strings.Contains(s, "id: newPipe") {
+	if !strings.Contains(s, "id: newPipe1") {
 		t.Fatalf("expected embedded pipeline.id rewritten; got:\n%s", s)
 	}
-	if !strings.Contains(s, "org/proj/newPipe") {
+	if !strings.Contains(s, "uses: org/proj/newPipe2") {
 		t.Fatalf("expected embedded chain uses rewritten; got:\n%s", s)
 	}
 }

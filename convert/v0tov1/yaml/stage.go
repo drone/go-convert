@@ -67,12 +67,13 @@ type Stage struct {
 
 // MarshalJSON customizes Stage serialization:
 //   - Container stages (parallel, group, chain) omit steps entirely.
+//   - Template stages omit steps entirely.
 //   - Regular stages always emit steps as [] instead of null.
 func (s Stage) MarshalJSON() ([]byte, error) {
 	type StageAlias Stage
 
-	// Container stages must NOT have a steps field (schema mutual exclusivity).
-	if s.Parallel != nil || s.Group != nil || s.Chain != nil {
+	// Container and template stages must NOT have a steps field.
+	if s.Parallel != nil || s.Group != nil || s.Chain != nil || s.Template != nil {
 		s.Steps = nil
 		data, err := json.Marshal(StageAlias(s))
 		if err != nil {
