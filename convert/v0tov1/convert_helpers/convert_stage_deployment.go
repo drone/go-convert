@@ -126,16 +126,17 @@ func ConvertDeploymentServices(src *v0.DeploymentServices, ctx *StageConversionC
 			})
 		}
 	}
-	// by default set to true
-	var sequential *flexible.Field[bool] = &flexible.Field[bool]{Value: true}
+	// v0 defaulted to parallel execution; preserve that in v1 (which now defaults to serial)
+	// by emitting parallel: true unless v0 explicitly set parallel.
+	var parallel *flexible.Field[bool] = &flexible.Field[bool]{Value: true}
 	if src.Metadata != nil && src.Metadata.Parallel != nil {
-		sequential = flexible.NegateBool(src.Metadata.Parallel)
+		parallel = src.Metadata.Parallel
 	}
 	if len(serviceItems) > 0 {
 		return &v1.ServiceRef{
 			Items:        serviceItems,
 			MultiService: true,
-			Sequential:   sequential,
+			Parallel:     parallel,
 		}
 	}
 
@@ -291,10 +292,11 @@ func ConvertEnvironments(src *v0.Environments, ctx *StageConversionContext) *v1.
 		return nil
 	}
 
-	// by default set to true
-	var sequential *flexible.Field[bool] = &flexible.Field[bool]{Value: true}
+	// v0 defaulted to parallel execution; preserve that in v1 (which now defaults to serial)
+	// by emitting parallel: true unless v0 explicitly set parallel.
+	var parallel *flexible.Field[bool] = &flexible.Field[bool]{Value: true}
 	if src.Metadata != nil && src.Metadata.Parallel != nil {
-		sequential = flexible.NegateBool(src.Metadata.Parallel)
+		parallel = src.Metadata.Parallel
 	}
 
 	// Check if Values is nil or empty
@@ -322,8 +324,8 @@ func ConvertEnvironments(src *v0.Environments, ctx *StageConversionContext) *v1.
 		v1Filters := ConvertEnvironmentFilters(v0Filters)
 		if len(v1Filters) > 0 {
 			return &v1.EnvironmentRef{
-				Sequential: sequential,
-				Filters:    v1Filters,
+				Parallel: parallel,
+				Filters:  v1Filters,
 			}
 		}
 		return nil
@@ -359,9 +361,9 @@ func ConvertEnvironments(src *v0.Environments, ctx *StageConversionContext) *v1.
 
 	if len(items) > 0 {
 		return &v1.EnvironmentRef{
-			Items:      items,
-			Sequential: sequential,
-			MultiEnv:   true,
+			Items:    items,
+			Parallel: parallel,
+			MultiEnv: true,
 		}
 	}
 
@@ -387,10 +389,11 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 		return nil
 	}
 
-	// Compute sequential from metadata (v0 parallel: true → v1 sequential: false)
-	var seqField *flexible.Field[bool]
+	// v0 defaulted to parallel execution; preserve that in v1 (which now defaults to serial)
+	// by emitting parallel: true unless v0 explicitly set parallel.
+	var parallel *flexible.Field[bool] = &flexible.Field[bool]{Value: true}
 	if src.Metadata != nil && src.Metadata.Parallel != nil {
-		seqField = flexible.NegateBool(src.Metadata.Parallel)
+		parallel = src.Metadata.Parallel
 	}
 
 	// Case: environments is an expression (e.g., <+input>)
@@ -401,7 +404,7 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 				"id": src.EnvGroupRef,
 			}
 			return &v1.EnvironmentRef{
-				Sequential: seqField,
+				Parallel: parallel,
 				Group:      groupConfig,
 			}
 		}
@@ -414,7 +417,7 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 				"id": src.EnvGroupRef,
 			}
 			return &v1.EnvironmentRef{
-				Sequential: seqField,
+				Parallel: parallel,
 				Group:      groupConfig,
 			}
 		}
@@ -431,7 +434,7 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 					"filters": v1Filters,
 				}
 				return &v1.EnvironmentRef{
-					Sequential: seqField,
+					Parallel: parallel,
 					Group:      groupConfig,
 				}
 			}
@@ -439,8 +442,8 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 
 		// Simple group reference format
 		return &v1.EnvironmentRef{
-			Sequential: seqField,
-			Group:      map[string]interface{}{"id": src.EnvGroupRef},
+			Parallel: parallel,
+			Group:    map[string]interface{}{"id": src.EnvGroupRef},
 		}
 	}
 
@@ -455,7 +458,7 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 					"items": items,
 				}
 				return &v1.EnvironmentRef{
-					Sequential: seqField,
+					Parallel: parallel,
 					Group:      groupConfig,
 				}
 			}
