@@ -76,7 +76,7 @@ func applyRefsWalk(node *yaml.Node, parentKey, grandparentKey string, templateRe
 						valueNode.Value = n
 					}
 
-				case key == "pipelineIdentifier":
+				case key == "pipelineIdentifier" && parentKey == "trigger":
 					if n, ok := pipelineRefs[valueNode.Value]; ok {
 						valueNode.Value = n
 					}
@@ -127,19 +127,20 @@ func remapTemplateUses(value string, templateRefs map[string]string) string {
 // remapChainUses rewrites a chain `uses:` value of the form
 // "org/project/pipeline". A full-value match is tried first (so callers can
 // remap by fully-qualified ref); if that fails, the third segment (pipeline
-// identifier) is looked up independently.
+// identifier) is looked up independently. In both cases the mapping value is
+// used verbatim as the fully-qualified replacement (it already carries the
+// org/project prefix).
 func remapChainUses(value string, pipelineRefs map[string]string) string {
 	if len(pipelineRefs) == 0 || value == "" {
 		return value
 	}
-	if n, ok := pipelineRefs[value]; ok {
-		return n
-	}
 	parts := strings.Split(value, "/")
 	if len(parts) == 3 {
-		if n, ok := pipelineRefs[parts[2]]; ok {
-			parts[2] = n
-			return strings.Join(parts, "/")
+		if ref, ok := pipelineRefs[parts[2]]; ok {
+			// The mapping value is a fully-qualified ref (already carrying the
+			// org/project prefix), so replace the whole value rather than just
+			// the pipeline segment.
+			return ref
 		}
 	}
 	return value

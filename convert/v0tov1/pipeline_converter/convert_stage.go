@@ -44,12 +44,13 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 	stage := &v1.Stage{
 		Id:    src.ID,
 		Name:  src.Name,
-		Steps: make([]*v1.Step, 0),
 	}
 
 	// Check for Template - if template exists, set it and continue converting rest
 	if src.Template != nil {
 		stage.Template = c.convertStageTemplate(src, basePath)
+	} else {
+		stage.Steps = make([]*v1.Step, 0)
 	}
 
 	// Set common stage settings for non-template stages
@@ -208,7 +209,6 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 			}
 
 			// Convert environment configuration
-			deprecatedInfraDefinition := false
 			if spec.Environment != nil {
 				stage.Environment = convert_helpers.ConvertEnvironment(spec.Environment, c.stageCtx)
 			} else if spec.Environments != nil {
@@ -221,7 +221,6 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 					"deprecated infrastructure definition found in Deployment stage; infrastructure and service definition will be skipped",
 					WithStage(src.ID, string(v0.StageTypeDeployment)),
 				)
-				deprecatedInfraDefinition = true
 			}
 
 			// Convert service configuration
@@ -229,7 +228,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 				stage.Service = convert_helpers.ConvertDeploymentService(spec.Service, c.stageCtx)
 			} else if spec.Services != nil {
 				stage.Service = convert_helpers.ConvertDeploymentServices(spec.Services, c.stageCtx)
-			} else if spec.ServiceConfig != nil && !deprecatedInfraDefinition {
+			} else if spec.ServiceConfig != nil {
 				GetMessageLogger().LogWarning(
 					"DEPRECATED_SERVICE_CONFIG",
 					"deprecated service config found in Deployment stage; service config will be skipped",

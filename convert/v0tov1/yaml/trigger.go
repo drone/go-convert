@@ -21,7 +21,7 @@ type (
 	Trigger struct {
 		Name               string            `json:"name,omitempty"               yaml:"name,omitempty"`
 		ID                 string            `json:"identifier,omitempty"         yaml:"identifier,omitempty"`
-		Enabled            bool              `json:"enabled,omitempty"            yaml:"enabled,omitempty"`
+		Enabled            bool              `json:"enabled"                      yaml:"enabled"`
 		StagesToExecute    []string          `json:"stagesToExecute,omitempty"    yaml:"stagesToExecute,omitempty"`
 		Description        string            `json:"description,omitempty"        yaml:"description,omitempty"`
 		Tags               map[string]string `json:"tags,omitempty"               yaml:"tags,omitempty"`

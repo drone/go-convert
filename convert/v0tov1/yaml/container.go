@@ -49,7 +49,7 @@ type Container struct {
 	PortBindings *flexible.Field[map[string]string] `json:"port-bindings,omitempty" yaml:"port-bindings,omitempty"`
 	Privileged  *flexible.Field[bool]              `json:"privileged,omitempty" yaml:"privileged,omitempty"`
 	Pull        string            `json:"pull,omitempty" yaml:"pull,omitempty"`
-	Registry    string            `json:"registry,omitempty" yaml:"registry,omitempty"`
+	Registry    string            `json:"registryRef,omitempty" yaml:"registryRef,omitempty"`
 	ShmSize     StringorInt       `json:"shm-size,omitempty" yaml:"shm-size,omitempty"`
 	User        *flexible.Field[int]        `json:"user,omitempty" yaml:"user,omitempty"`
 	Volumes     []*Mount          `json:"volumes,omitempty" yaml:"volumes,omitempty"`
@@ -78,7 +78,7 @@ func (v *Container) UnmarshalJSON(data []byte) error {
 		PortBindings *flexible.Field[map[string]string] `json:"port-bindings,omitempty" yaml:"port-bindings,omitempty"`
 		Privileged  *flexible.Field[bool]              `json:"privileged,omitempty" yaml:"privileged,omitempty"`
 		Pull        string            `json:"pull,omitempty" yaml:"pull,omitempty"`
-		Registry    string            `json:"registry,omitempty" yaml:"registry,omitempty"`
+		Registry    string            `json:"registryRef,omitempty" yaml:"registryRef,omitempty"`
 		ShmSize     StringorInt       `json:"shm-size,omitempty" yaml:"shm-size,omitempty"`
 		User        *flexible.Field[int]        `json:"user,omitempty" yaml:"user,omitempty"`
 		Volumes     []*Mount          `json:"volumes,omitempty" yaml:"volumes,omitempty"`
