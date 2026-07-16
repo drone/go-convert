@@ -280,15 +280,29 @@ func convertTolerations(tolerations *flexible.Field[[]*v0.Toleration]) *flexible
 	return result
 }
 
-// ConvertPlatform converts v0 Platform to v1 Platform
+// ConvertPlatform converts v0 Platform to v1 Platform.
+//
+// Arch fill-in: PlatformV1.toPlatform() on the V1 backend dereferences
+// arch.getValue() unconditionally and NPEs if the platform block is
+// present but arch is missing. V0 pipelines commonly declare only
+// platform.os (arch defaults to amd64 implicitly at execution time),
+// so we must emit a concrete arch here to keep the converted V1
+// pipeline runnable. Explicit V0 arch always wins.
+//
+// Mirrors the K8s-infra fill-in in pipeline_converter/convert_stage.go
+// (case StageTypeCI, "V1 sources K8s stage OS from platform.os" block).
 func ConvertPlatform(platform *v0.Platform) *v1.Platform {
 	if platform == nil {
 		return nil
 	}
 
+	arch := strings.ToLower(platform.Arch)
+	if arch == "" && platform.OS != "" {
+		arch = "amd64"
+	}
 	return &v1.Platform{
 		Os:   strings.ToLower(platform.OS),
-		Arch: strings.ToLower(platform.Arch),
+		Arch: arch,
 	}
 }
 

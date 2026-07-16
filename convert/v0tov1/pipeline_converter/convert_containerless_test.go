@@ -83,6 +83,54 @@ func TestConvertCIStage_CloudRuntime_ContainerlessRunStep(t *testing.T) {
 	}
 }
 
+// Cloud pipelines with platform.os set (a common shape — see CI-23632
+// example YAML) must emit platform.arch=amd64 by default, otherwise
+// PlatformV1.toPlatform() NPEs at plan-creation time on the V1 backend.
+func TestConvertCIStage_CloudRuntime_PlatformArchDefaultsToAmd64(t *testing.T) {
+	converter := NewPipelineConverter()
+
+	pipeline := &v0.Pipeline{
+		ID:   "p",
+		Name: "p",
+		Stages: []*v0.Stages{
+			{Stage: &v0.Stage{
+				ID:   "ci",
+				Name: "ci",
+				Type: v0.StageTypeCI,
+				Spec: &v0.StageCI{
+					Platform: &v0.Platform{OS: "Linux"},
+					Runtime:  &v0.Runtime{Type: "Cloud", Spec: &v0.RuntimeCloudSpec{}},
+					Execution: v0.Execution{
+						Steps: []*v0.Steps{
+							{Step: &v0.Step{
+								ID:   "r1",
+								Name: "r1",
+								Type: v0.StepTypeRun,
+								Spec: &v0.StepRun{Command: "echo hi"},
+							}},
+						},
+					},
+				},
+			}},
+		},
+	}
+
+	got := converter.ConvertPipeline(pipeline)
+	if got == nil || len(got.Stages) != 1 {
+		t.Fatalf("expected 1 stage, got %+v", got)
+	}
+	stage := got.Stages[0]
+	if stage.Platform == nil {
+		t.Fatalf("expected platform to be set, got nil")
+	}
+	if stage.Platform.Os != "linux" {
+		t.Errorf("expected os=linux, got %q", stage.Platform.Os)
+	}
+	if stage.Platform.Arch != "amd64" {
+		t.Errorf("expected arch=amd64 default, got %q", stage.Platform.Arch)
+	}
+}
+
 // Regression sentinel: same step body on Kubernetes infra must still emit a
 // container block (K8s behavior is byte-for-byte preserved).
 func TestConvertCIStage_KubernetesDirect_ContainerFieldsPreserved(t *testing.T) {
