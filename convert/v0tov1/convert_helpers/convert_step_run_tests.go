@@ -11,7 +11,7 @@ import (
 )
 
 // ConvertStepRunTests converts a v0 RunTests step to v1 run-test step
-func ConvertStepRunTests(src *v0.Step) *v1.StepTest {
+func ConvertStepRunTests(src *v0.Step, ctx *StepConvertContext) *v1.StepTest {
 	if src == nil || src.Spec == nil {
 		return nil
 	}
@@ -23,10 +23,18 @@ func ConvertStepRunTests(src *v0.Step) *v1.StepTest {
 	// Build the script from language, buildTool, preCommand, args, postCommand
 	script := buildTestScript(sp.Language, sp.BuildTool, sp.PreCommand, sp.Args, sp.PostCommand)
 
-	// Container mapping
+	// Container mapping. See ConvertStepRun for Cloud-containerless rationale.
 	var container *v1.Container
 	resources := ConvertContainerResources(sp.Resources)
-	if sp.Image != "" || sp.ConnectorRef != "" || sp.Privileged != nil || resources != nil || sp.RunAsUser != nil {
+	if ctx.IsCloud() && sp.Image == "" {
+		WarnDroppedContainerFieldsOnCloud(src.ID, src.Type, map[string]bool{
+			"connectorRef": sp.ConnectorRef != "",
+			"registryRef":  sp.RegistryRef != "",
+			"privileged":   sp.Privileged != nil,
+			"resources":    resources != nil,
+			"runAsUser":    sp.RunAsUser != nil,
+		})
+	} else if sp.Image != "" || sp.ConnectorRef != "" || sp.Privileged != nil || resources != nil || sp.RunAsUser != nil {
 		pull := ConvertImagePullPolicy(sp.ImagePullPolicy)
 		container = &v1.Container{
 			Image:      sp.Image,

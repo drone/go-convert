@@ -70,15 +70,15 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 		spec, ok := src.Spec.(*v0.StageApproval)
 		if ok && spec != nil {
 			if spec.Execution != nil {
-				stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath, src.ID, "")
+				stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath, src.ID, "", nil)
 				if spec.Execution.RollbackSteps != nil {
-					stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps, true, rollbackStepsPath, src.ID, "")
+					stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps, true, rollbackStepsPath, src.ID, "", nil)
 				}
 			}
 
 			// Convert service dependencies to background steps and prepend them
 			if len(spec.Services) > 0 {
-				backgroundSteps := convert_helpers.ConvertServiceDependenciesToBackgroundSteps(spec.Services)
+				backgroundSteps := convert_helpers.ConvertServiceDependenciesToBackgroundSteps(spec.Services, nil)
 				if len(backgroundSteps) > 0 {
 					stage.Steps = append(backgroundSteps, stage.Steps...)
 				}
@@ -89,15 +89,15 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 		spec, ok := src.Spec.(*v0.StageCustom)
 		if ok && spec != nil {
 			if spec.Execution != nil {
-				stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath, src.ID, "")
+				stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath, src.ID, "", nil)
 				if spec.Execution.RollbackSteps != nil {
-					stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps, true, rollbackStepsPath, src.ID, "")
+					stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps, true, rollbackStepsPath, src.ID, "", nil)
 				}
 			}
-			
+
 			// Convert service dependencies to background steps and prepend them
 			if len(spec.Services) > 0 {
-				backgroundSteps := convert_helpers.ConvertServiceDependenciesToBackgroundSteps(spec.Services)
+				backgroundSteps := convert_helpers.ConvertServiceDependenciesToBackgroundSteps(spec.Services, nil)
 				if len(backgroundSteps) > 0 {
 					stage.Steps = append(backgroundSteps, stage.Steps...)
 				}
@@ -113,13 +113,8 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 	case v0.StageTypeIACM:
 		spec, ok := src.Spec.(*v0.StageIACM)
 		if ok && spec != nil {
-			if spec.Execution != nil {
-				stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath, src.ID, "")
-				if spec.Execution.RollbackSteps != nil {
-					stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps, true, rollbackStepsPath, src.ID, "")
-				}
-			}
-
+			// Resolve runtime BEFORE converting steps so step helpers can consult it
+			// (e.g. to preserve containerless execution on Cloud infra).
 			if spec.Infrastructure != nil {
 				stage.Runtime = convert_helpers.ConvertInfrastructureToRuntime(spec.Infrastructure, c.stageCtx)
 			} else if spec.Runtime != nil {
@@ -131,6 +126,15 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 					WithStage(src.ID, string(v0.StageTypeIACM)),
 				)
 			}
+			stepCtx := &convert_helpers.StepConvertContext{Runtime: stage.Runtime}
+
+			if spec.Execution != nil {
+				stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath, src.ID, "", stepCtx)
+				if spec.Execution.RollbackSteps != nil {
+					stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps, true, rollbackStepsPath, src.ID, "", stepCtx)
+				}
+			}
+
 			stage.Platform = convert_helpers.ConvertPlatform(spec.Platform)
 			stage.Workspace = spec.Workspace
 		}
@@ -138,24 +142,8 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 	case v0.StageTypeCI:
 		spec, ok := src.Spec.(*v0.StageCI)
 		if ok && spec != nil {
-			stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath, src.ID, "")
-			if spec.Execution.RollbackSteps != nil {
-				stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps, true, rollbackStepsPath, src.ID, "")
-			}
-
-			// Convert service dependencies to background steps and prepend them
-			if len(spec.Services) > 0 {
-				backgroundSteps := convert_helpers.ConvertServiceDependenciesToBackgroundSteps(spec.Services)
-				if len(backgroundSteps) > 0 {
-					stage.Steps = append(backgroundSteps, stage.Steps...)
-				}
-			}
-
-			stage.Clone = convert_helpers.ConvertCloneCodebase(spec.Clone)
-			stage.Cache = convert_helpers.ConvertCaching(spec.Cache)
-			stage.BuildIntelligence = convert_helpers.ConvertBuildIntelligence(spec.BuildIntelligence)
-
-			// Convert shared paths to volumes
+			// Resolve runtime BEFORE converting steps so step helpers can consult it
+			// (e.g. to preserve containerless execution on Cloud infra).
 			if spec.Infrastructure != nil {
 				stage.Runtime = convert_helpers.ConvertInfrastructureToRuntime(spec.Infrastructure, c.stageCtx)
 			} else if spec.Runtime != nil {
@@ -167,6 +155,25 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 					WithStage(src.ID, string(v0.StageTypeCI)),
 				)
 			}
+			stepCtx := &convert_helpers.StepConvertContext{Runtime: stage.Runtime}
+
+			stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath, src.ID, "", stepCtx)
+			if spec.Execution.RollbackSteps != nil {
+				stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps, true, rollbackStepsPath, src.ID, "", stepCtx)
+			}
+
+			// Convert service dependencies to background steps and prepend them
+			if len(spec.Services) > 0 {
+				backgroundSteps := convert_helpers.ConvertServiceDependenciesToBackgroundSteps(spec.Services, stepCtx)
+				if len(backgroundSteps) > 0 {
+					stage.Steps = append(backgroundSteps, stage.Steps...)
+				}
+			}
+
+			stage.Clone = convert_helpers.ConvertCloneCodebase(spec.Clone)
+			stage.Cache = convert_helpers.ConvertCaching(spec.Cache)
+			stage.BuildIntelligence = convert_helpers.ConvertBuildIntelligence(spec.BuildIntelligence)
+
 			stage.SharedPaths = spec.SharedPaths
 			stage.Platform = convert_helpers.ConvertPlatform(spec.Platform)
 			// V1 sources K8s stage OS from platform.os (not runtime.kubernetes.os). When the V0
@@ -201,9 +208,9 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 		if ok && spec != nil {
 			// Convert deployment steps
 			if spec.Execution != nil {
-				stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath, src.ID, "")
+				stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath, src.ID, "", nil)
 				if spec.Execution.RollbackSteps != nil {
-					stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps, true, rollbackStepsPath, src.ID, "")
+					stage.Rollback = c.ConvertSteps(spec.Execution.RollbackSteps, true, rollbackStepsPath, src.ID, "", nil)
 				}
 			}
 

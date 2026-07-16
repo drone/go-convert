@@ -143,7 +143,7 @@ func TestConvertStepBackground(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := ConvertStepBackground(tt.step)
+			result := ConvertStepBackground(tt.step, nil)
 			if result == nil {
 				t.Fatal("expected non-nil result")
 			}
@@ -180,7 +180,7 @@ func TestConvertStepBackground_NilCases(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := ConvertStepBackground(tt.step)
+			result := ConvertStepBackground(tt.step, nil)
 			if result != nil {
 				t.Errorf("expected nil result, got %v", result)
 			}
