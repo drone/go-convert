@@ -200,7 +200,7 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 	case v0.StepTypeQueue:
 		step.Queue = convert_helpers.ConvertStepQueue(src)
 	case v0.StepTypeCustomApproval:
-		step.Approval = convert_helpers.ConvertStepCustomApproval(src)
+		step.Template = convert_helpers.ConvertStepCustomApproval(src)
 	case v0.StepTypeJiraApproval:
 		step.Approval = convert_helpers.ConvertStepJiraApproval(src)
 	case v0.StepTypeServiceNowApproval:

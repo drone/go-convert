@@ -5,10 +5,9 @@ import (
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 	"fmt"
 	"strings"
-    "github.com/drone/go-convert/internal/flexible"
 )
 
-func ConvertStepCustomApproval(src *v0.Step) *v1.StepApproval {
+func ConvertStepCustomApproval(src *v0.Step) *v1.StepTemplate {
 	if src == nil || src.Spec == nil {
 		return nil
 	}
@@ -19,49 +18,47 @@ func ConvertStepCustomApproval(src *v0.Step) *v1.StepApproval {
 		return nil
 	}
 
-	dst := &v1.StepApproval{
-		Uses: "custom",
+	dst := &v1.StepTemplate{
+		Uses: "customApproval",
 		With: make(map[string]interface{}),
 	}
 
-	dst.With["script-timeout"] = spec.ScriptTimeout
+	with := dst.With.(map[string]interface{})
+
+	if spec.Source != nil && spec.Source.Spec.Script != "" {
+		with["script"] = spec.Source.Spec.Script
+	}
+	if spec.Shell != "" {
+		with["shell"] = strings.ToLower(spec.Shell)
+	}
+	if spec.ScriptTimeout != "" {
+		with["script_timeout"] = spec.ScriptTimeout
+	}
 	if spec.RetryInterval != "" {
-        dst.With["retry"] = spec.RetryInterval
-    }
+		with["retry"] = spec.RetryInterval
+	}
+
+	if approve := convertCriteria(spec.ApprovalCriteria); approve != nil {
+		with["approve"] = approve
+	}
+	if reject := convertCriteria(spec.RejectionCriteria); reject != nil {
+		with["reject"] = reject
+	}
+
+	if outputs := ConvertOutputVariables(spec.OutputVariables); len(outputs) > 0 {
+		with["output_variables"] = outputs
+	}
 
 	env_map := make(map[string]interface{})
-    var env *flexible.Field[map[string]interface{}]
 	for _, envVar := range spec.EnvironmentVariables {
 		if envVar == nil || envVar.Name == "" || envVar.Value == "" {
 			continue
 		}
 		env_map[envVar.Name] = envVar.Value
 	}
-    if len(env_map) > 0 {
-        env = &flexible.Field[map[string]interface{}]{Value: env_map}
-    }
-
-	outputs := ConvertOutputVariables(spec.OutputVariables)
-	shell := strings.ToLower(spec.Shell)
-    script := ""
-    if spec.Source != nil {
-        script = spec.Source.Spec.Script
-    } 
-	dst.With["run"] = v1.StepRun {
-        Shell: shell,
-		Script: v1.Stringorslice{script},
-		Env: env,
-		Outputs: outputs,
+	if len(env_map) > 0 {
+		with["environment_variables"] = env_map
 	}
-
-    approve := convertCriteria(spec.ApprovalCriteria)
-    reject := convertCriteria(spec.RejectionCriteria)
-    if approve != nil {
-        dst.With["approve"] = approve
-    }
-    if reject != nil {
-        dst.With["reject"] = reject
-    }
 
 	return dst
 }

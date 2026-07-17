@@ -29,4 +29,11 @@ type Template struct {
 	Stage        *Stage                             `json:"stage,omitempty"`
 	Step         *Step                              `json:"step,omitempty"`
 	Pipeline     *Pipeline                          `json:"pipeline,omitempty"`
+	Group        *StepGroup                         `json:"group,omitempty"`
+	Env          *flexible.Field[map[string]string] `json:"env,omitempty"`
+	OnFailure    *flexible.Field[[]*FailureStrategy] `json:"on-failure,omitempty"`
+	Strategy     *Strategy                          `json:"strategy,omitempty"`
+	Timeout      string                             `json:"timeout,omitempty"`
+	Delegate     *flexible.Field[*Delegate]         `json:"delegate,omitempty"`
+	If           string                             `json:"if,omitempty"`
 }

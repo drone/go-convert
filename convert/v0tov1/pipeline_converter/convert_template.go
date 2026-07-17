@@ -30,20 +30,16 @@ func (c *PipelineConverter) ConvertTemplate(src *v0.Template) *v1.Template {
 		}
 	case "StepGroup":
 		if spec, ok := src.Spec.(*v0.StepGroup); ok {
-			dst.Step = &v1.Step{
-				Name: spec.Name,
-				Id:   spec.ID,
-				Env:  spec.Env,
-				Group: &v1.StepGroup{
-					Steps:  c.ConvertSteps(spec.Steps, false, "", "", ""),
-					Inputs: c.convertVariables(spec.Variables),
-				},
-				OnFailure: convert_helpers.ConvertFailureStrategies(spec.FailureStrategies),
-				Strategy:  convert_helpers.ConvertStrategy(spec.Strategy),
-				Timeout:   spec.Timeout,
-				Delegate:  convert_helpers.ConvertDelegate(spec.DelegateSelectors, nil),
-				If:        convert_helpers.ConvertStepWhen(spec.When, spec.Skip),
+			dst.Env = spec.Env
+			dst.Group = &v1.StepGroup{
+				Steps:  c.ConvertSteps(spec.Steps, false, "", "", ""),
+				Inputs: c.convertVariables(spec.Variables),
 			}
+			dst.OnFailure = convert_helpers.ConvertFailureStrategies(spec.FailureStrategies)
+			dst.Strategy = convert_helpers.ConvertStrategy(spec.Strategy)
+			dst.Timeout = spec.Timeout
+			dst.Delegate = convert_helpers.ConvertDelegate(spec.DelegateSelectors, nil)
+			dst.If = convert_helpers.ConvertStepWhen(spec.When, spec.Skip)
 		}
 	case "Pipeline":
 		if spec, ok := src.Spec.(*v0.Pipeline); ok {
