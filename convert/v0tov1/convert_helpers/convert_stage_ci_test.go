@@ -288,7 +288,7 @@ func TestConvertServiceDependencyToBackgroundStep(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := ConvertServiceDependencyToBackgroundStep(tt.input)
+			result := ConvertServiceDependencyToBackgroundStep(tt.input, nil)
 			if diff := cmp.Diff(tt.expected, result); diff != "" {
 				t.Errorf("mismatch (-want +got):\n%s", diff)
 			}
@@ -382,7 +382,7 @@ func TestConvertServiceDependenciesToBackgroundSteps(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := ConvertServiceDependenciesToBackgroundSteps(tt.input)
+			result := ConvertServiceDependenciesToBackgroundSteps(tt.input, nil)
 			if diff := cmp.Diff(tt.expected, result); diff != "" {
 				t.Errorf("mismatch (-want +got):\n%s", diff)
 			}

@@ -8,7 +8,7 @@ import (
 	"github.com/drone/go-convert/internal/flexible"
 )
 
-func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
+func ConvertStepTestIntelligence(src *v0.Step, ctx *StepConvertContext) *v1.StepTest {
 	if src == nil || src.Spec == nil {
 		return nil
 	}
@@ -17,10 +17,18 @@ func ConvertStepTestIntelligence(src *v0.Step) *v1.StepTest {
 		return nil
 	}
 
-	// Container
+	// Container. See ConvertStepRun for Cloud-containerless rationale.
 	var container *v1.Container
 	resources := ConvertContainerResources(sp.Resources)
-	if sp.Image != "" || sp.ConnRef != "" || sp.Privileged != nil || resources != nil || sp.RunAsUser != nil {
+	if ctx.IsCloud() && sp.Image == "" {
+		WarnDroppedContainerFieldsOnCloud(src.ID, src.Type, map[string]bool{
+			"connectorRef": sp.ConnRef != "",
+			"registryRef":  sp.RegistryRef != "",
+			"privileged":   sp.Privileged != nil,
+			"resources":    resources != nil,
+			"runAsUser":    sp.RunAsUser != nil,
+		})
+	} else if sp.Image != "" || sp.ConnRef != "" || sp.Privileged != nil || resources != nil || sp.RunAsUser != nil {
 		pull := ConvertImagePullPolicy(sp.ImagePullPolicy)
 		container = &v1.Container{
 			Image:      sp.Image,

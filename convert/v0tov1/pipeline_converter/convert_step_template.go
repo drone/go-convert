@@ -28,7 +28,7 @@ func (c *PipelineConverter) convertStepTemplate(src *v0.Step, isRollback bool, b
 	// If templateInputs exists, convert it to overlay.step
 	if template.TemplateInputs != nil {
 		// Convert the templateInputs (which is a *Step) directly
-		overlayStep := c.ConvertSingleStep(template.TemplateInputs, isRollback, basePath, "", "")
+		overlayStep := c.ConvertSingleStep(template.TemplateInputs, isRollback, basePath, "", "", nil)
 		if overlayStep != nil {
 			result.With = &v1.StepTemplateWith{
 				Overlay: &v1.StepTemplateOverlay{

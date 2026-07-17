@@ -280,28 +280,52 @@ func convertTolerations(tolerations *flexible.Field[[]*v0.Toleration]) *flexible
 	return result
 }
 
-// ConvertPlatform converts v0 Platform to v1 Platform
+// ConvertPlatform converts v0 Platform to v1 Platform.
+//
+// Arch fill-in: PlatformV1.toPlatform() on the V1 backend dereferences
+// arch.getValue() unconditionally and NPEs if the platform block is
+// present but arch is missing. V0 pipelines commonly declare only
+// platform.os (arch defaults to amd64 implicitly at execution time),
+// so we must emit a concrete arch here to keep the converted V1
+// pipeline runnable. Explicit V0 arch always wins.
+//
+// Mirrors the K8s-infra fill-in in pipeline_converter/convert_stage.go
+// (case StageTypeCI, "V1 sources K8s stage OS from platform.os" block).
 func ConvertPlatform(platform *v0.Platform) *v1.Platform {
 	if platform == nil {
 		return nil
 	}
 
+	arch := strings.ToLower(platform.Arch)
+	if arch == "" && platform.OS != "" {
+		arch = "amd64"
+	}
 	return &v1.Platform{
 		Os:   strings.ToLower(platform.OS),
-		Arch: strings.ToLower(platform.Arch),
+		Arch: arch,
 	}
 }
 
 // ConvertServiceDependencyToBackgroundStep converts a v0 Service dependency to v1 background step
-func ConvertServiceDependencyToBackgroundStep(src *v0.Service) *v1.Step {
+func ConvertServiceDependencyToBackgroundStep(src *v0.Service, ctx *StepConvertContext) *v1.Step {
 	if src == nil || src.Spec == nil {
 		return nil
 	}
 
-	// Container mapping
+	// Container mapping. See ConvertStepRun for Cloud-containerless rationale.
 	var container *v1.Container
 	resources := ConvertContainerResources(src.Spec.Resources)
-	if src.Spec.Image != "" || src.Spec.Conn != "" || resources != nil {
+	if ctx.IsCloud() && src.Spec.Image == "" {
+		WarnDroppedContainerFieldsOnCloud(src.ID, "Service", map[string]bool{
+			"connector":    src.Spec.Conn != "",
+			"resources":    resources != nil,
+			"entrypoint":   src.Spec.Entrypoint != nil,
+			"args":         src.Spec.Args != nil,
+			"privileged":   src.Spec.Privileged != nil,
+			"portBindings": src.Spec.PortBindings != nil,
+			"runAsUser":    src.Spec.RunAsUser != nil,
+		})
+	} else if src.Spec.Image != "" || src.Spec.Conn != "" || resources != nil {
 		container = &v1.Container{
 			Image:        src.Spec.Image,
 			Connector:    src.Spec.Conn,
@@ -330,15 +354,16 @@ func ConvertServiceDependencyToBackgroundStep(src *v0.Service) *v1.Step {
 	return step
 }
 
-// ConvertServiceDependenciesToBackgroundSteps converts v0 service dependencies to v1 background steps
-func ConvertServiceDependenciesToBackgroundSteps(services []*v0.Service) []*v1.Step {
+// ConvertServiceDependenciesToBackgroundSteps converts v0 service dependencies to v1 background steps.
+// ctx carries stage-scoped facts (Cloud runtime awareness, etc.); nil is safe.
+func ConvertServiceDependenciesToBackgroundSteps(services []*v0.Service, ctx *StepConvertContext) []*v1.Step {
 	if len(services) == 0 {
 		return nil
 	}
 
 	steps := make([]*v1.Step, 0, len(services))
 	for _, service := range services {
-		if step := ConvertServiceDependencyToBackgroundStep(service); step != nil {
+		if step := ConvertServiceDependencyToBackgroundStep(service, ctx); step != nil {
 			steps = append(steps, step)
 		}
 	}
