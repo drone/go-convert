@@ -21,11 +21,11 @@ import (
 
 // EnvironmentRef is the unified v1 environment configuration.
 type EnvironmentRef struct {
-	Items      []*EnvironmentItem    `json:"items,omitempty" yaml:"items,omitempty"`
-	Sequential *flexible.Field[bool] `json:"sequential,omitempty" yaml:"sequential,omitempty"`
-	Group      interface{}           `json:"group,omitempty" yaml:"group,omitempty"`
-	Filters    []*Filter             `json:"filters,omitempty" yaml:"filters,omitempty"`
-	MultiEnv   bool                  `json:"-" yaml:"-"`
+	Items    []*EnvironmentItem    `json:"items,omitempty" yaml:"items,omitempty"`
+	Parallel *flexible.Field[bool] `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+	Group    interface{}           `json:"group,omitempty" yaml:"group,omitempty"`
+	Filters  []*Filter             `json:"filters,omitempty" yaml:"filters,omitempty"`
+	MultiEnv bool                  `json:"-" yaml:"-"`
 }
 
 // MarshalJSON implements json.Marshaler following the ServiceRef pattern.
@@ -44,9 +44,9 @@ func (v EnvironmentRef) MarshalJSON() ([]byte, error) {
 func (v *EnvironmentRef) UnmarshalJSON(data []byte) error {
 	var out1 string
 	var out2 = struct {
-		Items      []*EnvironmentItem    `json:"items,omitempty" yaml:"items,omitempty"`
-		Sequential *flexible.Field[bool] `json:"sequential,omitempty" yaml:"sequential,omitempty"`
-		Group      interface{}           `json:"group,omitempty" yaml:"group,omitempty"`
+		Items    []*EnvironmentItem    `json:"items,omitempty" yaml:"items,omitempty"`
+		Parallel *flexible.Field[bool] `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+		Group    interface{}           `json:"group,omitempty" yaml:"group,omitempty"`
 	}{}
 
 	if err := json.Unmarshal(data, &out1); err == nil {
@@ -58,12 +58,12 @@ func (v *EnvironmentRef) UnmarshalJSON(data []byte) error {
 	}
 
 	if err := json.Unmarshal(data, &out2); err == nil {
-		v.Sequential = out2.Sequential
+		v.Parallel = out2.Parallel
 		v.Items = out2.Items
 		v.Group = out2.Group
 		// Set MultiEnv flag based on whether this is a multi-environment config
-		// MultiEnv is true if: multiple items, or has sequential/group fields
-		v.MultiEnv = len(out2.Items) > 0 || out2.Sequential != nil || out2.Group != nil
+		// MultiEnv is true if: multiple items, or has parallel/group fields
+		v.MultiEnv = len(out2.Items) > 0 || out2.Parallel != nil || out2.Group != nil
 		return nil
 	} else {
 		return err

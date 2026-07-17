@@ -65,7 +65,7 @@ func (s ServiceItem) MarshalJSON() ([]byte, error) {
 type ServiceRef struct {
 	Type string `json:"type,omitempty"` // Deployment Type: Kubernetes, Helm, etc.
 	Items        []*ServiceItem        `json:"items,omitempty"`
-	Sequential   *flexible.Field[bool] `json:"sequential,omitempty"`
+	Parallel     *flexible.Field[bool] `json:"parallel,omitempty"`
 	MultiService bool                  `json:"-"` // Don't serialize this field
 }
 
@@ -73,7 +73,7 @@ type ServiceRef struct {
 // Handles:
 // - Single string: "service1"
 // - Array of strings: ["service1", "service2"]
-// - Object with items: {items: [...], sequential: true}
+// - Object with items: {items: [...], parallel: true}
 func (v *ServiceRef) UnmarshalJSON(data []byte) error {
 	// Try as single string
 	var str string
@@ -100,14 +100,14 @@ func (v *ServiceRef) UnmarshalJSON(data []byte) error {
 
 	// Try as full object with items field
 	var out = struct {
-		Items      []*ServiceItem        `json:"items,omitempty"`
-		Sequential *flexible.Field[bool] `json:"sequential,omitempty"`
+		Items    []*ServiceItem        `json:"items,omitempty"`
+		Parallel *flexible.Field[bool] `json:"parallel,omitempty"`
 	}{}
 	if err := json.Unmarshal(data, &out); err != nil {
 		return err
 	}
 	v.Items = out.Items
-	v.Sequential = out.Sequential
+	v.Parallel = out.Parallel
 	v.MultiService = len(v.Items) > 1
 	return nil
 }
@@ -115,10 +115,10 @@ func (v *ServiceRef) UnmarshalJSON(data []byte) error {
 // MarshalJSON implements json.Marshaler for ServiceRef.
 // Outputs:
 // - Single string if one item without With and not MultiService: "service1"
-// - Object with items if MultiService: {items: [...]} or {items: [...], sequential: true}
+// - Object with items if MultiService: {items: [...]} or {items: [...], parallel: true}
 func (v *ServiceRef) MarshalJSON() ([]byte, error) {
 	// Single item without With and not forced to be multi-service
-	if len(v.Items) == 1 && !v.MultiService && v.Sequential == nil {
+	if len(v.Items) == 1 && !v.MultiService && v.Parallel == nil {
 		item := v.Items[0]
 		if item.Type == "" {
 			item.Type = v.Type

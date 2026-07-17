@@ -47,7 +47,7 @@ pipeline:
           id: prod
         steps: []
       - environment:
-          sequential: true
+          parallel: true
           items:
           - id: test
           - id: prod
@@ -67,7 +67,7 @@ pipeline:
           - petstore-backend
         steps: []
       - service:
-          sequential: true
+          parallel: true
           items:
           - petstore-frontend
           - petstore-backend
