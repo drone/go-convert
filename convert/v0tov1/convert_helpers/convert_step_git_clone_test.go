@@ -10,9 +10,10 @@ import (
 
 func TestConvertStepGitClone(t *testing.T) {
 	tests := []struct {
-		name     string
-		step     *v0.Step
-		expected map[string]interface{}
+		name         string
+		step         *v0.Step
+		expected     map[string]interface{}
+		expectedUses string
 	}{
 		{
 			name: "branch build type",
@@ -26,9 +27,11 @@ func TestConvertStepGitClone(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector":    "github-connector",
-				"build_target": "Git Branch",
-				"branch":       "main",
+				"connector": "github-connector",
+				"build": map[string]interface{}{
+					"target": "Git Branch",
+					"branch": "main",
+				},
 			},
 		},
 		{
@@ -43,9 +46,11 @@ func TestConvertStepGitClone(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector":    "github-connector",
-				"build_target": "Tag",
-				"tag":          "v1.0.0",
+				"connector": "github-connector",
+				"build": map[string]interface{}{
+					"target": "Tag",
+					"tag":    "v1.0.0",
+				},
 			},
 		},
 		{
@@ -60,9 +65,11 @@ func TestConvertStepGitClone(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector":    "github-connector",
-				"build_target": "Pull Request",
-				"pr":           "42",
+				"connector": "github-connector",
+				"build": map[string]interface{}{
+					"target": "Pull Request",
+					"pr":     "42",
+				},
 			},
 		},
 		{
@@ -77,9 +84,11 @@ func TestConvertStepGitClone(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector":    "github-connector",
-				"build_target": "Commit",
-				"commit_sha":   "abc123def456",
+				"connector": "github-connector",
+				"build": map[string]interface{}{
+					"target":     "Commit",
+					"commit_sha": "abc123def456",
+				},
 			},
 		},
 		{
@@ -116,10 +125,12 @@ func TestConvertStepGitClone(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector":          "github-connector",
-				"repo_name":          "my-repo",
-				"build_target":       "Git Branch",
-				"branch":             "develop",
+				"connector": "github-connector",
+				"repo_name": "my-repo",
+				"build": map[string]interface{}{
+					"target": "Git Branch",
+					"branch": "develop",
+				},
 				"clone_directory":    "/workspace/src",
 				"depth":              "50",
 				"lfs_enabled":        true,
@@ -135,7 +146,8 @@ func TestConvertStepGitClone(t *testing.T) {
 			step: &v0.Step{
 				Spec: &v0.StepGitClone{},
 			},
-			expected: map[string]interface{}{},
+			expected:     map[string]interface{}{},
+			expectedUses: "harnessCodeCloneStep",
 		},
 		{
 			name: "expression in build type",
@@ -146,7 +158,7 @@ func TestConvertStepGitClone(t *testing.T) {
 				},
 			},
 			expected: map[string]interface{}{
-				"connector":    "github-connector",
+				"connector": "github-connector",
 			},
 		},
 		{
@@ -184,8 +196,12 @@ func TestConvertStepGitClone(t *testing.T) {
 				t.Fatal("expected non-nil result")
 			}
 
-			if result.Uses != "gitCloneStep" {
-				t.Errorf("expected Uses to be gitCloneStep, got %s", result.Uses)
+			expectedUses := tt.expectedUses
+			if expectedUses == "" {
+				expectedUses = "gitCloneStep"
+			}
+			if result.Uses != expectedUses {
+				t.Errorf("expected Uses to be %s, got %s", expectedUses, result.Uses)
 			}
 
 			if diff := cmp.Diff(tt.expected, result.With); diff != "" {

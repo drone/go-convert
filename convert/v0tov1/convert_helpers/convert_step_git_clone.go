@@ -21,9 +21,11 @@ func ConvertStepGitClone(src *v0.Step) *v1.StepTemplate {
 
 	with := make(map[string]interface{})
 
+	var isExternal bool = false
 	// Connector
 	if sp.ConnRef != "" {
 		with["connector"] = sp.ConnRef
+		isExternal = true
 	}
 
 	// Repository name
@@ -32,33 +34,36 @@ func ConvertStepGitClone(src *v0.Step) *v1.StepTemplate {
 	}
 
 	// Build type - extract branch, tag, PR, or commit_sha from Build field
+	// These are nested under the "build" object to match the template inputs.
 	if sp.BuildType != nil && !sp.BuildType.IsNil() {
 		if build, ok := sp.BuildType.AsStruct(); ok {
+			buildObj := make(map[string]interface{})
 			switch build.Type {
 			case "branch":
-				with["build_target"] = "Git Branch"
+				buildObj["target"] = "Git Branch"
 			case "tag":
-				with["build_target"] = "Tag"
+				buildObj["target"] = "Tag"
 			case "PR":
-				with["build_target"] = "Pull Request"
+				buildObj["target"] = "Pull Request"
 			case "commitSha":
-				with["build_target"] = "Commit"
+				buildObj["target"] = "Commit"
 			default:
-				with["build_target"] = build.Type
+				buildObj["target"] = build.Type
 			}
 			if build.Spec.Branch != "" {
-				with["branch"] = build.Spec.Branch
+				buildObj["branch"] = build.Spec.Branch
 			} else if build.Spec.Tag != "" {
-				with["tag"] = build.Spec.Tag
+				buildObj["tag"] = build.Spec.Tag
 			} else if build.Spec.Number != nil {
 				if pr, ok := build.Spec.Number.AsString(); ok {
-					with["pr"] = pr
+					buildObj["pr"] = pr
 				} else if pr, ok := build.Spec.Number.AsStruct(); ok {
-					with["pr"] = fmt.Sprintf("%d", pr)
+					buildObj["pr"] = fmt.Sprintf("%d", pr)
 				}
 			} else if build.Spec.CommitSha != "" {
-				with["commit_sha"] = build.Spec.CommitSha
+				buildObj["commit_sha"] = build.Spec.CommitSha
 			}
+			with["build"] = buildObj
 		}
 	}
 
@@ -138,10 +143,21 @@ func ConvertStepGitClone(src *v0.Step) *v1.StepTemplate {
 	// pr_merge_strategy: no v0 StepGitClone field; template default is "Source Branch"
 	// copy_file_content: no v0 StepGitClone field; optional template input with no default
 
+	var uses string
+	if isExternal {
+		uses = "gitCloneStep"
+	} else {
+		uses = "harnessCodeCloneStep"
+	}
+
 	dst := &v1.StepTemplate{
-		Uses:      "gitCloneStep",
+		Uses:      uses,
 		With:      with,
-		Container: ConvertTemplateContainer(sp.RunAsUser, sp.Resources),
+		Container: ConvertTemplateContainer(
+			sp.RunAsUser,
+			sp.Resources,
+			WithPrivileged(sp.Privileged),
+		),
 	}
 
 	return dst
