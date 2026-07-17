@@ -79,17 +79,17 @@ const (
 	StepTypeContainer                  = "Container"
 
 	// Feature Flags
-	StepTypeHTTP               = "Http"
-	StepTypeEmail              = "Email"
-	StepTypeJiraApproval       = "JiraApproval"
-	StepTypeJiraCreate         = "JiraCreate"
-	StepTypeJiraUpdate         = "JiraUpdate"
-	StepTypeServiceNowApproval = "ServiceNowApproval"
-	StepTypeServiceNowCreate   = "ServiceNowCreate"
-	StepTypeServiceNowUpdate   = "ServiceNowUpdate"
-	StepTypeShellScript        = "ShellScript"
-	StepTypeWait               = "Wait"
-	StepTypeCustomApproval     = "CustomApproval"
+	StepTypeHTTP                 = "Http"
+	StepTypeEmail                = "Email"
+	StepTypeJiraApproval         = "JiraApproval"
+	StepTypeJiraCreate           = "JiraCreate"
+	StepTypeJiraUpdate           = "JiraUpdate"
+	StepTypeServiceNowApproval   = "ServiceNowApproval"
+	StepTypeServiceNowCreate     = "ServiceNowCreate"
+	StepTypeServiceNowUpdate     = "ServiceNowUpdate"
+	StepTypeShellScript          = "ShellScript"
+	StepTypeWait                 = "Wait"
+	StepTypeCustomApproval       = "CustomApproval"
 	StepTypeShellScriptProvision = "ShellScriptProvision"
 	StepTypeFilesUpload          = "FilesUpload"
 
@@ -119,15 +119,26 @@ const (
 	StepTypeHelmDeploy            = "HelmDeploy"
 	StepTypeHelmRollback          = "HelmRollback"
 
+	// CD / AWS SAM
+	StepTypeAwsSamBuild    = "AwsSamBuild"
+	StepTypeAwsSamDeploy   = "AwsSamDeploy"
+	StepTypeAwsSamRollback = "AwsSamRollback"
+
+	// CD / Serverless (AWS Lambda V2)
+	StepTypeServerlessAwsLambdaDeployV2          = "ServerlessAwsLambdaDeployV2"
+	StepTypeServerlessAwsLambdaPackageV2         = "ServerlessAwsLambdaPackageV2"
+	StepTypeServerlessAwsLambdaRollbackV2        = "ServerlessAwsLambdaRollbackV2"
+	StepTypeServerlessAwsLambdaPrepareRollbackV2 = "ServerlessAwsLambdaPrepareRollbackV2"
+
 	// Approval
 	StepTypeVerify = "Verify"
 
 	// IACM
 	StepTypeIACMTerraformPlugin = "IACMTerraformPlugin"
-	StepTypeIACMOpenTofuPlugin = "IACMOpenTofuPlugin"
+	StepTypeIACMOpenTofuPlugin  = "IACMOpenTofuPlugin"
 
 	// Terraform
-	StepTypeTerraformPlan = "TerraformPlan"
+	StepTypeTerraformPlan  = "TerraformPlan"
 	StepTypeTerraformApply = "TerraformApply"
 )
 

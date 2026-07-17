@@ -187,6 +187,16 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 		step.Template = convert_helpers.ConvertStepHelmDeploy(src)
 	case v0.StepTypeHelmRollback:
 		step.Template = convert_helpers.ConvertStepHelmRollback(src)
+	case v0.StepTypeAwsSamBuild:
+		step.Template = convert_helpers.ConvertStepAwsSamBuild(src)
+	case v0.StepTypeAwsSamDeploy:
+		step.Template = convert_helpers.ConvertStepAwsSamDeploy(src)
+	case v0.StepTypeServerlessAwsLambdaDeployV2:
+		step.Template = convert_helpers.ConvertStepServerlessAwsLambdaDeployV2(src)
+	case v0.StepTypeServerlessAwsLambdaPackageV2:
+		step.Template = convert_helpers.ConvertStepServerlessAwsLambdaPackageV2(src)
+	case v0.StepTypeServerlessAwsLambdaRollbackV2:
+		step.Template = convert_helpers.ConvertStepServerlessAwsLambdaRollbackV2(src)
 	case v0.StepTypeWait:
 		step.Wait = convert_helpers.ConvertStepWait(src)
 	case v0.StepTypeHTTP:

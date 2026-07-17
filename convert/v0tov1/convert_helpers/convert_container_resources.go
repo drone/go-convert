@@ -6,16 +6,47 @@ import (
 	"github.com/drone/go-convert/internal/flexible"
 )
 
-// ConvertTemplateContainer builds a v1.Container for template steps
-// from v0 RunAsUser and Resources fields. Returns nil if both are empty.
-func ConvertTemplateContainer(runAsUser *flexible.Field[int], resources *v0.Resources) *v1.Container {
+// containerConfig holds the optional container fields configured via
+// ContainerOption. runAsUser and resources remain required positional args.
+type containerConfig struct {
+	privileged      *flexible.Field[bool]
+	imagePullPolicy string
+}
+
+// ContainerOption configures optional fields on the v1.Container built by
+// ConvertTemplateContainer.
+type ContainerOption func(*containerConfig)
+
+// WithPrivileged sets the container privileged flag.
+func WithPrivileged(v *flexible.Field[bool]) ContainerOption {
+	return func(c *containerConfig) { c.privileged = v }
+}
+
+// WithImagePullPolicy sets the v0 image pull policy; it is converted to the v1
+// pull format internally by ConvertTemplateContainer.
+func WithImagePullPolicy(v string) ContainerOption {
+	return func(c *containerConfig) { c.imagePullPolicy = v }
+}
+
+// ConvertTemplateContainer builds a v1.Container for template steps from v0
+// RunAsUser and Resources fields plus any optional fields supplied via opts.
+// Returns nil if no fields are set.
+func ConvertTemplateContainer(runAsUser *flexible.Field[int], resources *v0.Resources, opts ...ContainerOption) *v1.Container {
+	cfg := &containerConfig{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
 	res := ConvertContainerResources(resources)
-	if runAsUser == nil && res == nil {
+	pull := ConvertImagePullPolicy(cfg.imagePullPolicy)
+	if runAsUser == nil && res == nil && cfg.privileged == nil && pull == "" {
 		return nil
 	}
 	return &v1.Container{
-		User:      runAsUser,
-		Resources: res,
+		User:       runAsUser,
+		Resources:  res,
+		Privileged: cfg.privileged,
+		Pull:       pull,
 	}
 }
 
