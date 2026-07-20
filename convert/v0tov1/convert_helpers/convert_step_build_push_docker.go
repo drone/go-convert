@@ -126,6 +126,10 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 	return &v1.StepTemplate{
 		Uses:      uses,
 		With:      with,
-		Container: ConvertTemplateContainer(spec.RunAsUser, spec.Resources),
+		Container: ConvertTemplateContainer(
+			spec.RunAsUser, 
+			spec.Resources,
+			WithPrivileged(spec.Privileged),
+		),
 	}
 }
