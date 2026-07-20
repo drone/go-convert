@@ -26,13 +26,13 @@ func (c *PipelineConverter) ConvertTemplate(src *v0.Template) *v1.Template {
 		}
 	case "Step":
 		if spec, ok := src.Spec.(*v0.Step); ok {
-			dst.Step = c.ConvertSingleStep(spec, false, "", "", "")
+			dst.Step = c.ConvertSingleStep(spec, false, "", "", "", nil)
 		}
 	case "StepGroup":
 		if spec, ok := src.Spec.(*v0.StepGroup); ok {
 			dst.Env = spec.Env
 			dst.Group = &v1.StepGroup{
-				Steps:  c.ConvertSteps(spec.Steps, false, "", "", ""),
+				Steps:  c.ConvertSteps(spec.Steps, false, "", "", "", nil),
 				Inputs: c.convertVariables(spec.Variables),
 			}
 			dst.OnFailure = convert_helpers.ConvertFailureStrategies(spec.FailureStrategies)

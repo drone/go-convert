@@ -22,7 +22,7 @@ import (
 )
 
 // ConvertStepBackground converts a v0 Background step to v1 background spec
-func ConvertStepBackground(src *v0.Step) *v1.StepRun {
+func ConvertStepBackground(src *v0.Step, ctx *StepConvertContext) *v1.StepRun {
 	if src == nil || src.Spec == nil {
 		return nil
 	}
@@ -31,10 +31,20 @@ func ConvertStepBackground(src *v0.Step) *v1.StepRun {
 		return nil
 	}
 
-	// Container mapping
+	// Container mapping. See ConvertStepRun for Cloud-containerless rationale.
 	var container *v1.Container
 	resources := ConvertContainerResources(sp.Resources)
-	if sp.Image != "" || sp.ConnRef != "" || sp.Privileged != nil || resources != nil || sp.RunAsUser != nil {
+	if ctx.IsCloud() && sp.Image == "" {
+		WarnDroppedContainerFieldsOnCloud(src.ID, src.Type, map[string]bool{
+			"connectorRef": sp.ConnRef != "",
+			"registryRef":  sp.RegistryRef != "",
+			"privileged":   sp.Privileged != nil,
+			"resources":    resources != nil,
+			"entrypoint":   sp.Entrypoint != nil,
+			"runAsUser":    sp.RunAsUser != nil,
+			"portBindings": sp.PortBindings != nil,
+		})
+	} else if sp.Image != "" || sp.ConnRef != "" || sp.Privileged != nil || resources != nil || sp.RunAsUser != nil {
 		pull := ConvertImagePullPolicy(sp.ImagePullPolicy)
 
 		container = &v1.Container{

@@ -65,6 +65,15 @@ const (
 	StepTypeHelmDeploy            = "helmBasicDeployStep"
 	StepTypeHelmRollback          = "helmRollbackStep"
 
+	// CD / AWS SAM
+	StepTypeAwsSamBuild  = "awsSamBuildStep"
+	StepTypeAwsSamDeploy = "awsSamDeployStep"
+
+	// CD / Serverless (AWS Lambda V2)
+	StepTypeServerlessDeploy   = "serverlessDeployStep"
+	StepTypeServerlessPackage  = "serverlessPackageStep"
+	StepTypeServerlessRollback = "serverlessRollbackStep"
+
 	// Approval
 	StepTypeVerify = "Verify"
 

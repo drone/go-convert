@@ -32,8 +32,10 @@ func splitGroupChain(groupID string) []string {
 
 // convertSteps converts a list of v0.Steps to a list of v1.Step. stageID and
 // groupID scope step registration; groupID is the ">"-joined ancestor chain
-// (e.g. "A>B>C") that disambiguates same-named groups.
-func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool, basePath, stageID, groupID string) []*v1.Step {
+// (e.g. "A>B>C") that disambiguates same-named groups. stepCtx is the
+// stage-scoped context (Cloud runtime awareness, etc.) forwarded to helpers
+// that need it; nil is safe and preserves today's behavior.
+func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool, basePath, stageID, groupID string, stepCtx *convert_helpers.StepConvertContext) []*v1.Step {
 	if len(src) == 0 {
 		return make([]*v1.Step, 0)
 	}
@@ -43,14 +45,14 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool, baseP
 			continue
 		}
 		if s.Step != nil {
-			if step := c.ConvertSingleStep(s.Step, isRollBack, basePath, stageID, groupID); step != nil {
+			if step := c.ConvertSingleStep(s.Step, isRollBack, basePath, stageID, groupID, stepCtx); step != nil {
 				dst = append(dst, step)
 			}
 			continue
 		}
 		if s.Parallel != nil {
 			parallel_group := &v1.StepGroup{
-				Steps: c.ConvertSteps(s.Parallel, isRollBack, basePath, stageID, groupID),
+				Steps: c.ConvertSteps(s.Parallel, isRollBack, basePath, stageID, groupID, stepCtx),
 			}
 			parallel := &v1.Step{
 				Parallel: parallel_group,
@@ -86,7 +88,7 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool, baseP
 				group.Env = s.StepGroup.Env
 				childGroupID := appendGroupChain(groupID, s.StepGroup.ID)
 				group.Group = &v1.StepGroup{
-					Steps:  c.ConvertSteps(s.StepGroup.Steps, isRollBack, groupPath, stageID, childGroupID),
+					Steps:  c.ConvertSteps(s.StepGroup.Steps, isRollBack, groupPath, stageID, childGroupID, stepCtx),
 					Inputs: c.convertVariables(s.StepGroup.Variables),
 				}
 				group.OnFailure = convert_helpers.ConvertFailureStrategies(s.StepGroup.FailureStrategies)
@@ -101,7 +103,7 @@ func (c *PipelineConverter) ConvertSteps(src []*v0.Steps, isRollBack bool, baseP
 	return dst
 }
 
-func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, basePath, stageID, groupID string) *v1.Step {
+func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, basePath, stageID, groupID string, stepCtx *convert_helpers.StepConvertContext) *v1.Step {
 	if src == nil {
 		return nil
 	}
@@ -138,9 +140,9 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 	case v0.StepTypeJiraUpdate:
 		step.Template = convert_helpers.ConvertStepJiraUpdate(src)
 	case v0.StepTypeRun:
-		step.Run = convert_helpers.ConvertStepRun(src)
+		step.Run = convert_helpers.ConvertStepRun(src, stepCtx)
 	case v0.StepTypeBackground:
-		step.Background = convert_helpers.ConvertStepBackground(src)
+		step.Background = convert_helpers.ConvertStepBackground(src, stepCtx)
 	case v0.StepTypeHarnessApproval:
 		step.Approval = convert_helpers.ConvertStepHarnessApproval(src)
 	case v0.StepTypeK8sRollingDeploy:
@@ -187,6 +189,16 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 		step.Template = convert_helpers.ConvertStepHelmDeploy(src)
 	case v0.StepTypeHelmRollback:
 		step.Template = convert_helpers.ConvertStepHelmRollback(src)
+	case v0.StepTypeAwsSamBuild:
+		step.Template = convert_helpers.ConvertStepAwsSamBuild(src)
+	case v0.StepTypeAwsSamDeploy:
+		step.Template = convert_helpers.ConvertStepAwsSamDeploy(src)
+	case v0.StepTypeServerlessAwsLambdaDeployV2:
+		step.Template = convert_helpers.ConvertStepServerlessAwsLambdaDeployV2(src)
+	case v0.StepTypeServerlessAwsLambdaPackageV2:
+		step.Template = convert_helpers.ConvertStepServerlessAwsLambdaPackageV2(src)
+	case v0.StepTypeServerlessAwsLambdaRollbackV2:
+		step.Template = convert_helpers.ConvertStepServerlessAwsLambdaRollbackV2(src)
 	case v0.StepTypeWait:
 		step.Wait = convert_helpers.ConvertStepWait(src)
 	case v0.StepTypeHTTP:
@@ -234,11 +246,11 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 	case v0.StepTypeBuildAndPushDockerRegistry:
 		step.Template = convert_helpers.ConvertStepBuildAndPushDockerRegistry(src)
 	case v0.StepTypePlugin:
-		step.Run = convert_helpers.ConvertStepPlugin(src)
+		step.Run = convert_helpers.ConvertStepPlugin(src, stepCtx)
 	case v0.StepTypeTest:
-		step.RunTest = convert_helpers.ConvertStepTestIntelligence(src)
+		step.RunTest = convert_helpers.ConvertStepTestIntelligence(src, stepCtx)
 	case v0.StepTypeRunTests:
-		step.RunTest = convert_helpers.ConvertStepRunTests(src)
+		step.RunTest = convert_helpers.ConvertStepRunTests(src, stepCtx)
 	case v0.StepTypeGitClone:
 		step.Template = convert_helpers.ConvertStepGitClone(src)
 	case v0.StepTypeIACMTerraformPlugin:
@@ -248,7 +260,7 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 	case v0.StepTypeBitrise:
 		step.Run = convert_helpers.ConvertStepBitrise(src)
 	case v0.StepTypeContainer:
-		step.Run = convert_helpers.ConvertStepContainer(src)
+		step.Run = convert_helpers.ConvertStepContainer(src, stepCtx)
 	case v0.StepTypeFilesUpload:
 		step.Upload = convert_helpers.ConvertStepFilesUpload(src)
 	default:

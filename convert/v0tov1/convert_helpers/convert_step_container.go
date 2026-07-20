@@ -10,7 +10,7 @@ import (
 
 // ConvertStepContainer converts a v0 Container step to v1 run step
 // Container steps are converted to Run steps
-func ConvertStepContainer(src *v0.Step) *v1.StepRun {
+func ConvertStepContainer(src *v0.Step, ctx *StepConvertContext) *v1.StepRun {
 	if src == nil || src.Spec == nil {
 		return nil
 	}
@@ -30,9 +30,17 @@ func ConvertStepContainer(src *v0.Step) *v1.StepRun {
 
 	script := sp.Command
 
-	// Container mapping
+	// Container mapping. See ConvertStepRun for Cloud-containerless rationale.
 	var container *v1.Container
-	if sp.Image != "" || sp.ConnRef != "" || sp.Privileged != nil || sp.RunAsUser != nil {
+	if ctx.IsCloud() && sp.Image == "" {
+		WarnDroppedContainerFieldsOnCloud(src.ID, src.Type, map[string]bool{
+			"connectorRef": sp.ConnRef != "",
+			"registryRef":  sp.RegistryRef != "",
+			"privileged":   sp.Privileged != nil,
+			"entrypoint":   sp.Entrypoint != nil,
+			"runAsUser":    sp.RunAsUser != nil,
+		})
+	} else if sp.Image != "" || sp.ConnRef != "" || sp.Privileged != nil || sp.RunAsUser != nil {
 		pull := ConvertImagePullPolicy(sp.ImagePullPolicy)
 
 		container = &v1.Container{

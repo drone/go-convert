@@ -22,7 +22,7 @@ import (
 )
 
 // ConvertStepRunSpec converts a v0 Run step to v1 run spec only
-func ConvertStepRun(src *v0.Step) *v1.StepRun {
+func ConvertStepRun(src *v0.Step, ctx *StepConvertContext) *v1.StepRun {
 	if src == nil || src.Spec == nil {
 		return nil
 	}
@@ -33,10 +33,21 @@ func ConvertStepRun(src *v0.Step) *v1.StepRun {
 
 	script := sp.Command
 
-	// Container mapping
+	// Container mapping. On Cloud infra a step with no image is "containerless"
+	// — it runs directly on the hosted VM — so we must NOT emit a container
+	// block even when other container-adjacent fields are set. Any such fields
+	// get dropped with a single warn per step.
 	var container *v1.Container
 	resources := ConvertContainerResources(sp.Resources)
-	if sp.Image != "" || sp.ConnRef != "" || sp.Privileged != nil || resources != nil || sp.RunAsUser != nil {
+	if ctx.IsCloud() && sp.Image == "" {
+		WarnDroppedContainerFieldsOnCloud(src.ID, src.Type, map[string]bool{
+			"connectorRef": sp.ConnRef != "",
+			"registryRef":  sp.RegistryRef != "",
+			"privileged":   sp.Privileged != nil,
+			"resources":    resources != nil,
+			"runAsUser":    sp.RunAsUser != nil,
+		})
+	} else if sp.Image != "" || sp.ConnRef != "" || sp.Privileged != nil || resources != nil || sp.RunAsUser != nil {
 		pull := ConvertImagePullPolicy(sp.ImagePullPolicy)
 		container = &v1.Container{
 			Image:      sp.Image,

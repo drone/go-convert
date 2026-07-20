@@ -230,7 +230,7 @@ func TestConvertStepRunTests(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := ConvertStepRunTests(tt.input)
+			result := ConvertStepRunTests(tt.input, nil)
 
 			if diff := cmp.Diff(tt.expected, result); diff != "" {
 				t.Errorf("ConvertStepRunTests() mismatch (-want +got):\n%s", diff)
@@ -270,7 +270,7 @@ func TestConvertStepRunTests_NilCases(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := ConvertStepRunTests(tt.input)
+			result := ConvertStepRunTests(tt.input, nil)
 			if result != nil {
 				t.Errorf("expected nil result, got %v", result)
 			}

@@ -899,6 +899,20 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepContainer)
 	case StepTypeFilesUpload:
 		s.Spec = new(StepFilesUpload)
+	case StepTypeAwsSamBuild:
+		s.Spec = new(StepAwsSamBuild)
+	case StepTypeAwsSamDeploy:
+		s.Spec = new(StepAwsSamDeploy)
+	case StepTypeAwsSamRollback:
+		s.Spec = new(StepAwsSamRollback)
+	case StepTypeServerlessAwsLambdaDeployV2:
+		s.Spec = new(StepServerlessAwsLambdaDeployV2)
+	case StepTypeServerlessAwsLambdaPackageV2:
+		s.Spec = new(StepServerlessAwsLambdaPackageV2)
+	case StepTypeServerlessAwsLambdaRollbackV2:
+		s.Spec = new(StepServerlessAwsLambdaRollbackV2)
+	case StepTypeServerlessAwsLambdaPrepareRollbackV2:
+		s.Spec = new(StepServerlessAwsLambdaPrepareRollbackV2)
 	default:
 		// Preserve s.Type and leave s.Spec nil. The converter emits a
 		// pass-through step and records an UNKNOWN_STEP_TYPE warning on
