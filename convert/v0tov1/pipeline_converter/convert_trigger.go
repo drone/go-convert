@@ -42,6 +42,7 @@ func (c *PipelineConverter) ConvertTrigger(src *v0.Trigger, stepInfoByFQN map[st
 		PipelineIdentifier: src.PipelineIdentifier,
 		InputSetBranchName: src.InputSetBranchName,
 		InputSetReferences: src.InputSetReferences,
+		PipelineBranchName: src.PipelineBranchName,
 	}
 
 	// Convert source
@@ -122,10 +123,13 @@ func (c *PipelineConverter) convertInputYaml(inputYaml string, stepInfoByFQN map
 
 	PostProcessExpressions(v1Pipeline, stepInfoByFQN, useFQN)
 
-	// Create the v1 InputSet structure with the converted pipeline as overlay
+	// Create the v1 InputSet structure with the converted pipeline as overlay.
+	// Pipeline-level variables are lifted out of the overlay and emitted as
+	// scalar key/value pairs at the top-level inputs map.
 	v1InputSet := &v1.InputSet{
 		Overlay: v1Pipeline,
 	}
+	v1InputSet.Variables = liftPipelineVariables(v1Pipeline)
 
 	// Marshal to YAML
 	yamlBytes, err := v1.MarshalInputSet(v1InputSet)

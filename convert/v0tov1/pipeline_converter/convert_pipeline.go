@@ -5,6 +5,7 @@ import (
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	convert_helpers "github.com/drone/go-convert/convert/v0tov1/convert_helpers"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 type PipelineConverter struct {
@@ -99,9 +100,11 @@ func (c *PipelineConverter) convertCodebase(src *v0.Codebase) *v1.Clone {
 				cloneRef.Type = "commit"
 			}
 
-			clone.Ref = cloneRef
+			clone.Ref = &flexible.Field[v1.CloneRef]{Value: cloneRef}
+		} else if build, ok := src.Build.AsString(); ok && build == "<+input>" {
+			clone.Ref = &flexible.Field[v1.CloneRef]{Value: "<+input>"}
 		}
-	}
+	} 
 	clone.Depth = src.Depth
 	clone.Lfs = src.Lfs
 

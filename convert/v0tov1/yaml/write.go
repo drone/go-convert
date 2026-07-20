@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"regexp"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -202,6 +203,13 @@ func convertJSONNumbers(v interface{}) interface{} {
 		if yamlNumberLike.MatchString(val) {
 			return quotedString(val)
 		}
+		// Multi-line strings (e.g. run scripts) should render as YAML literal
+		// block scalars (|-) for readability. yaml.v3 refuses literal style and
+		// falls back to a double-quoted flow scalar when any line has trailing
+		// whitespace, so trim it per line first.
+		if strings.Contains(val, "\n") {
+			return literalString(trimTrailingSpacePerLine(val))
+		}
 		return val
 	default:
 		return v
@@ -227,6 +235,32 @@ func (q quotedString) MarshalYAML() (interface{}, error) {
 		Style: yaml.DoubleQuotedStyle,
 		Tag:   "!!str",
 	}, nil
+}
+
+// literalString is a string wrapper whose MarshalYAML method forces the YAML
+// emitter to use literal block style (|-) instead of a double-quoted flow
+// scalar for multi-line values.
+type literalString string
+
+func (l literalString) MarshalYAML() (interface{}, error) {
+	return &yaml.Node{
+		Kind:  yaml.ScalarNode,
+		Value: string(l),
+		Style: yaml.LiteralStyle,
+		Tag:   "!!str",
+	}, nil
+}
+
+// trimTrailingSpacePerLine removes trailing spaces and tabs from each line of
+// s. Trailing whitespace is meaningless for shell scripts but prevents yaml.v3
+// from emitting literal block scalars, so stripping it lets multi-line values
+// render as |- blocks.
+func trimTrailingSpacePerLine(s string) string {
+	lines := strings.Split(s, "\n")
+	for i, line := range lines {
+		lines[i] = strings.TrimRight(line, " \t")
+	}
+	return strings.Join(lines, "\n")
 }
 
 // WriteTriggerFile writes the Trigger to the given file path.

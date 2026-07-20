@@ -28,6 +28,7 @@ type (
 		Org                string            `json:"orgIdentifier,omitempty"      yaml:"orgIdentifier,omitempty"`
 		Project            string            `json:"projectIdentifier,omitempty"  yaml:"projectIdentifier,omitempty"`
 		PipelineIdentifier string            `json:"pipelineIdentifier,omitempty" yaml:"pipelineIdentifier,omitempty"`
+		PipelineBranchName string            `json:"pipelineBranchName,omitempty" yaml:"pipelineBranchName,omitempty"`
 		Source             *TriggerSource    `json:"source,omitempty"             yaml:"source,omitempty"`
 		InputSetBranchName string            `json:"inputSetBranchName,omitempty" yaml:"inputSetBranchName,omitempty"`
 		InputYaml          string            `json:"inputYaml,omitempty"          yaml:"inputYaml,omitempty"`

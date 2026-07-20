@@ -37,7 +37,7 @@ type Clone struct {
 	Enabled   bool   `json:"enabled"`
 	Insecure   *flexible.Field[bool]      `json:"insecure,omitempty"`
 	Lfs        *flexible.Field[bool]      `json:"lfs,omitempty"`
-	Ref        *CloneRef `json:"ref,omitempty"`
+	Ref        *flexible.Field[CloneRef] `json:"ref,omitempty"`
 	Strategy   string    `json:"strategy,omitempty"`
 	Submodules *flexible.Field[bool]      `json:"submodules,omitempty"`
 	Tags       *flexible.Field[bool]      `json:"tags,omitempty"`
@@ -60,7 +60,7 @@ func (v *Clone) UnmarshalJSON(data []byte) error {
 		Enabled   bool      `json:"enabled"`
 		Insecure   *flexible.Field[bool]      `json:"insecure,omitempty"`
 		Lfs        *flexible.Field[bool]      `json:"lfs,omitempty"`
-		Ref        *CloneRef `json:"ref,omitempty"`
+		Ref        *flexible.Field[CloneRef] `json:"ref,omitempty"`
 		Strategy   string    `json:"strategy,omitempty"`
 		Submodules *flexible.Field[bool]      `json:"submodules,omitempty"`
 		Tags       *flexible.Field[bool]      `json:"tags,omitempty"`
