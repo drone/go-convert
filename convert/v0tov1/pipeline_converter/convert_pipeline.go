@@ -50,7 +50,7 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 	inputs := c.convertVariables(src.Variables)
 	stages := c.convertStages(src.Stages, "pipeline")
 
-	clone := c.convertCodebase(src.Props.CI.Codebase)
+	clone := c.convertCodebase(src.Props.CI.Codebase, false)
 	dst.Inputs = inputs
 	dst.Stages = stages
 	dst.Barriers = barriers
@@ -66,7 +66,7 @@ func (c *PipelineConverter) ConvertPipeline(src *v0.Pipeline) *v1.Pipeline {
 	return dst
 }
 
-func (c *PipelineConverter) convertCodebase(src *v0.Codebase) *v1.Clone {
+func (c *PipelineConverter) convertCodebase(src *v0.Codebase, emitInputRef bool) *v1.Clone {
 	if src == nil {
 		return &v1.Clone{
 			Enabled: false,
@@ -102,7 +102,9 @@ func (c *PipelineConverter) convertCodebase(src *v0.Codebase) *v1.Clone {
 
 			clone.Ref = &flexible.Field[v1.CloneRef]{Value: cloneRef}
 		} else if build, ok := src.Build.AsString(); ok && build == "<+input>" {
-			clone.Ref = &flexible.Field[v1.CloneRef]{Value: "<+input>"}
+			if emitInputRef {
+				clone.Ref = &flexible.Field[v1.CloneRef]{Value: "<+input>"}
+			}
 		}
 	} 
 	clone.Depth = src.Depth
