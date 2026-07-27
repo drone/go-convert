@@ -6,6 +6,7 @@ type (
 	Chain struct {
 		Uses string     `json:"uses,omitempty" yaml:"uses,omitempty"`
 		With *ChainWith `json:"with,omitempty" yaml:"with,omitempty"`
+		Ref  string     `json:"ref,omitempty" yaml:"ref,omitempty"`
 	}
 
 	ChainWith struct {

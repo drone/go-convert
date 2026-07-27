@@ -270,6 +270,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 					Outputs:   outputs,
 					InputSets: spec.InputSetRefs,
 				},
+				Ref: spec.GitBranch,
 			}
 		}
 
@@ -334,7 +335,7 @@ func (c *PipelineConverter) constructChainInputs(spec *v0.StagePipeline) map[str
 		overlay["stages"] = stages
 	}
 	if spec.Inputs.Props.CI.Codebase != nil {
-		overlay["clone"] = c.convertCodebase(spec.Inputs.Props.CI.Codebase)
+		overlay["clone"] = c.convertCodebase(spec.Inputs.Props.CI.Codebase, true)
 	}
 	if spec.Inputs.DelegateSelectors != nil {
 		overlay["delegate"] = convert_helpers.ConvertDelegate(spec.Inputs.DelegateSelectors, nil)

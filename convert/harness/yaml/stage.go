@@ -56,6 +56,7 @@ type (
 		Inputs       *Pipeline                 `json:"inputs,omitempty" yaml:"inputs,omitempty"`
 		Outputs      []*Output                 `json:"outputs,omitempty" yaml:"outputs,omitempty"`
 		InputSetRefs *flexible.Field[[]string] `json:"inputSetReferences,omitempty" yaml:"inputSetReferences,omitempty"`
+		GitBranch    string                    `json:"gitBranch,omitempty" yaml:"gitBranch,omitempty"`
 	}
 
 	StageCustom struct {
