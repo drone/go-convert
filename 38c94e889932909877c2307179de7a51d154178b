@@ -1,0 +1,112 @@
+Dockerfile.service
+  8e58ea3d-9c5a-441d-8ddb-b7994659f475 10
+  human 1,8
+go.mod
+  8e58ea3d-9c5a-441d-8ddb-b7994659f475 5
+  human 3-4,19,24,29-31
+go.sum
+  human 39-54,57-60
+.harness/harness.yaml
+  human 40,51
+---
+{
+  "attestations": [
+    {
+      "entries": [
+        {
+          "accepted_lines": 1,
+          "added_lines": 1,
+          "deleted_lines": 0,
+          "hash": "8e58ea3d-9c5a-441d-8ddb-b7994659f475",
+          "lines": "10",
+          "overridden_lines": 0
+        },
+        {
+          "accepted_lines": 2,
+          "added_lines": 2,
+          "deleted_lines": 2,
+          "hash": "human",
+          "lines": "1,8",
+          "overridden_lines": 0
+        }
+      ],
+      "file": "Dockerfile.service"
+    },
+    {
+      "entries": [
+        {
+          "accepted_lines": 1,
+          "added_lines": 1,
+          "deleted_lines": 1,
+          "hash": "8e58ea3d-9c5a-441d-8ddb-b7994659f475",
+          "lines": "5",
+          "overridden_lines": 0
+        },
+        {
+          "accepted_lines": 7,
+          "added_lines": 7,
+          "deleted_lines": 6,
+          "hash": "human",
+          "lines": "3-4,19,24,29-31",
+          "overridden_lines": 0
+        }
+      ],
+      "file": "go.mod"
+    },
+    {
+      "entries": [
+        {
+          "accepted_lines": 20,
+          "added_lines": 20,
+          "deleted_lines": 20,
+          "hash": "human",
+          "lines": "39-54,57-60",
+          "overridden_lines": 0
+        }
+      ],
+      "file": "go.sum"
+    },
+    {
+      "entries": [
+        {
+          "accepted_lines": 2,
+          "added_lines": 2,
+          "deleted_lines": 2,
+          "hash": "human",
+          "lines": "40,51",
+          "overridden_lines": 0
+        }
+      ],
+      "file": ".harness/harness.yaml"
+    }
+  ],
+  "base_commit_sha": "e3945d921a036e6309e72a281f1b0b653f456753",
+  "branch": "bump-go-1.26.5-cve-fixes",
+  "commit_sha": "38c94e889932909877c2307179de7a51d154178b",
+  "commit_type": "commit_amend",
+  "harness_aidlc_version": "1.4.29",
+  "prompts": {
+    "8e58ea3d-9c5a-441d-8ddb-b7994659f475": {
+      "accepted_lines": 2,
+      "agent_id": {
+        "id": "8e58ea3d-9c5a-441d-8ddb-b7994659f475",
+        "model": "claude-opus-4-8",
+        "tool": "claude"
+      },
+      "human_author": null,
+      "overriden_lines": 0,
+      "total_additions": 2,
+      "total_deletions": 1
+    },
+    "human": {
+      "accepted_lines": 31,
+      "agent_id": null,
+      "human_author": null,
+      "overriden_lines": 0,
+      "total_additions": 31,
+      "total_deletions": 30
+    }
+  },
+  "repo": "https://github.com/drone/go-convert",
+  "schema_version": "authorship/3.0.0"
+}
