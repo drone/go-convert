@@ -1,0 +1,74 @@
+go.mod
+  8e58ea3d-9c5a-441d-8ddb-b7994659f475 3,19,24,29-31
+  human 3,19,24,29-31
+go.sum
+  human 39-54,57-60
+---
+{
+  "attestations": [
+    {
+      "entries": [
+        {
+          "accepted_lines": 6,
+          "added_lines": 6,
+          "deleted_lines": 6,
+          "hash": "8e58ea3d-9c5a-441d-8ddb-b7994659f475",
+          "lines": "3,19,24,29-31",
+          "overridden_lines": 0
+        },
+        {
+          "accepted_lines": 0,
+          "added_lines": 0,
+          "deleted_lines": 6,
+          "hash": "human",
+          "lines": "3,19,24,29-31",
+          "overridden_lines": 0
+        }
+      ],
+      "file": "go.mod"
+    },
+    {
+      "entries": [
+        {
+          "accepted_lines": 20,
+          "added_lines": 20,
+          "deleted_lines": 20,
+          "hash": "human",
+          "lines": "39-54,57-60",
+          "overridden_lines": 0
+        }
+      ],
+      "file": "go.sum"
+    }
+  ],
+  "base_commit_sha": "d8d37e119ce07a32ffef28f6650635694e9703e6",
+  "branch": "bump-go-1.26.5-cve-fixes",
+  "commit_sha": "8b88867c24dcbd66c4407481a29adb19b4843f86",
+  "commit_time": "2026-07-29T12:43:10+05:30",
+  "commit_type": "direct_commit",
+  "harness_aidlc_version": "1.4.29",
+  "prompts": {
+    "8e58ea3d-9c5a-441d-8ddb-b7994659f475": {
+      "accepted_lines": 6,
+      "agent_id": {
+        "id": "8e58ea3d-9c5a-441d-8ddb-b7994659f475",
+        "model": "claude-opus-4-8",
+        "tool": "claude"
+      },
+      "human_author": "Rishikesh Chaudhary <rishikesh.chaudhary@harness.io>",
+      "overriden_lines": 0,
+      "total_additions": 6,
+      "total_deletions": 6
+    },
+    "human": {
+      "accepted_lines": 20,
+      "agent_id": null,
+      "human_author": "Rishikesh Chaudhary <rishikesh.chaudhary@harness.io>",
+      "overriden_lines": 0,
+      "total_additions": 20,
+      "total_deletions": 26
+    }
+  },
+  "repo": "https://github.com/drone/go-convert",
+  "schema_version": "authorship/3.0.0"
+}
