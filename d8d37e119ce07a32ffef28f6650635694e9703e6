@@ -1,0 +1,98 @@
+Dockerfile.service
+  8e58ea3d-9c5a-441d-8ddb-b7994659f475 1
+  human 1
+go.mod
+  8e58ea3d-9c5a-441d-8ddb-b7994659f475 5-6
+.harness/harness.yaml
+  8e58ea3d-9c5a-441d-8ddb-b7994659f475 40,51
+  human 40,51
+---
+{
+  "attestations": [
+    {
+      "entries": [
+        {
+          "accepted_lines": 1,
+          "added_lines": 1,
+          "deleted_lines": 0,
+          "hash": "8e58ea3d-9c5a-441d-8ddb-b7994659f475",
+          "lines": "1",
+          "overridden_lines": 0
+        },
+        {
+          "accepted_lines": 0,
+          "added_lines": 0,
+          "deleted_lines": 1,
+          "hash": "human",
+          "lines": "1",
+          "overridden_lines": 0
+        }
+      ],
+      "file": "Dockerfile.service"
+    },
+    {
+      "entries": [
+        {
+          "accepted_lines": 2,
+          "added_lines": 2,
+          "deleted_lines": 1,
+          "hash": "8e58ea3d-9c5a-441d-8ddb-b7994659f475",
+          "lines": "5-6",
+          "overridden_lines": 0
+        }
+      ],
+      "file": "go.mod"
+    },
+    {
+      "entries": [
+        {
+          "accepted_lines": 2,
+          "added_lines": 2,
+          "deleted_lines": 2,
+          "hash": "8e58ea3d-9c5a-441d-8ddb-b7994659f475",
+          "lines": "40,51",
+          "overridden_lines": 0
+        },
+        {
+          "accepted_lines": 0,
+          "added_lines": 0,
+          "deleted_lines": 2,
+          "hash": "human",
+          "lines": "40,51",
+          "overridden_lines": 0
+        }
+      ],
+      "file": ".harness/harness.yaml"
+    }
+  ],
+  "base_commit_sha": "e3945d921a036e6309e72a281f1b0b653f456753",
+  "branch": "bump-go-1.26.5-cve-fixes",
+  "commit_sha": "d8d37e119ce07a32ffef28f6650635694e9703e6",
+  "commit_time": "2026-07-29T12:36:08+05:30",
+  "commit_type": "direct_commit",
+  "harness_aidlc_version": "1.4.29",
+  "prompts": {
+    "8e58ea3d-9c5a-441d-8ddb-b7994659f475": {
+      "accepted_lines": 5,
+      "agent_id": {
+        "id": "8e58ea3d-9c5a-441d-8ddb-b7994659f475",
+        "model": "claude-opus-4-8",
+        "tool": "claude"
+      },
+      "human_author": "Rishikesh Chaudhary <rishikesh.chaudhary@harness.io>",
+      "overriden_lines": 0,
+      "total_additions": 5,
+      "total_deletions": 3
+    },
+    "human": {
+      "accepted_lines": 0,
+      "agent_id": null,
+      "human_author": "Rishikesh Chaudhary <rishikesh.chaudhary@harness.io>",
+      "overriden_lines": 0,
+      "total_additions": 0,
+      "total_deletions": 3
+    }
+  },
+  "repo": "https://github.com/drone/go-convert",
+  "schema_version": "authorship/3.0.0"
+}
