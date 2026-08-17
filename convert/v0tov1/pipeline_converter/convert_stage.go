@@ -42,8 +42,8 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 	}
 
 	stage := &v1.Stage{
-		Id:    src.ID,
-		Name:  src.Name,
+		Id:   src.ID,
+		Name: src.Name,
 	}
 
 	// Check for Template - if template exists, set it and continue converting rest
@@ -245,7 +245,7 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 
 			// Map v0 deploymentType onto the v1 service ref type.
 			if stage.Service != nil && spec.DeploymentType != "" {
-				stage.Service.Type = spec.DeploymentType
+				stage.Service.Type = convert_helpers.ConvertServiceDeploymentType(spec.DeploymentType)
 			}
 
 		}

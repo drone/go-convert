@@ -25,9 +25,9 @@ import (
 type ServiceItem struct {
 	Id   string                 `json:"id,omitempty"`
 	With map[string]interface{} `json:"with,omitempty"`
-	Ref  string                 `json:"ref,omitempty"` // git branch reference
+	Ref  string                 `json:"ref,omitempty"`  // git branch reference
 	Type string                 `json:"type,omitempty"` // Deployment Type: Kubernetes, Helm, etc.
-}	
+}
 
 // UnmarshalJSON implements json.Unmarshaler for ServiceItem.
 // Handles: string "service1" or object {id: "service1", with: {...}}
@@ -54,7 +54,7 @@ func (s *ServiceItem) UnmarshalJSON(data []byte) error {
 // Outputs: string "service1" if no With, or object {id: "service1", with: {...}} if With exists
 func (s ServiceItem) MarshalJSON() ([]byte, error) {
 	// If no With and no Ref, marshal as simple string
-	if len(s.With) == 0 && s.Ref == ""  && s.Type == "" {
+	if len(s.With) == 0 && s.Ref == "" && s.Type == "" {
 		return json.Marshal(s.Id)
 	}
 	// Otherwise marshal as full object
@@ -63,10 +63,30 @@ func (s ServiceItem) MarshalJSON() ([]byte, error) {
 }
 
 type ServiceRef struct {
-	Type string `json:"type,omitempty"` // Deployment Type: Kubernetes, Helm, etc.
-	Items        []*ServiceItem        `json:"items,omitempty"`
-	Parallel     *flexible.Field[bool] `json:"parallel,omitempty"`
-	MultiService bool                  `json:"-"` // Don't serialize this field
+	Type         string                          `json:"type,omitempty"` // Deployment Type: Kubernetes, Helm, etc.
+	Items        *flexible.Field[[]*ServiceItem] `json:"items,omitempty"`
+	Parallel     *flexible.Field[bool]           `json:"parallel,omitempty"`
+	MultiService bool                            `json:"-"` // Don't serialize this field
+}
+
+// NewServiceItems wraps a list of service items in a flexible field.
+func NewServiceItems(items []*ServiceItem) *flexible.Field[[]*ServiceItem] {
+	field := &flexible.Field[[]*ServiceItem]{}
+	field.Set(items)
+	return field
+}
+
+// ItemList returns the service items when Items holds a concrete list.
+// It returns nil when Items is unset or holds an expression.
+func (v *ServiceRef) ItemList() []*ServiceItem {
+	if v == nil || v.Items == nil {
+		return nil
+	}
+	items, ok := v.Items.AsStruct()
+	if !ok {
+		return nil
+	}
+	return items
 }
 
 // UnmarshalJSON implements json.Unmarshaler for ServiceRef.
@@ -78,7 +98,7 @@ func (v *ServiceRef) UnmarshalJSON(data []byte) error {
 	// Try as single string
 	var str string
 	if err := json.Unmarshal(data, &str); err == nil {
-		v.Items = []*ServiceItem{{Id: str}}
+		v.Items = NewServiceItems([]*ServiceItem{{Id: str}})
 		v.MultiService = false
 		return nil
 	}
@@ -86,29 +106,30 @@ func (v *ServiceRef) UnmarshalJSON(data []byte) error {
 	// Try as array of strings/items
 	var arr []json.RawMessage
 	if err := json.Unmarshal(data, &arr); err == nil {
-		v.Items = make([]*ServiceItem, 0, len(arr))
+		items := make([]*ServiceItem, 0, len(arr))
 		for _, raw := range arr {
 			var item ServiceItem
 			if err := json.Unmarshal(raw, &item); err != nil {
 				return err
 			}
-			v.Items = append(v.Items, &item)
+			items = append(items, &item)
 		}
-		v.MultiService = len(v.Items) > 1
+		v.Items = NewServiceItems(items)
+		v.MultiService = len(items) > 1
 		return nil
 	}
 
 	// Try as full object with items field
 	var out = struct {
-		Items    []*ServiceItem        `json:"items,omitempty"`
-		Parallel *flexible.Field[bool] `json:"parallel,omitempty"`
+		Items    *flexible.Field[[]*ServiceItem] `json:"items,omitempty"`
+		Parallel *flexible.Field[bool]           `json:"parallel,omitempty"`
 	}{}
 	if err := json.Unmarshal(data, &out); err != nil {
 		return err
 	}
 	v.Items = out.Items
 	v.Parallel = out.Parallel
-	v.MultiService = len(v.Items) > 1
+	v.MultiService = len(v.ItemList()) > 1
 	return nil
 }
 
@@ -118,8 +139,8 @@ func (v *ServiceRef) UnmarshalJSON(data []byte) error {
 // - Object with items if MultiService: {items: [...]} or {items: [...], parallel: true}
 func (v *ServiceRef) MarshalJSON() ([]byte, error) {
 	// Single item without With and not forced to be multi-service
-	if len(v.Items) == 1 && !v.MultiService && v.Parallel == nil {
-		item := v.Items[0]
+	if items := v.ItemList(); len(items) == 1 && !v.MultiService && v.Parallel == nil {
+		item := items[0]
 		if item.Type == "" {
 			item.Type = v.Type
 		}

@@ -16,23 +16,44 @@ package yaml
 
 import (
 	"encoding/json"
+
 	"github.com/drone/go-convert/internal/flexible"
 )
 
 // EnvironmentRef is the unified v1 environment configuration.
 type EnvironmentRef struct {
-	Items    []*EnvironmentItem    `json:"items,omitempty" yaml:"items,omitempty"`
-	Parallel *flexible.Field[bool] `json:"parallel,omitempty" yaml:"parallel,omitempty"`
-	Group    interface{}           `json:"group,omitempty" yaml:"group,omitempty"`
-	Filters  []*Filter             `json:"filters,omitempty" yaml:"filters,omitempty"`
-	MultiEnv bool                  `json:"-" yaml:"-"`
+	Items    *flexible.Field[[]*EnvironmentItem] `json:"items,omitempty" yaml:"items,omitempty"`
+	Parallel *flexible.Field[bool]               `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+	Group    interface{}                         `json:"group,omitempty" yaml:"group,omitempty"`
+	Filters  []*Filter                           `json:"filters,omitempty" yaml:"filters,omitempty"`
+	MultiEnv bool                                `json:"-" yaml:"-"`
+}
+
+// NewEnvironmentItems wraps a list of environment items in a flexible field.
+func NewEnvironmentItems(items []*EnvironmentItem) *flexible.Field[[]*EnvironmentItem] {
+	field := &flexible.Field[[]*EnvironmentItem]{}
+	field.Set(items)
+	return field
+}
+
+// ItemList returns the environment items when Items holds a concrete list.
+// It returns nil when Items is unset or holds an expression.
+func (v *EnvironmentRef) ItemList() []*EnvironmentItem {
+	if v == nil || v.Items == nil {
+		return nil
+	}
+	items, ok := v.Items.AsStruct()
+	if !ok {
+		return nil
+	}
+	return items
 }
 
 // MarshalJSON implements json.Marshaler following the ServiceRef pattern.
 func (v EnvironmentRef) MarshalJSON() ([]byte, error) {
 	// Variant: single env – marshal as flat EnvironmentItem (like ServiceRef string)
-	if len(v.Items) == 1 && !v.MultiEnv {
-		return json.Marshal(v.Items[0])
+	if items := v.ItemList(); len(items) == 1 && !v.MultiEnv {
+		return json.Marshal(items[0])
 	}
 
 	// Variant: multi env – marshal as struct with items
@@ -44,15 +65,15 @@ func (v EnvironmentRef) MarshalJSON() ([]byte, error) {
 func (v *EnvironmentRef) UnmarshalJSON(data []byte) error {
 	var out1 string
 	var out2 = struct {
-		Items    []*EnvironmentItem    `json:"items,omitempty" yaml:"items,omitempty"`
-		Parallel *flexible.Field[bool] `json:"parallel,omitempty" yaml:"parallel,omitempty"`
-		Group    interface{}           `json:"group,omitempty" yaml:"group,omitempty"`
+		Items    *flexible.Field[[]*EnvironmentItem] `json:"items,omitempty" yaml:"items,omitempty"`
+		Parallel *flexible.Field[bool]               `json:"parallel,omitempty" yaml:"parallel,omitempty"`
+		Group    interface{}                         `json:"group,omitempty" yaml:"group,omitempty"`
 	}{}
 
 	if err := json.Unmarshal(data, &out1); err == nil {
-		v.Items = []*EnvironmentItem{
+		v.Items = NewEnvironmentItems([]*EnvironmentItem{
 			{Id: out1},
-		}
+		})
 		v.MultiEnv = false
 		return nil
 	}
@@ -63,7 +84,7 @@ func (v *EnvironmentRef) UnmarshalJSON(data []byte) error {
 		v.Group = out2.Group
 		// Set MultiEnv flag based on whether this is a multi-environment config
 		// MultiEnv is true if: multiple items, or has parallel/group fields
-		v.MultiEnv = len(out2.Items) > 0 || out2.Parallel != nil || out2.Group != nil
+		v.MultiEnv = len(v.ItemList()) > 0 || out2.Parallel != nil || out2.Group != nil
 		return nil
 	} else {
 		return err

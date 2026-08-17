@@ -81,3 +81,21 @@ const (
 	StepTypeIACMTerraformPlugin = "terraformStep"
 	StepTypeIACMOpenTofuPlugin  = "openTofuStep"
 )
+
+// ServiceType represents the v1 `service.type` values for a Deployment stage.
+type ServiceType string
+
+const (
+	ServiceTypeKubernetes         ServiceType = "kubernetes"
+	ServiceTypeHelm                           = "helm"
+	ServiceTypeAwsSam                         = "aws-sam"
+	ServiceTypeServerless                     = "serverless"
+	ServiceTypeAwsLambda                      = "aws-lambda"
+	ServiceTypeGoogleCloudRun                 = "google-cloud-run"
+	ServiceTypeAzureFunction                  = "azure-function"
+	ServiceTypeAzureWebApp                    = "azure-web-app"
+	ServiceTypeAzureContainerApps             = "azure-container-apps"
+	ServiceTypeECS                            = "ecs"
+	ServiceTypeAsg                            = "asg"
+	ServiceTypeSpot                           = "spot"
+)

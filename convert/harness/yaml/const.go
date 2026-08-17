@@ -151,6 +151,35 @@ const (
 	ShellPowershell       = "Powershell"
 )
 
+// ServiceDeploymentType represents the v0 `deploymentType` values for a Deployment stage.
+type ServiceDeploymentType string
+
+const (
+	ServiceDeploymentTypeKubernetes          ServiceDeploymentType = "Kubernetes"
+	ServiceDeploymentTypeNativeHelm                                = "NativeHelm"
+	ServiceDeploymentTypeAwsSam                                    = "AWS_SAM"
+	ServiceDeploymentTypeServerlessAwsLambda                       = "ServerlessAwsLambda"
+	ServiceDeploymentTypeAwsLambda                                 = "AwsLambda"
+	ServiceDeploymentTypeGoogleCloudRun                            = "GoogleCloudRun"
+	ServiceDeploymentTypeAzureFunction                             = "AzureFunction"
+	ServiceDeploymentTypeAzureWebApp                               = "AzureWebApp"
+	ServiceDeploymentTypeAzureContainerApps                        = "AzureContainerApps"
+	ServiceDeploymentTypeECS                                       = "ECS"
+	ServiceDeploymentTypeAsg                                       = "Asg"
+	ServiceDeploymentTypeElastigroup                               = "Elastigroup"
+
+	// No semantic match in v1 ServiceType.
+	ServiceDeploymentTypeSSH                  = "Ssh"
+	ServiceDeploymentTypeWinRM                = "WinRm"
+	ServiceDeploymentTypeCustomDeployment     = "CustomDeployment"
+	ServiceDeploymentTypeTAS                  = "TAS"
+	ServiceDeploymentTypeGoogleCloudFunctions = "GoogleCloudFunctions"
+	ServiceDeploymentTypeSalesforce           = "Salesforce"
+	ServiceDeploymentTypeGoogleMIG            = "GoogleManagedInstanceGroup"
+	ServiceDeploymentTypeAiAgent              = "AiAgent"
+	ServiceDeploymentTypeServiceYamlV1        = "SERVICE_YAML_V1_TYPE"
+)
+
 type ImagePullPolicy string
 
 const (
