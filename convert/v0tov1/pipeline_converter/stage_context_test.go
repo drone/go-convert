@@ -12,8 +12,8 @@ import (
 func TestStageConversionContext_SetAndGet(t *testing.T) {
 	ctx := convert_helpers.NewStageConversionContext()
 
-	svc := &v1.ServiceRef{Items: []*v1.ServiceItem{{Id: "my-service"}}}
-	env := &v1.EnvironmentRef{Items: []*v1.EnvironmentItem{{Id: "my-env"}}}
+	svc := &v1.ServiceRef{Items: v1.NewServiceItems([]*v1.ServiceItem{{Id: "my-service"}})}
+	env := &v1.EnvironmentRef{Items: v1.NewEnvironmentItems([]*v1.EnvironmentItem{{Id: "my-env"}})}
 	rt := &v1.Runtime{Kubernetes: &v1.RuntimeKubernetes{Namespace: "default"}}
 
 	ctx.Set("Stage1", &convert_helpers.StageConvertedData{
@@ -99,14 +99,14 @@ func TestUseFromStage_DeploymentServiceAndEnvironment(t *testing.T) {
 	if first.Service == nil {
 		t.Fatal("first stage: service should not be nil")
 	}
-	if len(first.Service.Items) != 1 || first.Service.Items[0].Id != "dashboard-svc" {
-		t.Errorf("first stage: expected service 'dashboard-svc', got %v", first.Service.Items)
+	if items := first.Service.ItemList(); len(items) != 1 || items[0].Id != "dashboard-svc" {
+		t.Errorf("first stage: expected service 'dashboard-svc', got %v", items)
 	}
 	if first.Environment == nil {
 		t.Fatal("first stage: environment should not be nil")
 	}
-	if len(first.Environment.Items) != 1 || first.Environment.Items[0].Id != "prod-env" {
-		t.Errorf("first stage: expected environment 'prod-env', got %v", first.Environment.Items)
+	if items := first.Environment.ItemList(); len(items) != 1 || items[0].Id != "prod-env" {
+		t.Errorf("first stage: expected environment 'prod-env', got %v", items)
 	}
 
 	// Verify second stage copied service and environment from first
@@ -114,14 +114,14 @@ func TestUseFromStage_DeploymentServiceAndEnvironment(t *testing.T) {
 	if second.Service == nil {
 		t.Fatal("second stage: service should not be nil (useFromStage)")
 	}
-	if len(second.Service.Items) != 1 || second.Service.Items[0].Id != "dashboard-svc" {
-		t.Errorf("second stage: expected service 'dashboard-svc' from useFromStage, got %v", second.Service.Items)
+	if items := second.Service.ItemList(); len(items) != 1 || items[0].Id != "dashboard-svc" {
+		t.Errorf("second stage: expected service 'dashboard-svc' from useFromStage, got %v", items)
 	}
 	if second.Environment == nil {
 		t.Fatal("second stage: environment should not be nil (useFromStage)")
 	}
-	if len(second.Environment.Items) != 1 || second.Environment.Items[0].Id != "prod-env" {
-		t.Errorf("second stage: expected environment 'prod-env' from useFromStage, got %v", second.Environment.Items)
+	if items := second.Environment.ItemList(); len(items) != 1 || items[0].Id != "prod-env" {
+		t.Errorf("second stage: expected environment 'prod-env' from useFromStage, got %v", items)
 	}
 }
 
@@ -277,11 +277,11 @@ func TestUseFromStage_ServiceOnlyFromPreviousStage(t *testing.T) {
 
 	second := v1Stages[1]
 	// Service from useFromStage
-	if second.Service == nil || second.Service.Items[0].Id != "svc-alpha" {
+	if items := second.Service.ItemList(); second.Service == nil || len(items) == 0 || items[0].Id != "svc-alpha" {
 		t.Errorf("expected service 'svc-alpha' from useFromStage, got %v", second.Service)
 	}
 	// Environment is its own
-	if second.Environment == nil || len(second.Environment.Items) != 1 || second.Environment.Items[0].Id != "env-gamma" {
+	if items := second.Environment.ItemList(); second.Environment == nil || len(items) != 1 || items[0].Id != "env-gamma" {
 		t.Errorf("expected environment 'env-gamma' (own), got %v", second.Environment)
 	}
 }

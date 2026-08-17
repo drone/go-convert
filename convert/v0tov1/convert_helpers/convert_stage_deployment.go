@@ -91,7 +91,7 @@ func ConvertDeploymentService(src *v0.DeploymentService, ctx *StageConversionCon
 			Ref:  src.GitBranch,
 		}
 		return &v1.ServiceRef{
-			Items:        []*v1.ServiceItem{serviceItem},
+			Items:        v1.NewServiceItems([]*v1.ServiceItem{serviceItem}),
 			MultiService: false,
 		}
 	}
@@ -133,8 +133,16 @@ func ConvertDeploymentServices(src *v0.DeploymentServices, ctx *StageConversionC
 			)
 			return nil
 		}
-		// For <+input> or empty string, continue with nil values (no services)
-		return nil
+		if expr == "" {
+			return nil
+		}
+		// Runtime input: keep items as a runtime input expression in v1.
+		items := &flexible.Field[[]*v1.ServiceItem]{}
+		items.SetExpression(expr)
+		return &v1.ServiceRef{
+			Items:        items,
+			MultiService: true,
+		}
 	}
 
 	// Values is a struct (array of services)
@@ -168,7 +176,7 @@ func ConvertDeploymentServices(src *v0.DeploymentServices, ctx *StageConversionC
 	}
 	if len(serviceItems) > 0 {
 		return &v1.ServiceRef{
-			Items:        serviceItems,
+			Items:        v1.NewServiceItems(serviceItems),
 			MultiService: true,
 			Parallel:     parallel,
 		}
@@ -248,7 +256,7 @@ func ConvertEnvironment(src *v0.Environment, ctx *StageConversionContext) *v1.En
 	}
 
 	return &v1.EnvironmentRef{
-		Items:    []*v1.EnvironmentItem{item},
+		Items:    v1.NewEnvironmentItems([]*v1.EnvironmentItem{item}),
 		MultiEnv: false,
 	}
 }
@@ -333,6 +341,30 @@ func ConvertEnvironments(src *v0.Environments, ctx *StageConversionContext) *v1.
 		parallel = src.Metadata.Parallel
 	}
 
+	// Values may be a runtime input expression instead of a concrete list.
+	if src.Values != nil {
+		if expr, ok := src.Values.AsString(); ok {
+			if expr != "<+input>" && expr != "" {
+				messagelog.GetMessageLogger().LogWarning(
+					"UNSUPPORTED_EXPRESSION",
+					fmt.Sprintf("environments.values contains unsupported expression %q; skipping conversion", expr),
+					messagelog.WithContext(map[string]string{"expression": expr, "field": "environments.values"}),
+				)
+				return nil
+			}
+			if expr == "" {
+				return nil
+			}
+			// Runtime input: keep items as a runtime input expression in v1.
+			items := &flexible.Field[[]*v1.EnvironmentItem]{}
+			items.SetExpression(expr)
+			return &v1.EnvironmentRef{
+				Items:    items,
+				MultiEnv: true,
+			}
+		}
+	}
+
 	// Check if Values is nil or empty
 	hasValues := false
 	var values []*v0.Environment
@@ -395,7 +427,7 @@ func ConvertEnvironments(src *v0.Environments, ctx *StageConversionContext) *v1.
 
 	if len(items) > 0 {
 		return &v1.EnvironmentRef{
-			Items:    items,
+			Items:    v1.NewEnvironmentItems(items),
 			Parallel: parallel,
 			MultiEnv: true,
 		}
@@ -539,7 +571,7 @@ func ConvertDeploymentInfrastructure(src *v0.DeploymentInfrastructure) *v1.Envir
 	}
 
 	return &v1.EnvironmentRef{
-		Items: []*v1.EnvironmentItem{envItem},
+		Items: v1.NewEnvironmentItems([]*v1.EnvironmentItem{envItem}),
 	}
 }
 
