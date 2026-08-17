@@ -24,6 +24,40 @@ import (
 	"github.com/drone/go-convert/internal/flexible"
 )
 
+// serviceDeploymentTypeConversionMap maps v0 ServiceDefinitionType values to
+// their semantically equivalent v1 ServiceType values. Types with no v1
+// equivalent (e.g. Ssh, WinRm, CustomDeployment, TAS, GoogleCloudFunctions,
+// Salesforce, GoogleManagedInstanceGroup, AiAgent, SERVICE_YAML_V1_TYPE) are
+// intentionally omitted.
+var serviceDeploymentTypeConversionMap = map[v0.ServiceDeploymentType]v1.ServiceType{
+	v0.ServiceDeploymentTypeKubernetes:          v1.ServiceTypeKubernetes,
+	v0.ServiceDeploymentTypeNativeHelm:          v1.ServiceTypeHelm,
+	v0.ServiceDeploymentTypeAwsSam:              v1.ServiceTypeAwsSam,
+	v0.ServiceDeploymentTypeServerlessAwsLambda: v1.ServiceTypeServerless,
+	v0.ServiceDeploymentTypeAwsLambda:           v1.ServiceTypeAwsLambda,
+	v0.ServiceDeploymentTypeGoogleCloudRun:      v1.ServiceTypeGoogleCloudRun,
+	v0.ServiceDeploymentTypeAzureFunction:       v1.ServiceTypeAzureFunction,
+	v0.ServiceDeploymentTypeAzureWebApp:         v1.ServiceTypeAzureWebApp,
+	v0.ServiceDeploymentTypeAzureContainerApps:  v1.ServiceTypeAzureContainerApps,
+	v0.ServiceDeploymentTypeECS:                 v1.ServiceTypeECS,
+	v0.ServiceDeploymentTypeAsg:                 v1.ServiceTypeAsg,
+	v0.ServiceDeploymentTypeElastigroup:         v1.ServiceTypeSpot,
+}
+
+// ConvertServiceDeploymentType converts a v0 deploymentType string to the
+// corresponding v1 ServiceType string. Returns an empty string if there is
+// no semantic match in v1.
+func ConvertServiceDeploymentType(deploymentType string) string {
+	if v1Type, ok := serviceDeploymentTypeConversionMap[v0.ServiceDeploymentType(deploymentType)]; ok {
+		return string(v1Type)
+	}
+	messagelog.GetMessageLogger().LogWarning(
+		"SERVICE_DEPLOYMENT_TYPE_MAPPING_NOT_FOUND",
+		fmt.Sprintf("mapping for service deployment type %q not found in v1", deploymentType),
+	)
+	return ""
+}
+
 // ConvertDeploymentService converts v0 DeploymentService to v1 ServiceRef
 func ConvertDeploymentService(src *v0.DeploymentService, ctx *StageConversionContext) *v1.ServiceRef {
 	if src == nil {
@@ -405,7 +439,7 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 			}
 			return &v1.EnvironmentRef{
 				Parallel: parallel,
-				Group:      groupConfig,
+				Group:    groupConfig,
 			}
 		}
 	}
@@ -418,7 +452,7 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 			}
 			return &v1.EnvironmentRef{
 				Parallel: parallel,
-				Group:      groupConfig,
+				Group:    groupConfig,
 			}
 		}
 	}
@@ -435,7 +469,7 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 				}
 				return &v1.EnvironmentRef{
 					Parallel: parallel,
-					Group:      groupConfig,
+					Group:    groupConfig,
 				}
 			}
 		}
@@ -459,7 +493,7 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 				}
 				return &v1.EnvironmentRef{
 					Parallel: parallel,
-					Group:      groupConfig,
+					Group:    groupConfig,
 				}
 			}
 		}
