@@ -24,21 +24,34 @@ func ConvertCaching(cache *v0.Cache) *v1.Cache {
 	}
 
 	return &v1.Cache{
-		Enabled:  cache.Enabled,
-		Key:      cache.Key,
-		Paths:    cache.Paths,
-		Policy:   cache.Policy,
-		Override: cache.Override,
+		Enabled:        cache.Enabled,
+		Key:            cache.Key,
+		Paths:          cache.Paths,
+		Policy:         cache.Policy,
+		Override:       cache.Override,
+		Connector:      cache.ConnectorRef,
+		Region:         cache.Region,
+		BucketName:     cache.BucketName,
+		ContainerName:  cache.ContainerName,
+		StorageAccount: cache.StorageAccount,
+		User:           cache.RunAsUser,
+		Resources:      ConvertContainerResources(cache.Resources),
 	}
 }
 
-// ConvertBuildIntelligence converts v0 BuildIntelligence to v1 bool
+// ConvertBuildIntelligence converts v0 BuildIntelligence to v1 BuildIntelligence.
+// v1-only fields (port, maven-url, container_name, storage_account) have no v0 source.
 func ConvertBuildIntelligence(bi *v0.BuildIntelligence) *v1.BuildIntelligence {
 	if bi == nil {
 		return nil
 	}
 	return &v1.BuildIntelligence{
-		Enabled: bi.Enabled,
+		Enabled:    bi.Enabled,
+		Connector:  bi.ConnectorRef,
+		Region:     bi.Region,
+		BucketName: bi.BucketName,
+		User:       bi.RunAsUser,
+		Resources:  ConvertContainerResources(bi.Resources),
 	}
 }
 

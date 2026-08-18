@@ -20,9 +20,16 @@ import "github.com/drone/go-convert/internal/flexible"
 
 // Cache defines pipeline caching behavior.
 type Cache struct {
-	Enabled *flexible.Field[bool]          `json:"enabled"`
-	Key      string        `json:"key,omitempty"`
-	Paths    *flexible.Field[[]string] `json:"paths,omitempty"`
-	Policy   string        `json:"policy,omitempty"`
-	Override *flexible.Field[bool]    `json:"override,omitempty"`
+	Enabled        *flexible.Field[bool]     `json:"enabled" yaml:"enabled"`
+	Key            string                    `json:"key,omitempty" yaml:"key,omitempty"`
+	Paths          *flexible.Field[[]string] `json:"paths,omitempty" yaml:"paths,omitempty"`
+	Policy         string                    `json:"policy,omitempty" yaml:"policy,omitempty"`
+	Override       *flexible.Field[bool]     `json:"override,omitempty" yaml:"override,omitempty"`
+	Connector      string                    `json:"connector,omitempty" yaml:"connector,omitempty"`
+	Region         string                    `json:"region,omitempty" yaml:"region,omitempty"`
+	BucketName     string                    `json:"bucket_name,omitempty" yaml:"bucket_name,omitempty"`
+	ContainerName  string                    `json:"container_name,omitempty" yaml:"container_name,omitempty"`
+	StorageAccount string                    `json:"storage_account,omitempty" yaml:"storage_account,omitempty"`
+	User           *flexible.Field[int]      `json:"user,omitempty" yaml:"user,omitempty"`
+	Resources      *ContainerResources       `json:"resources,omitempty" yaml:"resources,omitempty"`
 }

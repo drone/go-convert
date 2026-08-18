@@ -74,16 +74,28 @@ type (
 
 	// BuildIntelligence defines the build intelligence settings.
 	BuildIntelligence struct {
-		Enabled *flexible.Field[bool] `json:"enabled,omitempty" yaml:"enabled,omitempty"`
+		Enabled      *flexible.Field[bool] `json:"enabled,omitempty"      yaml:"enabled,omitempty"`
+		ConnectorRef string                `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
+		Region       string                `json:"region,omitempty"       yaml:"region,omitempty"`
+		BucketName   string                `json:"bucket_name,omitempty"  yaml:"bucket_name,omitempty"`
+		RunAsUser    *flexible.Field[int]  `json:"runAsUser,omitempty"    yaml:"runAsUser,omitempty"`
+		Resources    *Resources            `json:"resources,omitempty"    yaml:"resources,omitempty"`
 	}
 
 	// Cache defines the cache settings.
 	Cache struct {
-		Enabled  *flexible.Field[bool]     `json:"enabled,omitempty" yaml:"enabled,omitempty"`
-		Key      string                    `json:"key,omitempty"     yaml:"key,omitempty"`
-		Paths    *flexible.Field[[]string] `json:"paths,omitempty"   yaml:"paths,omitempty"`
-		Policy   string                    `json:"policy,omitempty"  yaml:"policy,omitempty"`
-		Override *flexible.Field[bool]     `json:"override,omitempty"  yaml:"override,omitempty"`
+		Enabled        *flexible.Field[bool]     `json:"enabled,omitempty"        yaml:"enabled,omitempty"`
+		Key            string                    `json:"key,omitempty"            yaml:"key,omitempty"`
+		Paths          *flexible.Field[[]string] `json:"paths,omitempty"          yaml:"paths,omitempty"`
+		Policy         string                    `json:"policy,omitempty"         yaml:"policy,omitempty"`
+		Override       *flexible.Field[bool]     `json:"override,omitempty"       yaml:"override,omitempty"`
+		ConnectorRef   string                    `json:"connectorRef,omitempty"   yaml:"connectorRef,omitempty"`
+		Region         string                    `json:"region,omitempty"         yaml:"region,omitempty"`
+		BucketName     string                    `json:"bucket_name,omitempty"    yaml:"bucket_name,omitempty"`
+		ContainerName  string                    `json:"containerName,omitempty"  yaml:"containerName,omitempty"`
+		StorageAccount string                    `json:"storageAccount,omitempty" yaml:"storageAccount,omitempty"`
+		RunAsUser      *flexible.Field[int]      `json:"runAsUser,omitempty"      yaml:"runAsUser,omitempty"`
+		Resources      *Resources                `json:"resources,omitempty"      yaml:"resources,omitempty"`
 	}
 
 	// Codebase defines a codebase.

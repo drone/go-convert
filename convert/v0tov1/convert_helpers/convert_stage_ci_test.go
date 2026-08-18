@@ -96,6 +96,126 @@ func TestConvertRuntime(t *testing.T) {
 	}
 }
 
+func TestConvertCaching(t *testing.T) {
+	enabled := &flexible.Field[bool]{Value: true}
+	override := &flexible.Field[bool]{Value: false}
+	paths := &flexible.Field[[]string]{Value: []string{"/go/pkg/mod"}}
+	user := &flexible.Field[int]{Value: 1000}
+	resources := &v0.Resources{
+		Limits: &v0.ResourceSpec{
+			CPU:    &flexible.Field[*v0.MilliSize]{Value: "500m"},
+			Memory: &flexible.Field[*v0.BytesSize]{Value: "512Mi"},
+		},
+	}
+
+	tests := []struct {
+		name     string
+		input    *v0.Cache
+		expected *v1.Cache
+	}{
+		{
+			name:     "nil cache",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name: "maps storage, user, and resources fields",
+			input: &v0.Cache{
+				Enabled:        enabled,
+				Key:            "go-mod",
+				Paths:          paths,
+				Policy:         "pull-push",
+				Override:       override,
+				ConnectorRef:   "account.s3",
+				Region:         "us-east-1",
+				BucketName:     "ci-cache",
+				ContainerName:  "cache-container",
+				StorageAccount: "cacheacct",
+				RunAsUser:      user,
+				Resources:      resources,
+			},
+			expected: &v1.Cache{
+				Enabled:        enabled,
+				Key:            "go-mod",
+				Paths:          paths,
+				Policy:         "pull-push",
+				Override:       override,
+				Connector:      "account.s3",
+				Region:         "us-east-1",
+				BucketName:     "ci-cache",
+				ContainerName:  "cache-container",
+				StorageAccount: "cacheacct",
+				User:           user,
+				Resources: &v1.ContainerResources{
+					Limits: &v1.ContainerResourcesSpec{Cpu: "500m", Memory: "512Mi"},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ConvertCaching(tt.input)
+			if diff := cmp.Diff(tt.expected, result); diff != "" {
+				t.Errorf("mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestConvertBuildIntelligence(t *testing.T) {
+	enabled := &flexible.Field[bool]{Value: true}
+	user := &flexible.Field[int]{Value: 1000}
+	resources := &v0.Resources{
+		Limits: &v0.ResourceSpec{
+			CPU:    &flexible.Field[*v0.MilliSize]{Value: "1"},
+			Memory: &flexible.Field[*v0.BytesSize]{Value: "1Gi"},
+		},
+	}
+
+	tests := []struct {
+		name     string
+		input    *v0.BuildIntelligence
+		expected *v1.BuildIntelligence
+	}{
+		{
+			name:     "nil build intelligence",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name: "maps connector, region, bucket, user, and resources",
+			input: &v0.BuildIntelligence{
+				Enabled:      enabled,
+				ConnectorRef: "account.gcs",
+				Region:       "us-west1",
+				BucketName:   "bi-cache",
+				RunAsUser:    user,
+				Resources:    resources,
+			},
+			expected: &v1.BuildIntelligence{
+				Enabled:    enabled,
+				Connector:  "account.gcs",
+				Region:     "us-west1",
+				BucketName: "bi-cache",
+				User:       user,
+				Resources: &v1.ContainerResources{
+					Limits: &v1.ContainerResourcesSpec{Cpu: "1", Memory: "1Gi"},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ConvertBuildIntelligence(tt.input)
+			if diff := cmp.Diff(tt.expected, result); diff != "" {
+				t.Errorf("mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
 func TestConvertInfrastructureToRuntime(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -112,14 +232,14 @@ func TestConvertInfrastructureToRuntime(t *testing.T) {
 			input: &v0.Infrastructure{
 				Type: "KubernetesDirect",
 				Spec: &v0.InfrastructureKubernetesDirectSpec{
-					Conn:               "k8s-connector",
-					Namespace:          "ci-builds",
-					ServiceAccountName: "ci-sa",
-					InitTimeout:        "10m",
-					OS:                 "Linux",
+					Conn:                     "k8s-connector",
+					Namespace:                "ci-builds",
+					ServiceAccountName:       "ci-sa",
+					InitTimeout:              "10m",
+					OS:                       "Linux",
 					HarnessImageConnectorRef: "harness-docker",
-					ImagePullPolicy:    "Always",
-					PodSpecOverlay:     "overlay-spec",
+					ImagePullPolicy:          "Always",
+					PodSpecOverlay:           "overlay-spec",
 					Annotations: &flexible.Field[map[string]string]{Value: map[string]string{
 						"app": "ci",
 					}},
@@ -130,16 +250,16 @@ func TestConvertInfrastructureToRuntime(t *testing.T) {
 						"disktype": "ssd",
 					}},
 					AutomountServiceAccountToken: &flexible.Field[bool]{Value: true},
-					PriorityClassName: "high-priority",
-					HostNames: &flexible.Field[[]string]{Value: []string{"host1", "host2"}},
+					PriorityClassName:            "high-priority",
+					HostNames:                    &flexible.Field[[]string]{Value: []string{"host1", "host2"}},
 				},
 			},
 			expected: &v1.Runtime{
 				Kubernetes: &v1.RuntimeKubernetes{
-					Namespace:             "ci-builds",
-					Connector:             "k8s-connector",
-					ServiceAccount:        "ci-sa",
-					Timeout:               "10m",
+					Namespace:      "ci-builds",
+					Connector:      "k8s-connector",
+					ServiceAccount: "ci-sa",
+					Timeout:        "10m",
 					// OS intentionally omitted: V1 K8s stage OS is sourced from stage.Platform.Os
 					// (set by convert_stage.go), not from runtime.kubernetes.os.
 					HarnessImageConnector: "harness-docker",
@@ -280,7 +400,6 @@ func TestConvertServiceDependencyToBackgroundStep(t *testing.T) {
 					Env: &flexible.Field[map[string]interface{}]{Value: map[string]interface{}{
 						"REDIS_PORT": "6379",
 					}},
-					
 				},
 			},
 		},
