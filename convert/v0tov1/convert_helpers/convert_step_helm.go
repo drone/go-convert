@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
+	"github.com/drone/go-convert/convert/v0tov1/messagelog"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
 	"github.com/drone/go-convert/internal/flexible"
 )
@@ -16,9 +17,11 @@ type HelmFlag struct {
 	Flag    string `json:"flag,omitempty"`
 }
 
-// helmCommandTypeToTemplate maps a v0 HelmCommandFlagType enum value (e.g. "Template",
-// "Install", "Delete") to the v1 template `flags` command option value (e.g. "template",
-// "install", "uninstall"). Unknown values fall back to a lowercased passthrough.
+// helmCommandTypeToTemplate maps a v0 HelmCommandFlagType enum value to the v1 template `flags` command
+// option value. The template only exposes: get_manifest, list, history, install, upgrade,
+// rollback, uninstall, test, template. v0 enum values with no template counterpart (Fetch,
+// Pull, Add, Update, Version) fall back to a lowercased passthrough and are reported as a
+// converter warning.
 func helmCommandTypeToTemplate(commandType string) string {
 	switch commandType {
 	case "Template":
@@ -39,7 +42,13 @@ func helmCommandTypeToTemplate(commandType string) string {
 	case "Uninstall", "Delete":
 		return "uninstall"
 	default:
-		return strings.ToLower(commandType)
+		lowered := strings.ToLower(commandType)
+		messagelog.GetMessageLogger().LogWarning(
+			"UNSUPPORTED_HELM_COMMAND_FLAG_TYPE",
+			fmt.Sprintf("v0 helm commandFlags commandType %q has no v1 template command option; passed through as %q", commandType, lowered),
+			messagelog.WithContext(map[string]string{"v0_command_type": commandType, "v1_command": lowered}),
+		)
+		return lowered
 	}
 }
 
@@ -54,6 +63,31 @@ func convertHelmCommandFlags(flags []v0.HelmCommandFlag) []HelmFlag {
 		})
 	}
 	return out
+}
+
+// convertHelmDeleteCommandFlags maps the v0 HelmDelete `commandFlags` input — which is a
+// plain []string of flags (harness-core HelmDeleteBaseStepInfo.commandFlags is
+// ParameterField<List<String>>), unlike the other Helm steps — to the v1 template `flags`
+// input ([]{command, flag}). All flags belong to the `helm uninstall` command the step
+// runs, so they are joined into a single entry:
+//
+//	v0: commandFlags: ["--debug", "--ignore-not-found"]
+//	v1: flags: [{command: uninstall, flag: "--debug --ignore-not-found"}]
+func convertHelmDeleteCommandFlags(flags []string) []HelmFlag {
+	parts := make([]string, 0, len(flags))
+	for _, f := range flags {
+		if f = strings.TrimSpace(f); f == "" {
+			continue
+		}
+		parts = append(parts, f)
+	}
+	if len(parts) == 0 {
+		return nil
+	}
+	return []HelmFlag{{
+		Command: "uninstall",
+		Flag:    strings.Join(parts, " "),
+	}}
 }
 
 // helmEnvVars converts a v0 environmentVariables map to the v1 `env_vars` list format.
@@ -85,13 +119,13 @@ type HelmBlueGreenSwapStepWith struct {
 }
 
 type HelmCanaryDeployWith struct {
-	Flags                      []HelmFlag          `json:"flags,omitempty"`
-	Envvars                    []map[string]string `json:"env_vars,omitempty"`
+	Flags                      []HelmFlag            `json:"flags,omitempty"`
+	Envvars                    []map[string]string   `json:"env_vars,omitempty"`
 	IgnoreFailedReleaseHistory *flexible.Field[bool] `json:"ignore_history,omitempty"`
 	SkipSteadyStateCheck       *flexible.Field[bool] `json:"skip_steady_check,omitempty"`
-	InstanceUnitType           string              `json:"unit,omitempty"`
-	Instances                  string              `json:"instances,omitempty"`
-	ChartTest                  *flexible.Field[bool]                 `json:"test,omitempty"`
+	InstanceUnitType           string                `json:"unit,omitempty"`
+	Instances                  string                `json:"instances,omitempty"`
+	ChartTest                  *flexible.Field[bool] `json:"test,omitempty"`
 }
 
 type HelmCanaryDeleteWith struct {
@@ -99,26 +133,26 @@ type HelmCanaryDeleteWith struct {
 }
 
 type HelmDeleteWith struct {
-	ReleaseName string              `json:"release,omitempty"`
-	DryRun      *flexible.Field[bool]                 `json:"dry_run,omitempty"`
-	Flags       []string            `json:"flags,omitempty"`
-	Envvars     []map[string]string `json:"env_vars,omitempty"`
+	ReleaseName string                `json:"release,omitempty"`
+	DryRun      *flexible.Field[bool] `json:"dry_run,omitempty"`
+	Flags       []HelmFlag            `json:"flags,omitempty"`
+	Envvars     []map[string]string   `json:"env_vars,omitempty"`
 }
 
 type HelmDeployWith struct {
-	Flags                 []HelmFlag          `json:"flags,omitempty"`
-	DeployEnvVars         []map[string]string `json:"env_vars,omitempty"`
-	IgnoreFailedRelease   *flexible.Field[bool]                 `json:"ignore_history,omitempty"`
-	SkipDeploySteadyCheck *flexible.Field[bool]                 `json:"skip_steady_check,omitempty"`
-	SkipCleanup           *flexible.Field[bool]                 `json:"skip_cleanup,omitempty"`
-	ChartTest             *flexible.Field[bool]                 `json:"test,omitempty"`
+	Flags                 []HelmFlag            `json:"flags,omitempty"`
+	DeployEnvVars         []map[string]string   `json:"env_vars,omitempty"`
+	IgnoreFailedRelease   *flexible.Field[bool] `json:"ignore_history,omitempty"`
+	SkipDeploySteadyCheck *flexible.Field[bool] `json:"skip_steady_check,omitempty"`
+	SkipCleanup           *flexible.Field[bool] `json:"skip_cleanup,omitempty"`
+	ChartTest             *flexible.Field[bool] `json:"test,omitempty"`
 }
 
 type HelmRollbackWith struct {
-	Flags                []HelmFlag          `json:"flags,omitempty"`
-	Envvars              []map[string]string `json:"env_vars,omitempty"`
-	SkipSteadyStateCheck *flexible.Field[bool]                 `json:"skip_steady_check,omitempty"`
-	ChartTest            *flexible.Field[bool]                 `json:"test,omitempty"`
+	Flags                []HelmFlag            `json:"flags,omitempty"`
+	Envvars              []map[string]string   `json:"env_vars,omitempty"`
+	SkipSteadyStateCheck *flexible.Field[bool] `json:"skip_steady_check,omitempty"`
+	ChartTest            *flexible.Field[bool] `json:"test,omitempty"`
 }
 
 func ConvertStepHelmBGDeploy(src *v0.Step) *v1.StepTemplate {
@@ -233,14 +267,10 @@ func ConvertStepHelmDelete(src *v0.Step) *v1.StepTemplate {
 		return nil
 	}
 
-	// map command flags
-	flags := make([]string, 0, len(sp.CommandFlags))
-	flags = append(flags, sp.CommandFlags...)
-
 	with := HelmDeleteWith{
 		ReleaseName: sp.ReleaseName,
 		DryRun:      sp.DryRun,
-		Flags:       flags,
+		Flags:       convertHelmDeleteCommandFlags(sp.CommandFlags),
 		Envvars:     helmEnvVars(sp.EnvironmentVariables),
 	}
 
