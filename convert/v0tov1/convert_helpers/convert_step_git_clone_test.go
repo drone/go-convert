@@ -136,7 +136,7 @@ func TestConvertStepGitClone(t *testing.T) {
 				"lfs_enabled":        true,
 				"debug":              true,
 				"fetch_tags":         true,
-				"sparse_checkout":    "src,lib",
+				"sparse_checkout":    "src\nlib",
 				"submodule_strategy": "recursive",
 				"pre_fetch":          "git config --global user.email test@test.com",
 			},
