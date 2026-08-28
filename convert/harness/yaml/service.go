@@ -12,7 +12,7 @@ type (
 	DeploymentService struct {
 		ServiceRef    string        `json:"serviceRef,omitempty"    yaml:"serviceRef,omitempty"`
 		UseFromStage  *UseFromStage `json:"useFromStage,omitempty" yaml:"useFromStage,omitempty"`
-		ServiceInputs interface{}   `json:"serviceInputs,omitempty" yaml:"serviceInputs,omitempty"`
+		ServiceInputs *flexible.Field[ServiceInputs]   `json:"serviceInputs,omitempty" yaml:"serviceInputs,omitempty"`
 		GitBranch     string        `json:"gitBranch,omitempty" yaml:"gitBranch,omitempty"`
 	}
 
@@ -34,7 +34,7 @@ type (
 
 	// ServiceInputs defines the service inputs for deployment
 	ServiceInputs struct {
-		ServiceDefinition *ServiceDefinition `json:"serviceDefinition,omitempty" yaml:"serviceDefinition,omitempty"`
+		ServiceDefinition interface{} `json:"serviceDefinition,omitempty" yaml:"serviceDefinition,omitempty"`
 	}
 
 	// ServiceDefinition defines the service definition
