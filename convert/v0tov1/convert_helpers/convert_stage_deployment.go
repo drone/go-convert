@@ -79,15 +79,9 @@ func ConvertDeploymentService(src *v0.DeploymentService, ctx *StageConversionCon
 
 	// For single service, return simple string reference
 	if src.ServiceRef != "" {
-		var serviceWith map[string]interface{}
-		if hasValidServiceInputs(src.ServiceInputs) {
-			serviceWith = map[string]interface{}{
-				"overlay": src.ServiceInputs,
-			}
-		}
 		serviceItem := &v1.ServiceItem{
 			Id:   src.ServiceRef,
-			With: serviceWith,
+			With: convertServiceInputsToWith(src.ServiceInputs),
 			Ref:  src.GitBranch,
 		}
 		return &v1.ServiceRef{
@@ -155,15 +149,9 @@ func ConvertDeploymentServices(src *v0.DeploymentServices, ctx *StageConversionC
 
 	for _, service := range values {
 		if service != nil && service.ServiceRef != "" {
-			var serviceWith map[string]interface{}
-			if hasValidServiceInputs(service.ServiceInputs) {
-				serviceWith = map[string]interface{}{
-					"overlay": service.ServiceInputs,
-				}
-			}
 			serviceItems = append(serviceItems, &v1.ServiceItem{
 				Id:   service.ServiceRef,
-				With: serviceWith,
+				With: convertServiceInputsToWith(service.ServiceInputs),
 				Ref:  service.GitBranch,
 			})
 		}
@@ -203,25 +191,28 @@ func ConvertDeploymentServices(src *v0.DeploymentServices, ctx *StageConversionC
 // 	return nil
 // }
 
-// hasValidServiceInputs checks if serviceInputs should be included in v1 output.
-// Returns false for nil, empty string, or expression values (strings containing <+).
-func hasValidServiceInputs(serviceInputs interface{}) bool {
-	if serviceInputs == nil {
-		return false
+// convertServiceInputsToWith converts v0 serviceInputs into the v1 service `with`
+// block. The v0 serviceDefinition wrapper is dropped, so its contents (type, spec,
+// ...) become the overlay directly. When serviceInputs or serviceDefinition is an
+// expression, the expression becomes the overlay as-is. Returns nil when there is
+// nothing to carry over.
+func convertServiceInputsToWith(serviceInputs *flexible.Field[v0.ServiceInputs]) map[string]interface{} {
+	if serviceInputs.IsEmpty() {
+		return nil
 	}
-
-	// Check if it's a string (expression or empty)
-	if str, ok := serviceInputs.(string); ok {
-		// Empty string or expression - skip
-		if str == "" || strings.Contains(str, "<+") {
-			return false
+	overlay := serviceInputs.Value
+	if inputs, ok := serviceInputs.AsStruct(); ok {
+		if inputs.ServiceDefinition == nil {
+			return nil
 		}
-		// Non-empty, non-expression string - this shouldn't happen but skip anyway
-		return false
+		overlay = inputs.ServiceDefinition
 	}
-
-	// It's a struct/map - include it
-	return true
+	if str, ok := overlay.(string); ok && str == "" {
+		return nil
+	}
+	return map[string]interface{}{
+		"overlay": overlay,
+	}
 }
 
 // ConvertEnvironment converts v0 Environment to v1 EnvironmentRef
