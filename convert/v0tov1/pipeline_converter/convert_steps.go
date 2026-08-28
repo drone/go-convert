@@ -229,10 +229,14 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 		step.Template = convert_helpers.ConvertStepSaveCacheS3(src)
 	case v0.StepTypeSaveCacheGCS:
 		step.Template = convert_helpers.ConvertStepSaveCacheGCS(src)
+	case v0.StepTypeSaveCache:
+		step.Template = convert_helpers.ConvertStepSaveCache(src)
 	case v0.StepTypeRestoreCacheGCS:
 		step.Template = convert_helpers.ConvertStepRestoreCacheGCS(src)
 	case v0.StepTypeRestoreCacheS3:
 		step.Template = convert_helpers.ConvertStepRestoreCacheS3(src)
+	case v0.StepTypeRestoreCache:
+		step.Template = convert_helpers.ConvertStepRestoreCache(src)
 	case v0.StepTypeBuildAndPushECR:
 		step.Template = convert_helpers.ConvertStepBuildAndPushECR(src)
 	case v0.StepTypeGCSUpload:
