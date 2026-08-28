@@ -34,10 +34,23 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 		)
 	}
 
-	if spec.Repo != "" && !isHarnessRegistry {
+	if isHarnessRegistry {
+		// buildAndPushToHAR (>=2.0.0) splits the single "repo" input into
+		// "registry" (the Harness Artifact Registry reference) and
+		// "package_name" (the image path within that registry).
+		with["registry"] = spec.RegistryRef
+
+		if spec.Repo != "" {
+			with["package_name"] = spec.Repo
+		} else {
+			messagelog.GetMessageLogger().LogWarning(
+				"PACKAGE_NAME_NOT_PROVIDED",
+				fmt.Sprintf("Repo (package name) not provided in BuildAndPushDockerRegistry step: %s", src.ID),
+				messagelog.WithStep(src.ID, src.Type),
+			)
+		}
+	} else if spec.Repo != "" {
 		with["repo"] = spec.Repo
-	} else if spec.Repo != "" && isHarnessRegistry {
-		with["repo"] = fmt.Sprintf("%s/%s", spec.RegistryRef, spec.Repo)
 	} else {
 		messagelog.GetMessageLogger().LogWarning(
 			"REPO_NOT_PROVIDED",
@@ -108,13 +121,9 @@ func ConvertStepBuildAndPushDockerRegistry(src *v0.Step) *v1.StepTemplate {
 		with["cache_repo"] = spec.RemoteCacheRepo
 	}
 
-	if spec.CacheFrom != nil {
-		with["cache_from"] = spec.CacheFrom
-	}
-
-	if spec.CacheTo != "" {
-		with["cache_to"] = spec.CacheTo
-	}
+	// NOTE: cacheFrom/cacheTo have no corresponding "cache_from"/"cache_to"
+	// inputs in either buildAndPushToDocker or buildAndPushToHAR templates
+	// (only "cache_repo" exists), so they are intentionally not mapped here.
 
 	var uses string
 	if isHarnessRegistry {

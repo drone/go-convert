@@ -254,6 +254,25 @@ type (
 		Value    interface{} `json:"value,omitempty"    yaml:"value,omitempty"`
 	}
 
+	
+	StepRestoreCache struct {
+		CommonStepSpec
+		ConnectorRef      string                    `json:"connectorRef,omitempty"      yaml:"connectorRef,omitempty"`
+		ProviderType      string                    `json:"providerType,omitempty"      yaml:"providerType,omitempty"`
+		Key               string                    `json:"key,omitempty"               yaml:"key,omitempty"`
+		Bucket            string                    `json:"bucket,omitempty"            yaml:"bucket,omitempty"`
+		SourcePaths       *flexible.Field[[]string] `json:"sourcePaths,omitempty"       yaml:"sourcePaths,omitempty"`
+		Region            string                    `json:"region,omitempty"            yaml:"region,omitempty"`
+		Endpoint          string                    `json:"endpoint,omitempty"          yaml:"endpoint,omitempty"`
+		StorageAccount    string                    `json:"storageAccount,omitempty"    yaml:"storageAccount,omitempty"`
+		ContainerName     string                    `json:"containerName,omitempty"     yaml:"containerName,omitempty"`
+		PathStyle         *flexible.Field[bool]     `json:"pathStyle,omitempty"         yaml:"pathStyle,omitempty"`
+		FailIfKeyNotFound *flexible.Field[bool]     `json:"failIfKeyNotFound,omitempty" yaml:"failIfKeyNotFound,omitempty"`
+		ArchiveFormat     string                    `json:"archiveFormat,omitempty"     yaml:"archiveFormat,omitempty"`
+		RunAsUser         *flexible.Field[int]      `json:"runAsUser,omitempty"         yaml:"runAsUser,omitempty"`
+		Resources         *Resources                `json:"resources,omitempty"         yaml:"resources,omitempty"`
+	}
+
 	StepRestoreCacheGCS struct {
 		CommonStepSpec
 		ConnectorRef      string                `json:"connectorRef,omitempty"      yaml:"connectorRef,omitempty"`
@@ -343,6 +362,24 @@ type (
 		Globs            *flexible.Field[[]string]          `json:"globs,omitempty"            yaml:"globs,omitempty"`
 		RunAsUser        *flexible.Field[int]               `json:"runAsUser,omitempty"        yaml:"runAsUser,omitempty"`
 		Resources        *Resources                         `json:"resources,omitempty"        yaml:"resources,omitempty"`
+	}
+
+	StepSaveCache struct {
+		CommonStepSpec
+		ConnectorRef   string                    `json:"connectorRef,omitempty"   yaml:"connectorRef,omitempty"`
+		ProviderType   string                    `json:"providerType,omitempty"   yaml:"providerType,omitempty"`
+		Key            string                    `json:"key,omitempty"            yaml:"key,omitempty"`
+		Bucket         string                    `json:"bucket,omitempty"         yaml:"bucket,omitempty"`
+		SourcePaths    *flexible.Field[[]string] `json:"sourcePaths,omitempty"    yaml:"sourcePaths,omitempty"`
+		Region         string                    `json:"region,omitempty"         yaml:"region,omitempty"`
+		Endpoint       string                    `json:"endpoint,omitempty"       yaml:"endpoint,omitempty"`
+		StorageAccount string                    `json:"storageAccount,omitempty" yaml:"storageAccount,omitempty"`
+		ContainerName  string                    `json:"containerName,omitempty"  yaml:"containerName,omitempty"`
+		PathStyle      *flexible.Field[bool]     `json:"pathStyle,omitempty"      yaml:"pathStyle,omitempty"`
+		Override       *flexible.Field[bool]     `json:"override,omitempty"       yaml:"override,omitempty"`
+		ArchiveFormat  string                    `json:"archiveFormat,omitempty"  yaml:"archiveFormat,omitempty"`
+		RunAsUser      *flexible.Field[int]      `json:"runAsUser,omitempty"      yaml:"runAsUser,omitempty"`
+		Resources      *Resources                `json:"resources,omitempty"      yaml:"resources,omitempty"`
 	}
 
 	StepSaveCacheGCS struct {
@@ -649,12 +686,12 @@ type (
 
 	StepServiceNowCreate struct {
 		CommonStepSpec
-		ConnectorRef string             `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
-		TicketType   string             `json:"ticketType,omitempty" yaml:"ticketType,omitempty"`
-		Fields       []*ServiceNowField `json:"fields,omitempty" yaml:"fields,omitempty"`
-		CreateType   string             `json:"createType,omitempty" yaml:"createType,omitempty"`
-		TemplateName string             `json:"templateName,omitempty" yaml:"templateName,omitempty"`
-		UseServiceNowTemplate *flexible.Field[bool]     `json:"useServiceNowTemplate,omitempty" yaml:"useServiceNowTemplate,omitempty"`
+		ConnectorRef          string                `json:"connectorRef,omitempty" yaml:"connectorRef,omitempty"`
+		TicketType            string                `json:"ticketType,omitempty" yaml:"ticketType,omitempty"`
+		Fields                []*ServiceNowField    `json:"fields,omitempty" yaml:"fields,omitempty"`
+		CreateType            string                `json:"createType,omitempty" yaml:"createType,omitempty"`
+		TemplateName          string                `json:"templateName,omitempty" yaml:"templateName,omitempty"`
+		UseServiceNowTemplate *flexible.Field[bool] `json:"useServiceNowTemplate,omitempty" yaml:"useServiceNowTemplate,omitempty"`
 	}
 
 	StepServiceNowUpdate struct {
@@ -869,10 +906,14 @@ func (s *Step) UnmarshalJSON(data []byte) error {
 		s.Spec = new(StepArtifactoryUpload)
 	case StepTypeSaveCacheGCS:
 		s.Spec = new(StepSaveCacheGCS)
+	case StepTypeSaveCache:
+		s.Spec = new(StepSaveCache)
 	case StepTypeRestoreCacheGCS:
 		s.Spec = new(StepRestoreCacheGCS)
 	case StepTypeRestoreCacheS3:
 		s.Spec = new(StepRestoreCacheS3)
+	case StepTypeRestoreCache:
+		s.Spec = new(StepRestoreCache)
 	case StepTypeBuildAndPushECR:
 		s.Spec = new(StepBuildAndPushECR)
 	case StepTypeBuildAndPushACR:
