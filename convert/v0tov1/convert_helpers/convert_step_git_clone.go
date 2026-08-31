@@ -81,12 +81,12 @@ func ConvertStepGitClone(src *v0.Step) *v1.StepTemplate {
 		}
 	}
 
-	// Sparse checkout - convert []string to comma-separated string for v1
+	// Sparse checkout - join paths with newlines for the git clone plugin (matches DRONE_NETRC_SPARSE_CHECKOUT).
 	if sp.SparseCheckout != nil && !sp.SparseCheckout.IsNil() {
 		if expr, ok := sp.SparseCheckout.AsString(); ok {
 			with["sparse_checkout"] = expr
 		} else if paths, ok := sp.SparseCheckout.AsStruct(); ok && len(paths) > 0 {
-			with["sparse_checkout"] = strings.Join(paths, ",")
+			with["sparse_checkout"] = strings.Join(paths, "\n")
 		}
 	}
 
