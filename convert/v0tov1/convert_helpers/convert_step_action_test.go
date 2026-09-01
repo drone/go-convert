@@ -1,8 +1,6 @@
 package converthelpers
 
 import (
-	"encoding/json"
-	"strings"
 	"testing"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
@@ -15,8 +13,7 @@ func TestConvertStepAction(t *testing.T) {
 		name           string
 		step           *v0.Step
 		expectedScript v1.Stringorslice
-		expectedWith   map[string]interface{} // decoded from PLUGIN_WITH JSON; nil if not expected
-		expectedExtra  map[string]interface{} // non-PLUGIN_WITH env entries
+		expectedEnv    map[string]interface{} // nil if no env expected
 	}{
 		{
 			name: "basic action step with uses only",
@@ -28,7 +25,7 @@ func TestConvertStepAction(t *testing.T) {
 			expectedScript: v1.Stringorslice{"plugin -kind action -name actions/checkout@v3"},
 		},
 		{
-			name: "action step with with params encoded as PLUGIN_WITH JSON",
+			name: "action step with with params emitted as per-key PLUGIN_WITH_ env vars",
 			step: &v0.Step{
 				Spec: &v0.StepAction{
 					Uses: "actions/setup-go@v4",
@@ -39,9 +36,9 @@ func TestConvertStepAction(t *testing.T) {
 				},
 			},
 			expectedScript: v1.Stringorslice{"plugin -kind action -name actions/setup-go@v4"},
-			expectedWith: map[string]interface{}{
-				"go-version": "1.21",
-				"cache":      true,
+			expectedEnv: map[string]interface{}{
+				"PLUGIN_WITH_go-version": "1.21",
+				"PLUGIN_WITH_cache":      true,
 			},
 		},
 		{
@@ -55,8 +52,8 @@ func TestConvertStepAction(t *testing.T) {
 				},
 			},
 			expectedScript: v1.Stringorslice{"plugin -kind action -name actions/setup-go@v3.5.0"},
-			expectedWith: map[string]interface{}{
-				"go-version": "=1.20.1",
+			expectedEnv: map[string]interface{}{
+				"PLUGIN_WITH_go-version": "=1.20.1",
 			},
 		},
 		{
@@ -70,7 +67,7 @@ func TestConvertStepAction(t *testing.T) {
 				},
 			},
 			expectedScript: v1.Stringorslice{"plugin -kind action -name actions/upload-artifact@v3"},
-			expectedExtra: map[string]interface{}{
+			expectedEnv: map[string]interface{}{
 				"GITHUB_TOKEN": "my-token",
 			},
 		},
@@ -90,13 +87,11 @@ func TestConvertStepAction(t *testing.T) {
 				},
 			},
 			expectedScript: v1.Stringorslice{"plugin -kind action -name docker/build-push-action@v5"},
-			expectedWith: map[string]interface{}{
-				"context": ".",
-				"push":    true,
-				"tags":    "myapp:latest",
-			},
-			expectedExtra: map[string]interface{}{
-				"DOCKER_BUILDKIT": "1",
+			expectedEnv: map[string]interface{}{
+				"PLUGIN_WITH_context": ".",
+				"PLUGIN_WITH_push":    true,
+				"PLUGIN_WITH_tags":    "myapp:latest",
+				"DOCKER_BUILDKIT":     "1",
 			},
 		},
 		{
@@ -109,6 +104,27 @@ func TestConvertStepAction(t *testing.T) {
 				},
 			},
 			expectedScript: v1.Stringorslice{"plugin -kind action -name actions/cache@v3"},
+		},
+		{
+			// CI-24451: a secret expression inside `with` must be emitted as a
+			// per-key env var. As a JSON-packed PLUGIN_WITH blob, runtime
+			// resolution of a multi-line secret injects raw newlines into the
+			// pre-encoded JSON and the plugin's json.Unmarshal fails.
+			name: "action step with secret expression in with stays per-key",
+			step: &v0.Step{
+				Spec: &v0.StepAction{
+					Uses: "google-github-actions/auth@v2",
+					With: map[string]interface{}{
+						"credentials_json": `<+secrets.getValue("gcp-secret")>`,
+						"project_id":       "secops-central-sa",
+					},
+				},
+			},
+			expectedScript: v1.Stringorslice{"plugin -kind action -name google-github-actions/auth@v2"},
+			expectedEnv: map[string]interface{}{
+				"PLUGIN_WITH_credentials_json": `<+secrets.getValue("gcp-secret")>`,
+				"PLUGIN_WITH_project_id":       "secops-central-sa",
+			},
 		},
 	}
 
@@ -123,7 +139,7 @@ func TestConvertStepAction(t *testing.T) {
 				t.Errorf("Script mismatch (-want +got):\n%s", diff)
 			}
 
-			if tt.expectedWith == nil && tt.expectedExtra == nil {
+			if tt.expectedEnv == nil {
 				if result.Env != nil {
 					t.Errorf("expected nil Env, got %+v", result.Env.Value)
 				}
@@ -139,41 +155,18 @@ func TestConvertStepAction(t *testing.T) {
 				t.Fatalf("Env.Value is %T, expected map[string]interface{}", result.Env.Value)
 			}
 
-			if tt.expectedWith != nil {
-				rawJSON, ok := got["PLUGIN_WITH"].(string)
-				if !ok {
-					t.Fatalf("expected PLUGIN_WITH string entry, got %v", got["PLUGIN_WITH"])
-				}
-				var decoded map[string]interface{}
-				if err := json.Unmarshal([]byte(rawJSON), &decoded); err != nil {
-					t.Fatalf("PLUGIN_WITH is not valid JSON: %v", err)
-				}
-				if diff := cmp.Diff(tt.expectedWith, decoded); diff != "" {
-					t.Errorf("PLUGIN_WITH decoded mismatch (-want +got):\n%s", diff)
-				}
-			} else if _, present := got["PLUGIN_WITH"]; present {
-				t.Errorf("unexpected PLUGIN_WITH entry: %v", got["PLUGIN_WITH"])
+			if blob, present := got["PLUGIN_WITH"]; present {
+				t.Errorf("unexpected PLUGIN_WITH JSON blob entry: %v", blob)
 			}
 
-			extra := map[string]interface{}{}
-			for k, v := range got {
-				if k == "PLUGIN_WITH" {
-					continue
-				}
-				extra[k] = v
-			}
-			expectedExtra := tt.expectedExtra
-			if expectedExtra == nil {
-				expectedExtra = map[string]interface{}{}
-			}
-			if diff := cmp.Diff(expectedExtra, extra); diff != "" {
-				t.Errorf("Extra env mismatch (-want +got):\n%s", diff)
+			if diff := cmp.Diff(tt.expectedEnv, got); diff != "" {
+				t.Errorf("Env mismatch (-want +got):\n%s", diff)
 			}
 		})
 	}
 }
 
-func TestConvertStepAction_PluginWithNotHTMLEscaped(t *testing.T) {
+func TestConvertStepAction_ExpressionsPreservedVerbatim(t *testing.T) {
 	step := &v0.Step{
 		Spec: &v0.StepAction{
 			Uses: "actions/setup-go@v4",
@@ -194,16 +187,11 @@ func TestConvertStepAction_PluginWithNotHTMLEscaped(t *testing.T) {
 		t.Fatalf("Env.Value is %T, expected map[string]interface{}", result.Env.Value)
 	}
 
-	rawJSON, ok := got["PLUGIN_WITH"].(string)
-	if !ok {
-		t.Fatalf("expected PLUGIN_WITH string entry, got %v", got["PLUGIN_WITH"])
+	if got["PLUGIN_WITH_check-latest"] != "<+pipeline.variables.checkLatest>" {
+		t.Errorf("expression should be preserved verbatim, got: %v", got["PLUGIN_WITH_check-latest"])
 	}
-
-	if strings.Contains(rawJSON, `\u003c`) || strings.Contains(rawJSON, `\u003e`) {
-		t.Errorf("PLUGIN_WITH should not HTML-escape expressions, got: %s", rawJSON)
-	}
-	if !strings.Contains(rawJSON, "<+pipeline.variables.checkLatest>") {
-		t.Errorf("PLUGIN_WITH should contain the raw expression, got: %s", rawJSON)
+	if got["PLUGIN_WITH_go-version"] != "1.20.1" {
+		t.Errorf("expected PLUGIN_WITH_go-version to be 1.20.1, got: %v", got["PLUGIN_WITH_go-version"])
 	}
 }
 

@@ -15,10 +15,7 @@
 package converthelpers
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"strings"
 
 	v0 "github.com/drone/go-convert/convert/harness/yaml"
 	v1 "github.com/drone/go-convert/convert/v0tov1/yaml"
@@ -40,24 +37,16 @@ func ConvertStepAction(src *v0.Step) *v1.StepRun {
 	script := fmt.Sprintf("plugin -kind action -name %v", spec.Uses)
 	env_map := map[string]interface{}{}
 	var env *flexible.Field[map[string]interface{}]
-	// Encode the `with` map as a single JSON-valued PLUGIN_WITH env var.
-	// The per-key PLUGIN_WITH_<key> form is brittle: values like "=1.20.1"
-	// can lose information in YAML/string round-trips, and key names like
-	// "go-version" aren't POSIX env names. The plugin runner accepts both
-	// forms (see drone/plugin plugin/github/env.go getWith), and the JSON
-	// form is unambiguous.
-	if len(spec.With) > 0 {
-		// Disable HTML escaping so Harness expressions like
-		// <+pipeline.variables.checkLatest> aren't mangled into
-		// \u003c+...\u003e by the default json.Marshal behavior.
-		var buf bytes.Buffer
-		enc := json.NewEncoder(&buf)
-		enc.SetEscapeHTML(false)
-		if err := enc.Encode(spec.With); err != nil {
-			return nil
-		}
-		// Encode appends a trailing newline; trim it.
-		env_map["PLUGIN_WITH"] = strings.TrimRight(buf.String(), "\n")
+	// Emit each `with` entry as its own PLUGIN_WITH_<key> env var, matching the
+	// V0 and native-V1 serializers (VmActionStepSerializer) and the per-key
+	// fallback in drone/plugin's getWith. A single JSON-encoded PLUGIN_WITH
+	// blob breaks at runtime: Harness expressions such as
+	// <+secrets.getValue(...)> are resolved only after conversion, and
+	// multi-line secret values inject raw newlines into the pre-encoded JSON,
+	// so the plugin's json.Unmarshal fails with
+	// "invalid character '\n' in string literal" (CI-24451).
+	for k, v := range spec.With {
+		env_map["PLUGIN_WITH_"+k] = v
 	}
 	for k, v := range spec.Envs {
 		env_map[k] = v
