@@ -252,11 +252,7 @@ func ConvertStepK8sBGSwapServices(src *v0.Step, isRollback bool) *v1.StepTemplat
 
 	with := map[string]interface{}{}
 
-	if !isRollback {
-		with["stable_service"] = "<+exportedVariables.getValue(\"stage.bluegreenprepareactionoutput.PLUGIN_STABLE_SERVICE\")>"
-		with["stage_service"] = "<+exportedVariables.getValue(\"stage.bluegreenprepareactionoutput.PLUGIN_STAGE_SERVICE\")>"
-		with["is_openshift"] = "<+exportedVariables.getValue(\"stage.bluegreenapplyactionoutput.HARNESS_IS_OPENSHIFT\")>"
-	} else {
+	if isRollback {
 		with["stable_service"] = "${{rollback.data.PLUGIN_STABLE_SERVICE}}"
 		with["stage_service"] = "${{rollback.data.PLUGIN_STAGE_SERVICE}}"
 		with["is_openshift"] = "${{rollback.data.HARNESS_IS_OPENSHIFT}}"
