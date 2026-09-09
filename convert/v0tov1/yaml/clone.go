@@ -45,7 +45,7 @@ type Clone struct {
 	CloneDir   string `json:"clonedir,omitempty"`
 	Resources *ContainerResources `json:"resources,omitempty"`
 	SparseCheckout     *flexible.Field[[]string] `json:"sparse-checkout,omitempty"`
-	PreFetchCommand string `json:"pre-fetch-command,omitempty"`
+	PreFetchCommand string `json:"pre-fetch,omitempty"`
 	PersistCredentials *flexible.Field[bool] `json:"persist-credentials,omitempty"`
 	User *flexible.Field[int] `json:"user,omitempty"`
 }
@@ -68,7 +68,7 @@ func (v *Clone) UnmarshalJSON(data []byte) error {
 		CloneDir   string `json:"clonedir,omitempty"`
 		Resources *ContainerResources `json:"resources,omitempty"`
 		SparseCheckout     *flexible.Field[[]string] `json:"sparse-checkout,omitempty"`
-		PreFetchCommand string `json:"pre-fetch-command,omitempty"`
+		PreFetchCommand string `json:"pre-fetch,omitempty"`
 		PersistCredentials *flexible.Field[bool] `json:"persist-credentials,omitempty"`
 		User *flexible.Field[int] `json:"user,omitempty"`
 	}{}
@@ -79,7 +79,15 @@ func (v *Clone) UnmarshalJSON(data []byte) error {
 	}
 
 	if err := json.Unmarshal(data, &out2); err == nil {
-		*v = out2
+		*v = Clone(out2)
+		if v.PreFetchCommand == "" {
+			var legacy struct {
+				PreFetchCommand string `json:"pre-fetch-command"`
+			}
+			if err := json.Unmarshal(data, &legacy); err == nil {
+				v.PreFetchCommand = legacy.PreFetchCommand
+			}
+		}
 		return nil
 	} else {
 		return err
