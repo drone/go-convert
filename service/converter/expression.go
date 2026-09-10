@@ -70,6 +70,34 @@ func ConvertExpressionsWithWarnings(expressions []string, ctx *ExpressionContext
 	return result, convCtx.Warnings
 }
 
+// ConvertRemoteFilesWithWarnings converts a batch of remote files that share
+// the same conversion context. The context (StepInfoByFQN built from the v1
+// pipeline YAML) is constructed once and reused across every file, so a batch
+// is a single expensive build followed by N cheap conversions. Returns a map of
+// the same keys -> converted content plus the diagnostics aggregated across all
+// files.
+//
+// Per-file semantics mirror ConvertExpressionWithWarnings: empty content and
+// content with no expression delimiter are returned unchanged.
+func ConvertRemoteFilesWithWarnings(files map[string]string, ctx *ExpressionContext) (map[string]string, []string) {
+	result := make(map[string]string, len(files))
+	convCtx := buildConversionContext(ctx)
+
+	for key, content := range files {
+		if content == "" {
+			result[key] = ""
+			continue
+		}
+		if !hasExpressionDelimiter(content) {
+			result[key] = content
+			continue
+		}
+		result[key] = convertexpressions.ConvertExpressionWithTrie(content, convCtx, false)
+	}
+
+	return result, convCtx.Warnings
+}
+
 // hasExpressionDelimiter reports whether s contains a Harness expression
 // delimiter (<+...> or ${{...}}).
 func hasExpressionDelimiter(s string) bool {

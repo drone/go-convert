@@ -22,11 +22,18 @@ var ServiceFieldRules = []ConversionRule{
 	{"serviceInputs", "(with.overlay)"},
 }
 
+// ServiceVariablesConversionRules collapse the v0 service-variables path to the
+// v1 serviceVariables root, preserving any trailing field structurally:
+// serviceConfig.serviceDefinition.spec.variables.<name> -> serviceVariables.<name>
+// Attached to the standalone "serviceConfig" alias root (see pipeline_trie.go).
+var ServiceVariablesConversionRules = []ConversionRule{
+	{"(serviceDefinition.spec.variables)", "serviceVariables"},
+}
+
 var InfraFieldRules = []ConversionRule{
 	{"connectorRef", "connector"},
 	{"infraInputs", "(with.overlay)"},
 }
-
 
 // manifests / configFiles / artifacts have no field renames; the spec-child node
 // alone injects the "steps" prefix and the bare alias passes through at root.

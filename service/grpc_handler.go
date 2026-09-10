@@ -79,6 +79,32 @@ func (h *GRPCHandler) ConvertExpression(_ context.Context, req *pb.ExpressionCon
 	}, nil
 }
 
+// ConvertExpressionBatch converts a batch of remote files in a single call.
+// The context pipeline YAML is shared across all files, so the FQN step lookup
+// is built once and reused (see converter.ConvertRemoteFilesWithWarnings). No
+// call-site FQN is supplied for remote-file conversion (mirrors
+// ConvertExpression's remote_file path).
+func (h *GRPCHandler) ConvertExpressionBatch(_ context.Context, req *pb.ExpressionConvertBatchRequest) (*pb.ExpressionConvertBatchResponse, error) {
+	files := req.GetRemoteFiles()
+	if len(files) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "'remote_files' field is required and must not be empty")
+	}
+
+	// FQN-only context: v1 pipeline YAML applied to every file.
+	var ctx *converter.ExpressionContext
+	if pipelineYAML := strings.TrimSpace(req.GetContextPipelineYaml()); pipelineYAML != "" {
+		ctx = &converter.ExpressionContext{
+			ContextPipelineYAML: pipelineYAML,
+		}
+	}
+
+	converted, warnings := converter.ConvertRemoteFilesWithWarnings(files, ctx)
+	return &pb.ExpressionConvertBatchResponse{
+		RemoteFiles: converted,
+		Warnings:    warnings,
+	}, nil
+}
+
 // checksumMap computes the checksum over the JSON encoding of a map.
 func checksumMap(m map[string]string) string {
 	b, _ := json.Marshal(m)
