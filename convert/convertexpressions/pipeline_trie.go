@@ -43,6 +43,12 @@ func buildPipelineTrie() *Trie {
 	trie.AddPath().
 		Node("inputSet").WithAlias("inputSet").WithID("input_set_node").WithV1Name("inputSet.overlay")
 
+	// Service variables: the v0 service-variables path collapses to the v1
+	// serviceVariables root
+	trie.AddPath().
+		Node("serviceConfig").WithAlias("serviceConfig").WithV1Name("-").WithID("service_config_node").WithNoFQNOverride()
+	trie.AttachRulesAt("service_config_node", ServiceVariablesConversionRules)
+
 	trie.AddPathFromID("step_node").
 		Node("output").WithV1Name("-").WithID("step_output_node")
 

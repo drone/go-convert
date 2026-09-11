@@ -121,11 +121,33 @@ message ExpressionConvertResponse {
   repeated string warnings = 5;
 }
 
+// ExpressionConvertBatchRequest converts a batch of remote files in a single
+// call. The context_pipeline_yaml is applied as shared context to every file,
+// so the server builds the FQN step lookup once and reuses it across all files.
+message ExpressionConvertBatchRequest {
+  // Map of caller-defined file identifier (e.g. file path) to the raw file
+  // content containing embedded <+...>/${{...}} expressions.
+  map<string, string> remote_files = 1;
+
+  // Optional v1 pipeline YAML applied as shared context to every file.
+  string context_pipeline_yaml = 2;
+}
+
+// ExpressionConvertBatchResponse is the response for ConvertExpressionBatch.
+message ExpressionConvertBatchResponse {
+  // Map of the same file identifier to its converted file content.
+  map<string, string> remote_files = 1;
+
+  // Aggregated non-fatal diagnostics collected across all files.
+  repeated string warnings = 2;
+}
+
 service GoConvertService {
   rpc ConvertPipeline(ConvertRequest) returns (ConvertResponse);
   rpc ConvertTemplate(ConvertRequest) returns (ConvertResponse);
   rpc ConvertInputSet(ConvertRequest) returns (ConvertResponse);
   rpc ConvertTrigger(ConvertRequest) returns (ConvertResponse);
   rpc ConvertExpression(ExpressionConvertRequest) returns (ExpressionConvertResponse);
+  rpc ConvertExpressionBatch(ExpressionConvertBatchRequest) returns (ExpressionConvertBatchResponse);
   rpc GetChecksum(ChecksumRequest) returns (ChecksumResponse);
 }
