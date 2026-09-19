@@ -1373,5 +1373,46 @@ line3'''
             }
         }
     }
-}
 
+    // recordCoverage step
+    stages {
+        stage('Checkout SCM') {
+            steps {
+                checkout([$class: 'GitSCM',
+                    branches: [[name: "*/master"]],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [[$class: 'CleanCheckout']],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[url: 'https://github.com/syamv/game-of-life.git']]
+                ])
+            }
+        }
+
+        // Using Maven for build
+        stage('Maven Build') {
+            steps {
+                sh 'mvn clean verify org.jacoco:jacoco-maven-plugin:prepare-agent package jacoco:report'
+                sh 'curl https://raw.githubusercontent.com/jenkinsci/cobertura-plugin/ff0973461f60c28dbc0bf5ab4853a5aec4798210/src/test/resources/hudson/plugins/cobertura/coverage-with-lots-of-data.xml > coverage.xml'
+            }
+        }
+
+        stage('Jacoco Reports') {
+            steps {
+                recordCoverage(
+                    tools: [
+                        [parser: 'JACOCO'],
+                        [parser: 'COBERTURA', pattern: '**/coverage.xml']
+                    ],
+                    id: 'jacoco',
+                    name: 'JaCoCo Coverage',
+                    enabledForFailure: true,
+                    sourceCodeRetention: 'EVERY_BUILD',
+                    qualityGates: [
+                        [threshold: 60.0, metric: 'LINE', baseline: 'PROJECT', unstable: true],
+                        [threshold: 60.0, metric: 'BRANCH', baseline: 'PROJECT', unstable: true]
+                    ]
+                )
+            }
+        }
+    }
+}
