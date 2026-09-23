@@ -22,5 +22,36 @@ type (
 		Disabled        bool `xml:"disabled,omitempty"`
 
 		Builders *Builders `xml:"builders"`
+
+		// Maven module-set jobs (<maven2-moduleset>) carry their build
+		// definition in these top-level elements rather than in a
+		// freestyle <builders> block.
+		Goals     string `xml:"goals,omitempty"`
+		MavenName string `xml:"mavenName,omitempty"`
+		JDK       string `xml:"jdk,omitempty"`
+
+		// Parameters declares the job's build parameters.
+		Parameters []StringParameter `xml:"properties>hudson.model.ParametersDefinitionProperty>parameterDefinitions>hudson.model.StringParameterDefinition"`
+
+		// SCM is the source control configuration. Only the Git SCM
+		// (hudson.plugins.git.GitSCM) is modelled today.
+		SCM *SCM `xml:"scm"`
+	}
+
+	// SCM models a Jenkins source control configuration. The XML class
+	// attribute (for example hudson.plugins.git.GitSCM) is captured so the
+	// converter can distinguish git from other SCM types.
+	SCM struct {
+		Class       string   `xml:"class,attr"`
+		RemoteURLs  []string `xml:"userRemoteConfigs>hudson.plugins.git.UserRemoteConfig>url"`
+		BranchNames []string `xml:"branches>hudson.plugins.git.BranchSpec>name"`
+	}
+
+	// StringParameter is a Jenkins string build parameter
+	// (hudson.model.StringParameterDefinition).
+	StringParameter struct {
+		Name         string `xml:"name"`
+		Description  string `xml:"description,omitempty"`
+		DefaultValue string `xml:"defaultValue,omitempty"`
 	}
 )
