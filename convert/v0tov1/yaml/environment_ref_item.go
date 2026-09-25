@@ -58,7 +58,11 @@ func (d DeployToItem) MarshalJSON() ([]byte, error) {
 
 // EnvironmentItem represents a single environment entry.
 type EnvironmentItem struct {
-	Id        string                 `json:"id,omitempty" yaml:"id,omitempty"`
+	Id string `json:"id,omitempty" yaml:"id,omitempty"`
+	// AllInfra is a literal true or an expression, so it is typed as interface{} rather than
+	// bool. It must be left nil when there is no marker: a non-nil interface holding false is
+	// not omitted by encoding/json, which would emit a spurious `all-infra: false`.
+	AllInfra  interface{}            `json:"all-infra,omitempty" yaml:"all-infra,omitempty"`
 	DeployTo  interface{}            `json:"deploy-to,omitempty" yaml:"deploy-to,omitempty"`
 	Filters   []*Filter              `json:"filters,omitempty" yaml:"filters,omitempty"`
 	Overrides map[string]interface{} `json:"overrides,omitempty" yaml:"overrides,omitempty"`

@@ -51,7 +51,7 @@ pipeline:
           items:
           - id: test
           - id: prod
-            deploy-to: all
+            all-infra: true
         steps: []
 
   #
