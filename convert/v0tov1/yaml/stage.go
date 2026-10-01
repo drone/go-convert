@@ -63,6 +63,13 @@ type Stage struct {
 	// matrix and template expansion. Context is not part of
 	// the yaml schema.
 	Context *Context `json:"context,omitempty" yaml:"context,omitempty"`
+	// omitStepsIfEmpty is a sentinel set on overlay/templateInputs stages so
+	// that MarshalJSON drops the steps key when the slice is empty.
+	omitStepsIfEmpty bool
+}
+
+func (s *Stage) SetOmitStepsIfEmpty(v bool) {
+	s.omitStepsIfEmpty = v
 }
 
 // MarshalJSON customizes Stage serialization:
@@ -72,8 +79,9 @@ type Stage struct {
 func (s Stage) MarshalJSON() ([]byte, error) {
 	type StageAlias Stage
 
-	// Container and template stages must NOT have a steps field.
-	if s.Parallel != nil || s.Group != nil || s.Chain != nil || s.Template != nil {
+	// Container, template, and stage tempalate overlay with no step level inputs must NOT have a steps field.
+	if s.Parallel != nil || s.Group != nil || s.Chain != nil || s.Template != nil ||
+		(s.omitStepsIfEmpty && len(s.Steps) == 0) {
 		s.Steps = nil
 		data, err := json.Marshal(StageAlias(s))
 		if err != nil {
