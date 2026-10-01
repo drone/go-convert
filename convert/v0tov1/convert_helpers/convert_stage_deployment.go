@@ -196,6 +196,10 @@ func ConvertDeploymentServices(src *v0.DeploymentServices, ctx *StageConversionC
 // ...) become the overlay directly. When serviceInputs or serviceDefinition is an
 // expression, the expression becomes the overlay as-is. Returns nil when there is
 // nothing to carry over.
+//
+// If the serviceDefinition is a concrete map that contains no "spec" field, the
+// overlay is omitted entirely (returns nil). The v1 runtime rejects an overlay
+// that has no spec, so we must not emit one in that case.
 func convertServiceInputsToWith(serviceInputs *flexible.Field[v0.ServiceInputs]) map[string]interface{} {
 	if serviceInputs.IsEmpty() {
 		return nil
@@ -206,6 +210,13 @@ func convertServiceInputsToWith(serviceInputs *flexible.Field[v0.ServiceInputs])
 			return nil
 		}
 		overlay = inputs.ServiceDefinition
+		// When serviceDefinition is a concrete map (not an expression) and it
+		// has no "spec" field there are no actual inputs to overlay
+		if defMap, ok := overlay.(map[string]interface{}); ok {
+			if _, hasSpec := defMap["spec"]; !hasSpec {
+				return nil
+			}
+		}
 	}
 	if str, ok := overlay.(string); ok && str == "" {
 		return nil
@@ -255,12 +266,12 @@ func ConvertEnvironment(src *v0.Environment, ctx *StageConversionContext) *v1.En
 // buildEnvironmentOverrides converts v0 environmentInputs and serviceOverrideInputs
 // into the v1 environment "overrides" block.
 //
-// environmentInputs    -> overrides.env-global
-// serviceOverrideInputs -> overrides.env-service
+// environmentInputs    -> overrides.global
+// serviceOverrideInputs -> overrides.service
 //
 // When the inputs are a concrete struct, the value is wrapped as:
 //
-//	env-global:
+//	global:
 //	  with:
 //	    overlay:
 //	      <inputs>
@@ -268,15 +279,15 @@ func ConvertEnvironment(src *v0.Environment, ctx *StageConversionContext) *v1.En
 // When the inputs are a runtime expression (e.g. <+input>), the key is set
 // directly to the expression string:
 //
-//	env-global: <+input>
+//	global: <+input>
 func buildEnvironmentOverrides(envInputs, serviceOverrideInputs interface{}) map[string]interface{} {
 	overrides := make(map[string]interface{})
 
 	if entry := buildOverrideEntry(envInputs); entry != nil {
-		overrides["env-global"] = entry
+		overrides["global"] = entry
 	}
 	if entry := buildOverrideEntry(serviceOverrideInputs); entry != nil {
-		overrides["env-service"] = entry
+		overrides["service"] = entry
 	}
 
 	if len(overrides) == 0 {
@@ -453,6 +464,11 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 		parallel = src.Metadata.Parallel
 	}
 
+	// Determine whether this is an account-level group ref.
+	// If so, individual environment refs inside the group must also carry the
+	// "account." prefix so they resolve in the correct scope.
+	isAccountLevel := strings.HasPrefix(src.EnvGroupRef, "account.")
+
 	// Case: environments is an expression (e.g., <+input>)
 	if src.Environments != nil {
 		if expr, ok := src.Environments.AsString(); ok && expr != "" {
@@ -508,7 +524,7 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 	if src.Environments != nil {
 		envItems, ok := src.Environments.AsStruct()
 		if ok && len(envItems) > 0 {
-			items := convertEnvironmentGroupEnvItems(envItems)
+			items := convertEnvironmentGroupEnvItems(envItems, isAccountLevel)
 			if len(items) > 0 {
 				groupConfig := map[string]interface{}{
 					"id":    src.EnvGroupRef,
@@ -525,17 +541,24 @@ func ConvertEnvironmentGroup(src *v0.EnvironmentGroup, ctx *StageConversionConte
 	return nil
 }
 
-// convertEnvironmentGroupEnvItems converts v0 Environment array to v1 EnvironmentItem array
-func convertEnvironmentGroupEnvItems(envItems []*v0.Environment) []*v1.EnvironmentItem {
+// convertEnvironmentGroupEnvItems converts v0 Environment array to v1 EnvironmentItem array.
+// If isAccountLevel is true, each environment ref that lacks the "account." prefix will
+// have it prepended so that account-scoped group members are consistently qualified.
+func convertEnvironmentGroupEnvItems(envItems []*v0.Environment, isAccountLevel bool) []*v1.EnvironmentItem {
 	items := make([]*v1.EnvironmentItem, 0, len(envItems))
 	for _, env := range envItems {
 		if env == nil || env.EnvironmentRef == "" {
 			continue
 		}
 
+		ref := env.EnvironmentRef
+		if isAccountLevel && !strings.HasPrefix(ref, "account.") {
+			ref = "account." + ref
+		}
+
 		deployTo := resolveEnvironmentDeployTo(env)
 		items = append(items, &v1.EnvironmentItem{
-			Id:        env.EnvironmentRef,
+			Id:        ref,
 			DeployTo:  deployTo,
 			Overrides: buildEnvironmentOverrides(env.EnvironmentInputs, env.ServiceOverrideInputs),
 		})

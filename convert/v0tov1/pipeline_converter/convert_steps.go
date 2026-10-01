@@ -202,7 +202,7 @@ func (c *PipelineConverter) ConvertSingleStep(src *v0.Step, isRollback bool, bas
 	case v0.StepTypeWait:
 		step.Wait = convert_helpers.ConvertStepWait(src)
 	case v0.StepTypeHTTP:
-		step.Run = convert_helpers.ConvertStepHTTP(src)
+		step.Template = convert_helpers.ConvertStepHTTP(src)
 	case v0.StepTypeShellScript:
 		step.Run = convert_helpers.ConvertStepShellScript(src)
 	case v0.StepTypeShellScriptProvision:

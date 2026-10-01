@@ -44,7 +44,7 @@ type K8sCanaryDeleteWith struct {
 }
 
 type K8sDiffWith struct {
-        	Flags []interface{} `json:"flags,omitempty"`
+	Flags []interface{} `json:"flags,omitempty"`
 }
 
 type K8sRolloutWith struct {
@@ -220,7 +220,6 @@ func ConvertStepK8sApply(src *v0.Step) *v1.StepTemplate {
 	// Map filePaths to manifests (list)
 	manifests := make([]interface{}, 0, len(spec.FilePaths))
 	for _, p := range spec.FilePaths {
-		p = "<+runtime.manifestPath>/" + p
 		manifests = append(manifests, p)
 	}
 

@@ -30,6 +30,8 @@ func (c *PipelineConverter) convertStageTemplate(src *v0.Stage, basePath string)
 		// Convert the templateInputs (which is a *Stage) directly
 		overlayStage := c.convertStage(template.TemplateInputs, basePath)
 		if overlayStage != nil {
+			// Mark the overlay stage so MarshalJSON omits steps when the slice is empty
+			overlayStage.SetOmitStepsIfEmpty(true)
 			result.With = &v1.StageTemplateWith{
 				Overlay: &v1.StageTemplateOverlay{
 					Stage: overlayStage,

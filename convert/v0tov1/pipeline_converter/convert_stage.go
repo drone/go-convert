@@ -207,6 +207,9 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 	case v0.StageTypeDeployment:
 		spec, ok := src.Spec.(*v0.StageDeployment)
 		if ok && spec != nil {
+			// Deployment stages always run on cloud runtime
+			stage.Runtime = &v1.Runtime{Cloud: &v1.RuntimeCloud{}}
+
 			// Convert deployment steps
 			if spec.Execution != nil {
 				stage.Steps = c.ConvertSteps(spec.Execution.Steps, false, stepsPath, src.ID, "", nil)
