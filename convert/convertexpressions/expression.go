@@ -108,6 +108,118 @@ func replaceHarnessExprs(s string, converter func(inner string) string) string {
 	return b.String()
 }
 
+// replaceTopLevelHarnessExprs converts the inner content of every top-level
+// expression in s via converter, like replaceHarnessExprs, but chooses the
+// output delimiter based on the converted content: a "simple path" (a dotted
+// path with no function calls, ternaries, nested expressions, or other
+// operators - optionally with array indexes) is emitted using CEL-style
+// ${{...}} delimiters regardless of its original delimiter or whether it was
+// rewritten by a trie rule. Anything else keeps its original delimiter style.
+func replaceTopLevelHarnessExprs(s string, converter func(inner string) string) string {
+	spans := findExprSpans(s)
+	if len(spans) == 0 {
+		return s
+	}
+	var b strings.Builder
+	prev := 0
+	for _, span := range spans {
+		b.WriteString(s[prev:span.start])
+		var innerContent string
+		switch span.kind {
+		case delimDollar:
+			innerContent = s[span.start+3 : span.end-2] // strip ${{ and }}
+		default:
+			innerContent = s[span.start+2 : span.end-1] // strip <+ and >
+		}
+		converted := converter(innerContent)
+		if isSimplePathExpression(converted) {
+			b.WriteString("${{" + converted + "}}")
+		} else if span.kind == delimDollar {
+			b.WriteString("${{" + converted + "}}")
+		} else {
+			b.WriteString("<+" + converted + ">")
+		}
+		prev = span.end
+	}
+	b.WriteString(s[prev:])
+	return b.String()
+}
+
+// isSimplePathExpression reports whether converted (already trimmed of
+// delimiters) is exactly a dotted path with at least one dot and no
+// functions, ternaries, nested expressions, or other operators. Array
+// indexes ([0], [name]) are allowed. Single-segment expressions (no dot,
+// e.g. "input", "serviceVariables") are intentionally excluded so runtime
+// input markers like <+input> are never rewritten.
+func isSimplePathExpression(s string) bool {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return false
+	}
+
+	segments, ok := simplePathSegments(s)
+	if !ok {
+		return false
+	}
+	return len(segments) >= 2
+}
+
+// simplePathSegments splits s into dotted path segments, validating that
+// each segment matches [A-Za-z_][A-Za-z0-9_-]* optionally followed by one or
+// more [ident] index groups. Returns ok=false if s contains anything else
+// (function calls, quotes, operators, nested expressions, whitespace, etc.).
+func simplePathSegments(s string) ([]string, bool) {
+	var segments []string
+	i := 0
+	n := len(s)
+
+	for {
+		segStart := i
+		if i >= n || !isSimpleSegmentStartChar(s[i]) {
+			return nil, false
+		}
+		i++
+		for i < n && isSimpleSegmentChar(s[i]) {
+			i++
+		}
+		// Optional array index groups: [ident]
+		for i < n && s[i] == '[' {
+			i++
+			idxStart := i
+			for i < n && isSimpleIndexChar(s[i]) {
+				i++
+			}
+			if i == idxStart || i >= n || s[i] != ']' {
+				return nil, false
+			}
+			i++ // consume ']'
+		}
+		segments = append(segments, s[segStart:i])
+
+		if i >= n {
+			break
+		}
+		if s[i] != '.' {
+			return nil, false
+		}
+		i++ // consume '.'
+	}
+
+	return segments, true
+}
+
+func isSimpleSegmentStartChar(c byte) bool {
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
+}
+
+func isSimpleSegmentChar(c byte) bool {
+	return isSimpleSegmentStartChar(c) || (c >= '0' && c <= '9') || c == '-'
+}
+
+func isSimpleIndexChar(c byte) bool {
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '-'
+}
+
 // splitPathSegments splits a dotted path into segments while treating
 // nested <+...> expressions (including multi-level nesting) as single opaque segments.
 func splitPathSegments(path string) []string {

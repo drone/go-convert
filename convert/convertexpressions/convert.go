@@ -17,7 +17,7 @@ func ConvertExpressionWithTrie(expr string, context *ConversionContext, inner bo
 	trie := GetPipelineTrie()
 
 	if !inner {
-		return replaceHarnessExprs(expr, func(innerContent string) string {
+		return replaceTopLevelHarnessExprs(expr, func(innerContent string) string {
 			return ConvertExpressionWithTrie(innerContent, context, true)
 		})
 	}

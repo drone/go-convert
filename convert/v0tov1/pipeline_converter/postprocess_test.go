@@ -39,7 +39,7 @@ func TestProcessString_SingleExpression(t *testing.T) {
 
 	// Trie converts spec.execution.steps → steps
 	result := p.processString("<+pipeline.stages.build.spec.execution.steps.runStep1.output>")
-	expected := "<+pipeline.stages.build.steps.runStep1.output>"
+	expected := "${{pipeline.stages.build.steps.runStep1.output}}"
 	if result != expected {
 		t.Errorf("expected %q, got %q", expected, result)
 	}
@@ -63,7 +63,7 @@ func TestProcessString_MixedContent(t *testing.T) {
 
 	// Mixed content with text and expression (trie converts spec.execution.steps → steps)
 	result := p.processString("prefix <+pipeline.stages.build.spec.execution.steps.runStep1.output> suffix")
-	expected := "prefix <+pipeline.stages.build.steps.runStep1.output> suffix"
+	expected := "prefix ${{pipeline.stages.build.steps.runStep1.output}} suffix"
 	if result != expected {
 		t.Errorf("expected %q, got %q", expected, result)
 	}
@@ -96,7 +96,7 @@ func TestPostProcessExpressions_Pipeline(t *testing.T) {
 	PostProcessExpressions(pipeline, stepTypeMap, true)
 
 	// Stage If condition should have spec.execution.steps → steps converted
-	expectedIf := "<+pipeline.stages.build.steps.runStep1.output>"
+	expectedIf := "${{pipeline.stages.build.steps.runStep1.output}}"
 	if pipeline.Stages[0].If != expectedIf {
 		t.Errorf("stage.If: expected %q, got %q", expectedIf, pipeline.Stages[0].If)
 	}
@@ -132,7 +132,7 @@ func TestPostProcessExpressions_FlexibleFieldExpression(t *testing.T) {
 	if !ok {
 		t.Fatal("expected Env to still be a string expression")
 	}
-	expected := "<+pipeline.stages.build.steps.step2.output>"
+	expected := "${{pipeline.stages.build.steps.step2.output}}"
 	if str != expected {
 		t.Errorf("step.Env expression: expected %q, got %q", expected, str)
 	}
@@ -158,7 +158,7 @@ func TestPostProcessExpressions_MapStringValues(t *testing.T) {
 	PostProcessExpressions(pipeline, stepTypeMap, true)
 
 	if val, ok := pipeline.Stages[0].Env["STEP_OUTPUT"].(string); ok {
-		expected := "<+pipeline.stages.build.steps.runStep1.output>"
+		expected := "${{pipeline.stages.build.steps.runStep1.output}}"
 		if val != expected {
 			t.Errorf("stage.Env[STEP_OUTPUT]: expected %q, got %q", expected, val)
 		}
@@ -197,7 +197,7 @@ func TestPostProcessExpressions_StageIdentifier(t *testing.T) {
 	// stage.-rooted reference: FQN override is suppressed (stage and its
 	// ancestors are flagged WithNoFQNOverride), so it converts structurally
 	// to the "stage" self-reference keyword rather than the absolute FQN.
-	expected := "<+stage.steps.step1.output>"
+	expected := "${{stage.steps.step1.output}}"
 	if pipeline.Stages[0].If != expected {
 		t.Errorf("stage.If: expected %q, got %q", expected, pipeline.Stages[0].If)
 	}
@@ -233,7 +233,7 @@ func TestPostProcessExpressions_StringorsliceScript(t *testing.T) {
 	PostProcessExpressions(pipeline, stepTypeMap, true)
 
 	// First script line should have spec.execution.steps → steps converted
-	expected0 := "echo <+pipeline.stages.build.steps.runStep1.output>"
+	expected0 := "echo ${{pipeline.stages.build.steps.runStep1.output}}"
 	if pipeline.Stages[0].Steps[0].Run.Script[0] != expected0 {
 		t.Errorf("script[0]: expected %q, got %q", expected0, pipeline.Stages[0].Steps[0].Run.Script[0])
 	}
@@ -244,7 +244,7 @@ func TestPostProcessExpressions_StringorsliceScript(t *testing.T) {
 	}
 
 	// Third line should also have spec.execution.steps → steps converted
-	expected2 := "echo <+pipeline.stages.build.steps.runStep2.output>"
+	expected2 := "echo ${{pipeline.stages.build.steps.runStep2.output}}"
 	if pipeline.Stages[0].Steps[0].Run.Script[2] != expected2 {
 		t.Errorf("script[2]: expected %q, got %q", expected2, pipeline.Stages[0].Steps[0].Run.Script[2])
 	}
@@ -278,7 +278,7 @@ func TestPostProcessExpressions_StepNeeds(t *testing.T) {
 	// Needs should have spec.execution.steps → steps converted. The .status
 	// field is not a spec/output node, so FQN substitution is suppressed and
 	// the relative "stage" alias is preserved (structural conversion only).
-	expected := "<+stage.steps.step1.status>"
+	expected := "${{stage.steps.step1.status}}"
 	if pipeline.Stages[0].Steps[0].Needs[0] != expected {
 		t.Errorf("needs[0]: expected %q, got %q", expected, pipeline.Stages[0].Steps[0].Needs[0])
 	}
@@ -312,7 +312,7 @@ func TestPostProcessExpressions_InterfaceSlice(t *testing.T) {
 		t.Fatal("expected items to be []interface{}")
 	}
 
-	expected0 := "<+pipeline.stages.build.steps.step1.output>"
+	expected0 := "${{pipeline.stages.build.steps.step1.output}}"
 	if items[0] != expected0 {
 		t.Errorf("items[0]: expected %q, got %v", expected0, items[0])
 	}
@@ -322,7 +322,7 @@ func TestPostProcessExpressions_InterfaceSlice(t *testing.T) {
 	}
 
 	// stage.-rooted reference stays structural (FQN override suppressed).
-	expected2 := "<+stage.steps.step1.output>"
+	expected2 := "${{stage.steps.step1.output}}"
 	if items[2] != expected2 {
 		t.Errorf("items[2]: expected %q, got %v", expected2, items[2])
 	}
@@ -359,7 +359,7 @@ func TestPostProcessExpressions_NestedMapInterface(t *testing.T) {
 	// Check direct value
 	if direct, ok := pipeline.Stages[0].Steps[0].With["direct"].(string); ok {
 		// stage.-rooted reference stays structural (FQN override suppressed).
-		expected := "<+stage.steps.step2.output>"
+		expected := "${{stage.steps.step2.output}}"
 		if direct != expected {
 			t.Errorf("with.direct: expected %q, got %q", expected, direct)
 		}
@@ -370,7 +370,7 @@ func TestPostProcessExpressions_NestedMapInterface(t *testing.T) {
 	// Check nested value
 	if level1, ok := pipeline.Stages[0].Steps[0].With["level1"].(map[string]interface{}); ok {
 		if level2, ok := level1["level2"].(string); ok {
-			expected := "<+pipeline.stages.build.steps.step2.output>"
+			expected := "${{pipeline.stages.build.steps.step2.output}}"
 			if level2 != expected {
 				t.Errorf("with.level1.level2: expected %q, got %q", expected, level2)
 			}

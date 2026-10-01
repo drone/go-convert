@@ -30,6 +30,15 @@ var ServiceVariablesConversionRules = []ConversionRule{
 	{"(serviceDefinition.spec.variables)", "serviceVariables"},
 }
 
+// ManifestConfigConversionRules rename the v0 manifestConfig root's primary
+// manifest reference to the v1 nested field, using the parenthesis rule to
+// collapse the multi-segment target: primaryManifestId -> primary.id.
+// Attached to the standalone "manifestConfig" alias root (see pipeline_trie.go),
+// whose own v1Name renames the root to "manifests".
+var ManifestConfigConversionRules = []ConversionRule{
+	{"primaryManifestId", "(primary.id)"},
+}
+
 var InfraFieldRules = []ConversionRule{
 	{"connectorRef", "connector"},
 	{"infraInputs", "(with.overlay)"},

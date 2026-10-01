@@ -13,7 +13,7 @@ func TestTrieConvert_ServiceVariables(t *testing.T) {
 		{
 			name:     "Service variable single field",
 			input:    "<+serviceConfig.serviceDefinition.spec.variables.myVar>",
-			expected: "<+serviceVariables.myVar>",
+			expected: "${{serviceVariables.myVar}}",
 		},
 		{
 			name:     "Service variable with method call",
@@ -28,12 +28,12 @@ func TestTrieConvert_ServiceVariables(t *testing.T) {
 		{
 			name:     "Service variable in mixed text",
 			input:    `image: <+serviceConfig.serviceDefinition.spec.variables.image>:latest`,
-			expected: `image: <+serviceVariables.image>:latest`,
+			expected: "image: ${{serviceVariables.image}}:latest",
 		},
 		{
 			name:     "Already v1 serviceVariables passes through unchanged",
 			input:    "<+serviceVariables.myVar>",
-			expected: "<+serviceVariables.myVar>",
+			expected: "${{serviceVariables.myVar}}",
 		},
 	}
 
