@@ -16,9 +16,9 @@ func TestConvertRemoteFilesWithWarnings_Basic(t *testing.T) {
 	got, _ := ConvertRemoteFilesWithWarnings(files, nil)
 
 	want := map[string]string{
-		"values.yaml": "tag: <+codebase.branch>",
-		"config.yaml": "repo: <+codebase.repoName>",
-		"vars.yaml":   "env: <+serviceVariables.env>",
+		"values.yaml": "tag: ${{codebase.branch}}",
+		"config.yaml": "repo: ${{codebase.repoName}}",
+		"vars.yaml":   "env: ${{serviceVariables.env}}",
 		"plain.txt":   "no expressions here",
 		"empty.txt":   "",
 	}

@@ -49,6 +49,13 @@ func buildPipelineTrie() *Trie {
 		Node("serviceConfig").WithAlias("serviceConfig").WithV1Name("-").WithID("service_config_node").WithNoFQNOverride()
 	trie.AttachRulesAt("service_config_node", ServiceVariablesConversionRules)
 
+	// manifestConfig: the v0 manifestConfig root renames to the v1 manifests
+	// root; primaryManifestId collapses to the nested primary.id field (see
+	// ManifestConfigConversionRules).
+	trie.AddPath().
+		Node("manifestConfig").WithAlias("manifestConfig").WithV1Name("manifests").WithID("manifest_config_node").WithNoFQNOverride()
+	trie.AttachRulesAt("manifest_config_node", ManifestConfigConversionRules)
+
 	trie.AddPathFromID("step_node").
 		Node("output").WithV1Name("-").WithID("step_output_node")
 
