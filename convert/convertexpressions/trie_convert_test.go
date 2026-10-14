@@ -256,7 +256,7 @@ func TestTrieConvert_PipelineLevel(t *testing.T) {
 		{
 			name:     "Spec execution steps removal",
 			input:    "<+pipeline.stages.build.spec.execution.steps.step1.output.outputVariables.var1>",
-			expected: "${{pipeline.stages.build.steps.step1.output.outputVariables.var1}}",
+			expected: "${{pipeline.stages.build.steps.step1.output.variables.var1}}",
 		},
 		{
 			name:     "No conversion needed - plain text outside expression",
@@ -281,7 +281,7 @@ func TestTrieConvert_PipelineLevel(t *testing.T) {
 		{
 			name:     "Step with function call",
 			input:    "<+pipeline.stages.build.spec.execution.steps.step1.output.outputVariables.var1.toLowerCase()>",
-			expected: "<+pipeline.stages.build.steps.step1.output.outputVariables.var1.toLowerCase()>",
+			expected: "<+pipeline.stages.build.steps.step1.output.variables.var1.toLowerCase()>",
 		},
 		{
 			name:     "Mixed text with expressions",
@@ -406,7 +406,38 @@ func TestTrieConvert_StepLevel(t *testing.T) {
 			name:     "HTTP output httpResponseCode",
 			input:    "<+pipeline.stages.build.spec.execution.steps.http1.output.httpResponseCode>",
 			context:  &ConversionContext{StepType: StepTypeHTTP},
-			expected: "${{pipeline.stages.build.steps.http1.steps.httpStep.output.outputVariables.PLUGIN_HTTP_RESPONSE_CODE}}",
+			expected: "${{pipeline.stages.build.steps.http1.steps.httpStep.output.variables.PLUGIN_HTTP_RESPONSE_CODE}}",
+		},
+		{
+			name:     "HTTP output user variable",
+			input:    "<+execution.steps.http1.output.outputVariables.myVar>",
+			context:  &ConversionContext{StepType: StepTypeHTTP},
+			expected: "${{stage.steps.http1.output.variables.myVar}}",
+		},
+		// Output variables rename (any step type)
+		{
+			name:     "ShellScript output variable",
+			input:    "<+execution.steps.sh1.output.outputVariables.TAG>",
+			context:  &ConversionContext{StepType: StepTypeShellScript},
+			expected: "${{stage.steps.sh1.output.variables.TAG}}",
+		},
+		{
+			name:     "Run output variable bracket key",
+			input:    "<+steps.run1.output.outputVariables[\"TAG\"]>",
+			context:  &ConversionContext{StepType: StepTypeRun},
+			expected: "<+steps.run1.output.variables[\"TAG\"]>",
+		},
+		{
+			name:     "Canonical output variable unchanged",
+			input:    "<+steps.run1.output.variables.TAG>",
+			context:  &ConversionContext{StepType: StepTypeRun},
+			expected: "${{steps.run1.output.variables.TAG}}",
+		},
+		{
+			name:     "Template sub-step output variable",
+			input:    "<+steps.rollout.steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NAME>",
+			context:  nil,
+			expected: "${{steps.rollout.steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NAME}}",
 		},
 		// RestoreCacheS3
 		{
@@ -476,7 +507,7 @@ func TestTrieConvert_ComplexNested(t *testing.T) {
 			name:     "Nested comparison with step output",
 			input:    `<+<+pipeline.stages.build.spec.execution.steps.step1.output.outputVariables.url>.contains("test")>`,
 			context:  nil,
-			expected: `<+<+pipeline.stages.build.steps.step1.output.outputVariables.url>.contains("test")>`,
+			expected: `<+<+pipeline.stages.build.steps.step1.output.variables.url>.contains("test")>`,
 		},
 		// Multiple nested expressions
 		{
@@ -523,7 +554,7 @@ func TestTrieConvert_ComplexNested(t *testing.T) {
 			name:     "Dynamic stage with nested expression and step conversion",
 			input:    `<+pipeline.stages.<+<+pipeline.stages.build.identifier> == "build"?"stage1":"stage2">.spec.execution.steps.step1.output.outputVariables.url>`,
 			context:  nil,
-			expected: `<+pipeline.stages.<+<+pipeline.stages.build.id> == "build"?"stage1":"stage2">.steps.step1.output.outputVariables.url>`,
+			expected: `<+pipeline.stages.<+<+pipeline.stages.build.id> == "build"?"stage1":"stage2">.steps.step1.output.variables.url>`,
 		},
 		// Mixed text with multiple expressions
 		{
@@ -550,7 +581,7 @@ func TestTrieConvert_ComplexNested(t *testing.T) {
 			name:     "HTTP output nested in comparison",
 			input:    `<+<+pipeline.stages.build.spec.execution.steps.http1.output.httpResponseCode> == "200">`,
 			context:  &ConversionContext{StepType: StepTypeHTTP},
-			expected: `<+<+pipeline.stages.build.steps.http1.steps.httpStep.output.outputVariables.PLUGIN_HTTP_RESPONSE_CODE> == "200">`,
+			expected: `<+<+pipeline.stages.build.steps.http1.steps.httpStep.output.variables.PLUGIN_HTTP_RESPONSE_CODE> == "200">`,
 		},
 		{
 			name:     "Run step output in ternary",
@@ -691,7 +722,17 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 				CurrentFQN:      "pipeline.stages.build.steps.httpCall",
 				CurrentStepType: StepTypeHTTP,
 			},
-			expected: "${{pipeline.stages.build.steps.httpCall.steps.httpStep.output.outputVariables.PLUGIN_HTTP_RESPONSE_CODE}}",
+			expected: "${{pipeline.stages.build.steps.httpCall.steps.httpStep.output.variables.PLUGIN_HTTP_RESPONSE_CODE}}",
+		},
+		{
+			name:  "step.output.outputVariables with FQN - Run step",
+			input: "<+step.output.outputVariables.TAG>",
+			context: &ConversionContext{
+				UseFQN:          true,
+				CurrentFQN:      "pipeline.stages.build.steps.run1",
+				CurrentStepType: StepTypeRun,
+			},
+			expected: "${{pipeline.stages.build.steps.run1.output.variables.TAG}}",
 		},
 		// Multiple expressions in same string with FQN
 		{
@@ -823,7 +864,7 @@ func TestTrieConvert_FQNMode(t *testing.T) {
 					"pipeline.stages.build.steps.currentStep": {Type: StepTypeRun, StageID: "build", StepID: "currentStep"},
 				},
 			},
-			expected: "${{pipeline.stages.build.steps.otherStep.output.result}}",
+			expected: "${{pipeline.stages.build.steps.otherStep.output.variables.result}}",
 		},
 		// steps.STEPID without StepV1PathMap - should fall back to normal conversion
 		{
@@ -957,7 +998,7 @@ func TestTrieConvert_DollarDelimiter(t *testing.T) {
 		{
 			name:     "Dollar step output path collapse",
 			input:    "${{pipeline.stages.cs1.spec.execution.steps.ShellScript_1.output.outputVariables.rishi1}}",
-			expected: "${{pipeline.stages.cs1.steps.ShellScript_1.output.outputVariables.rishi1}}",
+			expected: "${{pipeline.stages.cs1.steps.ShellScript_1.output.variables.rishi1}}",
 		},
 		{
 			name:     "Dollar stage identifier",
