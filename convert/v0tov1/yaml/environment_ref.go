@@ -49,14 +49,12 @@ func (v *EnvironmentRef) ItemList() []*EnvironmentItem {
 	return items
 }
 
-// MarshalJSON implements json.Marshaler following the ServiceRef pattern.
+// MarshalJSON implements json.Marshaler for EnvironmentRef.
+// Always emits the full struct form: environment selection uses
+// {items: [...]} with optional parallel, groups use {group: ...} and
+// filtered selections use {filters: ...}. A single environment is a
+// one-entry items list, never a flat {id, ...} object.
 func (v EnvironmentRef) MarshalJSON() ([]byte, error) {
-	// Variant: single env – marshal as flat EnvironmentItem (like ServiceRef string)
-	if items := v.ItemList(); len(items) == 1 && !v.MultiEnv {
-		return json.Marshal(items[0])
-	}
-
-	// Variant: multi env – marshal as struct with items
 	type Alias EnvironmentRef
 	return json.Marshal((*Alias)(&v))
 }
