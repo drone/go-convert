@@ -135,10 +135,8 @@ func (v *ServiceRef) UnmarshalJSON(data []byte) error {
 
 // MarshalJSON implements json.Marshaler for ServiceRef.
 // Outputs:
-// - Single string if one item without With and not MultiService: "service1"
-// - Object with items if MultiService: {items: [...]} or {items: [...], parallel: true}
+// - Object with items: {items: [...]} or {items: [...], parallel: true}
 func (v *ServiceRef) MarshalJSON() ([]byte, error) {
-	// Multi-service - always use items format
 	type Alias ServiceRef
 	return json.Marshal((*Alias)(v))
 }
