@@ -44,7 +44,8 @@ pipeline:
   - group:
       stages:
       - environment:
-          id: prod
+          items:
+          - id: prod
         steps: []
       - environment:
           parallel: true
@@ -59,7 +60,9 @@ pipeline:
   #
   - group:
       stages:
-      - service: petstore
+      - service:
+          items:
+          - petstore
         steps: []
       - service:
           items:

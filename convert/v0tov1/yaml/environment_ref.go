@@ -51,12 +51,6 @@ func (v *EnvironmentRef) ItemList() []*EnvironmentItem {
 
 // MarshalJSON implements json.Marshaler following the ServiceRef pattern.
 func (v EnvironmentRef) MarshalJSON() ([]byte, error) {
-	// Variant: single env – marshal as flat EnvironmentItem (like ServiceRef string)
-	if items := v.ItemList(); len(items) == 1 && !v.MultiEnv {
-		return json.Marshal(items[0])
-	}
-
-	// Variant: multi env – marshal as struct with items
 	type Alias EnvironmentRef
 	return json.Marshal((*Alias)(&v))
 }
