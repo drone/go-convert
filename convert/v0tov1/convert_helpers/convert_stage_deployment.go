@@ -226,6 +226,9 @@ func convertServiceInputsToWith(serviceInputs *flexible.Field[v0.ServiceInputs])
 	}
 }
 
+// runtimeInputExpr is the literal v0/v1 runtime input expression.
+const runtimeInputExpr = "<+input>"
+
 // ConvertEnvironment converts v0 Environment to v1 EnvironmentRef
 func ConvertEnvironment(src *v0.Environment, ctx *StageConversionContext) *v1.EnvironmentRef {
 	if src == nil {
@@ -248,6 +251,18 @@ func ConvertEnvironment(src *v0.Environment, ctx *StageConversionContext) *v1.En
 		return nil
 	}
 
+	// If every non-null field on the single environment is the literal
+	// "<+input>" runtime input expression, collapse the whole items list
+	// into a single runtime input expression: items: <+input>
+	if isEnvironmentFullyRuntimeInput(src) {
+		items := &flexible.Field[[]*v1.EnvironmentItem]{}
+		items.SetExpression(runtimeInputExpr)
+		return &v1.EnvironmentRef{
+			Items:    items,
+			MultiEnv: false,
+		}
+	}
+
 	// Resolve deploy-to from both singular and plural infra definitions
 	deployTo := resolveEnvironmentDeployTo(src)
 
@@ -261,6 +276,50 @@ func ConvertEnvironment(src *v0.Environment, ctx *StageConversionContext) *v1.En
 		Items:    v1.NewEnvironmentItems([]*v1.EnvironmentItem{item}),
 		MultiEnv: false,
 	}
+}
+
+// isEnvironmentFullyRuntimeInput reports whether every non-null/non-empty
+// field on a single v0 Environment is the literal "<+input>" runtime input
+// expression. UseFromStage is handled separately by the caller before this
+// check runs, so it is not considered here.
+func isEnvironmentFullyRuntimeInput(src *v0.Environment) bool {
+	if src.EnvironmentRef != runtimeInputExpr {
+		return false
+	}
+	if src.GitBranch != "" && src.GitBranch != runtimeInputExpr {
+		return false
+	}
+	if src.DeployToAll != nil && !src.DeployToAll.IsNil() {
+		if expr, ok := src.DeployToAll.AsString(); !ok || expr != runtimeInputExpr {
+			return false
+		}
+	}
+	if src.EnvironmentInputs != nil {
+		if str, ok := src.EnvironmentInputs.(string); !ok || str != runtimeInputExpr {
+			return false
+		}
+	}
+	if src.ServiceOverrideInputs != nil {
+		if str, ok := src.ServiceOverrideInputs.(string); !ok || str != runtimeInputExpr {
+			return false
+		}
+	}
+	if src.InfrastructureDefinition != nil && !src.InfrastructureDefinition.IsNil() {
+		if expr, ok := src.InfrastructureDefinition.AsString(); !ok || expr != runtimeInputExpr {
+			return false
+		}
+	}
+	if src.InfrastructureDefinitions != nil && !src.InfrastructureDefinitions.IsNil() {
+		if expr, ok := src.InfrastructureDefinitions.AsString(); !ok || expr != runtimeInputExpr {
+			return false
+		}
+	}
+	if src.Filters != nil && !src.Filters.IsNil() {
+		if expr, ok := src.Filters.AsString(); !ok || expr != runtimeInputExpr {
+			return false
+		}
+	}
+	return true
 }
 
 // buildEnvironmentOverrides converts v0 environmentInputs and serviceOverrideInputs
