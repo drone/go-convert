@@ -17,6 +17,8 @@ package yaml
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 func TestRuntimeMarshalJSON(t *testing.T) {
@@ -44,6 +46,19 @@ func TestRuntimeMarshalJSON(t *testing.T) {
 			name:     "kubernetes runtime marshals to object",
 			runtime:  Runtime{Kubernetes: &RuntimeKubernetes{Namespace: "ci"}},
 			expected: `{"kubernetes":{"namespace":"ci"}}`,
+		},
+		{
+			// The converter only attaches delegate to the Shell runtime
+			// (see pipeline_converter.convertStage); this case documents
+			// that marshaling still produces the expected shell+delegate
+			// object shape.
+			name: "shell without connector but with delegate marshals to object",
+			runtime: func() Runtime {
+				d := &flexible.Field[*Delegate]{}
+				d.Set(&Delegate{Filter: []string{"del1"}})
+				return Runtime{Shell: &RuntimeShell{}, Delegate: d}
+			}(),
+			expected: `{"shell":{},"delegate":["del1"]}`,
 		},
 	}
 
@@ -95,6 +110,12 @@ func TestRuntimeUnmarshalJSON(t *testing.T) {
 			input:       `{"cloud":{"size":"large"}}`,
 			expectCloud: true,
 		},
+		{
+			// Delegate is only ever emitted alongside Shell by the converter.
+			name:        "object with shell and delegate unmarshals correctly",
+			input:       `{"shell":{},"delegate":["del1"]}`,
+			expectShell: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -121,6 +142,41 @@ func TestRuntimeUnmarshalJSON(t *testing.T) {
 				t.Error("expected Kubernetes to be non-nil")
 			}
 		})
+	}
+}
+
+// TestRuntimeDelegateField documents the one shape the converter ever
+// produces for runtime.delegate: Shell runtime + delegate filter. See
+// pipeline_converter.convertStage, which only sets Runtime.Delegate when
+// Runtime.IsShell() is true.
+func TestRuntimeDelegateField(t *testing.T) {
+	input := `{"shell":{},"delegate":["del1"]}`
+
+	var runtime Runtime
+	if err := json.Unmarshal([]byte(input), &runtime); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if runtime.Shell == nil {
+		t.Fatal("expected Shell to be non-nil")
+	}
+	if runtime.Delegate == nil {
+		t.Fatal("expected Delegate to be non-nil")
+	}
+	delegate, ok := runtime.Delegate.AsStruct()
+	if !ok || delegate == nil {
+		t.Fatal("expected Delegate to resolve to a struct")
+	}
+	if len(delegate.Filter) != 1 || delegate.Filter[0] != "del1" {
+		t.Errorf("expected delegate filter [del1], got %v", delegate.Filter)
+	}
+
+	out, err := json.Marshal(runtime)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if string(out) != input {
+		t.Errorf("expected %s, got %s", input, string(out))
 	}
 }
 

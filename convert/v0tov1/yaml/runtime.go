@@ -17,14 +17,17 @@ package yaml
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/drone/go-convert/internal/flexible"
 )
 
 // Runtime configures the runtime environment.
 type Runtime struct {
-	Cloud      *RuntimeCloud      `json:"cloud,omitempty"`
-	Kubernetes *RuntimeKubernetes `json:"kubernetes,omitempty"`
-	VM         *RuntimeInstance   `json:"vm,omitempty"`
-	Shell      *RuntimeShell      `json:"shell,omitempty"`
+	Cloud      *RuntimeCloud              `json:"cloud,omitempty"`
+	Kubernetes *RuntimeKubernetes         `json:"kubernetes,omitempty"`
+	VM         *RuntimeInstance           `json:"vm,omitempty"`
+	Shell      *RuntimeShell              `json:"shell,omitempty"`
+	Delegate   *flexible.Field[*Delegate] `json:"delegate,omitempty"`
 }
 
 // RuntimeShell defines the shell/local/docker runtime configuration.
@@ -39,13 +42,11 @@ func (v *Runtime) IsShell() bool {
 
 // MarshalJSON implement the json.Marshaler interface.
 func (v Runtime) MarshalJSON() ([]byte, error) {
-	if v.Shell != nil {
-		if v.Shell.Connector == "" {
-			return json.Marshal("shell")
-		}
-		return json.Marshal(struct {
-			Shell *RuntimeShell `json:"shell,omitempty"`
-		}{Shell: v.Shell})
+	// Only collapse to the bare "shell" string when no other runtime fields
+	// (including the delegate field) are set.
+	if v.Shell != nil && v.Shell.Connector == "" && v.Delegate == nil &&
+		v.Cloud == nil && v.Kubernetes == nil && v.VM == nil {
+		return json.Marshal("shell")
 	}
 	type RuntimeAlias Runtime
 	return json.Marshal((*RuntimeAlias)(&v))
@@ -55,10 +56,11 @@ func (v Runtime) MarshalJSON() ([]byte, error) {
 func (v *Runtime) UnmarshalJSON(data []byte) error {
 	var out1 string
 	var out2 = struct {
-		Cloud      *RuntimeCloud      `json:"cloud,omitempty"`
-		Kubernetes *RuntimeKubernetes `json:"kubernetes,omitempty"`
-		VM         *RuntimeInstance   `json:"vm,omitempty"`
-		Shell      *RuntimeShell      `json:"shell,omitempty"`
+		Cloud      *RuntimeCloud              `json:"cloud,omitempty"`
+		Kubernetes *RuntimeKubernetes         `json:"kubernetes,omitempty"`
+		VM         *RuntimeInstance           `json:"vm,omitempty"`
+		Shell      *RuntimeShell              `json:"shell,omitempty"`
+		Delegate   *flexible.Field[*Delegate] `json:"delegate,omitempty"`
 	}{}
 
 	if err := json.Unmarshal(data, &out1); err == nil {
@@ -82,6 +84,7 @@ func (v *Runtime) UnmarshalJSON(data []byte) error {
 		v.Kubernetes = out2.Kubernetes
 		v.VM = out2.VM
 		v.Shell = out2.Shell
+		v.Delegate = out2.Delegate
 		return nil
 	} else {
 		return err

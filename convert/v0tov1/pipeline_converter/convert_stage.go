@@ -56,7 +56,6 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 	// Set common stage settings for non-template stages
 	stage.OnFailure = convert_helpers.ConvertFailureStrategies(src.FailureStrategies)
 	stage.Inputs = c.convertVariables(src.Vars)
-	stage.Delegate = convert_helpers.ConvertDelegate(src.DelegateSelectors, nil)
 	stage.Strategy = convert_helpers.ConvertStrategy(src.Strategy)
 	stage.If = convert_helpers.ConvertStageWhen(src.When, src.Skip)
 	stage.Env = convertStageInputsToEnv(stage.Inputs)
@@ -287,6 +286,15 @@ func (c *PipelineConverter) convertStage(src *v0.Stage, basePath string) *v1.Sta
 			fmt.Sprintf("stage type %q is not yet supported", src.Type),
 			WithStage(src.ID, src.Type),
 		)
+	}
+
+	// Delegate selectors are attached to the stage's runtime (runtime.delegate)
+	// only when the stage runtime is shell, so that delegate/shell live
+	// together under `runtime`. non-shell runtime such
+	// as cloud/kubernetes/vm will omit the delegate field. 
+	delegate := convert_helpers.ConvertDelegate(src.DelegateSelectors, nil)
+	if stage.Runtime.IsShell() {
+		stage.Runtime.Delegate = delegate
 	}
 
 	// Populate stage context so future stages can resolve useFromStage references
