@@ -716,10 +716,20 @@ var StepSpecConversionRules = map[string][]ConversionRule{
 	},
 }
 
+// StepOutputVariablesConversionRules move step outputs under output.variables:
+// output.outputVariables.<name> -> output.variables.<name>, while the canonical
+// output.variables.<name> stays unchanged. Any other output.<name> is handled by
+// the step_output_node wildcard (see pipeline_trie.go).
+// The [i] marker preserves bracket key access: outputVariables["KEY"] -> output.variables["KEY"].
+var StepOutputVariablesConversionRules = []ConversionRule{
+	{"outputVariables[i]", "output.variables"},
+	{"variables[i]", "output.variables"},
+}
+
 // inside step.output
 //
 // Rule format: {v0 outcome field, v1 path relative to the step}.
-// For template-backed steps the v1 path is `steps.<actionId>.output.outputVariables.<PLUGIN_KEY>`,
+// For template-backed steps the v1 path is `steps.<actionId>.output.variables.<PLUGIN_KEY>`,
 // where <actionId> is the wrapper template's internal sub-step id.
 //
 // DERIVED outputs (e.g. podIps from HARNESS_INSTANCES[*].PodIP) and
@@ -728,191 +738,191 @@ var StepSpecConversionRules = map[string][]ConversionRule{
 //
 // Source: template-library/v0_to_v1_template_resolved_output_mappings.txt.
 var StepOutputConversionRules = map[string][]ConversionRule{
- 
+
 	// ============================================================
 	// HTTP (run plugin)
 	// ============================================================
 	StepTypeHTTP: {
-		{"httpUrl", "steps.httpStep.output.outputVariables.PLUGIN_HTTP_URL"},
-		{"httpMethod", "steps.httpStep.output.outputVariables.PLUGIN_HTTP_METHOD"},
-		{"httpResponseCode", "steps.httpStep.output.outputVariables.PLUGIN_HTTP_RESPONSE_CODE"},
-		{"httpResponseBody", "steps.httpStep.output.outputVariables.PLUGIN_HTTP_RESPONSE_BODY_BYTES"},
-		{"status", "steps.httpStep.output.outputVariables.PLUGIN_EXECUTION_STATUS"},
-		{"responseHeaders", "steps.httpStep.output.outputVariables.PLUGIN_RESPONSE_HEADERS"},
+		{"httpUrl", "steps.httpStep.output.variables.PLUGIN_HTTP_URL"},
+		{"httpMethod", "steps.httpStep.output.variables.PLUGIN_HTTP_METHOD"},
+		{"httpResponseCode", "steps.httpStep.output.variables.PLUGIN_HTTP_RESPONSE_CODE"},
+		{"httpResponseBody", "steps.httpStep.output.variables.PLUGIN_HTTP_RESPONSE_BODY_BYTES"},
+		{"status", "steps.httpStep.output.variables.PLUGIN_EXECUTION_STATUS"},
+		{"responseHeaders", "steps.httpStep.output.variables.PLUGIN_RESPONSE_HEADERS"},
 	},
- 
+
 	// ============================================================
 	// K8S STEPS
 	// ============================================================
- 
+
 	// K8sRollingDeploy (sub-steps: k8sRollingPrepareAction, k8sApplyAction, k8sSteadyStateCheckAction)
 	StepTypeK8sRollingDeploy: {
-		{"releaseName", "steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NAME"},
-		{"releaseNumber", "steps.k8sRollingPrepareAction.output.outputVariables.PLUGIN_RELEASE_NUMBER"},
-		// also: steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NUMBER
-		{"prunedResourceIds", "steps.k8sRollingPrepareAction.output.outputVariables.PLUGIN_RESOURCES_FOR_PRUNING"},
+		{"releaseName", "steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NAME"},
+		{"releaseNumber", "steps.k8sRollingPrepareAction.output.variables.PLUGIN_RELEASE_NUMBER"},
+		// also: steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NUMBER
+		{"prunedResourceIds", "steps.k8sRollingPrepareAction.output.variables.PLUGIN_RESOURCES_FOR_PRUNING"},
 		// COMPLEX: plugin emits []string of resource refs, not KubernetesResourceId structs
-		// podIps -> DERIVED from steps.k8sSteadyStateCheckAction.output.outputVariables.HARNESS_INSTANCES[*].PodIP
+		// podIps -> DERIVED from steps.k8sSteadyStateCheckAction.output.variables.HARNESS_INSTANCES[*].PodIP
 		// manifest -> NO_PLUGIN_OUTPUT
 	},
- 
+
 	// K8sRollingRollback (sub-steps: k8sRollingRollbackAction)
 	StepTypeK8sRollingRollback: {
-		{"recreatedResourceIds", "steps.k8sRollingRollbackAction.output.outputVariables.PLUGIN_RECREATED_RESOURCES"},
+		{"recreatedResourceIds", "steps.k8sRollingRollbackAction.output.variables.PLUGIN_RECREATED_RESOURCES"},
 		// also: PLUGIN_RECREATED_WORKLOADS for workload subset
 		// COMPLEX: plugin emits []string, not KubernetesResourceId
-		// podIps -> DERIVED from steps.k8sRollingRollbackAction.output.outputVariables.HARNESS_INSTANCES[*].PodIP
+		// podIps -> DERIVED from steps.k8sRollingRollbackAction.output.variables.HARNESS_INSTANCES[*].PodIP
 	},
- 
+
 	// K8sCanaryDeploy (sub-steps: k8sCanaryPrepareAction, k8sApplyAction, k8sApplySteadyStateCheckAction, (cond) k8sTrafficRoutingAction)
 	StepTypeK8sCanaryDeploy: {
-		{"releaseName", "steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NAME"},
-		{"targetInstances", "steps.k8sCanaryPrepareAction.output.outputVariables.PLUGIN_TARGET_INSTANCES"},
-		{"releaseNumber", "steps.k8sCanaryPrepareAction.output.outputVariables.PLUGIN_RELEASE_NUMBER"},
-		{"canaryWorkload", "steps.k8sCanaryPrepareAction.output.outputVariables.PLUGIN_CANARY_WORKLOADS"},
+		{"releaseName", "steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NAME"},
+		{"targetInstances", "steps.k8sCanaryPrepareAction.output.variables.PLUGIN_TARGET_INSTANCES"},
+		{"releaseNumber", "steps.k8sCanaryPrepareAction.output.variables.PLUGIN_RELEASE_NUMBER"},
+		{"canaryWorkload", "steps.k8sCanaryPrepareAction.output.variables.PLUGIN_CANARY_WORKLOADS"},
 		// COMPLEX: plugin emits []string; v0 was a single workload string
 		// canaryWorkloadDeployed -> NO_PLUGIN_OUTPUT
-		// podIps -> DERIVED from steps.k8sApplySteadyStateCheckAction.output.outputVariables.HARNESS_INSTANCES[*].PodIP
+		// podIps -> DERIVED from steps.k8sApplySteadyStateCheckAction.output.variables.HARNESS_INSTANCES[*].PodIP
 		// manifest -> NO_PLUGIN_OUTPUT
 	},
- 
+
 	// K8sCanaryDelete (EMPTY_OUTCOME — no fields to map)
- 
+
 	// K8sBlueGreenDeploy (sub-steps: k8sBlueGreenPrepareAction, k8sApplyAction, k8sApplySteadyStateCheckAction, (cond) k8sTrafficRoutingAction)
 	StepTypeK8sBlueGreenDeploy: {
-		{"releaseNumber", "steps.k8sBlueGreenPrepareAction.output.outputVariables.PLUGIN_RELEASE_NUMBER"},
-		{"releaseName", "steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NAME"},
-		{"primaryServiceName", "steps.k8sBlueGreenPrepareAction.output.outputVariables.PLUGIN_STABLE_SERVICE"},
-		{"stageServiceName", "steps.k8sBlueGreenPrepareAction.output.outputVariables.PLUGIN_STAGE_SERVICE"},
+		{"releaseNumber", "steps.k8sBlueGreenPrepareAction.output.variables.PLUGIN_RELEASE_NUMBER"},
+		{"releaseName", "steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NAME"},
+		{"primaryServiceName", "steps.k8sBlueGreenPrepareAction.output.variables.PLUGIN_STABLE_SERVICE"},
+		{"stageServiceName", "steps.k8sBlueGreenPrepareAction.output.variables.PLUGIN_STAGE_SERVICE"},
 		// stageColor / primaryColor -> NO_PLUGIN_OUTPUT (computed by swap step; see K8sBGSwapServices)
-		{"stageDeploymentSkipped", "steps.k8sBlueGreenPrepareAction.output.outputVariables.PLUGIN_SKIPPED"},
-		// podIps -> DERIVED from steps.k8sApplySteadyStateCheckAction.output.outputVariables.HARNESS_INSTANCES[*].PodIP
-		{"prunedResourceIds", "steps.k8sBlueGreenPrepareAction.output.outputVariables.PLUGIN_RESOURCES_FOR_PRUNING"},
+		{"stageDeploymentSkipped", "steps.k8sBlueGreenPrepareAction.output.variables.PLUGIN_SKIPPED"},
+		// podIps -> DERIVED from steps.k8sApplySteadyStateCheckAction.output.variables.HARNESS_INSTANCES[*].PodIP
+		{"prunedResourceIds", "steps.k8sBlueGreenPrepareAction.output.variables.PLUGIN_RESOURCES_FOR_PRUNING"},
 		// COMPLEX: plugin emits []string
 		// manifest -> NO_PLUGIN_OUTPUT
 	},
- 
+
 	// K8sBGSwapServices (sub-steps: k8sBlueGreenSwapServicesSelectorsAction)
 	// v0 outcome was empty; v1 plugin publishes new outputs.
 	StepTypeK8sBGSwapServices: {
-		{"primaryColor", "steps.k8sBlueGreenSwapServicesSelectorsAction.output.outputVariables.PLUGIN_PRIMARY_COLOR"},
-		{"stageColor", "steps.k8sBlueGreenSwapServicesSelectorsAction.output.outputVariables.PLUGIN_STAGE_COLOR"},
-		{"stableService", "steps.k8sBlueGreenSwapServicesSelectorsAction.output.outputVariables.PLUGIN_STABLE_SERVICE"},
-		{"stageService", "steps.k8sBlueGreenSwapServicesSelectorsAction.output.outputVariables.PLUGIN_STAGE_SERVICE"},
+		{"primaryColor", "steps.k8sBlueGreenSwapServicesSelectorsAction.output.variables.PLUGIN_PRIMARY_COLOR"},
+		{"stageColor", "steps.k8sBlueGreenSwapServicesSelectorsAction.output.variables.PLUGIN_STAGE_COLOR"},
+		{"stableService", "steps.k8sBlueGreenSwapServicesSelectorsAction.output.variables.PLUGIN_STABLE_SERVICE"},
+		{"stageService", "steps.k8sBlueGreenSwapServicesSelectorsAction.output.variables.PLUGIN_STAGE_SERVICE"},
 	},
- 
+
 	// K8sDryRun (sub-steps: k8sDryRunAction — k8s-apply with only_dry_run=true)
 	StepTypeK8sDryRun: {
-		{"manifestDryRun", "steps.k8sDryRunAction.output.outputVariables.PLUGIN_MANIFEST_OUTPUT_FILE_PATH"},
+		{"manifestDryRun", "steps.k8sDryRunAction.output.variables.PLUGIN_MANIFEST_OUTPUT_FILE_PATH"},
 		// COMPLEX: v0 returned the rendered manifest as a string;
 		// v1 returns the path to the rendered file
 		// manifest -> NO_PLUGIN_OUTPUT
 	},
- 
+
 	// K8sDiff -> NO_PLUGIN_OUTPUT for all v0 outcome fields (manifestDiff, exitValue)
 	// K8sPatch -> NO_PLUGIN_OUTPUT (releaseName, releaseNumber)
 	// K8sDelete -> EMPTY_OUTCOME
 	// K8sRollout -> EMPTY_OUTCOME
 	// K8sCanaryDelete -> EMPTY_OUTCOME
- 
+
 	// K8sApply (sub-steps: k8sApplyAction, k8sApplySteadyStateCheckAction)
 	// v0 returns Status only; v1 plugins publish new outputs not previously available.
 	StepTypeK8sApply: {
-		{"manifestOutputFilePath", "steps.k8sApplyAction.output.outputVariables.PLUGIN_MANIFEST_OUTPUT_FILE_PATH"},
-		{"releaseNumber", "steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NUMBER"},
-		{"releaseName", "steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NAME"},
-		{"managedWorkloads", "steps.k8sApplyAction.output.outputVariables.PLUGIN_MANAGED_WORKLOADS"},
-		{"customWorkloads", "steps.k8sApplyAction.output.outputVariables.PLUGIN_CUSTOM_WORKLOADS"},
-		{"resources", "steps.k8sApplyAction.output.outputVariables.PLUGIN_RESOURCES"},
-		{"existingPods", "steps.k8sApplyAction.output.outputVariables.PLUGIN_EXISTING_PODS"},
+		{"manifestOutputFilePath", "steps.k8sApplyAction.output.variables.PLUGIN_MANIFEST_OUTPUT_FILE_PATH"},
+		{"releaseNumber", "steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NUMBER"},
+		{"releaseName", "steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NAME"},
+		{"managedWorkloads", "steps.k8sApplyAction.output.variables.PLUGIN_MANAGED_WORKLOADS"},
+		{"customWorkloads", "steps.k8sApplyAction.output.variables.PLUGIN_CUSTOM_WORKLOADS"},
+		{"resources", "steps.k8sApplyAction.output.variables.PLUGIN_RESOURCES"},
+		{"existingPods", "steps.k8sApplyAction.output.variables.PLUGIN_EXISTING_PODS"},
 		// COMPLEX: []K8sPod
-		{"existingPodNames", "steps.k8sApplyAction.output.outputVariables.PLUGIN_EXISTING_POD_NAMES"},
-		{"isOpenshift", "steps.k8sApplyAction.output.outputVariables.HARNESS_IS_OPENSHIFT"},
-		{"pods", "steps.k8sApplySteadyStateCheckAction.output.outputVariables.PLUGIN_PODS"},
+		{"existingPodNames", "steps.k8sApplyAction.output.variables.PLUGIN_EXISTING_POD_NAMES"},
+		{"isOpenshift", "steps.k8sApplyAction.output.variables.HARNESS_IS_OPENSHIFT"},
+		{"pods", "steps.k8sApplySteadyStateCheckAction.output.variables.PLUGIN_PODS"},
 		// COMPLEX: []K8sPod
-		{"instances", "steps.k8sApplySteadyStateCheckAction.output.outputVariables.HARNESS_INSTANCES"},
+		{"instances", "steps.k8sApplySteadyStateCheckAction.output.variables.HARNESS_INSTANCES"},
 		// COMPLEX: []Instance
-		{"skipped", "steps.k8sApplySteadyStateCheckAction.output.outputVariables.PLUGIN_SKIPPED"},
+		{"skipped", "steps.k8sApplySteadyStateCheckAction.output.variables.PLUGIN_SKIPPED"},
 	},
- 
+
 	// K8sScale (sub-steps: k8sScaleAction, (cond) k8sScaleSteadyStateCheckAction)
 	// v0 returns Status only; v1 plugins publish new outputs.
 	StepTypeK8sScale: {
-		{"pods", "steps.k8sScaleAction.output.outputVariables.PLUGIN_PODS"},
+		{"pods", "steps.k8sScaleAction.output.variables.PLUGIN_PODS"},
 		// COMPLEX: []K8sPod
-		{"instances", "steps.k8sScaleAction.output.outputVariables.HARNESS_INSTANCES"},
+		{"instances", "steps.k8sScaleAction.output.variables.HARNESS_INSTANCES"},
 		// COMPLEX: []Instance — also published by k8sScaleSteadyStateCheckAction
 	},
- 
+
 	// K8sBlueGreenStageScaleDown (no v0 outcome; v1 publishes scaled resources)
 	StepTypeK8sBlueGreenStageScaleDown: {
-		{"scaledResources", "steps.k8sBlueGreenStageScaleDownAction.output.outputVariables.PLUGIN_SCALED_RESOURCES"},
+		{"scaledResources", "steps.k8sBlueGreenStageScaleDownAction.output.variables.PLUGIN_SCALED_RESOURCES"},
 	},
- 
+
 	// K8sTrafficRouting (sub-steps: k8sTrafficShiftAction)
 	// v0 has no outcome; v1 plugin publishes new outputs (config_type=new variant shown).
 	StepTypeK8sTrafficRouting: {
-		{"manifestOutputFilePath", "steps.k8sTrafficShiftAction.output.outputVariables.PLUGIN_MANIFEST_OUTPUT_FILE_PATH"},
-		{"resources", "steps.k8sTrafficShiftAction.output.outputVariables.PLUGIN_RESOURCES"},
-		{"releaseNumber", "steps.k8sTrafficShiftAction.output.outputVariables.PLUGIN_RELEASE_NUMBER"},
-		{"resourcesForPruning", "steps.k8sTrafficShiftAction.output.outputVariables.PLUGIN_RESOURCES_FOR_PRUNING"},
+		{"manifestOutputFilePath", "steps.k8sTrafficShiftAction.output.variables.PLUGIN_MANIFEST_OUTPUT_FILE_PATH"},
+		{"resources", "steps.k8sTrafficShiftAction.output.variables.PLUGIN_RESOURCES"},
+		{"releaseNumber", "steps.k8sTrafficShiftAction.output.variables.PLUGIN_RELEASE_NUMBER"},
+		{"resourcesForPruning", "steps.k8sTrafficShiftAction.output.variables.PLUGIN_RESOURCES_FOR_PRUNING"},
 	},
- 
+
 	// ============================================================
 	// HELM STEPS (Native Helm)
 	// ============================================================
- 
+
 	// HelmDeploy / HelmDeployBasic (sub-steps: helmBasicDeployAction, (cond) helmTestAction)
 	StepTypeHelmDeploy: {
-		{"releaseName", "steps.helmBasicDeployAction.output.outputVariables.PLUGIN_RELEASE_NAME"},
-		{"prevReleaseVersion", "steps.helmBasicDeployAction.output.outputVariables.PLUGIN_PREVIOUS_RELEASE_REVISION"},
-		{"newReleaseVersion", "steps.helmBasicDeployAction.output.outputVariables.PLUGIN_NEW_RELEASE_REVISION"},
+		{"releaseName", "steps.helmBasicDeployAction.output.variables.PLUGIN_RELEASE_NAME"},
+		{"prevReleaseVersion", "steps.helmBasicDeployAction.output.variables.PLUGIN_PREVIOUS_RELEASE_REVISION"},
+		{"newReleaseVersion", "steps.helmBasicDeployAction.output.variables.PLUGIN_NEW_RELEASE_REVISION"},
 		// hasInstallUpgradeStarted -> NO_PLUGIN_OUTPUT (CD-NG flag)
 		// chartTestSucceeded -> NO_PLUGIN_OUTPUT (helm-test only sets step status)
-		// podIps -> DERIVED from steps.helmBasicDeployAction.output.outputVariables.PLUGIN_NEW_PODS[*].PodIP
+		// podIps -> DERIVED from steps.helmBasicDeployAction.output.variables.PLUGIN_NEW_PODS[*].PodIP
 		// deltaForNewReleaseVersion -> DERIVED (PLUGIN_NEW_RELEASE_REVISION - PLUGIN_PREVIOUS_RELEASE_REVISION)
-		{"containerInfoList", "steps.helmBasicDeployAction.output.outputVariables.PLUGIN_CONTAINER_INFO_LIST"},
+		{"containerInfoList", "steps.helmBasicDeployAction.output.variables.PLUGIN_CONTAINER_INFO_LIST"},
 		// COMPLEX: []*ContainerInfo
 	},
- 
+
 	// HelmRollback (sub-steps: helmRollbackAction, (cond) helmTestAction)
 	StepTypeHelmRollback: {
-		{"releaseName", "steps.helmRollbackAction.output.outputVariables.PLUGIN_RELEASE_NAME"},
-		{"newReleaseVersion", "steps.helmRollbackAction.output.outputVariables.PLUGIN_NEW_RELEASE_REVISION"},
-		{"rollbackVersion", "steps.helmRollbackAction.output.outputVariables.PLUGIN_ROLLBACK_RELEASE_REVISION"},
+		{"releaseName", "steps.helmRollbackAction.output.variables.PLUGIN_RELEASE_NAME"},
+		{"newReleaseVersion", "steps.helmRollbackAction.output.variables.PLUGIN_NEW_RELEASE_REVISION"},
+		{"rollbackVersion", "steps.helmRollbackAction.output.variables.PLUGIN_ROLLBACK_RELEASE_REVISION"},
 		// chartTestSucceeded -> NO_PLUGIN_OUTPUT
-		{"containerInfoList", "steps.helmRollbackAction.output.outputVariables.PLUGIN_CONTAINER_INFO_LIST"},
+		{"containerInfoList", "steps.helmRollbackAction.output.variables.PLUGIN_CONTAINER_INFO_LIST"},
 	},
- 
+
 	// HelmBlueGreenDeploy / HelmBGDeploy (sub-steps: helmBluegreenDeployAction, (cond) helmTestAction)
 	StepTypeHelmBGDeploy: {
-		{"releaseNumber", "steps.helmBluegreenDeployAction.output.outputVariables.PLUGIN_NEW_RELEASE_REVISION"},
-		{"releaseName", "steps.helmBluegreenDeployAction.output.outputVariables.PLUGIN_RELEASE_NAME"},
-		{"primaryServiceNames", "steps.helmBluegreenDeployAction.output.outputVariables.PLUGIN_STABLE_SERVICE"},
+		{"releaseNumber", "steps.helmBluegreenDeployAction.output.variables.PLUGIN_NEW_RELEASE_REVISION"},
+		{"releaseName", "steps.helmBluegreenDeployAction.output.variables.PLUGIN_RELEASE_NAME"},
+		{"primaryServiceNames", "steps.helmBluegreenDeployAction.output.variables.PLUGIN_STABLE_SERVICE"},
 		// COMPLEX: plugin emits a single string; v0 was List<String>
-		{"stageServiceNames", "steps.helmBluegreenDeployAction.output.outputVariables.PLUGIN_STAGE_SERVICE"},
+		{"stageServiceNames", "steps.helmBluegreenDeployAction.output.variables.PLUGIN_STAGE_SERVICE"},
 		// COMPLEX: same — single string vs list
-		{"stageColor", "steps.helmBluegreenDeployAction.output.outputVariables.PLUGIN_STAGE_COLOR"},
-		{"primaryColor", "steps.helmBluegreenDeployAction.output.outputVariables.PLUGIN_STABLE_COLOR"},
+		{"stageColor", "steps.helmBluegreenDeployAction.output.variables.PLUGIN_STAGE_COLOR"},
+		{"primaryColor", "steps.helmBluegreenDeployAction.output.variables.PLUGIN_STABLE_COLOR"},
 		// hasInstallUpgradeStarted / chartTestSucceeded -> NO_PLUGIN_OUTPUT
-		// podIps -> DERIVED from steps.helmBluegreenDeployAction.output.outputVariables.PLUGIN_NEW_PODS[*].PodIP
+		// podIps -> DERIVED from steps.helmBluegreenDeployAction.output.variables.PLUGIN_NEW_PODS[*].PodIP
 		// primaryResources / stageResources -> NO_PLUGIN_OUTPUT
 		//   (helm-deploy emits PLUGIN_WORKLOADS as []string, not structured KubernetesResource)
 	},
- 
+
 	// HelmBlueGreenSwapStep / HelmBGSwapServices -> EMPTY_OUTCOME
- 
+
 	// HelmCanaryDeploy (sub-steps: helmCanaryDeployAction (uses helmDeployAction), (cond) helmTestAction)
 	StepTypeHelmCanaryDeploy: {
-		{"releaseName", "steps.helmCanaryDeployAction.output.outputVariables.PLUGIN_CANARY_RELEASE_NAME"},
+		{"releaseName", "steps.helmCanaryDeployAction.output.variables.PLUGIN_CANARY_RELEASE_NAME"},
 		// canary-strategy variant of PLUGIN_RELEASE_NAME
 		// hasInstallUpgradeStarted / canaryWorkloadDeployed / chartTestSucceeded -> NO_PLUGIN_OUTPUT
-		{"canaryWorkload", "steps.helmCanaryDeployAction.output.outputVariables.PLUGIN_WORKLOADS"},
+		{"canaryWorkload", "steps.helmCanaryDeployAction.output.variables.PLUGIN_WORKLOADS"},
 		// COMPLEX: plugin emits []string, v0 was a single string
-		{"previousReleaseVersion", "steps.helmCanaryDeployAction.output.outputVariables.PLUGIN_PREVIOUS_RELEASE_REVISION"},
-		// podIps -> DERIVED from steps.helmCanaryDeployAction.output.outputVariables.PLUGIN_NEW_PODS[*].PodIP
+		{"previousReleaseVersion", "steps.helmCanaryDeployAction.output.variables.PLUGIN_PREVIOUS_RELEASE_REVISION"},
+		// podIps -> DERIVED from steps.helmCanaryDeployAction.output.variables.PLUGIN_NEW_PODS[*].PodIP
 	},
- 
+
 	// HelmCanaryDelete -> EMPTY_OUTCOME
 	// HelmDelete -> EMPTY_OUTCOME
 }
