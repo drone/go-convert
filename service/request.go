@@ -21,6 +21,22 @@ type ConvertRequest struct {
 	// FQN-keyed step lookup (StepInfoByFQN) and enables FQN mode. Ignored by
 	// the pipeline endpoint; if empty, postprocess runs without FQN context.
 	ContextPipelineYAML string `json:"context_pipeline_yaml,omitempty"`
+
+	// TemplateRefBranchMapping rewrites the destination branch of a
+	// remapped template reference: keyed by the same original (V0)
+	// identifier as TemplateRefMapping, value is the destination branch
+	// name. Applied to the sibling `gitBranch` key of a `template.uses`
+	// entry that was also rewritten via TemplateRefMapping. An identifier
+	// with no entry here keeps its source branch unchanged.
+	TemplateRefBranchMapping map[string]string `json:"template_ref_branch_mapping,omitempty"`
+
+	// PipelineRefBranchMapping rewrites the destination branch of a
+	// remapped chain reference: keyed by the same original (V0) identifier
+	// as PipelineRefMapping, value is the destination branch name. Applied
+	// to the sibling `ref` key of a `chain.uses` entry that was also
+	// rewritten via PipelineRefMapping. An identifier with no entry here
+	// keeps its source branch unchanged.
+	PipelineRefBranchMapping map[string]string `json:"pipeline_ref_branch_mapping,omitempty"`
 }
 
 // ConvertResponse is the response body for a successful single-entity
@@ -53,6 +69,12 @@ type BatchItem struct {
 	// ContextPipelineYAML — same semantics as ConvertRequest.ContextPipelineYAML.
 	// Ignored when EntityType == "pipeline".
 	ContextPipelineYAML string `json:"context_pipeline_yaml,omitempty"`
+
+	// TemplateRefBranchMapping — same semantics as ConvertRequest.TemplateRefBranchMapping.
+	TemplateRefBranchMapping map[string]string `json:"template_ref_branch_mapping,omitempty"`
+
+	// PipelineRefBranchMapping — same semantics as ConvertRequest.PipelineRefBranchMapping.
+	PipelineRefBranchMapping map[string]string `json:"pipeline_ref_branch_mapping,omitempty"`
 }
 
 // BatchConvertResponse is the response body for POST /api/v1/convert/batch.

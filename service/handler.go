@@ -90,7 +90,8 @@ func (h *Handler) ConvertBatch(w http.ResponseWriter, r *http.Request) {
 		meta := extractEntityMetadata(item.EntityType, item.YAML)
 		h.logger.Info("batch item", append([]any{"batch_item_id", item.ID}, meta.logAttrs()...)...)
 
-		res, err := dispatch(item.EntityType, item.YAML, item.TemplateRefMapping, item.PipelineRefMapping, item.ContextPipelineYAML)
+		res, err := dispatch(item.EntityType, item.YAML, item.TemplateRefMapping, item.PipelineRefMapping, item.ContextPipelineYAML,
+			item.TemplateRefBranchMapping, item.PipelineRefBranchMapping)
 		if err != nil {
 			e := err.Error()
 			result.Error = &e
@@ -198,7 +199,8 @@ func (h *Handler) convertSingle(w http.ResponseWriter, r *http.Request, entityTy
 	// Record entity metadata (account/org/project/id) for the request log line.
 	setRequestMetadata(r.Context(), entityType, req.YAML)
 
-	res, err := dispatch(entityType, req.YAML, req.TemplateRefMapping, req.PipelineRefMapping, req.ContextPipelineYAML)
+	res, err := dispatch(entityType, req.YAML, req.TemplateRefMapping, req.PipelineRefMapping, req.ContextPipelineYAML,
+		req.TemplateRefBranchMapping, req.PipelineRefBranchMapping)
 	if err != nil {
 		code, status := classifyError(err)
 		writeError(w, status, code, err.Error(), nil)
@@ -221,16 +223,22 @@ func (h *Handler) convertSingle(w http.ResponseWriter, r *http.Request, entityTy
 // contextPipelineYAML is forwarded to template / input-set / trigger
 // converters for postprocess context derivation; pipeline conversion ignores
 // it because it derives its own context from the input.
-func dispatch(entityType, yamlStr string, templateRefMapping, pipelineRefMapping map[string]string, contextPipelineYAML string) (*converter.Result, error) {
+// templateRefBranchMapping and pipelineRefBranchMapping are keyed the same
+// way as templateRefMapping/pipelineRefMapping (original identifier), but
+// carry a destination branch; they are applied to the sibling gitBranch
+// (template) / ref (chain) key of a uses entry that was also rewritten by
+// the corresponding id-mapping map. Either or both may be nil/empty.
+func dispatch(entityType, yamlStr string, templateRefMapping, pipelineRefMapping map[string]string, contextPipelineYAML string,
+	templateRefBranchMapping, pipelineRefBranchMapping map[string]string) (*converter.Result, error) {
 	switch entityType {
 	case entityPipeline:
-		return converter.Pipeline(yamlStr, templateRefMapping, pipelineRefMapping)
+		return converter.Pipeline(yamlStr, templateRefMapping, pipelineRefMapping, templateRefBranchMapping, pipelineRefBranchMapping)
 	case entityTemplate:
-		return converter.Template(yamlStr, templateRefMapping, pipelineRefMapping, contextPipelineYAML)
+		return converter.Template(yamlStr, templateRefMapping, pipelineRefMapping, contextPipelineYAML, templateRefBranchMapping, pipelineRefBranchMapping)
 	case entityInputSet:
-		return converter.InputSet(yamlStr, templateRefMapping, pipelineRefMapping, contextPipelineYAML)
+		return converter.InputSet(yamlStr, templateRefMapping, pipelineRefMapping, contextPipelineYAML, templateRefBranchMapping, pipelineRefBranchMapping)
 	case entityTrigger:
-		return converter.Trigger(yamlStr, templateRefMapping, pipelineRefMapping, contextPipelineYAML)
+		return converter.Trigger(yamlStr, templateRefMapping, pipelineRefMapping, contextPipelineYAML, templateRefBranchMapping, pipelineRefBranchMapping)
 	default:
 		return nil, fmt.Errorf("unknown entity_type %q (must be pipeline, template, input-set, or trigger)", entityType)
 	}

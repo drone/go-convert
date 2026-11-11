@@ -19,6 +19,8 @@ message ConvertRequest {
   map<string, string> template_ref_mapping = 3;
   map<string, string> pipeline_ref_mapping = 4;
   string context_pipeline_yaml = 5; // Optional v1 pipeline YAML for expression post-processing context for template/inputset/trigger conversion
+  map<string, string> template_ref_branch_mapping = 6; // Optional: original (V0) template identifier -> destination branch, applied to the sibling gitBranch field of a remapped template.uses
+  map<string, string> pipeline_ref_branch_mapping = 7; // Optional: original (V0) pipeline identifier -> destination branch, applied to the sibling ref field of a remapped chain.uses
 }
 
 // Severity classifies a converter message.
