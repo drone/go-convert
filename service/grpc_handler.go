@@ -134,6 +134,8 @@ func (h *GRPCHandler) convert(ctx context.Context, entityType string, req *pb.Co
 		req.GetTemplateRefMapping(),
 		req.GetPipelineRefMapping(),
 		req.GetContextPipelineYaml(),
+		req.GetTemplateRefBranchMapping(),
+		req.GetPipelineRefBranchMapping(),
 	)
 	if err != nil {
 		return nil, classifyGRPCError(err)
