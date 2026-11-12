@@ -182,7 +182,7 @@ func TestApplyRefMappings_InputYaml_MalformedLogsWarning(t *testing.T) {
 // --- destination-branch remap (template_ref_branch_mapping / pipeline_ref_branch_mapping) ---
 
 func TestApplyRefMappings_TemplateUsesAndBranch_BothRemapped(t *testing.T) {
-	in := []byte("pipeline:\n  stages:\n    - template:\n        uses: oldRef@v1\n        gitBranch: sourceBranch\n")
+	in := []byte("pipeline:\n  stages:\n    - template:\n        uses: oldRef@v1\n        ref: sourceBranch\n")
 	out, err := ApplyRefMappings(in,
 		map[string]string{"oldRef": "newRef"}, nil,
 		map[string]string{"oldRef": "destBranch"}, nil,
@@ -194,8 +194,8 @@ func TestApplyRefMappings_TemplateUsesAndBranch_BothRemapped(t *testing.T) {
 	if !strings.Contains(s, "uses: newRef@v1") {
 		t.Fatalf("expected 'uses: newRef@v1' in:\n%s", s)
 	}
-	if !strings.Contains(s, "gitBranch: destBranch") {
-		t.Fatalf("expected 'gitBranch: destBranch' in:\n%s", s)
+	if !strings.Contains(s, "ref: destBranch") {
+		t.Fatalf("expected 'ref: destBranch' in:\n%s", s)
 	}
 }
 
@@ -217,8 +217,8 @@ func TestApplyRefMappings_ChainUsesAndBranch_BothRemapped(t *testing.T) {
 	}
 }
 
-func TestApplyRefMappings_TemplateUsesRemapped_NoBranchEntry_GitBranchUntouched(t *testing.T) {
-	in := []byte("pipeline:\n  stages:\n    - template:\n        uses: oldRef@v1\n        gitBranch: sourceBranch\n")
+func TestApplyRefMappings_TemplateUsesRemapped_NoBranchEntry_RefUntouched(t *testing.T) {
+	in := []byte("pipeline:\n  stages:\n    - template:\n        uses: oldRef@v1\n        ref: sourceBranch\n")
 	out, err := ApplyRefMappings(in,
 		map[string]string{"oldRef": "newRef"}, nil,
 		nil, nil, // no branch-mapping entry for "oldRef"
@@ -230,8 +230,8 @@ func TestApplyRefMappings_TemplateUsesRemapped_NoBranchEntry_GitBranchUntouched(
 	if !strings.Contains(s, "uses: newRef@v1") {
 		t.Fatalf("expected 'uses: newRef@v1' in:\n%s", s)
 	}
-	if !strings.Contains(s, "gitBranch: sourceBranch") {
-		t.Fatalf("expected 'gitBranch: sourceBranch' untouched; got:\n%s", s)
+	if !strings.Contains(s, "ref: sourceBranch") {
+		t.Fatalf("expected 'ref: sourceBranch' untouched; got:\n%s", s)
 	}
 }
 
@@ -285,8 +285,8 @@ func TestApplyRefMappings_OrphanedBranchEntry_NoMatchingIdMapping_NoOp(t *testin
 	// "oldRef" has a branch-mapping entry but is NOT present in the
 	// id-mapping map at all, so no "uses" rewrite happens for it. Per spec,
 	// orphaned branch-mapping entries are never looked up (not an error) —
-	// the sibling gitBranch field must stay untouched.
-	in := []byte("pipeline:\n  stages:\n    - template:\n        uses: oldRef@v1\n        gitBranch: sourceBranch\n")
+	// the sibling ref field must stay untouched.
+	in := []byte("pipeline:\n  stages:\n    - template:\n        uses: oldRef@v1\n        ref: sourceBranch\n")
 	out, err := ApplyRefMappings(in,
 		nil, nil, // no id-mapping entry for "oldRef"
 		map[string]string{"oldRef": "destBranch"}, nil,
@@ -298,8 +298,8 @@ func TestApplyRefMappings_OrphanedBranchEntry_NoMatchingIdMapping_NoOp(t *testin
 	if !strings.Contains(s, "uses: oldRef@v1") {
 		t.Fatalf("expected 'uses:' unchanged (no id-mapping entry); got:\n%s", s)
 	}
-	if !strings.Contains(s, "gitBranch: sourceBranch") {
-		t.Fatalf("expected 'gitBranch: sourceBranch' untouched for orphaned branch entry; got:\n%s", s)
+	if !strings.Contains(s, "ref: sourceBranch") {
+		t.Fatalf("expected 'ref: sourceBranch' untouched for orphaned branch entry; got:\n%s", s)
 	}
 }
 
@@ -321,11 +321,11 @@ func TestApplyRefMappings_OrphanedChainBranchEntry_NoMatchingIdMapping_NoOp(t *t
 	}
 }
 
-func TestApplyRefMappings_TemplateUsesAndBranch_NoPreexistingGitBranchKey_Appended(t *testing.T) {
-	// Real-world "no branch pin in V0" case: the source step has no gitBranch
+func TestApplyRefMappings_TemplateUsesAndBranch_NoPreexistingRefKey_Appended(t *testing.T) {
+	// Real-world "no branch pin in V0" case: the source step has no ref
 	// at all (ambient/same-branch reference), so go-convert's base converter
 	// never emits the key. A destination-branch override must still land by
-	// appending a new "gitBranch" sibling, not by rewriting a nonexistent one.
+	// appending a new "ref" sibling, not by rewriting a nonexistent one.
 	in := []byte("pipeline:\n  stages:\n    - template:\n        uses: oldRef@v1\n")
 	out, err := ApplyRefMappings(in,
 		map[string]string{"oldRef": "newRef"}, nil,
@@ -338,8 +338,8 @@ func TestApplyRefMappings_TemplateUsesAndBranch_NoPreexistingGitBranchKey_Append
 	if !strings.Contains(s, "uses: newRef@v1") {
 		t.Fatalf("expected 'uses: newRef@v1' in:\n%s", s)
 	}
-	if !strings.Contains(s, "gitBranch: destBranch") {
-		t.Fatalf("expected appended 'gitBranch: destBranch' in:\n%s", s)
+	if !strings.Contains(s, "ref: destBranch") {
+		t.Fatalf("expected appended 'ref: destBranch' in:\n%s", s)
 	}
 }
 
@@ -361,9 +361,9 @@ func TestApplyRefMappings_ChainUsesAndBranch_NoPreexistingRefKey_Appended(t *tes
 	}
 }
 
-func TestApplyRefMappings_TemplateUsesRemapped_NoBranchEntry_NoGitBranchAppended(t *testing.T) {
+func TestApplyRefMappings_TemplateUsesRemapped_NoBranchEntry_NoRefAppended(t *testing.T) {
 	// No pre-existing key AND no branch-mapping entry: nothing should be
-	// appended (stays byte-identical to legacy, no stray "gitBranch: ''").
+	// appended (no stray "ref: ''").
 	in := []byte("pipeline:\n  stages:\n    - template:\n        uses: oldRef@v1\n")
 	out, err := ApplyRefMappings(in,
 		map[string]string{"oldRef": "newRef"}, nil,
@@ -373,17 +373,17 @@ func TestApplyRefMappings_TemplateUsesRemapped_NoBranchEntry_NoGitBranchAppended
 		t.Fatalf("unexpected error: %v", err)
 	}
 	s := string(out)
-	if strings.Contains(s, "gitBranch") {
-		t.Fatalf("expected no gitBranch key appended when there is no branch-mapping entry; got:\n%s", s)
+	if strings.Contains(s, "\n        ref:") {
+		t.Fatalf("expected no ref key appended when there is no branch-mapping entry; got:\n%s", s)
 	}
 }
 
 func TestApplyRefMappings_TemplateBranch_KeyOrderIndependent(t *testing.T) {
-	// gitBranch appears BEFORE uses in the source mapping (valid YAML; key
+	// ref appears BEFORE uses in the source mapping (valid YAML; key
 	// order is caller's choice). The rewrite must still apply because
 	// resolvedBranch is computed via an up-front scan over the whole
 	// mapping node's Content, not a sequential single-pass lookup.
-	in := []byte("pipeline:\n  stages:\n    - template:\n        gitBranch: sourceBranch\n        uses: oldRef@v1\n")
+	in := []byte("pipeline:\n  stages:\n    - template:\n        ref: sourceBranch\n        uses: oldRef@v1\n")
 	out, err := ApplyRefMappings(in,
 		map[string]string{"oldRef": "newRef"}, nil,
 		map[string]string{"oldRef": "destBranch"}, nil,
@@ -395,7 +395,7 @@ func TestApplyRefMappings_TemplateBranch_KeyOrderIndependent(t *testing.T) {
 	if !strings.Contains(s, "uses: newRef@v1") {
 		t.Fatalf("expected 'uses: newRef@v1' in:\n%s", s)
 	}
-	if !strings.Contains(s, "gitBranch: destBranch") {
-		t.Fatalf("expected 'gitBranch: destBranch' (key order independent) in:\n%s", s)
+	if !strings.Contains(s, "ref: destBranch") {
+		t.Fatalf("expected 'ref: destBranch' (key order independent) in:\n%s", s)
 	}
 }

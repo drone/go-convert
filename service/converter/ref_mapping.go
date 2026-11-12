@@ -18,9 +18,9 @@ import (
 //   - templateRefBranches and pipelineRefBranches are keyed like templateRefs /
 //     pipelineRefs, but map to a destination branch instead of a new
 //     identifier. When an identifier is rewritten via `uses` AND has an
-//     entry in the matching branch map, the sibling `gitBranch:` (template)
-//     or `ref:` (chain) key is overwritten with that branch; otherwise it's
-//     left untouched.
+//     entry in the matching branch map, the sibling `ref:` key on the
+//     template or chain block is overwritten with that branch; otherwise
+//     it's left untouched.
 //
 // The trigger-embedded `inputYaml` scalar is itself a v1 YAML fragment; this
 // function recurses into it so a single top-level call rewrites both the
@@ -55,8 +55,8 @@ func applyRefsWalk(node *yaml.Node, parentKey, grandparentKey string, templateRe
 
 	case yaml.MappingNode:
 		// Resolve the destination branch (if any) for this node's "uses"
-		// entry up front, so the gitBranch/ref rewrite below doesn't depend
-		// on key order within the node.
+		// entry up front, so the ref rewrite below doesn't depend on key
+		// order within the node.
 		resolvedBranch := resolveBranchForUses(node, parentKey, templateRefs, pipelineRefs, templateRefBranches, pipelineRefBranches)
 		branchKeySeen := false
 
@@ -78,13 +78,7 @@ func applyRefsWalk(node *yaml.Node, parentKey, grandparentKey string, templateRe
 				case key == "uses" && parentKey == "chain":
 					valueNode.Value = remapChainUses(valueNode.Value, pipelineRefs)
 
-				case key == "gitBranch" && parentKey == "template":
-					branchKeySeen = true
-					if resolvedBranch != "" {
-						valueNode.Value = resolvedBranch
-					}
-
-				case key == "ref" && parentKey == "chain":
+				case key == "ref" && (parentKey == "template" || parentKey == "chain"):
 					branchKeySeen = true
 					if resolvedBranch != "" {
 						valueNode.Value = resolvedBranch
@@ -123,15 +117,11 @@ func applyRefsWalk(node *yaml.Node, parentKey, grandparentKey string, templateRe
 		}
 
 		// The source step may have had no branch pin at all (ambient, same-branch case), so the
-		// gitBranch/ref sibling key never existed for the loop above to rewrite. Append it now so a
+		// ref sibling key never existed for the loop above to rewrite. Append it now so a
 		// resolved branch override still lands even when go-convert's base conversion omitted the key.
 		if resolvedBranch != "" && !branchKeySeen && (parentKey == "template" || parentKey == "chain") {
-			branchKey := "gitBranch"
-			if parentKey == "chain" {
-				branchKey = "ref"
-			}
 			node.Content = append(node.Content,
-				&yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: branchKey},
+				&yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: "ref"},
 				&yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: resolvedBranch},
 			)
 		}

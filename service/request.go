@@ -25,7 +25,7 @@ type ConvertRequest struct {
 	// TemplateRefBranchMapping rewrites the destination branch of a
 	// remapped template reference: keyed by the same original (V0)
 	// identifier as TemplateRefMapping, value is the destination branch
-	// name. Applied to the sibling `gitBranch` key of a `template.uses`
+	// name. Applied to the sibling `ref` key of a `template.uses`
 	// entry that was also rewritten via TemplateRefMapping. An identifier
 	// with no entry here keeps its source branch unchanged.
 	TemplateRefBranchMapping map[string]string `json:"template_ref_branch_mapping,omitempty"`
