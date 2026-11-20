@@ -1,0 +1,8 @@
+template:
+  inputs:
+    from_repo_b:
+      type: string
+  stage:
+    steps:
+      - id: run
+        run: echo from-repo-b-qa-nondefault
