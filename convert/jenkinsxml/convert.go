@@ -20,7 +20,9 @@ import (
 	"encoding/xml"
 	"io"
 	"os"
+	"strings"
 
+	harnessconv "github.com/drone/go-convert/convert/harness"
 	jenkinsxml "github.com/drone/go-convert/convert/jenkinsxml/xml"
 	"github.com/drone/go-convert/internal/store"
 	harness "github.com/drone/spec/dist/go"
@@ -135,7 +137,21 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	dst.Stages = append(dst.Stages, dstStage)
 	stageSteps := make([]*harness.Step, 0)
 
-	tasks := ctx.config.Builders.Tasks
+	// emit a git clone step first when the job uses a Git SCM. The
+	// downgrader lifts this step's url into the pipeline codebase, so it
+	// must be the first step in the stage.
+	if step := convertSCMToStep(ctx.config); step != nil {
+		stageSteps = append(stageSteps, step)
+	}
+
+	// Builders is nil for job types that do not use a freestyle
+	// <builders> block (for example maven2-moduleset or scripted
+	// flow-definition pipelines). Guard against a nil dereference and
+	// emit a pipeline with no steps rather than panicking.
+	var tasks []jenkinsxml.Task
+	if ctx.config.Builders != nil {
+		tasks = ctx.config.Builders.Tasks
+	}
 	for _, task := range tasks {
 		step := &harness.Step{}
 
@@ -150,7 +166,20 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 
 		stageSteps = append(stageSteps, step)
 	}
+
+	// maven2-moduleset jobs declare their build via top-level <goals>
+	// rather than a <builders> block. Emit an mvn step so these jobs
+	// convert to a runnable pipeline instead of an empty stage.
+	if step := convertMavenGoalsToStep(ctx.config); step != nil {
+		stageSteps = append(stageSteps, step)
+	}
+
 	dstStage.Spec.(*harness.StageCI).Steps = stageSteps
+
+	// map Jenkins string build parameters to pipeline inputs.
+	if inputs := convertParameters(ctx.config); len(inputs) > 0 {
+		dst.Inputs = inputs
+	}
 
 	// marshal the harness yaml
 	out, err := yaml.Marshal(config)
@@ -159,6 +188,77 @@ func (d *Converter) convert(ctx *context) ([]byte, error) {
 	}
 
 	return out, nil
+}
+
+// convertSCMToStep converts a Jenkins Git SCM to a Harness git clone
+// plugin step. It returns nil when the job has no Git SCM (the only SCM
+// type modelled today). The branch ref is stripped of Jenkins' "*/"
+// prefix (for example "*/master" becomes "master").
+func convertSCMToStep(project *jenkinsxml.Project) *harness.Step {
+	if project == nil || project.SCM == nil {
+		return nil
+	}
+	scm := project.SCM
+	if scm.Class != "hudson.plugins.git.GitSCM" || len(scm.RemoteURLs) == 0 {
+		return nil
+	}
+
+	with := map[string]interface{}{
+		"git_url": scm.RemoteURLs[0],
+	}
+	if len(scm.BranchNames) > 0 {
+		with["branch"] = strings.TrimPrefix(scm.BranchNames[0], "*/")
+	}
+
+	spec := &harness.StepPlugin{
+		Image: harnessconv.GitPluginImage,
+		With:  with,
+	}
+	return &harness.Step{
+		Name: "clone",
+		Type: "plugin",
+		Spec: spec,
+	}
+}
+
+// convertParameters maps Jenkins string build parameters to Harness
+// pipeline inputs. It returns nil when the job declares no parameters.
+func convertParameters(project *jenkinsxml.Project) map[string]*harness.Input {
+	if project == nil || len(project.Parameters) == 0 {
+		return nil
+	}
+
+	inputs := make(map[string]*harness.Input, len(project.Parameters))
+	for _, param := range project.Parameters {
+		if param.Name == "" {
+			continue
+		}
+		inputs[param.Name] = &harness.Input{
+			Type:        "string",
+			Description: param.Description,
+			Default:     param.DefaultValue,
+		}
+	}
+	return inputs
+}
+
+// convertMavenGoalsToStep converts the top-level <goals> of a
+// maven2-moduleset job to a Harness Run step. It returns nil when the
+// project declares no Maven goals (for example a freestyle job).
+func convertMavenGoalsToStep(project *jenkinsxml.Project) *harness.Step {
+	if project == nil || project.Goals == "" {
+		return nil
+	}
+
+	spec := new(harness.StepExec)
+	spec.Run = "mvn " + project.Goals
+	step := &harness.Step{
+		Name: "maven",
+		Type: "script",
+		Spec: spec,
+	}
+
+	return step
 }
 
 // convertAntTaskToStep converts a Jenkins Ant task to a Harness step.

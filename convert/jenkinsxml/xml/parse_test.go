@@ -57,6 +57,7 @@ func TestParseFile(t *testing.T) {
 
 	want = &Project{
 		Disabled: false,
+		SCM:      &SCM{Class: "hudson.scm.NullSCM"},
 		Builders: &Builders{
 			Tasks: []Task{
 				{

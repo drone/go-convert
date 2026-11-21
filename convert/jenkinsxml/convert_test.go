@@ -15,6 +15,7 @@
 package jenkinsxml
 
 import (
+	"bytes"
 	"encoding/xml"
 	"io/ioutil"
 	"testing"
@@ -25,6 +26,89 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"gopkg.in/yaml.v3"
 )
+
+// TestConvertNoBuilders verifies that a job without a freestyle <builders>
+// block (for example a maven2-moduleset or scripted flow-definition) converts
+// without panicking on a nil Builders dereference.
+func TestConvertNoBuilders(t *testing.T) {
+	converter := New()
+	out, err := converter.ConvertFile("testdata/no-builders.xml")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	got := map[string]interface{}{}
+	if err := yaml.Unmarshal(out, &got); err != nil {
+		t.Error(err)
+		return
+	}
+
+	// a builders-less job should still yield a pipeline resource.
+	if kind, _ := got["kind"].(string); kind != "pipeline" {
+		t.Errorf("expected kind: pipeline, got %q", kind)
+	}
+}
+
+// TestConvertMavenGoals verifies that a maven2-moduleset job converts its
+// top-level <goals> into an mvn step instead of an empty stage.
+func TestConvertMavenGoals(t *testing.T) {
+	out, err := New().ConvertFile("testdata/maven.xml")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if !bytes.Contains(out, []byte("mvn clean install")) {
+		t.Errorf("expected an 'mvn clean install' step in the output, got:\n%s", out)
+	}
+}
+
+// TestConvertSCM verifies that a Jenkins Git SCM converts to a git clone
+// step carrying the remote url and the branch (stripped of the "*/" prefix).
+func TestConvertSCM(t *testing.T) {
+	out, err := New().ConvertFile("testdata/scm.xml")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if !bytes.Contains(out, []byte("https://git.example.com/scm/team/order-service.git")) {
+		t.Errorf("expected the git url in the output, got:\n%s", out)
+	}
+	if !bytes.Contains(out, []byte("master")) || bytes.Contains(out, []byte("*/master")) {
+		t.Errorf("expected branch \"master\" (prefix stripped) in the output, got:\n%s", out)
+	}
+}
+
+// TestConvertParameters verifies that Jenkins string build parameters are
+// mapped to pipeline inputs with their default values.
+func TestConvertParameters(t *testing.T) {
+	out, err := New().ConvertFile("testdata/parameters.xml")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	got := map[string]interface{}{}
+	if err := yaml.Unmarshal(out, &got); err != nil {
+		t.Error(err)
+		return
+	}
+
+	spec, _ := got["spec"].(map[string]interface{})
+	inputs, ok := spec["inputs"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected inputs in the converted output, got:\n%s", out)
+	}
+	release, ok := inputs["RELEASE"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("expected a RELEASE input, got: %v", inputs)
+	}
+	if release["default"] != "master" {
+		t.Errorf("expected RELEASE default \"master\", got %q", release["default"])
+	}
+}
 
 // TODO: add more teste in subdirectories, as we have for other providers
 func TestConvert(t *testing.T) {
