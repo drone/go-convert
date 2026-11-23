@@ -20,7 +20,7 @@ type StepTemplate struct {
 	Env  map[string]string `json:"env,omitempty" yaml:"env,omitempty"`
 	Uses string            `json:"uses,omitempty" yaml:"uses,omitempty"`
 	With interface{}       `json:"with,omitempty" yaml:"with,omitempty"`
-	GitBranch string       `json:"gitBranch,omitempty" yaml:"gitBranch,omitempty"`
+	GitBranch string       `json:"ref,omitempty" yaml:"ref,omitempty"`
 	Container *Container `json:"container,omitempty" yaml:"container,omitempty"`
 }
 
