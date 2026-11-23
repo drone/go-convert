@@ -17,11 +17,18 @@ import (
 // contextPipelineYAML is an optional v1 pipeline YAML used as FQN expression
 // context (see buildContextFromPipelineYAML) for the trigger wrapper and its
 // embedded inputYaml; pass "" to skip it.
+// templateRefBranchMapping and pipelineRefBranchMapping are keyed the same
+// way as templateRefMapping/pipelineRefMapping (original identifier), but
+// carry a destination branch; they overwrite the sibling gitBranch
+// (template) / ref (chain) key of a uses entry that was also rewritten by
+// the corresponding id-mapping map, including inside the embedded
+// inputYaml. Either or both may be nil/empty.
 //
 // Conversion strategy:
 //   - The trigger structure remains mostly unchanged
 //   - Only the inputYaml content is converted to v1 format (similar to input set conversion)
-func Trigger(yamlStr string, templateRefMapping, pipelineRefMapping map[string]string, contextPipelineYAML string) (*Result, error) {
+func Trigger(yamlStr string, templateRefMapping, pipelineRefMapping map[string]string, contextPipelineYAML string,
+	templateRefBranchMapping, pipelineRefBranchMapping map[string]string) (*Result, error) {
 	if err := validateTopLevelKey(yamlStr, "trigger"); err != nil {
 		return nil, err
 	}
@@ -56,7 +63,7 @@ func Trigger(yamlStr string, templateRefMapping, pipelineRefMapping map[string]s
 		return nil, fmt.Errorf("failed to marshal v1 trigger: %w", err)
 	}
 
-	yamlBytes, err = ApplyRefMappings(yamlBytes, templateRefMapping, pipelineRefMapping)
+	yamlBytes, err = ApplyRefMappings(yamlBytes, templateRefMapping, pipelineRefMapping, templateRefBranchMapping, pipelineRefBranchMapping)
 	if err != nil {
 		return nil, err
 	}

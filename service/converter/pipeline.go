@@ -135,7 +135,12 @@ func dedupeExpressions(exprs []pipelineconverter.ExpressionLogEntry) []pipelinec
 // templateRef) in the output; pipelineRefMapping rewrites pipeline
 // identifiers (pipeline.id, chain.uses pipeline segment). Either or both
 // may be nil/empty.
-func Pipeline(yamlStr string, templateRefMapping, pipelineRefMapping map[string]string) (*Result, error) {
+// templateRefBranchMapping and pipelineRefBranchMapping are keyed the same
+// way as templateRefMapping/pipelineRefMapping (original identifier), but
+// carry a destination branch; they overwrite the sibling gitBranch
+// (template) / ref (chain) key of a uses entry that was also rewritten by
+// the corresponding id-mapping map. Either or both may be nil/empty.
+func Pipeline(yamlStr string, templateRefMapping, pipelineRefMapping, templateRefBranchMapping, pipelineRefBranchMapping map[string]string) (*Result, error) {
 	if err := validateTopLevelKey(yamlStr, "pipeline"); err != nil {
 		return nil, err
 	}
@@ -165,7 +170,7 @@ func Pipeline(yamlStr string, templateRefMapping, pipelineRefMapping map[string]
 		return nil, fmt.Errorf("failed to marshal v1 pipeline: %w", err)
 	}
 
-	out, err = ApplyRefMappings(out, templateRefMapping, pipelineRefMapping)
+	out, err = ApplyRefMappings(out, templateRefMapping, pipelineRefMapping, templateRefBranchMapping, pipelineRefBranchMapping)
 	if err != nil {
 		return nil, err
 	}

@@ -171,14 +171,16 @@ func (ConversionStatus) EnumDescriptor() ([]byte, []int) {
 }
 
 type ConvertRequest struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	EntityType          EntityType             `protobuf:"varint,1,opt,name=entity_type,json=entityType,proto3,enum=io.harness.pms.conversion.proto.EntityType" json:"entity_type,omitempty"`
-	Yaml                string                 `protobuf:"bytes,2,opt,name=yaml,proto3" json:"yaml,omitempty"`
-	TemplateRefMapping  map[string]string      `protobuf:"bytes,3,rep,name=template_ref_mapping,json=templateRefMapping,proto3" json:"template_ref_mapping,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	PipelineRefMapping  map[string]string      `protobuf:"bytes,4,rep,name=pipeline_ref_mapping,json=pipelineRefMapping,proto3" json:"pipeline_ref_mapping,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	ContextPipelineYaml string                 `protobuf:"bytes,5,opt,name=context_pipeline_yaml,json=contextPipelineYaml,proto3" json:"context_pipeline_yaml,omitempty"` // Optional v1 pipeline YAML for expression post-processing context for template/inputset/trigger conversion
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"open.v1"`
+	EntityType               EntityType             `protobuf:"varint,1,opt,name=entity_type,json=entityType,proto3,enum=io.harness.pms.conversion.proto.EntityType" json:"entity_type,omitempty"`
+	Yaml                     string                 `protobuf:"bytes,2,opt,name=yaml,proto3" json:"yaml,omitempty"`
+	TemplateRefMapping       map[string]string      `protobuf:"bytes,3,rep,name=template_ref_mapping,json=templateRefMapping,proto3" json:"template_ref_mapping,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	PipelineRefMapping       map[string]string      `protobuf:"bytes,4,rep,name=pipeline_ref_mapping,json=pipelineRefMapping,proto3" json:"pipeline_ref_mapping,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	ContextPipelineYaml      string                 `protobuf:"bytes,5,opt,name=context_pipeline_yaml,json=contextPipelineYaml,proto3" json:"context_pipeline_yaml,omitempty"`                                                                                            // Optional v1 pipeline YAML for expression post-processing context for template/inputset/trigger conversion
+	TemplateRefBranchMapping map[string]string      `protobuf:"bytes,6,rep,name=template_ref_branch_mapping,json=templateRefBranchMapping,proto3" json:"template_ref_branch_mapping,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // Optional: original (V0) template identifier -> destination branch, applied to the sibling ref field of a remapped template.uses
+	PipelineRefBranchMapping map[string]string      `protobuf:"bytes,7,rep,name=pipeline_ref_branch_mapping,json=pipelineRefBranchMapping,proto3" json:"pipeline_ref_branch_mapping,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // Optional: original (V0) pipeline identifier -> destination branch, applied to the sibling ref field of a remapped chain.uses
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *ConvertRequest) Reset() {
@@ -244,6 +246,20 @@ func (x *ConvertRequest) GetContextPipelineYaml() string {
 		return x.ContextPipelineYaml
 	}
 	return ""
+}
+
+func (x *ConvertRequest) GetTemplateRefBranchMapping() map[string]string {
+	if x != nil {
+		return x.TemplateRefBranchMapping
+	}
+	return nil
+}
+
+func (x *ConvertRequest) GetPipelineRefBranchMapping() map[string]string {
+	if x != nil {
+		return x.PipelineRefBranchMapping
+	}
+	return nil
 }
 
 // ConverterMessage is a single structured converter notice.
@@ -881,18 +897,26 @@ var File_go_convert_service_proto protoreflect.FileDescriptor
 
 const file_go_convert_service_proto_rawDesc = "" +
 	"\n" +
-	"\x18go_convert_service.proto\x12\x1fio.harness.pms.conversion.proto\"\xaa\x04\n" +
+	"\x18go_convert_service.proto\x12\x1fio.harness.pms.conversion.proto\"\xe2\a\n" +
 	"\x0eConvertRequest\x12L\n" +
 	"\ventity_type\x18\x01 \x01(\x0e2+.io.harness.pms.conversion.proto.EntityTypeR\n" +
 	"entityType\x12\x12\n" +
 	"\x04yaml\x18\x02 \x01(\tR\x04yaml\x12y\n" +
 	"\x14template_ref_mapping\x18\x03 \x03(\v2G.io.harness.pms.conversion.proto.ConvertRequest.TemplateRefMappingEntryR\x12templateRefMapping\x12y\n" +
 	"\x14pipeline_ref_mapping\x18\x04 \x03(\v2G.io.harness.pms.conversion.proto.ConvertRequest.PipelineRefMappingEntryR\x12pipelineRefMapping\x122\n" +
-	"\x15context_pipeline_yaml\x18\x05 \x01(\tR\x13contextPipelineYaml\x1aE\n" +
+	"\x15context_pipeline_yaml\x18\x05 \x01(\tR\x13contextPipelineYaml\x12\x8c\x01\n" +
+	"\x1btemplate_ref_branch_mapping\x18\x06 \x03(\v2M.io.harness.pms.conversion.proto.ConvertRequest.TemplateRefBranchMappingEntryR\x18templateRefBranchMapping\x12\x8c\x01\n" +
+	"\x1bpipeline_ref_branch_mapping\x18\a \x03(\v2M.io.harness.pms.conversion.proto.ConvertRequest.PipelineRefBranchMappingEntryR\x18pipelineRefBranchMapping\x1aE\n" +
 	"\x17TemplateRefMappingEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aE\n" +
 	"\x17PipelineRefMappingEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aK\n" +
+	"\x1dTemplateRefBranchMappingEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aK\n" +
+	"\x1dPipelineRefBranchMappingEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9d\x02\n" +
 	"\x10ConverterMessage\x12E\n" +
@@ -989,7 +1013,7 @@ func file_go_convert_service_proto_rawDescGZIP() []byte {
 }
 
 var file_go_convert_service_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_go_convert_service_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_go_convert_service_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_go_convert_service_proto_goTypes = []any{
 	(EntityType)(0),                        // 0: io.harness.pms.conversion.proto.EntityType
 	(Severity)(0),                          // 1: io.harness.pms.conversion.proto.Severity
@@ -1007,43 +1031,47 @@ var file_go_convert_service_proto_goTypes = []any{
 	(*ExpressionConvertBatchResponse)(nil), // 13: io.harness.pms.conversion.proto.ExpressionConvertBatchResponse
 	nil,                                    // 14: io.harness.pms.conversion.proto.ConvertRequest.TemplateRefMappingEntry
 	nil,                                    // 15: io.harness.pms.conversion.proto.ConvertRequest.PipelineRefMappingEntry
-	nil,                                    // 16: io.harness.pms.conversion.proto.ConverterMessage.ContextEntry
-	nil,                                    // 17: io.harness.pms.conversion.proto.ExpressionConvertResponse.ExpressionsEntry
-	nil,                                    // 18: io.harness.pms.conversion.proto.ExpressionConvertBatchRequest.RemoteFilesEntry
-	nil,                                    // 19: io.harness.pms.conversion.proto.ExpressionConvertBatchResponse.RemoteFilesEntry
+	nil,                                    // 16: io.harness.pms.conversion.proto.ConvertRequest.TemplateRefBranchMappingEntry
+	nil,                                    // 17: io.harness.pms.conversion.proto.ConvertRequest.PipelineRefBranchMappingEntry
+	nil,                                    // 18: io.harness.pms.conversion.proto.ConverterMessage.ContextEntry
+	nil,                                    // 19: io.harness.pms.conversion.proto.ExpressionConvertResponse.ExpressionsEntry
+	nil,                                    // 20: io.harness.pms.conversion.proto.ExpressionConvertBatchRequest.RemoteFilesEntry
+	nil,                                    // 21: io.harness.pms.conversion.proto.ExpressionConvertBatchResponse.RemoteFilesEntry
 }
 var file_go_convert_service_proto_depIdxs = []int32{
 	0,  // 0: io.harness.pms.conversion.proto.ConvertRequest.entity_type:type_name -> io.harness.pms.conversion.proto.EntityType
 	14, // 1: io.harness.pms.conversion.proto.ConvertRequest.template_ref_mapping:type_name -> io.harness.pms.conversion.proto.ConvertRequest.TemplateRefMappingEntry
 	15, // 2: io.harness.pms.conversion.proto.ConvertRequest.pipeline_ref_mapping:type_name -> io.harness.pms.conversion.proto.ConvertRequest.PipelineRefMappingEntry
-	1,  // 3: io.harness.pms.conversion.proto.ConverterMessage.severity:type_name -> io.harness.pms.conversion.proto.Severity
-	16, // 4: io.harness.pms.conversion.proto.ConverterMessage.context:type_name -> io.harness.pms.conversion.proto.ConverterMessage.ContextEntry
-	2,  // 5: io.harness.pms.conversion.proto.ExpressionEntry.status:type_name -> io.harness.pms.conversion.proto.ConversionStatus
-	4,  // 6: io.harness.pms.conversion.proto.ConversionReport.messages:type_name -> io.harness.pms.conversion.proto.ConverterMessage
-	5,  // 7: io.harness.pms.conversion.proto.ConversionReport.expressions:type_name -> io.harness.pms.conversion.proto.ExpressionEntry
-	6,  // 8: io.harness.pms.conversion.proto.ConvertResponse.report:type_name -> io.harness.pms.conversion.proto.ConversionReport
-	17, // 9: io.harness.pms.conversion.proto.ExpressionConvertResponse.expressions:type_name -> io.harness.pms.conversion.proto.ExpressionConvertResponse.ExpressionsEntry
-	18, // 10: io.harness.pms.conversion.proto.ExpressionConvertBatchRequest.remote_files:type_name -> io.harness.pms.conversion.proto.ExpressionConvertBatchRequest.RemoteFilesEntry
-	19, // 11: io.harness.pms.conversion.proto.ExpressionConvertBatchResponse.remote_files:type_name -> io.harness.pms.conversion.proto.ExpressionConvertBatchResponse.RemoteFilesEntry
-	3,  // 12: io.harness.pms.conversion.proto.GoConvertService.ConvertPipeline:input_type -> io.harness.pms.conversion.proto.ConvertRequest
-	3,  // 13: io.harness.pms.conversion.proto.GoConvertService.ConvertTemplate:input_type -> io.harness.pms.conversion.proto.ConvertRequest
-	3,  // 14: io.harness.pms.conversion.proto.GoConvertService.ConvertInputSet:input_type -> io.harness.pms.conversion.proto.ConvertRequest
-	3,  // 15: io.harness.pms.conversion.proto.GoConvertService.ConvertTrigger:input_type -> io.harness.pms.conversion.proto.ConvertRequest
-	10, // 16: io.harness.pms.conversion.proto.GoConvertService.ConvertExpression:input_type -> io.harness.pms.conversion.proto.ExpressionConvertRequest
-	12, // 17: io.harness.pms.conversion.proto.GoConvertService.ConvertExpressionBatch:input_type -> io.harness.pms.conversion.proto.ExpressionConvertBatchRequest
-	8,  // 18: io.harness.pms.conversion.proto.GoConvertService.GetChecksum:input_type -> io.harness.pms.conversion.proto.ChecksumRequest
-	7,  // 19: io.harness.pms.conversion.proto.GoConvertService.ConvertPipeline:output_type -> io.harness.pms.conversion.proto.ConvertResponse
-	7,  // 20: io.harness.pms.conversion.proto.GoConvertService.ConvertTemplate:output_type -> io.harness.pms.conversion.proto.ConvertResponse
-	7,  // 21: io.harness.pms.conversion.proto.GoConvertService.ConvertInputSet:output_type -> io.harness.pms.conversion.proto.ConvertResponse
-	7,  // 22: io.harness.pms.conversion.proto.GoConvertService.ConvertTrigger:output_type -> io.harness.pms.conversion.proto.ConvertResponse
-	11, // 23: io.harness.pms.conversion.proto.GoConvertService.ConvertExpression:output_type -> io.harness.pms.conversion.proto.ExpressionConvertResponse
-	13, // 24: io.harness.pms.conversion.proto.GoConvertService.ConvertExpressionBatch:output_type -> io.harness.pms.conversion.proto.ExpressionConvertBatchResponse
-	9,  // 25: io.harness.pms.conversion.proto.GoConvertService.GetChecksum:output_type -> io.harness.pms.conversion.proto.ChecksumResponse
-	19, // [19:26] is the sub-list for method output_type
-	12, // [12:19] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	16, // 3: io.harness.pms.conversion.proto.ConvertRequest.template_ref_branch_mapping:type_name -> io.harness.pms.conversion.proto.ConvertRequest.TemplateRefBranchMappingEntry
+	17, // 4: io.harness.pms.conversion.proto.ConvertRequest.pipeline_ref_branch_mapping:type_name -> io.harness.pms.conversion.proto.ConvertRequest.PipelineRefBranchMappingEntry
+	1,  // 5: io.harness.pms.conversion.proto.ConverterMessage.severity:type_name -> io.harness.pms.conversion.proto.Severity
+	18, // 6: io.harness.pms.conversion.proto.ConverterMessage.context:type_name -> io.harness.pms.conversion.proto.ConverterMessage.ContextEntry
+	2,  // 7: io.harness.pms.conversion.proto.ExpressionEntry.status:type_name -> io.harness.pms.conversion.proto.ConversionStatus
+	4,  // 8: io.harness.pms.conversion.proto.ConversionReport.messages:type_name -> io.harness.pms.conversion.proto.ConverterMessage
+	5,  // 9: io.harness.pms.conversion.proto.ConversionReport.expressions:type_name -> io.harness.pms.conversion.proto.ExpressionEntry
+	6,  // 10: io.harness.pms.conversion.proto.ConvertResponse.report:type_name -> io.harness.pms.conversion.proto.ConversionReport
+	19, // 11: io.harness.pms.conversion.proto.ExpressionConvertResponse.expressions:type_name -> io.harness.pms.conversion.proto.ExpressionConvertResponse.ExpressionsEntry
+	20, // 12: io.harness.pms.conversion.proto.ExpressionConvertBatchRequest.remote_files:type_name -> io.harness.pms.conversion.proto.ExpressionConvertBatchRequest.RemoteFilesEntry
+	21, // 13: io.harness.pms.conversion.proto.ExpressionConvertBatchResponse.remote_files:type_name -> io.harness.pms.conversion.proto.ExpressionConvertBatchResponse.RemoteFilesEntry
+	3,  // 14: io.harness.pms.conversion.proto.GoConvertService.ConvertPipeline:input_type -> io.harness.pms.conversion.proto.ConvertRequest
+	3,  // 15: io.harness.pms.conversion.proto.GoConvertService.ConvertTemplate:input_type -> io.harness.pms.conversion.proto.ConvertRequest
+	3,  // 16: io.harness.pms.conversion.proto.GoConvertService.ConvertInputSet:input_type -> io.harness.pms.conversion.proto.ConvertRequest
+	3,  // 17: io.harness.pms.conversion.proto.GoConvertService.ConvertTrigger:input_type -> io.harness.pms.conversion.proto.ConvertRequest
+	10, // 18: io.harness.pms.conversion.proto.GoConvertService.ConvertExpression:input_type -> io.harness.pms.conversion.proto.ExpressionConvertRequest
+	12, // 19: io.harness.pms.conversion.proto.GoConvertService.ConvertExpressionBatch:input_type -> io.harness.pms.conversion.proto.ExpressionConvertBatchRequest
+	8,  // 20: io.harness.pms.conversion.proto.GoConvertService.GetChecksum:input_type -> io.harness.pms.conversion.proto.ChecksumRequest
+	7,  // 21: io.harness.pms.conversion.proto.GoConvertService.ConvertPipeline:output_type -> io.harness.pms.conversion.proto.ConvertResponse
+	7,  // 22: io.harness.pms.conversion.proto.GoConvertService.ConvertTemplate:output_type -> io.harness.pms.conversion.proto.ConvertResponse
+	7,  // 23: io.harness.pms.conversion.proto.GoConvertService.ConvertInputSet:output_type -> io.harness.pms.conversion.proto.ConvertResponse
+	7,  // 24: io.harness.pms.conversion.proto.GoConvertService.ConvertTrigger:output_type -> io.harness.pms.conversion.proto.ConvertResponse
+	11, // 25: io.harness.pms.conversion.proto.GoConvertService.ConvertExpression:output_type -> io.harness.pms.conversion.proto.ExpressionConvertResponse
+	13, // 26: io.harness.pms.conversion.proto.GoConvertService.ConvertExpressionBatch:output_type -> io.harness.pms.conversion.proto.ExpressionConvertBatchResponse
+	9,  // 27: io.harness.pms.conversion.proto.GoConvertService.GetChecksum:output_type -> io.harness.pms.conversion.proto.ChecksumResponse
+	21, // [21:28] is the sub-list for method output_type
+	14, // [14:21] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_go_convert_service_proto_init() }
@@ -1057,7 +1085,7 @@ func file_go_convert_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_go_convert_service_proto_rawDesc), len(file_go_convert_service_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   17,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -15,10 +15,18 @@ import (
 // pipeline segment). Either or both may be nil/empty.
 // contextPipelineYAML is an optional v1 pipeline YAML used as FQN expression
 // context (see buildContextFromPipelineYAML); pass "" to skip it.
+// templateRefBranchMapping and pipelineRefBranchMapping are keyed the same
+// way as templateRefMapping/pipelineRefMapping (original identifier), but
+// carry a destination branch; they overwrite the sibling gitBranch
+// (template) / ref (chain) key of a uses entry that was also rewritten by
+// the corresponding id-mapping map. Either or both may be nil/empty. In
+// practice input sets have no uses/chain node for this to match against
+// (confirmed no-op today; wired for call-site symmetry).
 //
 // Conversion strategy:
 //   - The v0 inputSet.pipeline is converted to v1 inputs.overlay using the pipeline converter
-func InputSet(yamlStr string, templateRefMapping, pipelineRefMapping map[string]string, contextPipelineYAML string) (*Result, error) {
+func InputSet(yamlStr string, templateRefMapping, pipelineRefMapping map[string]string, contextPipelineYAML string,
+	templateRefBranchMapping, pipelineRefBranchMapping map[string]string) (*Result, error) {
 	if err := validateTopLevelKey(yamlStr, "inputSet"); err != nil {
 		return nil, err
 	}
@@ -56,7 +64,7 @@ func InputSet(yamlStr string, templateRefMapping, pipelineRefMapping map[string]
 		return nil, fmt.Errorf("failed to marshal v1 input set: %w", err)
 	}
 
-	yamlBytes, err = ApplyRefMappings(yamlBytes, templateRefMapping, pipelineRefMapping)
+	yamlBytes, err = ApplyRefMappings(yamlBytes, templateRefMapping, pipelineRefMapping, templateRefBranchMapping, pipelineRefBranchMapping)
 	if err != nil {
 		return nil, err
 	}

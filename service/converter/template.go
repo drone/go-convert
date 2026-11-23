@@ -16,7 +16,13 @@ import (
 // pipeline segment). Either or both may be nil/empty.
 // contextPipelineYAML is an optional v1 pipeline YAML used as FQN expression
 // context (see buildContextFromPipelineYAML); pass "" to skip it.
-func Template(yamlStr string, templateRefMapping, pipelineRefMapping map[string]string, contextPipelineYAML string) (*Result, error) {
+// templateRefBranchMapping and pipelineRefBranchMapping are keyed the same
+// way as templateRefMapping/pipelineRefMapping (original identifier), but
+// carry a destination branch; they overwrite the sibling gitBranch
+// (template) / ref (chain) key of a uses entry that was also rewritten by
+// the corresponding id-mapping map. Either or both may be nil/empty.
+func Template(yamlStr string, templateRefMapping, pipelineRefMapping map[string]string, contextPipelineYAML string,
+	templateRefBranchMapping, pipelineRefBranchMapping map[string]string) (*Result, error) {
 	if err := validateTopLevelKey(yamlStr, "template"); err != nil {
 		return nil, err
 	}
@@ -58,7 +64,7 @@ func Template(yamlStr string, templateRefMapping, pipelineRefMapping map[string]
 		return nil, fmt.Errorf("failed to marshal v1 template: %w", err)
 	}
 
-	yamlBytes, err = ApplyRefMappings(yamlBytes, templateRefMapping, pipelineRefMapping)
+	yamlBytes, err = ApplyRefMappings(yamlBytes, templateRefMapping, pipelineRefMapping, templateRefBranchMapping, pipelineRefBranchMapping)
 	if err != nil {
 		return nil, err
 	}
