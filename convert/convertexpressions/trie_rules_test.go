@@ -81,7 +81,7 @@ func TestTrieRules_PipelineLevel(t *testing.T) {
 			name:     "spec.execution.steps removal FQN",
 			path:     "pipeline.stages.build.spec.execution.steps.step1.output.outputVariables.var1",
 			context:  nil,
-			expected: "pipeline.stages.build.steps.step1.output.outputVariables.var1",
+			expected: "pipeline.stages.build.steps.step1.output.variables.var1",
 		},
 		{
 			name:     "is not resolved",
@@ -133,13 +133,13 @@ func TestTrieRules_StepLevel(t *testing.T) {
 			name:     "output variables FQN",
 			path:     "pipeline.stages.build.spec.execution.steps.step1.output.outputVariables.var1",
 			context:  &ConversionContext{StepType: StepTypeRun},
-			expected: "pipeline.stages.build.steps.step1.output.outputVariables.var1",
+			expected: "pipeline.stages.build.steps.step1.output.variables.var1",
 		},
 		{
 			name:     "output variables relative",
 			path:     "spec.execution.steps.step1.output.outputVariables.var1",
 			context:  &ConversionContext{StepType: StepTypeRun},
-			expected: "stage.steps.step1.output.outputVariables.var1",
+			expected: "stage.steps.step1.output.variables.var1",
 		},
 		{
 			name:     "output variables spec name",
@@ -157,7 +157,115 @@ func TestTrieRules_StepLevel(t *testing.T) {
 			name:     "output variables relative with function",
 			path:     "spec.execution.steps.step1.output.outputVariables.var1.some_func(\"param\")",
 			context:  &ConversionContext{StepType: StepTypeRun},
-			expected: "stage.steps.step1.output.outputVariables.var1.some_func(\"param\")",
+			expected: "stage.steps.step1.output.variables.var1.some_func(\"param\")",
+		},
+		{
+			name:     "output variables relative - no context",
+			path:     "spec.execution.steps.step1.output.outputVariables.var1",
+			context:  nil,
+			expected: "stage.steps.step1.output.variables.var1",
+		},
+		{
+			name:     "output variables map",
+			path:     "spec.execution.steps.step1.output.outputVariables",
+			context:  &ConversionContext{StepType: StepTypeRun},
+			expected: "stage.steps.step1.output.variables",
+		},
+		{
+			name:     "output variables bracket key",
+			path:     "spec.execution.steps.step1.output.outputVariables[\"var1\"]",
+			context:  &ConversionContext{StepType: StepTypeRun},
+			expected: "stage.steps.step1.output.variables[\"var1\"]",
+		},
+		{
+			name:     "output variables canonical form unchanged",
+			path:     "spec.execution.steps.step1.output.variables.var1",
+			context:  &ConversionContext{StepType: StepTypeRun},
+			expected: "stage.steps.step1.output.variables.var1",
+		},
+		{
+			name:     "output variables named outputVariables renamed once",
+			path:     "spec.execution.steps.step1.output.outputVariables.outputVariables",
+			context:  nil,
+			expected: "stage.steps.step1.output.variables.outputVariables",
+		},
+		{
+			name:     "output variables ShellScript",
+			path:     "spec.execution.steps.sh1.output.outputVariables.var1",
+			context:  &ConversionContext{StepType: StepTypeShellScript},
+			expected: "stage.steps.sh1.output.variables.var1",
+		},
+		{
+			name:     "output variables step type without output rules",
+			path:     "spec.execution.steps.k1.output.outputVariables.var1",
+			context:  &ConversionContext{StepType: StepTypeK8sRollingDeploy},
+			expected: "stage.steps.k1.output.variables.var1",
+		},
+		{
+			name:     "output variables in step group",
+			path:     "stepGroup.steps.step1.output.outputVariables.var1",
+			context:  nil,
+			expected: "group.steps.step1.output.variables.var1",
+		},
+		{
+			name:     "output variables in rollback steps",
+			path:     "spec.execution.rollbackSteps.step1.output.outputVariables.var1",
+			context:  nil,
+			expected: "stage.rollback.step1.output.variables.var1",
+		},
+		{
+			name:     "flat output field - no context",
+			path:     "spec.execution.steps.step1.output.var1",
+			context:  nil,
+			expected: "stage.steps.step1.output.variables.var1",
+		},
+		{
+			name:     "flat output field FQN",
+			path:     "pipeline.stages.build.spec.execution.steps.step1.output.var1",
+			context:  &ConversionContext{StepType: StepTypeRun},
+			expected: "pipeline.stages.build.steps.step1.output.variables.var1",
+		},
+		{
+			name:     "flat output field bracket key",
+			path:     "spec.execution.steps.step1.output.var1[\"key\"]",
+			context:  &ConversionContext{StepType: StepTypeRun},
+			expected: "stage.steps.step1.output.variables.var1[\"key\"]",
+		},
+		{
+			name:     "flat output field in step group",
+			path:     "stepGroup.steps.step1.output.var1",
+			context:  nil,
+			expected: "group.steps.step1.output.variables.var1",
+		},
+		{
+			name:     "flat output field of template sub-step",
+			path:     "steps.rollout.steps.k8sApplyAction.output.PLUGIN_RELEASE_NAME",
+			context:  nil,
+			expected: "steps.rollout.steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NAME",
+		},
+		{
+			name:     "flat output field step rule takes precedence",
+			path:     "spec.execution.steps.k1.output.releaseName",
+			context:  &ConversionContext{StepType: StepTypeK8sRollingDeploy},
+			expected: "stage.steps.k1.steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NAME",
+		},
+		{
+			name:     "flat output field without step rule for typed step",
+			path:     "spec.execution.steps.k1.output.podIps",
+			context:  &ConversionContext{StepType: StepTypeK8sRollingDeploy},
+			expected: "stage.steps.k1.output.variables.podIps",
+		},
+		{
+			name:     "flat output field HTTP user variable",
+			path:     "spec.execution.steps.http1.output.myVar",
+			context:  &ConversionContext{StepType: StepTypeHTTP},
+			expected: "stage.steps.http1.output.variables.myVar",
+		},
+		{
+			name:     "output root unchanged",
+			path:     "spec.execution.steps.step1.output",
+			context:  &ConversionContext{StepType: StepTypeRun},
+			expected: "stage.steps.step1.output",
 		},
 		// Failure strategies
 		{
@@ -240,13 +348,13 @@ func TestTrieRules_StepLevel(t *testing.T) {
 			name:     "http step output httpResponseCode FQN",
 			path:     "pipeline.stages.build.spec.execution.steps.http1.output.httpResponseCode",
 			context:  &ConversionContext{StepType: StepTypeHTTP},
-			expected: "pipeline.stages.build.steps.http1.steps.httpStep.output.outputVariables.PLUGIN_HTTP_RESPONSE_CODE",
+			expected: "pipeline.stages.build.steps.http1.steps.httpStep.output.variables.PLUGIN_HTTP_RESPONSE_CODE",
 		},
 		{
 			name:     "http step output status FQN",
 			path:     "pipeline.stages.build.spec.execution.steps.http1.output.status",
 			context:  &ConversionContext{StepType: StepTypeHTTP},
-			expected: "pipeline.stages.build.steps.http1.steps.httpStep.output.outputVariables.PLUGIN_EXECUTION_STATUS",
+			expected: "pipeline.stages.build.steps.http1.steps.httpStep.output.variables.PLUGIN_EXECUTION_STATUS",
 		},
 	}
 
@@ -1044,31 +1152,31 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "HTTP output httpUrl FQN",
 			path:     "pipeline.stages.build.spec.execution.steps.http1.output.httpUrl",
 			context:  &ConversionContext{StepType: StepTypeHTTP},
-			expected: "pipeline.stages.build.steps.http1.steps.httpStep.output.outputVariables.PLUGIN_HTTP_URL",
+			expected: "pipeline.stages.build.steps.http1.steps.httpStep.output.variables.PLUGIN_HTTP_URL",
 		},
 		{
 			name:     "HTTP output httpMethod FQN",
 			path:     "pipeline.stages.build.spec.execution.steps.http1.output.httpMethod",
 			context:  &ConversionContext{StepType: StepTypeHTTP},
-			expected: "pipeline.stages.build.steps.http1.steps.httpStep.output.outputVariables.PLUGIN_HTTP_METHOD",
+			expected: "pipeline.stages.build.steps.http1.steps.httpStep.output.variables.PLUGIN_HTTP_METHOD",
 		},
 		{
 			name:     "HTTP output httpResponseCode FQN",
 			path:     "pipeline.stages.build.spec.execution.steps.http1.output.httpResponseCode",
 			context:  &ConversionContext{StepType: StepTypeHTTP},
-			expected: "pipeline.stages.build.steps.http1.steps.httpStep.output.outputVariables.PLUGIN_HTTP_RESPONSE_CODE",
+			expected: "pipeline.stages.build.steps.http1.steps.httpStep.output.variables.PLUGIN_HTTP_RESPONSE_CODE",
 		},
 		{
 			name:     "HTTP output status FQN",
 			path:     "pipeline.stages.build.spec.execution.steps.http1.output.status",
 			context:  &ConversionContext{StepType: StepTypeHTTP},
-			expected: "pipeline.stages.build.steps.http1.steps.httpStep.output.outputVariables.PLUGIN_EXECUTION_STATUS",
+			expected: "pipeline.stages.build.steps.http1.steps.httpStep.output.variables.PLUGIN_EXECUTION_STATUS",
 		},
 		{
 			name:     "HTTP output responseHeaders relative",
 			path:     "execution.steps.http1.output.responseHeaders",
 			context:  &ConversionContext{StepType: StepTypeHTTP},
-			expected: "stage.steps.http1.steps.httpStep.output.outputVariables.PLUGIN_RESPONSE_HEADERS",
+			expected: "stage.steps.http1.steps.httpStep.output.variables.PLUGIN_RESPONSE_HEADERS",
 		},
 
 		// ============================================================
@@ -1078,19 +1186,19 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "K8sRollingDeploy output releaseName FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.releaseName",
 			context:  &ConversionContext{StepType: StepTypeK8sRollingDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NAME",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NAME",
 		},
 		{
 			name:     "K8sRollingDeploy output releaseNumber FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.releaseNumber",
 			context:  &ConversionContext{StepType: StepTypeK8sRollingDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sRollingPrepareAction.output.outputVariables.PLUGIN_RELEASE_NUMBER",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sRollingPrepareAction.output.variables.PLUGIN_RELEASE_NUMBER",
 		},
 		{
 			name:     "K8sRollingDeploy output prunedResourceIds FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.prunedResourceIds",
 			context:  &ConversionContext{StepType: StepTypeK8sRollingDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sRollingPrepareAction.output.outputVariables.PLUGIN_RESOURCES_FOR_PRUNING",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sRollingPrepareAction.output.variables.PLUGIN_RESOURCES_FOR_PRUNING",
 		},
 
 		// ============================================================
@@ -1100,7 +1208,7 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "K8sRollingRollback output recreatedResourceIds FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.recreatedResourceIds",
 			context:  &ConversionContext{StepType: StepTypeK8sRollingRollback},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sRollingRollbackAction.output.outputVariables.PLUGIN_RECREATED_RESOURCES",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sRollingRollbackAction.output.variables.PLUGIN_RECREATED_RESOURCES",
 		},
 
 		// ============================================================
@@ -1110,25 +1218,25 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "K8sCanaryDeploy output releaseName FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.releaseName",
 			context:  &ConversionContext{StepType: StepTypeK8sCanaryDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NAME",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NAME",
 		},
 		{
 			name:     "K8sCanaryDeploy output targetInstances FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.targetInstances",
 			context:  &ConversionContext{StepType: StepTypeK8sCanaryDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sCanaryPrepareAction.output.outputVariables.PLUGIN_TARGET_INSTANCES",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sCanaryPrepareAction.output.variables.PLUGIN_TARGET_INSTANCES",
 		},
 		{
 			name:     "K8sCanaryDeploy output releaseNumber FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.releaseNumber",
 			context:  &ConversionContext{StepType: StepTypeK8sCanaryDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sCanaryPrepareAction.output.outputVariables.PLUGIN_RELEASE_NUMBER",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sCanaryPrepareAction.output.variables.PLUGIN_RELEASE_NUMBER",
 		},
 		{
 			name:     "K8sCanaryDeploy output canaryWorkload FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.canaryWorkload",
 			context:  &ConversionContext{StepType: StepTypeK8sCanaryDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sCanaryPrepareAction.output.outputVariables.PLUGIN_CANARY_WORKLOADS",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sCanaryPrepareAction.output.variables.PLUGIN_CANARY_WORKLOADS",
 		},
 
 		// ============================================================
@@ -1138,37 +1246,37 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "K8sBlueGreenDeploy output releaseNumber FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.releaseNumber",
 			context:  &ConversionContext{StepType: StepTypeK8sBlueGreenDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenPrepareAction.output.outputVariables.PLUGIN_RELEASE_NUMBER",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenPrepareAction.output.variables.PLUGIN_RELEASE_NUMBER",
 		},
 		{
 			name:     "K8sBlueGreenDeploy output releaseName FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.releaseName",
 			context:  &ConversionContext{StepType: StepTypeK8sBlueGreenDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NAME",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NAME",
 		},
 		{
 			name:     "K8sBlueGreenDeploy output primaryServiceName FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.primaryServiceName",
 			context:  &ConversionContext{StepType: StepTypeK8sBlueGreenDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenPrepareAction.output.outputVariables.PLUGIN_STABLE_SERVICE",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenPrepareAction.output.variables.PLUGIN_STABLE_SERVICE",
 		},
 		{
 			name:     "K8sBlueGreenDeploy output stageServiceName FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.stageServiceName",
 			context:  &ConversionContext{StepType: StepTypeK8sBlueGreenDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenPrepareAction.output.outputVariables.PLUGIN_STAGE_SERVICE",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenPrepareAction.output.variables.PLUGIN_STAGE_SERVICE",
 		},
 		{
 			name:     "K8sBlueGreenDeploy output stageDeploymentSkipped FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.stageDeploymentSkipped",
 			context:  &ConversionContext{StepType: StepTypeK8sBlueGreenDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenPrepareAction.output.outputVariables.PLUGIN_SKIPPED",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenPrepareAction.output.variables.PLUGIN_SKIPPED",
 		},
 		{
 			name:     "K8sBlueGreenDeploy output prunedResourceIds FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.prunedResourceIds",
 			context:  &ConversionContext{StepType: StepTypeK8sBlueGreenDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenPrepareAction.output.outputVariables.PLUGIN_RESOURCES_FOR_PRUNING",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenPrepareAction.output.variables.PLUGIN_RESOURCES_FOR_PRUNING",
 		},
 
 		// ============================================================
@@ -1178,25 +1286,25 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "K8sBGSwapServices output primaryColor FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.primaryColor",
 			context:  &ConversionContext{StepType: StepTypeK8sBGSwapServices},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenSwapServicesSelectorsAction.output.outputVariables.PLUGIN_PRIMARY_COLOR",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenSwapServicesSelectorsAction.output.variables.PLUGIN_PRIMARY_COLOR",
 		},
 		{
 			name:     "K8sBGSwapServices output stageColor FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.stageColor",
 			context:  &ConversionContext{StepType: StepTypeK8sBGSwapServices},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenSwapServicesSelectorsAction.output.outputVariables.PLUGIN_STAGE_COLOR",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenSwapServicesSelectorsAction.output.variables.PLUGIN_STAGE_COLOR",
 		},
 		{
 			name:     "K8sBGSwapServices output stableService FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.stableService",
 			context:  &ConversionContext{StepType: StepTypeK8sBGSwapServices},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenSwapServicesSelectorsAction.output.outputVariables.PLUGIN_STABLE_SERVICE",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenSwapServicesSelectorsAction.output.variables.PLUGIN_STABLE_SERVICE",
 		},
 		{
 			name:     "K8sBGSwapServices output stageService FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.stageService",
 			context:  &ConversionContext{StepType: StepTypeK8sBGSwapServices},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenSwapServicesSelectorsAction.output.outputVariables.PLUGIN_STAGE_SERVICE",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenSwapServicesSelectorsAction.output.variables.PLUGIN_STAGE_SERVICE",
 		},
 
 		// ============================================================
@@ -1206,7 +1314,7 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "K8sDryRun output manifestDryRun FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.manifestDryRun",
 			context:  &ConversionContext{StepType: StepTypeK8sDryRun},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sDryRunAction.output.outputVariables.PLUGIN_MANIFEST_OUTPUT_FILE_PATH",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sDryRunAction.output.variables.PLUGIN_MANIFEST_OUTPUT_FILE_PATH",
 		},
 
 		// ============================================================
@@ -1216,43 +1324,43 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "K8sApply output manifestOutputFilePath FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.manifestOutputFilePath",
 			context:  &ConversionContext{StepType: StepTypeK8sApply},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.outputVariables.PLUGIN_MANIFEST_OUTPUT_FILE_PATH",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.variables.PLUGIN_MANIFEST_OUTPUT_FILE_PATH",
 		},
 		{
 			name:     "K8sApply output releaseNumber FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.releaseNumber",
 			context:  &ConversionContext{StepType: StepTypeK8sApply},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NUMBER",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NUMBER",
 		},
 		{
 			name:     "K8sApply output releaseName FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.releaseName",
 			context:  &ConversionContext{StepType: StepTypeK8sApply},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NAME",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NAME",
 		},
 		{
 			name:     "K8sApply output managedWorkloads FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.managedWorkloads",
 			context:  &ConversionContext{StepType: StepTypeK8sApply},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.outputVariables.PLUGIN_MANAGED_WORKLOADS",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.variables.PLUGIN_MANAGED_WORKLOADS",
 		},
 		{
 			name:     "K8sApply output isOpenshift FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.isOpenshift",
 			context:  &ConversionContext{StepType: StepTypeK8sApply},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.outputVariables.HARNESS_IS_OPENSHIFT",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplyAction.output.variables.HARNESS_IS_OPENSHIFT",
 		},
 		{
 			name:     "K8sApply output pods FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.pods",
 			context:  &ConversionContext{StepType: StepTypeK8sApply},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplySteadyStateCheckAction.output.outputVariables.PLUGIN_PODS",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplySteadyStateCheckAction.output.variables.PLUGIN_PODS",
 		},
 		{
 			name:     "K8sApply output instances FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.instances",
 			context:  &ConversionContext{StepType: StepTypeK8sApply},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplySteadyStateCheckAction.output.outputVariables.HARNESS_INSTANCES",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sApplySteadyStateCheckAction.output.variables.HARNESS_INSTANCES",
 		},
 
 		// ============================================================
@@ -1262,13 +1370,13 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "K8sScale output pods FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.pods",
 			context:  &ConversionContext{StepType: StepTypeK8sScale},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sScaleAction.output.outputVariables.PLUGIN_PODS",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sScaleAction.output.variables.PLUGIN_PODS",
 		},
 		{
 			name:     "K8sScale output instances FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.instances",
 			context:  &ConversionContext{StepType: StepTypeK8sScale},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sScaleAction.output.outputVariables.HARNESS_INSTANCES",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sScaleAction.output.variables.HARNESS_INSTANCES",
 		},
 
 		// ============================================================
@@ -1278,7 +1386,7 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "K8sBlueGreenStageScaleDown output scaledResources FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.scaledResources",
 			context:  &ConversionContext{StepType: StepTypeK8sBlueGreenStageScaleDown},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenStageScaleDownAction.output.outputVariables.PLUGIN_SCALED_RESOURCES",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sBlueGreenStageScaleDownAction.output.variables.PLUGIN_SCALED_RESOURCES",
 		},
 
 		// ============================================================
@@ -1288,25 +1396,25 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "K8sTrafficRouting output manifestOutputFilePath FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.manifestOutputFilePath",
 			context:  &ConversionContext{StepType: StepTypeK8sTrafficRouting},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sTrafficShiftAction.output.outputVariables.PLUGIN_MANIFEST_OUTPUT_FILE_PATH",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sTrafficShiftAction.output.variables.PLUGIN_MANIFEST_OUTPUT_FILE_PATH",
 		},
 		{
 			name:     "K8sTrafficRouting output resources FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.resources",
 			context:  &ConversionContext{StepType: StepTypeK8sTrafficRouting},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sTrafficShiftAction.output.outputVariables.PLUGIN_RESOURCES",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sTrafficShiftAction.output.variables.PLUGIN_RESOURCES",
 		},
 		{
 			name:     "K8sTrafficRouting output releaseNumber FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.releaseNumber",
 			context:  &ConversionContext{StepType: StepTypeK8sTrafficRouting},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sTrafficShiftAction.output.outputVariables.PLUGIN_RELEASE_NUMBER",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sTrafficShiftAction.output.variables.PLUGIN_RELEASE_NUMBER",
 		},
 		{
 			name:     "K8sTrafficRouting output resourcesForPruning FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.resourcesForPruning",
 			context:  &ConversionContext{StepType: StepTypeK8sTrafficRouting},
-			expected: "pipeline.stages.deploy.steps.step1.steps.k8sTrafficShiftAction.output.outputVariables.PLUGIN_RESOURCES_FOR_PRUNING",
+			expected: "pipeline.stages.deploy.steps.step1.steps.k8sTrafficShiftAction.output.variables.PLUGIN_RESOURCES_FOR_PRUNING",
 		},
 
 		// ============================================================
@@ -1316,25 +1424,25 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "HelmDeploy output releaseName FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.releaseName",
 			context:  &ConversionContext{StepType: StepTypeHelmDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmBasicDeployAction.output.outputVariables.PLUGIN_RELEASE_NAME",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmBasicDeployAction.output.variables.PLUGIN_RELEASE_NAME",
 		},
 		{
 			name:     "HelmDeploy output prevReleaseVersion FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.prevReleaseVersion",
 			context:  &ConversionContext{StepType: StepTypeHelmDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmBasicDeployAction.output.outputVariables.PLUGIN_PREVIOUS_RELEASE_REVISION",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmBasicDeployAction.output.variables.PLUGIN_PREVIOUS_RELEASE_REVISION",
 		},
 		{
 			name:     "HelmDeploy output newReleaseVersion FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.newReleaseVersion",
 			context:  &ConversionContext{StepType: StepTypeHelmDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmBasicDeployAction.output.outputVariables.PLUGIN_NEW_RELEASE_REVISION",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmBasicDeployAction.output.variables.PLUGIN_NEW_RELEASE_REVISION",
 		},
 		{
 			name:     "HelmDeploy output containerInfoList FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.containerInfoList",
 			context:  &ConversionContext{StepType: StepTypeHelmDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmBasicDeployAction.output.outputVariables.PLUGIN_CONTAINER_INFO_LIST",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmBasicDeployAction.output.variables.PLUGIN_CONTAINER_INFO_LIST",
 		},
 
 		// ============================================================
@@ -1344,25 +1452,25 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "HelmRollback output releaseName FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.releaseName",
 			context:  &ConversionContext{StepType: StepTypeHelmRollback},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmRollbackAction.output.outputVariables.PLUGIN_RELEASE_NAME",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmRollbackAction.output.variables.PLUGIN_RELEASE_NAME",
 		},
 		{
 			name:     "HelmRollback output newReleaseVersion FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.newReleaseVersion",
 			context:  &ConversionContext{StepType: StepTypeHelmRollback},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmRollbackAction.output.outputVariables.PLUGIN_NEW_RELEASE_REVISION",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmRollbackAction.output.variables.PLUGIN_NEW_RELEASE_REVISION",
 		},
 		{
 			name:     "HelmRollback output rollbackVersion FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.rollbackVersion",
 			context:  &ConversionContext{StepType: StepTypeHelmRollback},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmRollbackAction.output.outputVariables.PLUGIN_ROLLBACK_RELEASE_REVISION",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmRollbackAction.output.variables.PLUGIN_ROLLBACK_RELEASE_REVISION",
 		},
 		{
 			name:     "HelmRollback output containerInfoList FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.containerInfoList",
 			context:  &ConversionContext{StepType: StepTypeHelmRollback},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmRollbackAction.output.outputVariables.PLUGIN_CONTAINER_INFO_LIST",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmRollbackAction.output.variables.PLUGIN_CONTAINER_INFO_LIST",
 		},
 
 		// ============================================================
@@ -1372,37 +1480,37 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "HelmBGDeploy output releaseNumber FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.releaseNumber",
 			context:  &ConversionContext{StepType: StepTypeHelmBGDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmBluegreenDeployAction.output.outputVariables.PLUGIN_NEW_RELEASE_REVISION",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmBluegreenDeployAction.output.variables.PLUGIN_NEW_RELEASE_REVISION",
 		},
 		{
 			name:     "HelmBGDeploy output releaseName FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.releaseName",
 			context:  &ConversionContext{StepType: StepTypeHelmBGDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmBluegreenDeployAction.output.outputVariables.PLUGIN_RELEASE_NAME",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmBluegreenDeployAction.output.variables.PLUGIN_RELEASE_NAME",
 		},
 		{
 			name:     "HelmBGDeploy output primaryServiceNames FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.primaryServiceNames",
 			context:  &ConversionContext{StepType: StepTypeHelmBGDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmBluegreenDeployAction.output.outputVariables.PLUGIN_STABLE_SERVICE",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmBluegreenDeployAction.output.variables.PLUGIN_STABLE_SERVICE",
 		},
 		{
 			name:     "HelmBGDeploy output stageServiceNames FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.stageServiceNames",
 			context:  &ConversionContext{StepType: StepTypeHelmBGDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmBluegreenDeployAction.output.outputVariables.PLUGIN_STAGE_SERVICE",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmBluegreenDeployAction.output.variables.PLUGIN_STAGE_SERVICE",
 		},
 		{
 			name:     "HelmBGDeploy output stageColor FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.stageColor",
 			context:  &ConversionContext{StepType: StepTypeHelmBGDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmBluegreenDeployAction.output.outputVariables.PLUGIN_STAGE_COLOR",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmBluegreenDeployAction.output.variables.PLUGIN_STAGE_COLOR",
 		},
 		{
 			name:     "HelmBGDeploy output primaryColor FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.primaryColor",
 			context:  &ConversionContext{StepType: StepTypeHelmBGDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmBluegreenDeployAction.output.outputVariables.PLUGIN_STABLE_COLOR",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmBluegreenDeployAction.output.variables.PLUGIN_STABLE_COLOR",
 		},
 
 		// ============================================================
@@ -1412,19 +1520,19 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "HelmCanaryDeploy output releaseName FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.releaseName",
 			context:  &ConversionContext{StepType: StepTypeHelmCanaryDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmCanaryDeployAction.output.outputVariables.PLUGIN_CANARY_RELEASE_NAME",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmCanaryDeployAction.output.variables.PLUGIN_CANARY_RELEASE_NAME",
 		},
 		{
 			name:     "HelmCanaryDeploy output canaryWorkload FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.canaryWorkload",
 			context:  &ConversionContext{StepType: StepTypeHelmCanaryDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmCanaryDeployAction.output.outputVariables.PLUGIN_WORKLOADS",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmCanaryDeployAction.output.variables.PLUGIN_WORKLOADS",
 		},
 		{
 			name:     "HelmCanaryDeploy output previousReleaseVersion FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.step1.output.previousReleaseVersion",
 			context:  &ConversionContext{StepType: StepTypeHelmCanaryDeploy},
-			expected: "pipeline.stages.deploy.steps.step1.steps.helmCanaryDeployAction.output.outputVariables.PLUGIN_PREVIOUS_RELEASE_REVISION",
+			expected: "pipeline.stages.deploy.steps.step1.steps.helmCanaryDeployAction.output.variables.PLUGIN_PREVIOUS_RELEASE_REVISION",
 		},
 
 		// ============================================================
@@ -1434,19 +1542,19 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "K8sRollingDeploy output releaseName relative",
 			path:     "execution.steps.step1.output.releaseName",
 			context:  &ConversionContext{StepType: StepTypeK8sRollingDeploy},
-			expected: "stage.steps.step1.steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NAME",
+			expected: "stage.steps.step1.steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NAME",
 		},
 		{
 			name:     "HelmDeploy output releaseName relative",
 			path:     "execution.steps.step1.output.releaseName",
 			context:  &ConversionContext{StepType: StepTypeHelmDeploy},
-			expected: "stage.steps.step1.steps.helmBasicDeployAction.output.outputVariables.PLUGIN_RELEASE_NAME",
+			expected: "stage.steps.step1.steps.helmBasicDeployAction.output.variables.PLUGIN_RELEASE_NAME",
 		},
 		{
 			name:     "K8sApply output pods relative",
 			path:     "execution.steps.step1.output.pods",
 			context:  &ConversionContext{StepType: StepTypeK8sApply},
-			expected: "stage.steps.step1.steps.k8sApplySteadyStateCheckAction.output.outputVariables.PLUGIN_PODS",
+			expected: "stage.steps.step1.steps.k8sApplySteadyStateCheckAction.output.variables.PLUGIN_PODS",
 		},
 
 		// ============================================================
@@ -1456,13 +1564,13 @@ func TestTrieRules_StepOutputConversions(t *testing.T) {
 			name:     "K8sRollingDeploy output in step group FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.group1.steps.step1.output.releaseName",
 			context:  &ConversionContext{StepType: StepTypeK8sRollingDeploy},
-			expected: "pipeline.stages.deploy.steps.group1.steps.step1.steps.k8sApplyAction.output.outputVariables.PLUGIN_RELEASE_NAME",
+			expected: "pipeline.stages.deploy.steps.group1.steps.step1.steps.k8sApplyAction.output.variables.PLUGIN_RELEASE_NAME",
 		},
 		{
 			name:     "HelmBGDeploy output in step group FQN",
 			path:     "pipeline.stages.deploy.spec.execution.steps.group1.steps.step1.output.stageColor",
 			context:  &ConversionContext{StepType: StepTypeHelmBGDeploy},
-			expected: "pipeline.stages.deploy.steps.group1.steps.step1.steps.helmBluegreenDeployAction.output.outputVariables.PLUGIN_STAGE_COLOR",
+			expected: "pipeline.stages.deploy.steps.group1.steps.step1.steps.helmBluegreenDeployAction.output.variables.PLUGIN_STAGE_COLOR",
 		},
 	}
 

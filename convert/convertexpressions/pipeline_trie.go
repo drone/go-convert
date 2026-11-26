@@ -59,6 +59,12 @@ func buildPipelineTrie() *Trie {
 	trie.AddPathFromID("step_node").
 		Node("output").WithV1Name("-").WithID("step_output_node")
 
+	// output.<name> -> output.variables.<name>. AsArray keeps an index or bracket
+	// key (output.<name>[0]). Named rules (StepOutputVariablesConversionRules) and
+	// the resolved step type's StepOutputConversionRules take precedence.
+	trie.AddPathFromID("step_output_node").
+		Node("*").WithV1Name("output.variables.*").AsArray()
+
 	trie.AddPathFromID("step_node").
 		LinkToNodeByID("steps", "steps_node")
 
@@ -147,6 +153,9 @@ func buildPipelineTrie() *Trie {
 		},
 		"step_group_node": {
 			StepsConversionRules,
+		},
+		"step_output_node": {
+			StepOutputVariablesConversionRules,
 		},
 		"codebase_node": {
 			CodebaseConversionRules,
